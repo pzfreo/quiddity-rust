@@ -112,8 +112,8 @@ impl Exact {
 
 /// The stretch *run* (points along *curve*, in order) seen in *view*, exactly: lines stay
 /// lines, a circle or an ellipse becomes an ellipse (by its principal axes), a NURBS curve the
-/// curve of its projected poles. `None` where the curve is seen edge-on or its parameters do
-/// not run steadily along the stretch.
+/// curve of its projected poles. `None` where the curve is seen edge-on, its parameters do not
+/// run steadily along the stretch, or it misses the stretch's ends by more than `EXACT_TOL`.
 fn exact(curve: &Curve, view: &View, run: &[V3]) -> Option<Exact> {
     let (first, last) = (view.map(run[0]), view.map(*run.last()?));
     if let Curve::Line { .. } = curve {
@@ -141,7 +141,7 @@ fn exact(curve: &Curve, view: &View, run: &[V3]) -> Option<Exact> {
         return None;
     }
     let (t0, t1) = (ts[0], ts[ts.len() - 1]);
-    match curve {
+    let found = match curve {
         Curve::Circle { frame, radius } => conic(
             view,
             frame.origin,
@@ -171,8 +171,19 @@ fn exact(curve: &Curve, view: &View, run: &[V3]) -> Option<Exact> {
             t1,
         }),
         Curve::Line { .. } => unreachable!("returned above"),
-    }
+    };
+    // The samples end on the edge's vertices, which a file may leave off its curve (ctc05's edge
+    // 226, 0.018 mm off its circle): the curve is then not the stretch, which is drawn by its
+    // points.
+    let gap = |p: [f64; 2], q: [f64; 2]| (p[0] - q[0]).hypot(p[1] - q[1]);
+    found.filter(|x| {
+        let (a, b) = x.range();
+        gap(x.at(a), first) <= EXACT_TOL && gap(x.at(b), last) <= EXACT_TOL
+    })
 }
+
+/// How far an exact curve may miss its stretch's ends (in view coordinates).
+const EXACT_TOL: f64 = 3e-4;
 
 /// The projection of `centre + cos t a + sin t b` (a and b conjugate semi-diameters once seen)
 /// as an ellipse by its principal axes, its parameter shifted to match.

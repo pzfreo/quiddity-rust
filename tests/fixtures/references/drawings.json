@@ -423,6 +423,13 @@
     }
   },
   {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "view": "exact",
+    "verdict": "rust-correct",
+    "reason": "Edge 226 (a circle of radius 6.34997 between faces 78 and 79) ends on a vertex 0.018 mm off its circle's plane, so the circle does not reach the stretch's end: its stretch is drawn by its points (on the circle, pinned to the vertices) in each view, not as a conic that would miss the vertex. 671 of 674 curved edge stretches are exact.",
+    "min_exact_share": 0.9955
+  },
+  {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
     "view": "front",
     "verdict": "rust-correct",

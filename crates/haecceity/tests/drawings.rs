@@ -29,8 +29,10 @@ const AGREE: f64 = 0.99;
 const AREA: f64 = 1e-3;
 /// Drawn with exact curves, of every `exact_curves_follow_their_points` edge stretch: the share
 /// measured when the floor was set (30,228 of 33,272 over every part at c06efb6, 0.90851), so
-/// fewer exact curves fail.
-const EXACT_SHARE: f64 = 0.9085;
+/// fewer exact curves fail. CTC-05 joined the fixture later (#75) with 1,353 of 1,685 (its
+/// circles seen edge-on are straight stretches drawn by their points): the floor is the same
+/// count for the other parts with CTC-05's added, 0.9085 × 33,268 + 1,353 of 34,953.
+const EXACT_SHARE: f64 = 0.903413;
 
 /// A view or cut that does not agree: its lowest score, its cut area's relative error, and a
 /// description.
