@@ -2979,7 +2979,7 @@
     "tests/fixtures/interrupted_corner.step": "4677d32a9c655eddfa5ef7f4f8f153007fa5b14abdcd95758b0640605b1691da",
     "tests/fixtures/interrupted_corner_mirror.step": "e11c0dfe7de4f7abaa92a1dd7e35fe5911f23df070f0e5d0078274b5a115a571",
     "tests/fixtures/interrupted_corner_rot.step": "e384424458d1510d4c5cc540427deea9308785b2db342256f7671ac6fe2ddfe9",
-    "tests/fixtures/inventory_floor.json": "c8b8e26ff7426926e91aabeceeddda460bb99ea60cfe29fb12972b34cfb53ec0",
+    "tests/fixtures/inventory_floor.json": "5e44aeae364a58ee31f8eb700df929e1afe7d717638b46d463df4ec3d0c76b7b",
     "tests/fixtures/kissing_cylinders_knife.step": "2208a45500ffbd4b7fb8de3faf6548c7593eaf9b2613cfd5ae7597f90b61cfe6",
     "tests/fixtures/kissing_cylinders_notch.step": "c36b869747e41d40ccadadbd17934abeec3e661fcb6e87a69930ce3d30e7119a",
     "tests/fixtures/large_block_small_fillets.step": "bfcbd950368723969e8881d09386a579654546f1e36700afa8a773d0d4aece55",
@@ -3143,7 +3143,7 @@
     "calls/recognise_through_steps.json.gz": "ab6a0b5b06756fa3435099be76e5ab432b867be4d4a1b42c49047ff83b086cca",
     "calls/recognise_turned_steps.json.gz": "37d10e8c5e2ce5dcf6c5bd2fdc7444e86494bb44768e9d32d9a1abfd3f2fbd90",
     "channel_geometry.json.gz": "bd25ff87def7f73b4f119d26614600b141ee4350f45c77cef55aae7ea787e85f",
-    "corpus.json.gz": "54b64f9d55f37de22eb44aa91eaba5f8f97c5de33239321ab491cc6f0733e9c3",
+    "corpus.json.gz": "bcb92f2b437b026a3cdd03407f6bfa1d375a14e7eee5a334767c14375b7e43b0",
     "coverage.json.gz": "c835b80d39757ae5ef556953e11a2d7e8bbde3148a233f2af51ae92e1d23a971",
     "cylindrical_proofs/corpus/cadgenbench/flanged_spool_132.step.json.gz": "b93acca566253df99ab62bb5ac97424226850b3ee3963c8d1025939a7339d823",
     "cylindrical_proofs/corpus/cadgenbench/threaded_connector_109.step.json.gz": "eea12e52bf91a9c762e7cadc1b12994398bf8f3836ab11ab8b58a2bf4c5d9a4e",
@@ -5249,8 +5249,8 @@
     "recess_geometry/test/parts/fb678c49d85e66e7.step.gz.json.gz": "14b891c6f02cfbee7d14a380aa306482e624c888b83b6518492f3014f25b86c9",
     "recess_geometry/test/parts/fc9df6ddac71ebfb.step.gz.json.gz": "d4f46f9e6b2e7d4a91e4beb51f52109203c316cff89437e6b35855d70a473c50",
     "recess_geometry/test/parts/ff1649b74b275e95.step.gz.json.gz": "b3463f9c4a49083d4fa3ddafbb224032e0e5f934eba1ad393c04c2ca80796497",
-    "recognition_evidence.json.gz": "82b7ffa2b93b7ee6ea7d6898894bd97a35ebaaa6a05ff865e05ce418bc6310e8",
-    "reconcile.json.gz": "126665020eb9f1be47b18a544db365adb43ebe906e4c8a6de6c5b0dbb2912c56",
+    "recognition_evidence.json.gz": "bf36e754ef0b703b13d170eabf5a2bb7d6d949ce7980b3092c6b331ce8ce93d8",
+    "reconcile.json.gz": "cef8f7cdb749124946eaa29be036bd4c09f259ec6ed69ee1de5016d681986dbd",
     "reconcile_scenarios.json.gz": "f3d2867544d794d5e6b57d6ddc991fe4d3d41ac36ed436abebef44bfb402d51d",
     "retry.json.gz": "a59e4d32892a173cf2611832db0b38ce1e292c815dcc7e802e18e330236666e7",
     "retry_publication.json.gz": "2d12d759c3dc3529947f94da7e45759826efd03e9a5d6b21aa00ee40b3185328",
@@ -5799,5 +5799,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "3f0d6587e9ad1f4b14967facbbae3d89da9febd5"
+  "source_commit": "5c330169c49eae00816c40417d820658f064c526"
 }
