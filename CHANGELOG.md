@@ -6,6 +6,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Chamfer corners are no longer countersinks (for #76).** A countersink's cone must now run
+  at least 270° round its axis (all faces on that cone together). On NIST CTC-04 the 12 reported
+  countersinks were the quarter-cone corner faces of the 5×45° pocket-rim chamfer, seated only on
+  the pockets' R5 corner-radius walls; they are gone, and the corner faces are now `unexplained`
+  in the face accounting (no record spans the rim round its corners). No other corpus part
+  changes; whole cones over a bore are kept.
 - **Faster STEP reading (for #72).** The inverted-shell repair (#59) no longer integrates
   every face of every solid on each read. It first looks for one face with an outward witness,
   by ray parity against boxes that certainly hold each face (no face interior sampled), which
