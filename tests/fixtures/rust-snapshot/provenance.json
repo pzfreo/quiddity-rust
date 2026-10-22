@@ -3093,6 +3093,9 @@
     "tests/fixtures/turned.step": "971dca9ef243320b93a340e612cfe18bd7b99efd261a78e1bb0fd08ffc23d513",
     "tests/fixtures/turned_rot37.step": "b23d45b080e362d9c53b67b2b76d3f44458861376742026edcf817fa2f1fa762",
     "tests/fixtures/turned_with_sphere.step": "91cbff2f07e0b721de4b1f3d2574372ad99127201b6d88ae9680987ee0e98327",
+    "tests/fixtures/two_channels.step": "85cbc1f175588f0eaa1cd654a6b9e1c7e8fc95bda26ddb186db21ffb6e6330b9",
+    "tests/fixtures/two_channels_ordered.step": "7587e7e98de8b7cbaedb01efb8305c5fb2f7fe53406edd6db8851b3194681638",
+    "tests/fixtures/two_channels_reversed.step": "722bbf0a6972c99d9505e79655f4360647985e3cd59570adcb38667cada831aa",
     "tests/fixtures/two_solids.step": "6517033d96780ae13db686352fc4f5e505737dc837f0411970e5cd935ef7ae29",
     "tests/fixtures/unequal_radii.step": "b12f071210e9bf5d7e7d573071eb1ef4aee2c615cfe5e655bd43ffd74ceb3cf8"
   },
@@ -5799,5 +5802,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "3f0d6587e9ad1f4b14967facbbae3d89da9febd5"
+  "source_commit": "8f93e172fa5b2572cbef6bed37f44f9010cbdd0d"
 }
