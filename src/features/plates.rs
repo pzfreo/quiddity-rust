@@ -257,6 +257,11 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
             if low_sign != -1 || high_sign != 1 {
                 continue;
             }
+            // Acceptance uses the band midpoints (the event keys), so it is symmetric under
+            // reversal. The published lo/hi below are the bands' outer planes, so a wide band
+            // can publish a plate thicker than `maximum_thickness` (the captured 6d359acf
+            // fixture is accepted on 8.24995 and publishes 8.4999); the band, not its outer
+            // plane, is what the threshold judges (#71).
             let thickness = high - low;
             if thickness <= tol || !policy::clears_threshold(maximum_thickness, thickness) {
                 continue;

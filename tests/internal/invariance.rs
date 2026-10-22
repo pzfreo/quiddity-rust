@@ -796,8 +796,9 @@ fn correspondence_problems(
     problems
 }
 
-/// The analytic 0.4999 mm face-band fixture has a non-grid midpoint: rounding its absolute
-/// ends before taking thickness would change the dimension under this sub-micron-grid shift.
+/// The analytic 0.4999 mm face-band fixture has a non-grid published thickness (8.4999, its
+/// bands' outer planes): rounding its absolute ends before taking thickness would change the
+/// dimension under this sub-micron-grid shift.
 #[test]
 fn plate_thickness_survives_a_fractional_publication_grid_translation() {
     let path = common::fixtures().join("captured/6d359acf631cc258.step.gz");
