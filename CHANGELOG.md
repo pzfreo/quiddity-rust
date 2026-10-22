@@ -4,6 +4,18 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## Unreleased
+
+### Fixed
+
+- A plate's `lo` and `hi` are again faces of the part (For #71). Since #50 a side whose faces
+  lie on several nearby planes published the midpoint of their face band, a plane no face lies
+  on (GRM-03's thumbwheel screw: thickness 2.25 between faces 2.5 apart). The midpoint still
+  chooses the band; `lo` is now the lowest of the −axis side's planes and `hi` the highest of the
+  +axis side's, unrounded, which exchange correctly when the part is reversed. Six of the
+  corpus's 48 plates change, with their fingerprint `thickness`; the fingerprint version stays
+  `quiddity-rust/fingerprint/3`, whose meaning (thickness is `hi − lo`) is unchanged.
+
 ## 0.1.0 (2026-10-22)
 
 Upgrading from alpha.9:
