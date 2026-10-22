@@ -18,10 +18,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 - **CTC-05 is in the OpenCascade hidden-line comparison, and an exact curve reaches its stretch's
   ends (for #75).** `tools/capture_hlr.py` keeps CTC-05 although its record exceeds the size
   limit; its four views agree with OpenCascade. Adding it showed a projected stretch's exact
-  curve missing the stretch's end by 0.018 mm (edge 226's vertex lies off its circle), so an
-  exact curve that misses either end by more than 3e-4 in view coordinates is now left out and
-  the stretch drawn by its points. Across the corpus 694 of 85,136 exact stretches change so, in
-  eight parts (none in the OpenCascade fixture but CTC-05); no visibility changes.
+  curve missing the stretch's end by 0.018 mm (edge 226's vertex lies off its circle's plane),
+  so an exact curve that misses either end by more than 3e-4 in view coordinates (absolute) is
+  now left out and the stretch drawn by its points. In the four test views across the corpus's
+  94 parts, 333 of 51,902 exact stretches change so, in four parts: cgb203 (277, missing by
+  3.4e-4 to 4.4e-3), cgb207 (38), cgb241 (14) and CTC-05 (4); only CTC-05 is in the
+  OpenCascade fixture. No visibility changes.
 - **Faster STEP reading (for #72).** The inverted-shell repair (#59) no longer integrates
   every face of every solid on each read. It first looks for one face with an outward witness,
   by ray parity against boxes that certainly hold each face (no face interior sampled), which

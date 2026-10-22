@@ -173,8 +173,8 @@ fn exact(curve: &Curve, view: &View, run: &[V3]) -> Option<Exact> {
         Curve::Line { .. } => unreachable!("returned above"),
     };
     // The samples end on the edge's vertices, which a file may leave off its curve (ctc05's edge
-    // 226, 0.018 mm off its circle): the curve is then not the stretch, which is drawn by its
-    // points.
+    // 226, 0.018 mm off its circle's plane): the curve is then not the stretch, which is drawn by
+    // its points.
     let gap = |p: [f64; 2], q: [f64; 2]| (p[0] - q[0]).hypot(p[1] - q[1]);
     found.filter(|x| {
         let (a, b) = x.range();
@@ -182,7 +182,9 @@ fn exact(curve: &Curve, view: &View, run: &[V3]) -> Option<Exact> {
     })
 }
 
-/// How far an exact curve may miss its stretch's ends (in view coordinates).
+/// How far an exact curve may miss its stretch's ends (in view coordinates, absolute: the same
+/// 3e-4 that `exact_curves_follow_their_points` in tests/drawings.rs allows, so that test's
+/// check of the ends guards this filter rather than the curves).
 const EXACT_TOL: f64 = 3e-4;
 
 /// The projection of `centre + cos t a + sin t b` (a and b conjugate semi-diameters once seen)

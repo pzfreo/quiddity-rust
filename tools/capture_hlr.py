@@ -12,6 +12,11 @@ the part's solids are projected.
 A part whose record would take more than ``LIMIT`` bytes compressed (the fifteen largest models,
 some 27 MB between them) is left out of the committed fixture, but for those in ``KEEP``;
 ``CAPTURE_ALL=1`` keeps every part, for a local run of ``crates/haecceity/examples/hlr_compare.rs``.
+
+The fixture records no OpenCascade version. CTC-05's record was added alone (#75) from a
+capture under cadquery-ocp 7.9.3.1 and build123d 0.11.1; a capture there differs from the
+committed records of other parts (ctc01 by 4 to 14 edges a view), so a full re-capture would
+move them too.
 """
 
 from __future__ import annotations

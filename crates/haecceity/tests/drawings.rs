@@ -288,6 +288,8 @@ fn exact_curves_follow_their_points() {
                             .fold(f64::INFINITY, f64::min)
                     })
                     .fold(0.0, f64::max);
+                // `hlr::exact` drops a curve that misses an end by more than its EXACT_TOL (the
+                // same 3e-4), so `ends` checks that filter; `along` checks the curve itself.
                 if ends > 3e-4 || along > 3e-4 {
                     problems.push(format!(
                         "{file} {toward:?}: {curve:?} ends {ends:.1e} along {along:.1e}"
