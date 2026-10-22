@@ -54,6 +54,12 @@ pub struct Recognition {
     /// Positive body evidence in the inferred frame; never a feature claim.
     #[serde(skip)]
     pub(crate) body_evidence: BTreeMap<usize, crate::recognition::BodyReason>,
+    /// The motion the records were published through from the inferred frame (the frame's, or
+    /// the signed permutation it is within round-off of, [`framed_records::Rigid::aligned_within`]).
+    /// Read by the motion-invariance checks only.
+    #[cfg(test)]
+    #[serde(skip)]
+    pub(crate) published_by: Option<framed_records::Rigid>,
 }
 
 /// Recognise a loaded part in its inferred frame and map records back to caller space.
@@ -74,6 +80,8 @@ pub fn recognise(part: &Part) -> Recognition {
                 source_sha256: None,
                 input_repairs: part.input_repairs().to_vec(),
                 body_evidence: BTreeMap::new(),
+                #[cfg(test)]
+                published_by: None,
             };
         }
     };
@@ -96,6 +104,8 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
                 source_sha256: None,
                 input_repairs: part.input_repairs().to_vec(),
                 body_evidence: BTreeMap::new(),
+                #[cfg(test)]
+                published_by: None,
             };
         }
     };
@@ -106,7 +116,10 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
         local,
         fingerprinted,
         fingerprinted_local,
+        motion,
     } = framed_records::to_file(features, &frame, &working);
+    #[cfg(not(test))]
+    let _ = motion;
     // Fingerprints read the published values as found in the frame, carried through the exact
     // motion, so they stay intrinsic to the part: publishing on the file's grid would make a
     // derived size (hi − lo) depend on where the part is placed, and a near-aligned frame's
@@ -126,6 +139,8 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
         source_sha256: None,
         input_repairs: part.input_repairs().to_vec(),
         body_evidence,
+        #[cfg(test)]
+        published_by: Some(motion),
     }
 }
 
@@ -142,6 +157,7 @@ pub(crate) fn caller_space_recognise(part: &Part) -> Recognition {
         source_sha256: None,
         input_repairs: part.input_repairs().to_vec(),
         body_evidence: BTreeMap::new(),
+        published_by: None,
     }
 }
 

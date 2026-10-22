@@ -214,6 +214,8 @@ pub struct Mapped {
     pub fingerprinted: Features,
     /// The fields of [`Mapped::fingerprinted`] left in the source frame.
     pub fingerprinted_local: LocalFields,
+    /// The motion [`Mapped::features`] were published through.
+    pub motion: Rigid,
 }
 
 /// *features*, recognised on *working* (the framed working part), in the file's coordinates.
@@ -515,6 +517,7 @@ fn carry_both(features: Features, published: &Rigid, exact: &Rigid) -> Mapped {
         local,
         fingerprinted,
         fingerprinted_local,
+        motion: *published,
     }
 }
 

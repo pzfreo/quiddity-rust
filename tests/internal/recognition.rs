@@ -559,10 +559,12 @@ fn in_frame(
     frame: &PartFrame,
     doc: &RecognitionDocument,
 ) -> Vec<Compared> {
-    let back = map_features(
-        recognition.features.clone(),
-        &Rigid::from_frame(frame).inverse(),
-    );
+    // Back through the motion the records were published through: the frame's, or the signed
+    // permutation a near-aligned frame is published through (#70).
+    let published = recognition
+        .published_by
+        .unwrap_or_else(|| Rigid::from_frame(frame));
+    let back = map_features(recognition.features.clone(), &published.inverse());
     compared(doc, &back.features, &BTreeMap::new())
 }
 
