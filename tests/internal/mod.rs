@@ -34,6 +34,8 @@ mod pads;
 mod passages;
 #[path = "prismatic_pockets.rs"]
 mod prismatic_pockets;
+#[path = "publication.rs"]
+mod publication;
 #[path = "recognition.rs"]
 mod recognition;
 #[path = "recognition_evidence.rs"]

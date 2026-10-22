@@ -19,6 +19,7 @@ use super::blend_view::{
 };
 use super::cylinders::{canonical_axis_direction, coaxial_axis_lines};
 use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
+use super::placed::{Grid, Placed};
 use super::policy::length_tol;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, SMOOTH_ARC_GAP, Surface, V3};
@@ -28,14 +29,14 @@ use crate::kernel::py;
 /// it) and the canonical axis direction.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct StraightBlendPath {
-    pub at: V3,
+    pub at: Placed<V3>,
     pub direction: V3,
 }
 
 /// One complete circular rolling path: the torus centre-line.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CircularBlendPath {
-    pub center: V3,
+    pub center: Placed<V3>,
     pub normal: V3,
     pub radius: f64,
 }
@@ -64,7 +65,7 @@ fn canonical_direction(d: V3) -> V3 {
 /// `_path_sort_key`, then radius and side.
 fn blend_order(a: &Blend, b: &Blend) -> Ordering {
     let key = |p: &BlendPath| match p {
-        BlendPath::Straight(s) => ("straight", [s.at, s.direction].concat()),
+        BlendPath::Straight(s) => ("straight", [*s.at, s.direction].concat()),
         BlendPath::Circular(c) => ("circular", [&c.center[..], &c.normal, &[c.radius]].concat()),
     };
     let ((ka, va), (kb, vb)) = (key(&a.path), key(&b.path));
@@ -359,7 +360,7 @@ fn circular_proposal(
         return None;
     }
     let path = CircularBlendPath {
-        center: torus.center.map(py::round_to3),
+        center: Placed::new(torus.center, Grid::Decimals(3)),
         normal: canonical_direction(torus.normal),
         radius: py::round_to3(torus.major),
     };
@@ -447,7 +448,7 @@ fn straight_proposal(graph: &BlendGraph<'_>, chain: &BlendChain) -> Option<Occur
             radius: py::round_to3(chain.radius),
             side: side_name(chain.side).into(),
             path: BlendPath::Straight(StraightBlendPath {
-                at: anchor.map(py::round_to3),
+                at: Placed::new(anchor, Grid::Decimals(3)),
                 direction,
             }),
         },

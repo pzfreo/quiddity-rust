@@ -3125,7 +3125,7 @@
     "calls/recognise_oriented_slot_patterns.json.gz": "b1156cff9f9ad71ccb54ca16fa8cb6395f637cbc59e91d106837f55c056350ee",
     "calls/recognise_oriented_slots.json.gz": "c928580a6642a3dccf8acada937144f7c8b6ba7775540afa67125017e7359867",
     "calls/recognise_paired_ramp_steps.json.gz": "a8907a5395617d72e5bbe7b27aa39e618248bc1286ed25d99b4b99d043f80b57",
-    "calls/recognise_plates.json.gz": "277967fb39fbb21c83d59172ddb514332e2df315bee8f7a59b794091547a6014",
+    "calls/recognise_plates.json.gz": "a0591bdf9f2756d1caa90c604e7a6c469f5dcfa1f2c1d75286663e5aec3f0b5a",
     "calls/recognise_pocket_patterns.json.gz": "4da7bc243ffcef10ed320b3818774b38d013051cd8058c5e593ef20c86d2a334",
     "calls/recognise_pockets.json.gz": "21d197558c06b498d7afbc3be6f4f0787469ef5b5508a1486e1b364565f65282",
     "calls/recognise_polygonal_bosses.json.gz": "ab4f3bfa83919289d954f0f39a809661596ed18e8e218a12395467177aef7f33",
@@ -3143,7 +3143,7 @@
     "calls/recognise_through_steps.json.gz": "ab6a0b5b06756fa3435099be76e5ab432b867be4d4a1b42c49047ff83b086cca",
     "calls/recognise_turned_steps.json.gz": "37d10e8c5e2ce5dcf6c5bd2fdc7444e86494bb44768e9d32d9a1abfd3f2fbd90",
     "channel_geometry.json.gz": "bd25ff87def7f73b4f119d26614600b141ee4350f45c77cef55aae7ea787e85f",
-    "corpus.json.gz": "9a4a35bec187b77b3f705df56685effdc0ff5ba354a0e796976183fc069a4e5a",
+    "corpus.json.gz": "54b64f9d55f37de22eb44aa91eaba5f8f97c5de33239321ab491cc6f0733e9c3",
     "coverage.json.gz": "c835b80d39757ae5ef556953e11a2d7e8bbde3148a233f2af51ae92e1d23a971",
     "cylindrical_proofs/corpus/cadgenbench/flanged_spool_132.step.json.gz": "b93acca566253df99ab62bb5ac97424226850b3ee3963c8d1025939a7339d823",
     "cylindrical_proofs/corpus/cadgenbench/threaded_connector_109.step.json.gz": "eea12e52bf91a9c762e7cadc1b12994398bf8f3836ab11ab8b58a2bf4c5d9a4e",
@@ -5799,5 +5799,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "4c52ff03a436e1d03d86a5dee614dcc9b312d790"
+  "source_commit": "3f0d6587e9ad1f4b14967facbbae3d89da9febd5"
 }

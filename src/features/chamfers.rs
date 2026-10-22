@@ -11,6 +11,7 @@ use super::Context;
 use super::bevel::{classify_bevel, proved_bevel_planes, transverse_corner};
 use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::policy::AXIS_ALIGNED_COS;
 use super::turned::{self, cone_rims};
 use crate::kernel::brep::Part;
@@ -24,10 +25,10 @@ pub struct Chamfer {
     pub leg1: f64,
     pub leg2: f64,
     pub angle: f64,
-    pub at: V3,
+    pub at: Placed<V3>,
     pub turned: bool,
     /// The virtual sharp corner a planar chamfer replaces; `None` for a turned chamfer.
-    pub corner: Option<V3>,
+    pub corner: Option<Placed<V3>>,
 }
 
 /// Options named as `recognise_chamfers`' keyword arguments.
@@ -90,9 +91,9 @@ fn chamfer(
         leg1: py::round_to3(leg_hi),
         leg2: py::round_to3(leg_lo),
         angle: py::round_to(leg_lo.atan2(leg_hi).to_degrees(), 2),
-        at: at.map(py::round_to3),
+        at: Placed::new(at, Grid::Decimals(3)),
         turned,
-        corner,
+        corner: corner.map(|c| Placed::new(c, Grid::Decimals(3))),
     }
 }
 
@@ -113,7 +114,7 @@ pub fn discover(ctx: &Context<'_>, opts: &ChamferOptions) -> Vec<Occurrence<Cham
         a.record
             .axis
             .cmp(&b.record.axis)
-            .then_with(|| py::tuple_order(&a.record.at, &b.record.at))
+            .then_with(|| py::tuple_order(&a.record.at[..], &b.record.at[..]))
     });
     out
 }
@@ -129,11 +130,11 @@ fn planar(ctx: &Context<'_>, face: usize, tol: f64, max_leg: f64) -> Option<Occu
     }
     let planes = proved_bevel_planes(ctx, face, centre, bevel.edge_axis)?;
     let corner = [0, 1, 2].map(|i| {
-        py::round_to3(if i == bevel.edge_axis {
+        if i == bevel.edge_axis {
             centre[i]
         } else {
             planes[&i]
-        })
+        }
     });
     let at = part.face_centre(face)?;
     Some(Occurrence {
@@ -221,14 +222,7 @@ fn rolled_planar(
         return None;
     }
     Some(Occurrence {
-        record: chamfer(
-            axis,
-            leg_hi,
-            leg_lo,
-            at,
-            false,
-            Some(corner.map(py::round_to3)),
-        ),
+        record: chamfer(axis, leg_hi, leg_lo, at, false, Some(corner)),
         defining: vec![face],
         context: vec![],
     })

@@ -16,6 +16,7 @@ use super::Context;
 use super::edge_open::{SPAN_EPS, dist2, floor_proof, mouths, principal_plane};
 use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
 use super::graph::{is_planar, normal, ordered_chain, shared_occurrences, span};
+use super::placed::{Grid, Placed};
 use super::policy::AXIS_ZERO_COS;
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{Curve, Surface, V3};
@@ -32,9 +33,9 @@ type Point = [f64; 2];
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct OpenCircularSectionSegment {
     pub kind: &'static str,
-    pub start: Point,
-    pub end: Point,
-    pub center: Option<Point>,
+    pub start: Placed<Point>,
+    pub end: Placed<Point>,
+    pub center: Option<Placed<Point>>,
     pub radius: Option<f64>,
     pub sweep: Option<f64>,
 }
@@ -43,7 +44,7 @@ pub struct OpenCircularSectionSegment {
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct OpenCircularSection {
     pub segments: Vec<OpenCircularSectionSegment>,
-    pub opening: [Point; 2],
+    pub opening: [Placed<Point>; 2],
 }
 
 /// A blind constant-depth recess with an interrupted circular-end profile. `run_interval` is
@@ -51,7 +52,7 @@ pub struct OpenCircularSection {
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct EdgeOpenCircularPocket {
     pub axis: char,
-    pub run_interval: [f64; 2],
+    pub run_interval: Placed<[f64; 2]>,
     pub open_sign: i32,
     pub section: OpenCircularSection,
 }
@@ -89,13 +90,13 @@ impl OpenCircularSectionSegment {
             .cmp(other.kind)
             .then_with(|| point_order(&self.start, &other.start))
             .then_with(|| point_order(&self.end, &other.end))
-            .then_with(|| option_order(&self.center, &other.center, point_order))
+            .then_with(|| option_order(&self.center, &other.center, |a, b| point_order(a, b)))
             .then_with(|| option_order(&self.radius, &other.radius, |a, b| py::order(*a, *b)))
             .then_with(|| option_order(&self.sweep, &other.sweep, |a, b| py::order(*a, *b)))
     }
 
-    fn line(start: Point, end: Point) -> Option<Self> {
-        (dist2(start, end) > EPS).then_some(OpenCircularSectionSegment {
+    fn line(start: Placed<Point>, end: Placed<Point>) -> Option<Self> {
+        (dist2(*start, *end) > EPS).then_some(OpenCircularSectionSegment {
             kind: "line",
             start,
             end,
@@ -106,7 +107,15 @@ impl OpenCircularSectionSegment {
     }
 
     /// An arc, or `None` where the dataclass refuses one (`ValueError`).
-    fn arc(start: Point, end: Point, center: Point, radius: f64, sweep: f64) -> Option<Self> {
+    fn arc(
+        start: Placed<Point>,
+        end: Placed<Point>,
+        center: Placed<Point>,
+        radius: f64,
+        sweep: f64,
+    ) -> Option<Self> {
+        let (placed, center) = ((start, end, center), *center);
+        let (start, end) = (*start, *end);
         if dist2(start, end) <= EPS
             || radius <= 0.0
             || sweep.abs() <= EPS
@@ -130,9 +139,9 @@ impl OpenCircularSectionSegment {
         ];
         (dist2(swept, end) <= radial_tol).then_some(OpenCircularSectionSegment {
             kind: "arc",
-            start,
-            end,
-            center: Some(center),
+            start: placed.0,
+            end: placed.1,
+            center: Some(placed.2),
             radius: Some(radius),
             sweep: Some(sweep),
         })
@@ -152,11 +161,11 @@ impl EdgeOpenCircularPocket {
     fn order(&self, other: &Self) -> Ordering {
         self.axis
             .cmp(&other.axis)
-            .then_with(|| py::tuple_order(&self.run_interval, &other.run_interval))
+            .then_with(|| py::tuple_order(&self.run_interval[..], &other.run_interval[..]))
             .then(self.open_sign.cmp(&other.open_sign))
             .then_with(|| chain_order(&self.section.segments, &other.section.segments))
             .then_with(|| {
-                let flat = |o: &[Point; 2]| [o[0][0], o[0][1], o[1][0], o[1][1]];
+                let flat = |o: &[Placed<Point>; 2]| [o[0][0], o[0][1], o[1][0], o[1][1]];
                 py::tuple_order(&flat(&self.section.opening), &flat(&other.section.opening))
             })
     }
@@ -167,8 +176,8 @@ fn project(p: V3, axis: usize) -> Point {
     [p[others[0]], p[others[1]]]
 }
 
-fn rounded(p: Point) -> Point {
-    p.map(|c| py::without_negative_zero(py::round_to(c, POINT_DIGITS)))
+fn rounded(p: Point) -> Placed<Point> {
+    Placed::new(p, Grid::CleanDecimals(POINT_DIGITS as u8))
 }
 
 /// The signed sweep from *start* to *end* about the arc's centre that passes its midpoint
@@ -208,7 +217,7 @@ fn segment(
         Curve::Line { .. } => OpenCircularSectionSegment::line(start, end),
         Curve::Circle { frame, radius } => {
             let centre = project(frame.origin, axis);
-            let sweep = arc_sweep(centre, project(e.midpoint(), axis), start, end);
+            let sweep = arc_sweep(centre, project(e.midpoint(), axis), *start, *end);
             OpenCircularSectionSegment::arc(
                 start,
                 end,
@@ -236,11 +245,11 @@ fn orient_segments(
                 .map(|(_, s)| s.clone())
                 .collect();
             while !unused.is_empty() {
-                let last = ordered.last().expect("started").end;
+                let last = *ordered.last().expect("started").end;
                 let mut matches = Vec::new();
                 for (index, item) in unused.iter().enumerate() {
                     for oriented in [item.clone(), item.reversed()] {
-                        if dist2(last, oriented.start) <= 2e-4 {
+                        if dist2(last, *oriented.start) <= 2e-4 {
                             matches.push((index, oriented));
                         }
                     }
@@ -392,10 +401,10 @@ fn one_floor(ctx: &Context<'_>, floor: usize) -> Option<Occurrence<EdgeOpenCircu
     Some(Occurrence {
         record: EdgeOpenCircularPocket {
             axis: AXES[axis],
-            run_interval: [
-                py::round_to3(floor_at.min(mouth_at)),
-                py::round_to3(floor_at.max(mouth_at)),
-            ],
+            run_interval: Placed::new(
+                [floor_at.min(mouth_at), floor_at.max(mouth_at)],
+                Grid::Decimals(3),
+            ),
             open_sign: if mouth_at > floor_at { 1 } else { -1 },
             section: OpenCircularSection { segments, opening },
         },

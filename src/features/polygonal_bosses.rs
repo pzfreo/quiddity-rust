@@ -17,6 +17,7 @@ use super::Context;
 use super::evidence::{EvidenceError, Occurrence};
 use super::experimental_geometry::{GeometryGraph, SurfaceKind};
 use super::geometry_evidence::GeometryEvidence;
+use super::placed::{Grid, Placed};
 use super::policy::AXIS_ALIGNED_COS;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::V3;
@@ -39,13 +40,13 @@ const AXES: [(usize, &str); 3] = [(2, "z"), (0, "x"), (1, "y")];
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PolygonalPrism {
     pub axis: String,
-    pub center: V3,
+    pub center: Placed<V3>,
     pub side_count: usize,
     pub across_flats: f64,
-    pub base: f64,
-    pub top: f64,
+    pub base: Placed<f64>,
+    pub top: Placed<f64>,
     pub flat_directions: Vec<V3>,
-    pub flat_centres: Vec<V3>,
+    pub flat_centres: Vec<Placed<V3>>,
 }
 
 /// A polygonal boss attached to a support face.
@@ -56,7 +57,7 @@ pub type PolygonalStock = PolygonalPrism;
 impl PolygonalPrism {
     /// `height` / `length`: the axial length.
     pub fn length(&self) -> f64 {
-        self.top - self.base
+        *self.top - *self.base
     }
 }
 
@@ -91,13 +92,17 @@ fn record_order(a: &PolygonalPrism, b: &PolygonalPrism) -> Ordering {
     };
     a.axis
         .cmp(&b.axis)
-        .then_with(|| py::tuple_order(&a.center, &b.center))
+        .then_with(|| py::tuple_order(&a.center[..], &b.center[..]))
         .then_with(|| a.side_count.cmp(&b.side_count))
         .then_with(|| py::order(a.across_flats, b.across_flats))
-        .then_with(|| py::order(a.base, b.base))
-        .then_with(|| py::order(a.top, b.top))
+        .then_with(|| py::order(*a.base, *b.base))
+        .then_with(|| py::order(*a.top, *b.top))
         .then_with(|| points(&a.flat_directions, &b.flat_directions))
-        .then_with(|| points(&a.flat_centres, &b.flat_centres))
+        .then_with(|| {
+            let centres =
+                |p: &PolygonalPrism| p.flat_centres.iter().map(|c| **c).collect::<Vec<_>>();
+            points(&centres(a), &centres(b))
+        })
 }
 
 /// `_PolygonalProposal`: the record, its sides in ring order, its two caps, and (a boss) the
@@ -668,13 +673,16 @@ fn recognise_one(
         found.push(Proposal {
             record: PolygonalPrism {
                 axis: axis_name.to_owned(),
-                center: center.map(|c| rounded(c, 4)),
+                center: Placed::new(center, Grid::CleanDecimals(4)),
                 side_count,
                 across_flats: rounded(across, 4),
-                base: rounded(base.1, 4),
-                top: rounded(top.1, 4),
+                base: Placed::new(base.1, Grid::CleanDecimals(4)),
+                top: Placed::new(top.1, Grid::CleanDecimals(4)),
                 flat_directions: headings.iter().map(|&h| flat_direction(h)).collect(),
-                flat_centres: centres.iter().map(|c| c.map(|v| rounded(v, 3))).collect(),
+                flat_centres: centres
+                    .iter()
+                    .map(|&c| Placed::new(c, Grid::CleanDecimals(3)))
+                    .collect(),
             },
             sides: ordered,
             lower_cap: base.0,

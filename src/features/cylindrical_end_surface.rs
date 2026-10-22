@@ -6,6 +6,7 @@
 
 use serde::Serialize;
 
+use super::placed::Placed;
 use super::sections::{SectionError, V2};
 use crate::kernel::geom::V3;
 use crate::kernel::py;
@@ -29,7 +30,7 @@ fn finite(values: &[f64]) -> bool {
 pub struct CylindricalEndSurface {
     #[serde(rename = "type")]
     kind: &'static str,
-    axis_point: V3,
+    axis_point: Placed<V3>,
     axis_direction: V2,
     radius: f64,
     branch: &'static str,
@@ -41,11 +42,13 @@ impl CylindricalEndSurface {
     /// to the frame origin (`__post_init__`).
     pub fn new(
         kind: &str,
-        axis_point: V3,
+        axis_point: Placed<V3>,
         axis_direction: V2,
         radius: f64,
         branch: &str,
     ) -> Checked<Self> {
+        let placed = axis_point;
+        let axis_point = *placed;
         let branch = match branch {
             "positive" => "positive",
             "negative" => "negative",
@@ -87,7 +90,7 @@ impl CylindricalEndSurface {
         }
         Ok(CylindricalEndSurface {
             kind: "cylinder",
-            axis_point,
+            axis_point: placed,
             axis_direction,
             radius,
             branch,
@@ -101,6 +104,11 @@ impl CylindricalEndSurface {
 
     /// The axis point: its section coordinates, then its height along the run.
     pub fn axis_point(&self) -> V3 {
+        *self.axis_point
+    }
+
+    /// The axis point with the values it was published from.
+    pub fn placed_axis_point(&self) -> Placed<V3> {
         self.axis_point
     }
 
@@ -176,7 +184,8 @@ mod tests {
     #[test]
     fn bounds_over_an_incomplete_polygon_are_refused() {
         let surface =
-            CylindricalEndSurface::new("cylinder", [0.0; 3], [1.0, 0.0], 20.0, "positive").unwrap();
+            CylindricalEndSurface::new("cylinder", [0.0; 3].into(), [1.0, 0.0], 20.0, "positive")
+                .unwrap();
         let refused = surface.polygon_height_bounds(&[[0.0, 0.0], [1.0, 1.0]]);
         assert_eq!(
             refused.unwrap_err().0,

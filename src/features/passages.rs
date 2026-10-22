@@ -26,6 +26,7 @@ use super::passage_compat::{
     PassageCompatibilityView, canonical_section, compatibility_view, passage_from_view,
     principal_projection,
 };
+use super::placed::{Grid, Placed};
 use super::rings::{centroid, rings};
 use super::section_passages::{SectionRingProposal, section_ring_proposals};
 use super::sections::{PlanarSection, SectionError, SectionVertex, V2};
@@ -74,7 +75,7 @@ pub struct Passage {
 /// A section passage's placement frame (`PassageFrame`): origin to 3 decimals, directions to 6.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PassageFrame {
-    pub origin: V3,
+    pub origin: Placed<V3>,
     pub run: V3,
     pub u: V3,
     pub v: V3,
@@ -107,7 +108,7 @@ pub struct PassageEnds {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SectionPassage {
     pub frame: PassageFrame,
-    pub run_interval: (f64, f64),
+    pub run_interval: Placed<(f64, f64)>,
     pub section: PassageSection,
     pub ends: PassageEnds,
 }
@@ -135,12 +136,18 @@ fn dot(a: V3, b: V3) -> f64 {
 impl PassageFrame {
     /// The frame, refused unless serialized, unit, orthogonal, right handed and canonical
     /// within the serialization tolerances (`PassageFrame.__post_init__`).
-    pub fn new(origin: V3, run: V3, u: V3, v: V3) -> Checked<Self> {
-        let origin = numbers(origin, "origin must contain finite numbers")?;
+    pub fn new(origin: Placed<V3>, run: V3, u: V3, v: V3) -> Checked<Self> {
+        let value = numbers(*origin, "origin must contain finite numbers")?;
+        // A negative zero is cleared as Python's `_numbers` does; a published origin has none.
+        let origin = if value == *origin {
+            origin
+        } else {
+            Placed::exact(value)
+        };
         let run = numbers(run, "run must contain finite numbers")?;
         let u = numbers(u, "u must contain finite numbers")?;
         let v = numbers(v, "v must contain finite numbers")?;
-        serialized(&origin, 3, "origin must use at most 3 decimal places")?;
+        serialized(&*origin, 3, "origin must use at most 3 decimal places")?;
         serialized(&run, 6, "run must use at most 6 decimal places")?;
         serialized(&u, 6, "u must use at most 6 decimal places")?;
         serialized(&v, 6, "v must use at most 6 decimal places")?;
@@ -179,7 +186,7 @@ impl PassageFrame {
         if py::dist(&u, &expected_u) > 3e-6 || py::dist(&v, &expected_v) > 3e-6 {
             return refuse("frame in-plane basis is not canonical");
         }
-        if dot(origin, run).abs() > 8e-4 {
+        if dot(*origin, run).abs() > 8e-4 {
             return refuse("frame origin must be perpendicular to its run");
         }
         Ok(PassageFrame { origin, run, u, v })
@@ -258,7 +265,7 @@ impl SectionPassage {
     /// section (`SectionPassage.__post_init__`).
     pub fn new(
         frame: PassageFrame,
-        run_interval: (f64, f64),
+        run_interval: Placed<(f64, f64)>,
         section: PassageSection,
         ends: PassageEnds,
     ) -> Checked<Self> {
@@ -266,6 +273,11 @@ impl SectionPassage {
             [run_interval.0, run_interval.1],
             "run_interval must contain finite numbers",
         )?;
+        let run_interval = if (lo, hi) == *run_interval {
+            run_interval
+        } else {
+            Placed::exact((lo, hi))
+        };
         serialized(
             &[lo, hi],
             3,
@@ -290,7 +302,7 @@ impl SectionPassage {
         }
         Ok(SectionPassage {
             frame,
-            run_interval: (lo, hi),
+            run_interval,
             section,
             ends,
         })
@@ -431,12 +443,12 @@ pub(crate) fn section_passage_record(proposal: &SectionRingProposal) -> Checked<
     let (lo, hi) = o.run_interval();
     let record = SectionPassage::new(
         PassageFrame::new(
-            f.origin.map(|c| py::round_to(c, 3)),
+            Placed::new(f.origin, Grid::CleanDecimals(3)),
             f.run.map(|c| py::round_to(c, 6)),
             f.u.map(|c| py::round_to(c, 6)),
             f.v.map(|c| py::round_to(c, 6)),
         )?,
-        (py::round_to(lo, 3), py::round_to(hi, 3)),
+        Placed::new((lo, hi), Grid::CleanDecimals(3)),
         serialized_passage_section(o.section())?,
         PassageEnds::new(
             false,
@@ -538,7 +550,7 @@ pub fn legacy_roster(ctx: &Context<'_>) -> Vec<(Passage, Vec<usize>)> {
             (passage, ring.nodes)
         })
         .collect();
-    found.sort_by(|(a, _), (b, _)| a.axis.cmp(&b.axis).then(py::tuple_order(&a.at, &b.at)));
+    found.sort_by(|(a, _), (b, _)| a.axis.cmp(&b.axis).then(py::tuple_order(&a.at[..], &b.at[..])));
     found
 }
 }
@@ -666,7 +678,7 @@ pub(super) fn find_section_passages(ctx: &Context<'_>) -> Checked<Vec<Found>> {
         let r = &f.record;
         let mut k = r.frame.run.to_vec();
         k.extend([r.run_interval.0, r.run_interval.1]);
-        k.extend(r.frame.origin);
+        k.extend(*r.frame.origin);
         k
     };
     found.sort_by(|a, b| py::tuple_order(&key(a), &key(b)));
@@ -723,8 +735,13 @@ mod tests {
 
     #[test]
     fn a_record_refuses_capped_ends_and_crossing_terminations() {
-        let frame =
-            PassageFrame::new([0.0; 3], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]).unwrap();
+        let frame = PassageFrame::new(
+            [0.0; 3].into(),
+            [0.0, 0.0, 1.0],
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+        )
+        .unwrap();
         let section = PassageSection::new(
             [[-1.0, -1.0], [1.0, -1.0], [1.0, 1.0], [-1.0, 1.0]]
                 .into_iter()
@@ -734,22 +751,31 @@ mod tests {
         .unwrap();
         let open = PassageEnds::new(false, false, [0.0; 2], [0.0; 2]).unwrap();
         assert!(
-            SectionPassage::new(frame.clone(), (0.0, 1.0), section.clone(), open.clone()).is_ok()
+            SectionPassage::new(
+                frame.clone(),
+                (0.0, 1.0).into(),
+                section.clone(),
+                open.clone()
+            )
+            .is_ok()
         );
         assert_eq!(
-            SectionPassage::new(frame.clone(), (1.0, 1.0), section.clone(), open).unwrap_err(),
+            SectionPassage::new(frame.clone(), (1.0, 1.0).into(), section.clone(), open)
+                .unwrap_err(),
             PassageError("run_interval must be increasing")
         );
         let capped = PassageEnds::new(true, false, [0.0; 2], [0.0; 2]).unwrap();
-        assert!(SectionPassage::new(frame.clone(), (0.0, 1.0), section.clone(), capped).is_err());
+        assert!(
+            SectionPassage::new(frame.clone(), (0.0, 1.0).into(), section.clone(), capped).is_err()
+        );
         let steep = PassageEnds::new(false, false, [1.0, 0.0], [0.0; 2]).unwrap();
         assert_eq!(
-            SectionPassage::new(frame, (0.0, 1.0), section, steep).unwrap_err(),
+            SectionPassage::new(frame, (0.0, 1.0).into(), section, steep).unwrap_err(),
             PassageError("passage termination planes must not cross the section")
         );
         assert!(
             PassageFrame::new(
-                [0.0; 3],
+                [0.0; 3].into(),
                 [0.0, 0.0, -1.0],
                 [1.0, 0.0, 0.0],
                 [0.0, -1.0, 0.0]

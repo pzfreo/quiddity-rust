@@ -10,6 +10,7 @@ use serde::Serialize;
 use super::Context;
 use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
+use super::placed::{Grid, Placed};
 use super::planes::{axis_aligned_axis, unit_plane_normal};
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{self, COORD_FLOOR, SMOOTH_ARC_GAP, Surface};
@@ -29,9 +30,9 @@ pub struct CircularBlindStep {
     pub radius: f64,
     pub length: f64,
     /// Blind terminal, then the open end, on the cylinder's axis.
-    pub centreline: [Point3; 2],
+    pub centreline: [Placed<Point3>; 2],
     /// Arc endpoint, cylinder centre, arc endpoint, in the two transverse coordinates.
-    pub section: [Point2; 3],
+    pub section: [Placed<Point2>; 3],
 }
 
 impl CircularBlindStep {
@@ -190,8 +191,8 @@ fn candidate(
     let (mut terminal_point, mut opening_point) = (anchor, anchor);
     terminal_point[axis] = terminal_at;
     opening_point[axis] = opening_at;
-    let point2 = |p: Point2| p.map(py::quantise6);
-    let point3 = |p: Point3| p.map(py::quantise6);
+    let point2 = |p: Point2| Placed::new(p, Grid::Figures(6));
+    let point3 = |p: Point3| Placed::new(p, Grid::Figures(6));
     Some(CircularBlindStep {
         axis: ['x', 'y', 'z'][axis],
         radius: py::quantise6(evidence.diameter / 2.0),

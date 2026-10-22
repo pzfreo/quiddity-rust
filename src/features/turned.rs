@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use super::Context;
 use super::body::BodyKey;
 use super::cylinders::{CylinderEvidence, coaxial_axis_lines};
+use super::placed::{Grid, Placed};
 use super::policy::{self, AXIS_ALIGNED_COS};
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, Bounds, Curve, Surface, V3};
@@ -113,8 +114,8 @@ pub fn cone_rims(part: &Part, face: usize) -> Option<(Rim, Rim, f64)> {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TurnedProfileKey {
     pub axis: char,
-    pub axis_origin: V3,
-    pub body_bounds: [f64; 6],
+    pub axis_origin: Placed<V3>,
+    pub body_bounds: Placed<[f64; 6]>,
     pub body_key: Option<BodyKey>,
 }
 
@@ -123,13 +124,13 @@ impl TurnedProfileKey {
     pub fn order(&self, other: &Self) -> Ordering {
         self.axis
             .cmp(&other.axis)
-            .then_with(|| py::tuple_order(&self.axis_origin, &other.axis_origin))
-            .then_with(|| py::tuple_order(&self.body_bounds, &other.body_bounds))
+            .then_with(|| py::tuple_order(&self.axis_origin[..], &other.axis_origin[..]))
+            .then_with(|| py::tuple_order(&self.body_bounds[..], &other.body_bounds[..]))
             .then(self.body_key.is_some().cmp(&other.body_key.is_some()))
             .then_with(|| {
                 py::tuple_order(
-                    self.body_key.as_deref().unwrap_or(&[]),
-                    other.body_key.as_deref().unwrap_or(&[]),
+                    self.body_key.as_ref().map_or(&[][..], |k| k.as_slice()),
+                    other.body_key.as_ref().map_or(&[][..], |k| k.as_slice()),
                 )
             })
     }
@@ -159,24 +160,23 @@ pub fn profile_key_from_bands(
         if i == axis {
             0.0
         } else {
-            py::round_to(
-                py::fsum(bands.iter().map(|b| b.axis_point[i])) / bands.len() as f64,
-                8,
-            )
+            py::fsum(bands.iter().map(|b| b.axis_point[i])) / bands.len() as f64
         }
     });
-    let r = |v: f64| py::round_to(v, 8);
     TurnedProfileKey {
         axis: axis_letter(axis),
-        axis_origin: origin,
-        body_bounds: [
-            r(bounds.min[0]),
-            r(bounds.max[0]),
-            r(bounds.min[1]),
-            r(bounds.max[1]),
-            r(bounds.min[2]),
-            r(bounds.max[2]),
-        ],
+        axis_origin: Placed::new(origin, Grid::Decimals(8)),
+        body_bounds: Placed::new(
+            [
+                bounds.min[0],
+                bounds.max[0],
+                bounds.min[1],
+                bounds.max[1],
+                bounds.min[2],
+                bounds.max[2],
+            ],
+            Grid::Decimals(8),
+        ),
         body_key,
     }
 }
@@ -227,7 +227,7 @@ mod tests {
                     for _ in 0..2 {
                         let refs: Vec<_> = bands.iter().collect();
                         let key = profile_key_from_bands(axis, &refs, &bounds, None);
-                        assert_eq!(key.axis_origin, expected);
+                        assert_eq!(*key.axis_origin, expected);
                         bands.reverse();
                     }
                 }

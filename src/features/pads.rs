@@ -26,6 +26,7 @@ use super::effective_surfaces::EffectiveFaces;
 use super::evidence::{self, Occurrence, common_valid_solid};
 use super::experimental_geometry::{GeometryGraph, SurfaceKind};
 use super::graph;
+use super::placed::{Grid, Placed};
 use super::policy::{AXIS_ALIGNED_COS, AXIS_ZERO_COS};
 use super::solid_properties;
 use crate::kernel::brep::Part;
@@ -45,12 +46,12 @@ const AXIS_NAMES: [&str; 3] = ["x", "y", "z"];
 /// `axis` it rises along (`"x"`, `"y"` or `"z"`) and its `direction` (1 or -1) along it.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RaisedPad {
-    pub x0: f64,
-    pub x1: f64,
-    pub y0: f64,
-    pub y1: f64,
-    pub z0: f64,
-    pub z1: f64,
+    pub x0: Placed<f64>,
+    pub x1: Placed<f64>,
+    pub y0: Placed<f64>,
+    pub y1: Placed<f64>,
+    pub z0: Placed<f64>,
+    pub z1: Placed<f64>,
     pub axis: String,
     pub direction: i32,
 }
@@ -58,7 +59,11 @@ pub struct RaisedPad {
 impl RaisedPad {
     /// `_record_bounds`.
     fn bounds(&self) -> [(f64, f64); 3] {
-        [(self.x0, self.x1), (self.y0, self.y1), (self.z0, self.z1)]
+        [
+            (*self.x0, *self.x1),
+            (*self.y0, *self.y1),
+            (*self.z0, *self.z1),
+        ]
     }
 
     fn axis_index(&self) -> usize {
@@ -78,8 +83,8 @@ impl RaisedPad {
 /// The dataclass order: field by field.
 fn record_order(a: &RaisedPad, b: &RaisedPad) -> Ordering {
     py::tuple_order(
-        &[a.x0, a.x1, a.y0, a.y1, a.z0, a.z1],
-        &[b.x0, b.x1, b.y0, b.y1, b.z0, b.z1],
+        &[*a.x0, *a.x1, *a.y0, *a.y1, *a.z0, *a.z1],
+        &[*b.x0, *b.x1, *b.y0, *b.y1, *b.z0, *b.z1],
     )
     .then_with(|| a.axis.cmp(&b.axis))
     .then_with(|| a.direction.cmp(&b.direction))
@@ -212,20 +217,22 @@ fn pad_record(
     axis: usize,
     axis_sign: i32,
     [u_axis, v_axis]: [usize; 2],
-    (u0, u1): (f64, f64),
-    (v0, v1): (f64, f64),
+    u: Placed<(f64, f64)>,
+    v: Placed<(f64, f64)>,
     base: f64,
-    top: f64,
+    top: Placed<f64>,
 ) -> RaisedPad {
-    let mut bounds = [(0.0, 0.0); 3];
-    bounds[axis] = if py::order(top, base) == Ordering::Less {
-        (top, base)
+    let mut bounds = [(Placed::exact(0.0), Placed::exact(0.0)); 3];
+    bounds[axis] = if py::order(*top, base) == Ordering::Less {
+        (top, Placed::exact(base))
     } else {
-        (base, top)
+        (Placed::exact(base), top)
     };
+    let ([u0, u1], [v0, v1]) = (u.ends(), v.ends());
     bounds[u_axis] = (u0, u1);
     bounds[v_axis] = (v0, v1);
-    let r = |v: f64| py::round_to(v, 3);
+    // Each bound published on the three-decimal grid from the value it was measured as.
+    let r = |v: Placed<f64>| Placed::new(*v.raw(), Grid::Decimals(3));
     RaisedPad {
         x0: r(bounds[0].0),
         x1: r(bounds[0].1),
@@ -331,9 +338,9 @@ type Vertical = (usize, [(f64, f64); 3], V3);
 
 /// A rectangular top: its rounded rectangle and level, and its face.
 struct Top {
-    u: (f64, f64),
-    v: (f64, f64),
-    level: f64,
+    u: Placed<(f64, f64)>,
+    v: Placed<(f64, f64)>,
+    level: Placed<f64>,
     face: usize,
 }
 
@@ -381,11 +388,10 @@ impl Solid<'_, '_, '_> {
             if full_u || full_v {
                 continue;
             }
-            let r = |v: f64| py::round_to(v, 3);
             tops.push(Top {
-                u: (r(u0), r(u1)),
-                v: (r(v0), r(v1)),
-                level: r(level),
+                u: Placed::new((u0, u1), Grid::Decimals(3)),
+                v: Placed::new((v0, v1), Grid::Decimals(3)),
+                level: Placed::new(level, Grid::Decimals(3)),
                 face: planar.face,
             });
         }
@@ -400,13 +406,13 @@ impl Solid<'_, '_, '_> {
         let mut proposals: Vec<Proposal> = Vec::new();
         for top in &tops {
             let role = |along: usize, pos: f64, across: (f64, f64)| {
-                wall_role(&walls, along, pos, across, top.level, tol, axis, axis_sign)
+                wall_role(&walls, along, pos, across, *top.level, tol, axis, axis_sign)
             };
             let roles = [
-                role(u_axis, top.u.0, top.v),
-                role(u_axis, top.u.1, top.v),
-                role(v_axis, top.v.0, top.u),
-                role(v_axis, top.v.1, top.u),
+                role(u_axis, top.u.0, *top.v),
+                role(u_axis, top.u.1, *top.v),
+                role(v_axis, top.v.0, *top.u),
+                role(v_axis, top.v.1, *top.u),
             ];
             let Some(roles) = roles.into_iter().collect::<Option<Vec<_>>>() else {
                 continue;
@@ -427,7 +433,7 @@ impl Solid<'_, '_, '_> {
 
         let regions: Vec<RaisedPad> = tops
             .iter()
-            .map(|t| pad_record(axis, axis_sign, transverse, t.u, t.v, t.level, t.level))
+            .map(|t| pad_record(axis, axis_sign, transverse, t.u, t.v, *t.level, t.level))
             .collect();
         let mut needed: BTreeSet<usize> = proposals.iter().map(|p| p.top).collect();
         needed.extend(
@@ -510,7 +516,8 @@ impl Solid<'_, '_, '_> {
         for planar in &self.planar {
             let top_face = planar.face;
             let (top_lo, top_hi) = planar.bounds[axis];
-            let top = py::round_to((top_lo + top_hi) / 2.0, 3);
+            let top_at = Placed::new((top_lo + top_hi) / 2.0, Grid::Decimals(3));
+            let top = *top_at;
             if sign * top - tol <= sign * if axis_sign > 0 { bb_lo } else { bb_hi } {
                 continue;
             }
@@ -548,10 +555,11 @@ impl Solid<'_, '_, '_> {
             let ordered = [ru0, ru1, rv0, rv1];
             let mid = |f: usize, i: usize| {
                 let (lo, hi) = geometry.bounds(f)[i];
-                py::round_to((lo + hi) / 2.0, 3)
+                (lo + hi) / 2.0
             };
-            let (u0, u1) = (mid(ru0, u_index), mid(ru1, u_index));
-            let (v0, v1) = (mid(rv0, v_index), mid(rv1, v_index));
+            let u = Placed::new((mid(ru0, u_index), mid(ru1, u_index)), Grid::Decimals(3));
+            let v = Placed::new((mid(rv0, v_index), mid(rv1, v_index)), Grid::Decimals(3));
+            let ((u0, u1), (v0, v1)) = (*u, *v);
             if u1 - u0 <= tol || v1 - v0 <= tol {
                 continue;
             }
@@ -693,7 +701,7 @@ impl Solid<'_, '_, '_> {
                 continue;
             }
             proposals.push(Proposal {
-                record: pad_record(axis, axis_sign, transverse, (u0, u1), (v0, v1), base, top),
+                record: pad_record(axis, axis_sign, transverse, u, v, base, top_at),
                 top: top_face,
                 walls: ordered.map(|f| vec![f]),
             });

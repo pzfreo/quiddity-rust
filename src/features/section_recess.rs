@@ -20,6 +20,7 @@ use serde::Serialize;
 
 use super::cylindrical_end_surface::CylindricalEndSurface;
 use super::passages::{PassageError, PassageFrame, PassageSection, PassageSectionVertex};
+use super::placed::Placed;
 use super::sections::{
     SectionError, SectionVertex, V2, moments, validate_section_end_separation, validate_simple,
 };
@@ -292,16 +293,21 @@ impl PlanarEndSurface {
 /// One absolute local-run affine term of an observed plane envelope (`PlanarEndTerm`).
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct PlanarEndTerm {
-    height: f64,
+    height: Placed<f64>,
     gradient: V2,
 }
 
 impl PlanarEndTerm {
     /// The term, refused unless finite on the six-decimal grid.
-    pub fn new(height: f64, gradient: V2) -> Checked<Self> {
-        let [height] = numbers([height], "plane height must contain 1 finite numbers")?;
+    pub fn new(height: Placed<f64>, gradient: V2) -> Checked<Self> {
+        let [value] = numbers([*height], "plane height must contain 1 finite numbers")?;
+        let height = if value == *height {
+            height
+        } else {
+            Placed::exact(value)
+        };
         let gradient = numbers(gradient, "plane gradient must contain 2 finite numbers")?;
-        if [height, gradient[0], gradient[1]]
+        if [*height, gradient[0], gradient[1]]
             .iter()
             .any(|&v| unrounded(v, 6))
         {
@@ -311,6 +317,11 @@ impl PlanarEndTerm {
     }
 
     pub fn height(&self) -> f64 {
+        *self.height
+    }
+
+    /// The height with the value it was published from.
+    pub fn placed_height(&self) -> Placed<f64> {
         self.height
     }
 
@@ -321,14 +332,14 @@ impl PlanarEndTerm {
     /// The plane's run coordinate over a section point (`at`).
     pub fn at(&self, point: V2) -> Checked<f64> {
         let [u, v] = numbers(point, "section point must contain 2 finite numbers")?;
-        Ok(self.height + self.gradient[0] * u + self.gradient[1] * v)
+        Ok(*self.height + self.gradient[0] * u + self.gradient[1] * v)
     }
 
     /// Python's dataclass order: by height, then gradient.
     fn order(&self, other: &Self) -> Ordering {
         py::tuple_order(
-            &[self.height, self.gradient[0], self.gradient[1]],
-            &[other.height, other.gradient[0], other.gradient[1]],
+            &[*self.height, self.gradient[0], self.gradient[1]],
+            &[*other.height, other.gradient[0], other.gradient[1]],
         )
     }
 }
@@ -463,7 +474,7 @@ pub struct SectionRecessGeometry {
     #[serde(rename = "type")]
     kind: &'static str,
     frame: PassageFrame,
-    run_interval: (f64, f64),
+    run_interval: Placed<(f64, f64)>,
     profile: SectionProfile,
     ends: SectionRecessEnds,
 }
@@ -475,7 +486,7 @@ impl SectionRecessGeometry {
     pub fn new(
         kind: &str,
         frame: PassageFrame,
-        run_interval: (f64, f64),
+        run_interval: Placed<(f64, f64)>,
         profile: SectionProfile,
         ends: SectionRecessEnds,
     ) -> Checked<Self> {
@@ -489,10 +500,15 @@ impl SectionRecessGeometry {
         if interval[1] - interval[0] <= 1e-9 || interval.iter().any(|&v| unrounded(v, 3)) {
             return refuse("run_interval must increase and serialize at three decimals");
         }
+        let run_interval = if (interval[0], interval[1]) == *run_interval {
+            run_interval
+        } else {
+            Placed::exact((interval[0], interval[1]))
+        };
         let geometry = SectionRecessGeometry {
             kind: "section_recess",
             frame,
-            run_interval: (interval[0], interval[1]),
+            run_interval,
             profile,
             ends,
         };
@@ -521,6 +537,11 @@ impl SectionRecessGeometry {
     }
 
     pub fn run_interval(&self) -> (f64, f64) {
+        *self.run_interval
+    }
+
+    /// The run interval with the values it was published from.
+    pub fn placed_run_interval(&self) -> Placed<(f64, f64)> {
         self.run_interval
     }
 

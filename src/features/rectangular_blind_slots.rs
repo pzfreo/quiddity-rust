@@ -10,6 +10,7 @@ use serde::Serialize;
 
 use super::Context;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::planes::axis_aligned_axis;
 use super::regions::{
     Region, common_convex_context, coplanar_region, empty_sweep, length_tolerance,
@@ -34,7 +35,7 @@ pub struct RectangularBlindSlot {
     pub depth_sign: i32,
     pub width: f64,
     pub depth: f64,
-    pub at: V3,
+    pub at: Placed<V3>,
 }
 
 impl RectangularBlindSlot {
@@ -49,7 +50,7 @@ impl RectangularBlindSlot {
             .then(self.depth_sign.cmp(&other.depth_sign))
             .then(self.width.total_cmp(&other.width))
             .then(self.depth.total_cmp(&other.depth))
-            .then_with(|| py::tuple_order(&self.at, &other.at))
+            .then_with(|| py::tuple_order(&self.at[..], &other.at[..]))
     }
 }
 
@@ -279,7 +280,7 @@ fn recognise_one(ctx: &Context<'_>, solid: usize) -> Vec<Occurrence<RectangularB
                 depth_sign,
                 width: py::round_to3(section_width),
                 depth: py::round_to3(section_depth),
-                at: centre.map(py::round_to3),
+                at: Placed::new(centre, Grid::Decimals(3)),
             };
             let nodes: Region = cap_region
                 .iter()

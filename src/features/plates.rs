@@ -112,9 +112,11 @@ pub fn discover_locally_degraded(
 /// other axes, and the face.
 type Entry = (f64, f64, f64, f64, usize);
 
-/// One side's faces at one coordinate cluster: total area, area-weighted centre sums on the
-/// two other axes, and the faces.
+/// One side's faces at one coordinate cluster: its lowest and highest plane coordinates, total
+/// area, area-weighted centre sums on the two other axes, and the faces.
 struct Group {
+    low: f64,
+    high: f64,
     area: f64,
     u_sum: f64,
     v_sum: f64,
@@ -255,16 +257,24 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
             if low_sign != -1 || high_sign != 1 {
                 continue;
             }
+            // Acceptance uses the band midpoints (the event keys), so it is symmetric under
+            // reversal. The published lo/hi below are the bands' outer planes, so a wide band
+            // can publish a plate thicker than `maximum_thickness` (the captured 6d359acf
+            // fixture is accepted on 8.24995 and publishes 8.4999); the band, not its outer
+            // plane, is what the threshold judges (#71).
             let thickness = high - low;
             if thickness <= tol || !policy::clears_threshold(maximum_thickness, thickness) {
                 continue;
             }
             let combined_area = low_group.area + high_group.area;
+            // The band midpoints chose this pair; the plate is bounded by the outermost real
+            // planes of each side (the −axis side's lowest, the +axis side's highest), which
+            // exchange with each other when the axis reverses (#71).
             out.push(Occurrence {
                 record: Plate {
                     axis: axis_letter(i),
-                    lo: low,
-                    hi: high,
+                    lo: low_group.low,
+                    hi: high_group.high,
                     u: (low_group.u_sum + high_group.u_sum) / combined_area,
                     v: (low_group.v_sum + high_group.v_sum) / combined_area,
                     body_key: None,
@@ -322,6 +332,8 @@ fn group(side: &[Entry], tol: f64) -> BTreeMap<Coord, Group> {
         groups.insert(
             Coord(0.5 * (low + high)),
             Group {
+                low,
+                high,
                 area: sum(|e| e.1),
                 u_sum: sum(|e| e.2),
                 v_sum: sum(|e| e.3),
@@ -429,10 +441,15 @@ mod tests {
         let side = [(0.0, 1.0, 0.0, 0.0, 0), (0.5, 1.0, 0.0, 0.0, 1)];
         let groups = group(&side, 0.5);
         assert_eq!(groups.len(), 1);
-        assert_eq!(groups.first_key_value().unwrap().0.0, 0.25);
+        let (key, g) = groups.first_key_value().unwrap();
+        assert_eq!(key.0, 0.25);
+        assert_eq!((g.low, g.high), (0.0, 0.5));
         let moved = side.map(|(c, a, u, v, f)| (123.456 - c, a, u, v, f));
         let groups = group(&moved, 0.5);
         assert_eq!(groups.len(), 1);
-        assert!((groups.first_key_value().unwrap().0.0 - (123.456 - 0.25)).abs() < 1e-12);
+        let (key, g) = groups.first_key_value().unwrap();
+        assert!((key.0 - (123.456 - 0.25)).abs() < 1e-12);
+        // The real planes reverse with the part: the band's outermost plane on either side.
+        assert_eq!((g.low, g.high), (123.456 - 0.5, 123.456));
     }
 }

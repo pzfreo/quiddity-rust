@@ -12,6 +12,7 @@ use serde::Serialize;
 
 use super::Context;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use crate::kernel::brep::Part;
 use crate::kernel::cloud::{FaceProbe, fit_distance, quantile99};
 use crate::kernel::geom::{COORD_FLOOR, Surface, V3, add, cross, scale, sub};
@@ -29,7 +30,7 @@ const AXIS_LINE_FRAC: f64 = 0.0001;
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct CircularFacePattern {
-    pub axis_origin: V3,
+    pub axis_origin: Placed<V3>,
     pub axis_direction: V3,
     pub count: usize,
     pub pitch_degrees: f64,
@@ -448,7 +449,7 @@ fn recognise_solid(
                 }
                 if fit_error <= tolerance {
                     let record = CircularFacePattern {
-                        axis_origin: axis.origin.map(|c| py::round_to(c, 6)),
+                        axis_origin: Placed::new(axis.origin, Grid::Decimals(6)),
                         axis_direction: axis.direction.map(|c| py::round_to(c, 9)),
                         count,
                         pitch_degrees: py::round_to(pitch * (180.0 / PI), 9),

@@ -12,6 +12,7 @@ use super::Context;
 use super::bevel::{convex_bevel, transverse_corner};
 use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::planes::nearest_axis_aligned_planes;
 use super::policy::AXIS_ALIGNED_COS;
 use super::turned;
@@ -31,7 +32,7 @@ const TURNED_FILLET_MAX_EXTENT: f64 = PI / 2.0 * 1.05;
 pub struct Fillet {
     pub axis: char,
     pub radius: f64,
-    pub at: V3,
+    pub at: Placed<V3>,
     pub turned: bool,
     pub side: &'static str,
 }
@@ -101,7 +102,7 @@ fn occurrence(
         record: Fillet {
             axis: ['x', 'y', 'z'][axis],
             radius: py::round_to3(radius),
-            at: at.map(py::round_to3),
+            at: Placed::new(at, Grid::Decimals(3)),
             turned,
             side: "convex",
         },
@@ -138,7 +139,7 @@ pub fn discover(ctx: &Context<'_>, opts: &FilletOptions) -> Vec<Occurrence<Fille
     out.sort_by(|a, b| {
         let key = |o: &Occurrence<Fillet>| (o.record.axis, o.record.at);
         let (ka, kb) = (key(a), key(b));
-        ka.0.cmp(&kb.0).then_with(|| py::tuple_order(&ka.1, &kb.1))
+        ka.0.cmp(&kb.0).then_with(|| py::tuple_order(&ka.1[..], &kb.1[..]))
     });
     out
 }

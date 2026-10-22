@@ -3,6 +3,7 @@
 
 use std::f64::consts::TAU;
 
+use super::placed::{Grid, Placed};
 use super::policy;
 use super::probes::probe_samples;
 use crate::kernel::brep::Part;
@@ -382,17 +383,14 @@ pub fn canonical_axis_direction(axis: usize, d: V3) -> V3 {
 
 internal_entry! {
 /// `_axis_line_coordinates`: where the axis line crosses the plane through the origin, as the
-/// two coordinates other than the axis's own, rounded to 3 decimals.
-pub fn axis_line_coordinates(axis: usize, point: V3, d: V3) -> (f64, f64) {
+/// two coordinates other than the axis's own, published on 3 decimals.
+pub fn axis_line_coordinates(axis: usize, point: V3, d: V3) -> Placed<(f64, f64)> {
     let norm = py::hypot(&d);
     let sign = if d[axis] < 0.0 { -1.0 } else { 1.0 };
     let v = d.map(|c| sign * c / norm);
     let along = point[0] * v[0] + point[1] * v[1] + point[2] * v[2];
     let foot = [0, 1, 2].map(|i| point[i] - along * v[i]);
     let keep: Vec<usize> = (0..3).filter(|&i| i != axis).collect();
-    (
-        py::without_negative_zero(py::round_to(foot[keep[0]], 3)),
-        py::without_negative_zero(py::round_to(foot[keep[1]], 3)),
-    )
+    Placed::new((foot[keep[0]], foot[keep[1]]), Grid::CleanDecimals(3))
 }
 }

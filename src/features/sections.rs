@@ -18,6 +18,7 @@ use std::sync::atomic::{AtomicU64, Ordering as AtomicOrdering};
 
 use serde::Serialize;
 
+use super::placed::{Grid, Placed};
 use crate::kernel::geom::V3;
 use crate::kernel::py;
 
@@ -894,6 +895,11 @@ pub struct VertexValue {
 pub struct OccurrenceGeometry {
     pub frame: LocalFrame,
     pub run_interval: (f64, f64),
+    /// The frame's origin and the run interval with the values they were published from.
+    #[serde(skip)]
+    pub placed_origin: Placed<V3>,
+    #[serde(skip)]
+    pub placed_run_interval: Placed<(f64, f64)>,
     pub section: SectionValue,
     pub ends: SectionEnds,
 }
@@ -994,6 +1000,8 @@ pub fn occurrence_geometry(
     Ok(OccurrenceGeometry {
         frame: LocalFrame { origin, run, u, v },
         run_interval: interval,
+        placed_origin: Placed::new(f.origin, Grid::CleanDecimals(3)),
+        placed_run_interval: Placed::new(o.run_interval, Grid::CleanDecimals(3)),
         section: SectionValue {
             boundary: boundary
                 .iter()

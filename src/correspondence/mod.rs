@@ -54,6 +54,12 @@ pub struct Recognition {
     /// Positive body evidence in the inferred frame; never a feature claim.
     #[serde(skip)]
     pub(crate) body_evidence: BTreeMap<usize, crate::recognition::BodyReason>,
+    /// The motion the records were published through from the inferred frame (the frame's, or
+    /// the signed permutation it is within round-off of, [`framed_records::Rigid::aligned_within`]).
+    /// Read by the motion-invariance checks only.
+    #[cfg(test)]
+    #[serde(skip)]
+    pub(crate) published_by: Option<framed_records::Rigid>,
 }
 
 /// Recognise a loaded part in its inferred frame and map records back to caller space.
@@ -74,6 +80,8 @@ pub fn recognise(part: &Part) -> Recognition {
                 source_sha256: None,
                 input_repairs: part.input_repairs().to_vec(),
                 body_evidence: BTreeMap::new(),
+                #[cfg(test)]
+                published_by: None,
             };
         }
     };
@@ -96,14 +104,33 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
                 source_sha256: None,
                 input_repairs: part.input_repairs().to_vec(),
                 body_evidence: BTreeMap::new(),
+                #[cfg(test)]
+                published_by: None,
             };
         }
     };
     let features = features::recognise(&working);
     let body_evidence = crate::body::evidence(&working);
-    let Mapped { features, local } = framed_records::to_file(features, &frame);
-    let mut fingerprints = fingerprint(part, &features);
-    frame_axes(&mut fingerprints, &features, &local, &frame);
+    let Mapped {
+        features,
+        local,
+        fingerprinted,
+        fingerprinted_local,
+        motion,
+    } = framed_records::to_file(features, &frame, &working);
+    #[cfg(not(test))]
+    let _ = motion;
+    // Fingerprints read the published values as found in the frame, carried through the exact
+    // motion, so they stay intrinsic to the part: publishing on the file's grid would make a
+    // derived size (hi − lo) depend on where the part is placed, and a near-aligned frame's
+    // publication in the file's axes (#70) would change its axes by the round-off it drops.
+    let mut fingerprints = fingerprint(part, &fingerprinted);
+    frame_axes(
+        &mut fingerprints,
+        &fingerprinted,
+        &fingerprinted_local,
+        &frame,
+    );
     Recognition {
         features,
         fingerprints,
@@ -112,6 +139,8 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
         source_sha256: None,
         input_repairs: part.input_repairs().to_vec(),
         body_evidence,
+        #[cfg(test)]
+        published_by: Some(motion),
     }
 }
 
@@ -128,6 +157,7 @@ pub(crate) fn caller_space_recognise(part: &Part) -> Recognition {
         source_sha256: None,
         input_repairs: part.input_repairs().to_vec(),
         body_evidence: BTreeMap::new(),
+        published_by: None,
     }
 }
 

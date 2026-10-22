@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::Context;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::policy;
 use super::turned::cone_rims;
 use crate::kernel::brep::Part;
@@ -27,7 +28,7 @@ const HOLE_MOUTH_FRAC: f64 = 0.0833;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CounterSink {
     pub axis: V3,
-    pub location: V3,
+    pub location: Placed<V3>,
     pub major_diameter: f64,
     pub drill_diameter: f64,
     pub included_angle: f64,
@@ -151,7 +152,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CounterSink>> {
         out.push(Occurrence {
             record: CounterSink {
                 axis: axis.map(r4),
-                location: opening.map(r4),
+                location: Placed::new(opening, Grid::Decimals(4)),
                 major_diameter: r4(2.0 * major_r),
                 drill_diameter: r4(2.0 * minor_r),
                 included_angle,

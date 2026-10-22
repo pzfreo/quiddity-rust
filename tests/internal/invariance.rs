@@ -796,8 +796,9 @@ fn correspondence_problems(
     problems
 }
 
-/// The analytic 0.4999 mm face-band fixture has a non-grid midpoint: rounding its absolute
-/// ends before taking thickness would change the dimension under this sub-micron-grid shift.
+/// The analytic 0.4999 mm face-band fixture has a non-grid published thickness (8.4999, its
+/// bands' outer planes): rounding its absolute ends before taking thickness would change the
+/// dimension under this sub-micron-grid shift.
 #[test]
 fn plate_thickness_survives_a_fractional_publication_grid_translation() {
     let path = common::fixtures().join("captured/6d359acf631cc258.step.gz");
@@ -1012,11 +1013,11 @@ fn principal_chamfers_follow_rolled_supports() {
             // Two independently rounded 0.001-unit points differ by at most sqrt(3)*0.001.
             assert!(
                 quiddity::kernel::py::dist(
-                    &transform(before.corner.unwrap()),
-                    &after.corner.unwrap()
+                    &transform(*before.corner.unwrap()),
+                    &after.corner.unwrap()[..]
                 ) < 0.002
             );
-            assert!(quiddity::kernel::py::dist(&transform(before.at), &after.at) < 0.002);
+            assert!(quiddity::kernel::py::dist(&transform(*before.at), &after.at[..]) < 0.002);
         }
     }
 }
@@ -1049,7 +1050,7 @@ fn principal_fillets_follow_rolled_supports() {
         for (faces, before) in &baseline {
             let after = &moved[faces];
             assert_eq!(before.radius, after.radius);
-            assert!(quiddity::kernel::py::dist(&transform(before.at), &after.at) < 0.002);
+            assert!(quiddity::kernel::py::dist(&transform(*before.at), &after.at[..]) < 0.002);
         }
     }
 }
@@ -1194,8 +1195,8 @@ fn circular_steps_follow_rolled_supports() {
             // Circular-step coordinates use six significant figures, not six decimals.
             for i in 0..2 {
                 assert_eq!(
-                    transform(before.centreline[i]).map(quiddity::kernel::py::quantise6),
-                    after.centreline[i]
+                    transform(*before.centreline[i]).map(quiddity::kernel::py::quantise6),
+                    *after.centreline[i]
                 );
             }
             let transverse: Vec<_> = (0..3).filter(|&i| i != axis).collect();
@@ -1204,9 +1205,9 @@ fn circular_steps_follow_rolled_supports() {
                 let point = [point[transverse[0]], point[transverse[1]]]
                     .map(quiddity::kernel::py::quantise6);
                 if index == 1 {
-                    assert_eq!(point, after.section[1]);
+                    assert_eq!(point, *after.section[1]);
                 } else {
-                    assert!([0, 2].iter().any(|&j| point == after.section[j]));
+                    assert!([0, 2].iter().any(|&j| point == *after.section[j]));
                 }
             }
         }

@@ -11,6 +11,7 @@ use quiddity::features::cylindrical_end_surface::CylindricalEndSurface;
 use quiddity::features::cylindrical_seats::{
     CylindricalSeatProof, SeatCylinder, cylindrical_seat_proofs, prove as prove_seat,
 };
+use quiddity::features::placed::Placed;
 use quiddity::features::plane_envelope_passages::{
     PlaneEnvelopePassageProof, plane_envelope_passage_proofs, prove as prove_envelope,
 };
@@ -102,7 +103,7 @@ fn envelope_json(p: &PlaneEnvelopePassageProof) -> Value {
 fn surface(given: &Value) -> Result<CylindricalEndSurface, SectionError> {
     CylindricalEndSurface::new(
         given["type"].as_str().unwrap(),
-        floats::<3>(&given["axis_point"]),
+        Placed::exact(floats::<3>(&given["axis_point"])),
         floats::<2>(&given["axis_direction"]),
         float(&given["radius"]),
         given["branch"].as_str().unwrap(),

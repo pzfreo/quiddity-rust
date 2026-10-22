@@ -1,26 +1,22 @@
 //! Geometry-derived body identity (`quiddity._body_identity`): a solid's box, volume and area,
 //! useful only for equality. Two solids with one signature are ambiguous, and neither gets a key.
 
+use super::placed::{Grid, Placed};
 use crate::kernel::brep::Part;
-use crate::kernel::py;
 
-/// Box corners to six decimals, then volume and area to twelve significant figures.
-pub type BodyKey = Vec<f64>;
+/// Box corners to six decimals, then volume and area to twelve significant figures
+/// ([`Grid::BodyKey`]).
+pub type BodyKey = Placed<Vec<f64>>;
 
 internal_entry! {
 /// `body_signature`: `None` when the solid's volume or area cannot be computed.
 pub fn body_signature(part: &Part, solid: usize) -> Option<BodyKey> {
     let b = part.solid_bounds(solid);
     let (volume, area) = part.solid_mass(solid)?;
-    let mut key: BodyKey = b
-        .min
-        .iter()
-        .chain(&b.max)
-        .map(|&c| py::without_negative_zero(py::round_to(c, 6)))
-        .collect();
-    key.push(py::quantise(volume, 12));
-    key.push(py::quantise(area, 12));
-    Some(key)
+    let mut key: Vec<f64> = b.min.iter().chain(&b.max).copied().collect();
+    key.push(volume);
+    key.push(area);
+    Some(Placed::new(key, Grid::BodyKey))
 }
 }
 

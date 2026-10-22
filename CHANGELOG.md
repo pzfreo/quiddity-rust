@@ -19,6 +19,48 @@ in [docs/alpha1.md](docs/alpha1.md).
   read that never recognises (such as a PMI-only read) still pays it.
   `read_part_definitions` still builds the B-rep and runs the repair: the PMI edge numbering
   depends on the repaired face senses, so skipping it would renumber edges on inverted inputs.
+- **A plate's `lo` and `hi` are again faces of the part (for #71).** Since #50 a side whose faces
+  lie on several nearby planes published the midpoint of their face band, a plane no face lies
+  on (GRM-03's thumbwheel screw: thickness 2.25 between faces 2.5 apart). The midpoint still
+  chooses the band; `lo` is now the lowest of the −axis side's planes and `hi` the highest of the
+  +axis side's, unrounded, which exchange correctly when the part is reversed. Six of the
+  corpus's 48 plates change, with their fingerprint `thickness`; the fingerprint version stays
+  `quiddity-rust/fingerprint/3`, whose meaning (thickness is `hi − lo`) is unchanged.
+- **Framed records are on their published grids (for #69).** A position a recogniser rounds
+  (a fillet's `at` to 0.001 mm, a hole's location to 11 significant figures, a recess's
+  `w_center` to 0.01 mm, a body key's box to 1e-6 mm) now keeps the value it was rounded
+  from. Framed recognition carries that unrounded value through the frame's motion and rounds
+  it once, in the file's coordinates, on the same grid; a decimal half-way point within the
+  coordinate floor takes the even neighbour. Positions derived from published ones (pattern
+  centres, a gusset mirror plane, an oriented slot's centre) are derived again from the
+  published values. Values move by less than one grid step: NIST CTC 01's hole at
+  `-124.99999999647548` is `-125.0`. Section recesses publish their frame origin on the
+  plane through the file's origin across the run, with run coordinates measured from it.
+  Sizes, counts, orders and fingerprints are unchanged (fingerprints read the values as found
+  in the frame). Record fields that hold positions are `features::placed::Placed<T>`, which
+  dereferences to the published value; build one with `Placed::exact` or `.into()`.
+  Positions a recogniser publishes unrounded (a plate's faces, a boss's location, step and
+  riser levels, sheet-metal and thin-wall bodies, freeform poles, a hole pattern's centre as
+  the mean of its members) are carried unrounded, as before. Each end of an interval is
+  rounded in the file on its own, so `hi - lo` can differ from the published size by one grid
+  step where it did not before (and agree where it did not): read sizes from the size
+  fields, not from interval ends.
+- **No noise near zero in significant-figure positions (for #69).** A hole's `location` (11
+  significant figures) and a circular blind step's points (6) kept round-off near zero, such
+  as NIST CTC 01's holes at z = 4.3e-11. A coordinate within the kernel's coordinate floor
+  (`COORD_FLOOR`, 1e-6 mm) of zero now publishes as 0. Other values keep their significant
+  figures: hole patterns are found from the published locations, and rounding those to
+  0.001 mm loses patterns.
+- **Near-aligned frames are published in the file's axes (for #70).** Recognition still runs
+  in the frame as inferred. Its records are published through the signed permutation of the
+  file's axes nearest the frame when that moves no point of the part by more than the
+  kernel's coordinate floor (`COORD_FLOOR`, 1e-6 mm; the rotation's distance from the
+  permutation times the part's reach from the frame origin), so they map to the file's axes
+  exactly instead of staying frame-local, and differ from the exact motion's by less than
+  the floor. On `sm-hanger.step` (2.4e-9 rad off) the six fillets, the plate and the body
+  keys are now in the file's axes; only step levels, read along the frame's z by
+  specification, stay local. Recognition and fingerprints are unchanged: fingerprints read
+  the records carried through the exact motion.
 
 ## 0.1.0 (2026-10-22)
 
