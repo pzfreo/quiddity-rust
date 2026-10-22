@@ -10,8 +10,13 @@ per part and view, the camera, and each projected edge as a polyline in view coo
 the part's solids are projected.
 
 A part whose record would take more than ``LIMIT`` bytes compressed (the fifteen largest models,
-some 27 MB between them) is left out of the committed fixture; ``CAPTURE_ALL=1``
-keeps every part, for a local run of ``crates/haecceity/examples/hlr_compare.rs``.
+some 27 MB between them) is left out of the committed fixture, but for those in ``KEEP``;
+``CAPTURE_ALL=1`` keeps every part, for a local run of ``crates/haecceity/examples/hlr_compare.rs``.
+
+The fixture records no OpenCascade version. CTC-05's record was added alone (#75) from a
+capture under cadquery-ocp 7.9.3.1 and build123d 0.11.1; a capture there differs from the
+committed records of other parts (ctc01 by 4 to 14 edges a view), so a full re-capture would
+move them too.
 """
 
 from __future__ import annotations
@@ -42,13 +47,16 @@ from quiddity import import_step_geometry  # noqa: E402
 CORPUS = QUIDDITY / "tests" / "corpus"
 OUT = Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "hlr.json.gz"
 LIMIT = 500_000
+#: Parts kept whatever their size: CTC-05, whose shaft outline (a join within one cylinder,
+#: standing 1.5e-8 inside it) haecceity once drew hidden (#75).
+KEEP = {"nist/nist_ctc_05_asme1_rd.stp"}
 
 
 def kept(record: dict) -> bool:
     """Whether *record* goes in the fixture: everything under ``CAPTURE_ALL``, else only a
-    record within ``LIMIT`` compressed."""
+    record within ``LIMIT`` compressed, or one in ``KEEP``."""
 
-    if os.environ.get("CAPTURE_ALL"):
+    if os.environ.get("CAPTURE_ALL") or record["file"] in KEEP:
         return True
     size = len(gzip.compress(json.dumps(record, allow_nan=False).encode(), mtime=0))
     if size > LIMIT:

@@ -29,8 +29,10 @@ const AGREE: f64 = 0.99;
 const AREA: f64 = 1e-3;
 /// Drawn with exact curves, of every `exact_curves_follow_their_points` edge stretch: the share
 /// measured when the floor was set (30,228 of 33,272 over every part at c06efb6, 0.90851), so
-/// fewer exact curves fail.
-const EXACT_SHARE: f64 = 0.9085;
+/// fewer exact curves fail. CTC-05 joined the fixture later (#75) with 1,357 of 1,685 (its
+/// circles seen edge-on are straight stretches drawn by their points): the floor is the same
+/// count for the other parts with CTC-05's added, 0.9085 × 33,268 + 1,357 of 34,953.
+const EXACT_SHARE: f64 = 0.903526;
 
 /// A view or cut that does not agree: its lowest score, its cut area's relative error, and a
 /// description.
@@ -243,6 +245,13 @@ fn exact_curves_follow_their_points() {
         let (mut curved, mut curved_exact) = (0, 0);
         let file = record["file"].as_str().unwrap();
         let part = read_step_file(&dir.join(file)).unwrap();
+        let floor = floors.iter().find(|k| k["file"] == file);
+        // How far an exact curve may stray from its stretch's points: 3e-4, or a part's listed
+        // gap where the file leaves a vertex off its curve (the curve is right; the points are
+        // pinned to the vertex).
+        let end_gap = floor
+            .and_then(|k| k["max_end_gap"].as_f64())
+            .unwrap_or(3e-4);
         for (toward, up) in [
             ([0.0, -1.0, 0.0], [0.0, 0.0, 1.0]),
             ([0.0, 0.0, 1.0], [0.0, 1.0, 0.0]),
@@ -286,24 +295,28 @@ fn exact_curves_follow_their_points() {
                             .fold(f64::INFINITY, f64::min)
                     })
                     .fold(0.0, f64::max);
-                if ends > 3e-4 || along > 3e-4 {
+                if ends > end_gap || along > end_gap {
                     problems.push(format!(
                         "{file} {toward:?}: {curve:?} ends {ends:.1e} along {along:.1e}"
                     ));
                 }
             }
         }
-        let floor = floors.iter().find(|k| k["file"] == file);
         let line = format!("{file}: {curved_exact} of {curved} curved edge stretches exact");
-        match floor.map(|k| k["min_exact_share"].as_f64()) {
+        if let Some(k) = floor
+            && k.get("min_exact_share").is_none()
+            && k.get("max_end_gap").is_none()
+        {
+            panic!("references/drawings.json: no min_exact_share or max_end_gap in {k}");
+        }
+        match floor.and_then(|k| k["min_exact_share"].as_f64()) {
             None if curved_exact < curved => problems.push(line),
             None => {}
-            Some(None) => panic!("references/drawings.json: no min_exact_share in {floor:?}"),
-            Some(Some(_)) if curved_exact == curved => problems.push(format!("stale: {line}")),
-            Some(Some(min)) if (curved_exact as f64) < min * curved as f64 => {
+            Some(_) if curved_exact == curved => problems.push(format!("stale: {line}")),
+            Some(min) if (curved_exact as f64) < min * curved as f64 => {
                 problems.push(format!("{line}, below the floor of {min}"))
             }
-            Some(Some(_)) => {}
+            Some(_) => {}
         }
         (exact, edges, problems)
     });
@@ -364,4 +377,38 @@ fn segment_distance(p: [f64; 2], a: [f64; 2], b: [f64; 2]) -> f64 {
         (((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len2).clamp(0.0, 1.0)
     };
     (p[0] - a[0] - t * dx).hypot(p[1] - a[1] - t * dy)
+}
+
+/// CTC-05's shaft, seen from the front, has both its outlines visible (#75). The right one is
+/// the line joining the shaft cylinder's two halves, standing 1.5e-8 inside the surface: a ray
+/// from it along the view grazes the cylinder and would meet the other half just past its start.
+#[test]
+fn ctc05_shaft_outlines_are_visible() {
+    use haecceity::hlr::{Class, View, project};
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let part = read_step_file(&dir.join("nist/nist_ctc_05_asme1_rd.stp")).unwrap();
+    let view = View::new([0.0, -1.0, 0.0], [0.0, 0.0, 1.0]).unwrap();
+    let pieces = project(&part, &view).unwrap();
+    for x in [-31.75, 31.75] {
+        let on: Vec<_> = pieces
+            .iter()
+            .filter(|p| p.class == Class::Outline)
+            .filter(|p| p.points.iter().all(|q| (q[0] - x).abs() < 1e-6))
+            .filter(|p| {
+                p.points
+                    .iter()
+                    .all(|q| (285.75 - 1e-6..=476.25 + 1e-6).contains(&q[1]))
+            })
+            .collect();
+        let length: f64 = on
+            .iter()
+            .map(|p| p.points.last().unwrap()[1] - p.points[0][1])
+            .map(f64::abs)
+            .sum();
+        assert!((length - 190.5).abs() < 1e-6, "x = {x}: {length} drawn");
+        assert!(on.iter().all(|p| p.visible), "x = {x}: hidden stretches");
+    }
 }

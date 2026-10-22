@@ -576,8 +576,24 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
             .iter()
             .all(|&(_, d)| d <= 1e-6 * scale)
     };
+    // On *face*, a hair outside it: the ray to the viewer runs along the face where the face
+    // turns away, and from just inside it (a chord's middle, or a join standing off the
+    // surface) would strike it again.
+    let off_face = |face: usize, p: V3| {
+        let surface = &part.faces[face].surface;
+        surface
+            .parameters(p, None)
+            .and_then(|(u, v)| {
+                let out = part.face_normal(face, u, v)?;
+                Some(geom::add(
+                    surface.value(u, v),
+                    geom::scale(out, 1e-5 * scale),
+                ))
+            })
+            .unwrap_or(p)
+    };
     let judged = parallel(&order, |i| {
-        let (_, points, on) = &curves[i];
+        let (class, points, on) = &curves[i];
         // An edge standing off its faces (within the file's tolerance) can start its ray just
         // inside them: the ray starts clear of that stand-off, so the edge does not hide itself.
         let start = 1e-6 * scale
@@ -595,24 +611,23 @@ fn draw(part: &Part, view: &View, plane: Option<&Plane>) -> Result<Vec<Projected
             };
         let judge = |p: V3| {
             let at = match on {
+                // A seam or join within one surface (or a curvature-continuous blend) on the
+                // outline is the surface's silhouette, judged as one: off its first drawn face
+                // (its faces are tangent there). From the curve, which may stand a hair inside
+                // the surface (ctc05's edge 375, 1.5e-8), the ray grazing the surface would meet
+                // the face across the join.
+                On::Edge(c, e) if *class == Class::Outline => {
+                    let at = c.value(c.parameter(p));
+                    part.edge_faces()[*e]
+                        .iter()
+                        .find(|f| faces.binary_search(f).is_ok())
+                        .map_or(at, |&face| off_face(face, at))
+                }
                 // On the curve itself: a chord's middle can lie exactly on another face's
                 // boundary drawn by the same samples.
                 On::Edge(c, _) => c.value(c.parameter(p)),
-                // On the face, a hair outside it: the ray to the viewer runs along the face
-                // there, and from a chord's middle (inside a curved face) would strike it.
-                On::Silhouette(face) => {
-                    let surface = &part.faces[*face].surface;
-                    surface
-                        .parameters(p, None)
-                        .and_then(|(u, v)| {
-                            let out = part.face_normal(*face, u, v)?;
-                            Some(geom::add(
-                                surface.value(u, v),
-                                geom::scale(out, 1e-5 * scale),
-                            ))
-                        })
-                        .unwrap_or(p)
-                }
+                // From a chord's middle (inside a curved face) the ray would strike the face.
+                On::Silhouette(face) => off_face(*face, p),
                 On::Section => p,
             };
             let verdict = hidden(at, start).ok_or(at)?;

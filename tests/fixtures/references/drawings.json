@@ -423,6 +423,13 @@
     }
   },
   {
+    "file": "nist/nist_ctc_05_asme1_rd.stp",
+    "view": "exact",
+    "verdict": "rust-correct",
+    "reason": "Edge 226 (a circle of radius 6.34997 between faces 78 and 79) ends on a vertex 0.018 mm off its circle's plane, so its exact circle strays up to that far from the stretch's points, which are pinned to the vertex (0.018 mm in the top and side views). The circle is the edge's geometry and is drawn as such; the gap is the file's.",
+    "max_end_gap": 0.02
+  },
+  {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
     "view": "front",
     "verdict": "rust-correct",
