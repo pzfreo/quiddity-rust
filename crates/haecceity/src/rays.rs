@@ -113,6 +113,16 @@ impl<'a> RayCaster<'a> {
                 _ => part.face_bounds(i),
             })
             .collect();
+        Self::with_face_boxes(part, faces, face_boxes)
+    }
+
+    /// Rays against *faces*, each pruned by its box in *face_boxes* (one per part face), which
+    /// must certainly contain the face.
+    pub(crate) fn with_face_boxes(
+        part: &'a Part,
+        faces: Vec<usize>,
+        face_boxes: Vec<Bounds>,
+    ) -> Self {
         let edge_boxes = part
             .edges
             .iter()

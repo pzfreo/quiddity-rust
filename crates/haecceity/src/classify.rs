@@ -63,6 +63,16 @@ impl<'a> Classifier<'a> {
         Self::from_rays(RayCaster::for_faces(part, faces))
     }
 
+    /// Classifies against *faces*, pruning by *face_boxes* (one per part face, each certainly
+    /// containing its face) in place of the faces' own sampled boxes.
+    pub(crate) fn with_face_boxes(
+        part: &'a Part,
+        faces: Vec<usize>,
+        face_boxes: Vec<crate::geom::Bounds>,
+    ) -> Self {
+        Self::from_rays(RayCaster::with_face_boxes(part, faces, face_boxes))
+    }
+
     fn from_rays(rays: RayCaster<'a>) -> Self {
         let mut edges: Vec<usize> = rays
             .faces

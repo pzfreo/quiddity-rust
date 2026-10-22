@@ -4,6 +4,16 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## Unreleased
+
+- **Faster STEP reading (for #72).** The inverted-shell repair (#59) no longer integrates
+  every face of every solid on each read. It first looks for one face with an outward witness,
+  by ray parity against boxes that certainly hold each face (no face interior sampled), which
+  proves the shell is not inverted. The full test (sampled boxes, signed volume, every face
+  inward, wire senses) runs only when that proof is not found. The same shells are repaired,
+  with the same reports, part definitions and masses. Instructions retired on
+  nist_ctc_02: `read_step` and `read_part_definitions` 10.3G → 0.9G.
+
 ## 0.1.0 (2026-10-22)
 
 Upgrading from alpha.9:
