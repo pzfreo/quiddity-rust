@@ -4,7 +4,20 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
-## Unreleased
+## 0.1.1 (2026-10-22)
+
+Upgrading from 0.1.0:
+
+- **Record position fields are `features::placed::Placed<T>` (#69).** A field that holds a
+  rounded position (a hole's `location`, a fillet's `at`, a blend's `center`, and so on) is now
+  `Placed<T>`. It dereferences, compares and serialises as the published value, so reading it
+  and recognition documents are unchanged; code that builds records or destructures such a
+  field takes the value with `*` and builds one with `Placed::exact` or `.into()`.
+- **Changed results.** Six plates' `lo`/`hi` and fingerprint `thickness` change (#71; the
+  fingerprint version stays `quiddity-rust/fingerprint/3`); CTC-04 loses its 12 false
+  countersinks (#76); framed positions move by less than one grid step (#69); sm-hanger's
+  records are published in file axes (#70). Re-recognise rather than reuse 0.1.0 output for
+  these parts.
 
 - **Chamfer corners are no longer countersinks (for #76).** A countersink's cone must now run
   at least 270° round its axis (all faces on that cone together). On NIST CTC-04 the 12 reported
