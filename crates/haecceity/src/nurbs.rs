@@ -334,7 +334,7 @@ impl NurbsCurve {
 }
 
 /// A rational B-spline surface, control points indexed `[u][v]`.
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct NurbsSurface {
     pub degree_u: usize,
     pub degree_v: usize,
@@ -345,6 +345,21 @@ pub struct NurbsSurface {
     /// A sampled grid over the domain: seeds for inversion and ray intersection, built on
     /// first use so that reading a file pays nothing for surfaces no query touches.
     grid: std::sync::OnceLock<Grid>,
+}
+
+/// The surface's own data, without the grid: a cache built on first use, which would make the
+/// output depend on which queries have been asked.
+impl std::fmt::Debug for NurbsSurface {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("NurbsSurface")
+            .field("degree_u", &self.degree_u)
+            .field("degree_v", &self.degree_v)
+            .field("control_points", &self.control_points)
+            .field("weights", &self.weights)
+            .field("knots_u", &self.knots_u)
+            .field("knots_v", &self.knots_v)
+            .finish_non_exhaustive()
+    }
 }
 
 #[derive(Clone, Debug, Default)]
