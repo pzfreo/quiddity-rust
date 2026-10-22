@@ -26,6 +26,9 @@ in [docs/alpha1.md](docs/alpha1.md).
   OpenCascade. Its edge 226 ends on a vertex 0.018 mm off its circle's plane, so the edge's
   exact circle strays up to that far from the stretch's points; the comparison allows that gap
   for CTC-05 only (`references/drawings.json`), and the circle is still drawn exactly.
+- **A compound's child order does not change recognition; a test now pins it (for #73).** The
+  1 channel against 2 in #73 is the file: draftwright-rust's forward-order `two-channels.step`
+  holds one occurrence of the block, the reversed file both.
 - **Faster STEP reading (for #72).** The inverted-shell repair (#59) no longer integrates
   every face of every solid on each read. It first looks for one face with an outward witness,
   by ray parity against boxes that certainly hold each face (no face interior sampled), which
