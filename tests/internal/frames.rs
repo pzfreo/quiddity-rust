@@ -396,6 +396,8 @@ fn axis_majorities_and_intrinsic_frames_survive_sixty_and_one_degree_motions() {
             IDENTITY,
             motion([0., 0., 1.], 60., [12.3, -45.6, 78.9]),
             motion([0., 0., 1.], 1., [12.3, -45.6, 78.9]),
+            motion([1., 0., 0.], 60., [12.3, -45.6, 78.9]),
+            motion([1., 0., 0.], 1., [12.3, -45.6, 78.9]),
         ] {
             let moved = part.transformed(&placement).unwrap();
             let recognised = correspondence::recognise(&moved);
@@ -519,6 +521,13 @@ fn genuinely_rotated_corpus_direction_sets_keep_their_winning_frames() {
                 0.,
             ],
         ),
+        // Distinct-surface maxima over every candidate basis: cgb203 5 > file 4,
+        // cgb217 98 > file 96, cgb241 20 > file 18, connector 19 > file 17.
+        // Area does not cast votes: cgb241's larger file-axis walls do not change this rule.
+        (
+            "cadgenbench_inputs/cgb241.step",
+            [0.46034751596800805, 0.8877387929690156, 0.],
+        ),
         (
             "cadgenbench/threaded_connector_109.step",
             [-0.45979133716192094, -0.8880269851028474, 0.],
@@ -539,5 +548,105 @@ fn genuinely_rotated_corpus_direction_sets_keep_their_winning_frames() {
             part.bounds().diagonal(),
         );
         assert!(fields.is_empty(), "{file}: {why}");
+    }
+}
+
+/// Equal complete direction sets must choose the file axes. Each box has six distinct planes; their four Z planes are shared
+/// direction support, so both competing bases have exactly eight distinct surfaces.
+#[test]
+fn exact_surface_support_tie_prefers_file_axes() {
+    use quiddity::kernel::{brep::Part, geom::Surface};
+    let source =
+        quiddity::read_step_file(&common::fixtures().join("captured/frames/box_rot_x30.step"))
+            .unwrap();
+    assert_eq!(source.faces.len(), 6);
+    assert!(
+        source
+            .faces
+            .iter()
+            .all(|f| matches!(f.surface, Surface::Plane { .. }))
+    );
+    let first = source
+        .transformed(&motion([1., 0., 0.], -30., [0.; 3]))
+        .unwrap();
+    let second = first
+        .transformed(&motion([0., 0., 1.], 30., [100., 100., 100.]))
+        .unwrap();
+    let mut faces = first.faces.clone();
+    let mut edges = first.edges.clone();
+    let mut solids = first.solids.clone();
+    let vertex_offset = edges
+        .iter()
+        .map(|e| e.vertices.0.max(e.vertices.1))
+        .max()
+        .unwrap()
+        + 1;
+    for mut face in second.faces.clone() {
+        face.solid = face.solid.map(|i| i + solids.len());
+        for wire in &mut face.loops {
+            for (edge, _) in &mut wire.edges {
+                *edge += edges.len();
+            }
+        }
+        for (edge, _) in &mut face.pcurves {
+            *edge += edges.len();
+        }
+        faces.push(face);
+    }
+    for mut solid in second.solids.clone() {
+        for face in &mut solid.faces {
+            *face += first.faces.len();
+        }
+        solids.push(solid);
+    }
+    for mut edge in second.edges.clone() {
+        edge.vertices.0 += vertex_offset;
+        edge.vertices.1 += vertex_offset;
+        edges.push(edge);
+    }
+    let part = Part::new(faces, edges, solids);
+    let frame = infer_part_frame(&part).unwrap();
+    assert!(
+        [frame.x, frame.y, frame.z]
+            .iter()
+            .all(|a| a.iter().any(|c| c.abs() == 1.)),
+        "{frame:?}"
+    );
+}
+
+/// The oblique channel's coplanar patches used to outvote the file axes 17:16 by face.
+/// Its complete basis has only 10 distinct supports against 15 on the file axes. Pin
+/// the real slot, its recess, the void and the angled step that the split-face vote lost.
+#[test]
+fn split_channel_surfaces_do_not_outvote_file_axes() {
+    let Some(dir) = common::corpus_dir() else {
+        return;
+    };
+    let part = quiddity::read_step_file(&dir.join("mfcadpp_regressions/11512.step")).unwrap();
+    let frame = infer_part_frame(&part).unwrap();
+    assert!(
+        [frame.x, frame.y, frame.z]
+            .iter()
+            .all(|a| a.iter().any(|c| c.abs() == 1.)),
+        "{frame:?}"
+    );
+    let recognised = quiddity::correspondence::recognise(&part);
+    assert_eq!(recognised.features.plates.len(), 1);
+    assert_eq!(recognised.features.risers.len(), 2);
+    assert_eq!(recognised.features.chamfers.len(), 1);
+    assert!(recognised.features.oriented_chamfers.is_empty());
+    assert!(recognised.features.fillets.is_empty());
+    // The former fillet was an inward-facing (concave) R1 cylinder, not an external round.
+    assert_eq!(part.frame_points_outward(28), Some(false));
+    for (family, faces) in [
+        ("rectangular_blind_slots", vec![18, 19, 20, 29]),
+        ("section_recesses", vec![18, 19, 20, 29]),
+        ("interior_voids", vec![13, 14]),
+        ("angled_steps", vec![32]),
+    ] {
+        assert!(
+            recognised.features.defining[family].contains(&faces),
+            "{family}: {faces:?}"
+        );
     }
 }

@@ -7,21 +7,23 @@ in [docs/alpha1.md](docs/alpha1.md).
 ## Unreleased
 
 - **Frame inference votes over complete direction sets (for #81).** Planar normals and
-  cylinder axes each vote once; file axes win a tie, while genuinely rotated parts retain
+  cylinder axes each vote once per distinct coplanar plane or coaxial equal-radius cylinder; file axes win a tie, while genuinely rotated parts retain
   their intrinsic frame. Real 1° features no longer merge into the first direction read.
   CTC-02 AP242 fillets rise from 3 to 20 (rc has 21: its extra R1.093 feature is absent
   from AP242); FTC-07 AP242 fillets rise from 13 to 16 and polygonal bosses from 0 to 4,
   with all 5 plates retained. cgb202 fillets rise from 272 to 296 and cgb217 from 6 to 14;
   cgb207 recovers its missing file-axis fillet at a total of 20. All 43 Specify fillet
-  regressions are recovered. Parallel chamfer support edges are oriented consistently
+  regressions are recovered. Parallel chamfer support edge directions are compared without endpoint-order dependence
   after frame normalisation, recovering mfcadpp/10252's missing 18.694-mm, 0.54×45°
   chamfer (0 to 1), the 44th Specify regression. CTC-02 AP242 also gains 4 pockets (0 to 4)
   and step levels (2 to 13); its 4 former risers were outer envelope walls seen in the wrong
   frame, and are gone. FTC-07 AP242 step levels rise from 6 to 8. Mixed-direction parts can
-  change directional families: on mfcadpp_regressions/11512, rectangular blind slots fall
-  from 1 to 0, section recesses from 2 to 1 and accepted grid voids from 1 to 0. Measured
-  direction/family evidence accompanies every bounded framed-floor allowance; broader
-  oblique-slot and shallow-support fillet coverage remains a limitation.
+  change directional families; distinct-surface support keeps mfcadpp_regressions/11512
+  aligned despite split channel faces (15 file-axis surfaces versus 10 rotated), retaining
+  its slot (1), section recesses (2), accepted interior void (1), angled step (1) and plate
+  (1). Its former oblique-frame fillet is a concave cylinder; its principal chamfer remains.
+  Measured analytic evidence accompanies every bounded framed-floor allowance; broader
+  shallow-support fillet coverage remains a limitation.
 
 ## 0.1.1 (2026-10-22)
 

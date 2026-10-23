@@ -18099,7 +18099,7 @@
       "family": "blends",
       "max_lost": 8,
       "reason": "Eight convex cylindrical blend faces are now specific fillets. (for #81)",
-      "evidence": "The eight old blend faces 210,205,177,182,238,233,261,266 have cylinder axes at file +/-45 degrees. They become principal in the winning 154-vote basis and are claimed by fillets; reconcile::BlendSupersededByFillet removes the duplicate chains."
+      "evidence": "The eight old blend faces 210,205,177,182,238,233,261,266 have cylinder axes at file +/-45 degrees. They become principal in the winning 98-distinct-surface basis (154 faces) and are claimed by fillets; reconcile::BlendSupersededByFillet removes the duplicate chains."
     },
     {
       "file": "corpus/cadgenbench_inputs/cgb241.step",
@@ -18110,60 +18110,36 @@
       "evidence": "Analytic cylinder faces 27 and 47 are claimed by fillets in the new frame instead of blends; reconcile::BlendSupersededByFillet suppresses their duplicate blend claims."
     },
     {
-      "file": "corpus/mfcadpp_regressions/11512.step",
-      "mode": "framed",
-      "family": "angled_steps",
-      "max_lost": 1,
-      "reason": "An angled support becomes principal in the 17-vote intrinsic basis. (for #81)",
-      "evidence": "Face 32 file normal (-0.401686406968178,0.915777282125406,0) becomes local (0,-1,0); it is no longer an oblique angled-step plane."
-    },
-    {
-      "file": "corpus/mfcadpp_regressions/11512.step",
-      "mode": "framed",
-      "family": "section_recesses",
-      "max_lost": 1,
-      "reason": "One recess comes from the principal-only rectangular slot, which is oblique in the new basis. (for #81)",
-      "evidence": "The declined recess is supported by rectangular_blind_slots faces [18,19,20,29], with file-axis walls +/-X and +/-Z. The new frame z=(0.915777282125406,0.401686406968178,0) is oblique to those walls. See the paired rectangular_blind_slots allowance; source recess geometry is retained, but this directional recogniser does not publish it in this frame."
-    },
-    {
-      "file": "corpus/mfcadpp_regressions/11512.step",
-      "mode": "framed",
-      "family": "chamfers",
-      "max_lost": 1,
-      "reason": "A principal chamfer becomes an oriented chamfer. (for #81)",
-      "evidence": "Face 2 file normal (0.707106781186548,0,-0.707106781186548) becomes local (-0.707106781186548,0.284035182277658,0.647552326247461); oriented_chamfers now claims the same face."
-    },
-    {
-      "file": "corpus/mfcadpp_regressions/11512.step",
-      "mode": "framed",
-      "family": "plates",
-      "max_lost": 1,
-      "reason": "The old plate reading used nonparallel draft faces as thickness sides. (for #81)",
-      "evidence": "Old side faces 1 and 10 have normal (0,-0.990021047739046,-0.140919569378006) while the opposing face 4 has normal (0,1,0): their normals differ by 8.1 degrees. Thus lo/hi 0 and 7.153391 are not parallel plate sides. The winning intrinsic basis does not promote this approximate old reading to a plate."
-    },
-    {
-      "file": "corpus/mfcadpp_regressions/11512.step",
-      "mode": "framed",
-      "family": "interior_voids",
-      "max_lost": 1,
-      "reason": "The accepted six-axis grid reading changes when the analytic channel becomes principal; the two other old document entries were refusals, not features. (for #81)",
-      "evidence": "Old accepted void faces [13,14] have plane normal (-0.915777282125406,-0.401686406968178,0) and cylinder axis (0.401686406968178,-0.915777282125406,0), which become principal in the new frame. Its openings are [3,12]. This finite six-axis visibility reading is sensitive to that change of ray directions; retaining oblique-channel coverage needs a broader grid/recogniser change. Only one accepted reading is allowed to decline; the two old widening_behind_throat_unproved refusals do not count as features."
-    },
-    {
-      "file": "corpus/mfcadpp_regressions/11512.step",
-      "mode": "framed",
-      "family": "rectangular_blind_slots",
-      "max_lost": 1,
-      "reason": "The principal-only rectangular slot becomes oblique in the winning mixed-direction frame. (for #81)",
-      "evidence": "The real slot faces [18,19,20,29] retain file-axis walls +/-X and +/-Z, while the new axes include (0.401686406968178,-0.915777282125406,0). This recogniser cannot encode that oblique run with an axis letter. Faces 18/19 are now risers; general mixed-direction slot coverage is a retained limitation, not an unexplained floor reduction."
-    },
-    {
       "file": "fixture/nist_ctc_02_asme1_ap242-e2.stp.gz",
       "mode": "framed",
       "family": "risers",
       "max_lost": 4,
       "reason": "The former risers are outer envelope walls seen obliquely by the wrong 60-degree frame, not bounded internal risers in the winning file-axis frame. (for #81)",
       "evidence": "AP242 faces 362/364 are planes at file X=+/-265 with normals +/-X; faces 363/365 are planes at file Y=-40/820 with normals -/+Y. In the new frame these normals are respectively +/-local Y and +/-local Z. The local-Z faces are outermost levels; the local-Y faces lie on the stock envelope. levels::riser_proposals excludes envelope walls; all four former readings used rotated-box positions rather than intrinsic interior steps."
+    },
+    {
+      "file": "corpus/mfcadpp_regressions/11512.step",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "The former external fillet reading is a concave cylinder, not a convex edge round. (for #81)",
+      "evidence": "Face 28 is an R1 cylinder on file Z at (18.431825930033,2.410118441809); frame_points_outward(28)=Some(false) proves its material side is inward. The spurious fillet appeared only under the split-face 17-vote oblique basis. split_channel_surfaces_do_not_outvote_file_axes pins both the inward classification and zero external fillets."
+    },
+    {
+      "file": "corpus/mfcadpp_regressions/11512.step",
+      "mode": "framed",
+      "family": "oriented_chamfers",
+      "max_lost": 1,
+      "reason": "The same face is a principal chamfer, not an oblique-run chamfer. (for #81)",
+      "evidence": "Face 2 has file normal (sqrt(0.5),0,-sqrt(0.5)), with its run along file Y. The corrected frame is file Z/X/Y: the same face is retained by chamfers/0 and the run is principal. The oriented chamfer recogniser explicitly excludes principal runs. No physical bevel is lost; its 45-degree subtype is pinned alongside the recovered features."
+    },
+    {
+      "file": "corpus/mfcadpp_regressions/11512.step",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 5,
+      "reason": "The extra rotated-box readings are outer envelope walls, bounded slot walls and a horizontal level, not five additional internal risers. (for #81)",
+      "evidence": "The old oblique basis labelled faces [19,18,7,11,12,0,4] as risers. Faces 7,11,0,4 are planes on the exact body envelope Y=27.992631384756, X=25.46840104338, X=0 and Y=0. Face 12 is now a horizontal local-Z level (step_levels/1). Faces 18/19 are the bounded opposing slot walls at X=15.295401971547/12.837401302257, Z in [8.189143528267,14.863339271081], not steps spanning the whole body Z in [0,14.863339271081]; both survive in rectangular_blind_slots/0 and section_recesses/1. The real risers [3] and [30] remain, matching origin/main's count two. The floor stays seven and only these five additional false readings are allowed absent."
     }
   ]
 }

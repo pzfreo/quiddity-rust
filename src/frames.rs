@@ -109,9 +109,34 @@ impl PartFrame {
 struct DirectionClass {
     direction: V3,
     area: f64,
+    /// Distinct infinite analytic supports, independent of B-rep face splits.
+    surfaces: Vec<AnalyticSupport>,
     face_areas: Vec<f64>,
     /// Each face's centroid offset from the origin along `direction`, with its area.
     face_offsets: Vec<(f64, f64)>,
+}
+
+/// One plane or infinite cylinder within a tight direction class. A cylinder's axial
+/// placement and a plane's in-plane placement do not distinguish their supporting surfaces.
+struct AnalyticSupport {
+    origin: V3,
+    radius: Option<f64>,
+}
+
+impl AnalyticSupport {
+    fn same_surface(&self, other: &Self, direction: V3) -> bool {
+        let delta = geom::sub(self.origin, other.origin);
+        let along = geom::dot(delta, direction);
+        match (self.radius, other.radius) {
+            (None, None) => along.abs() <= geom::COORD_FLOOR,
+            (Some(a), Some(b)) => {
+                (a - b).abs() <= geom::COORD_FLOOR
+                    && geom::norm(geom::sub(delta, geom::scale(direction, along)))
+                        <= geom::COORD_FLOOR
+            }
+            _ => false,
+        }
+    }
 }
 
 /// `_DirectionClass.signature`, rounded to 9 decimals: the rotation-invariant rank of a class.
@@ -249,7 +274,9 @@ fn material_origin(part: &Part) -> Result<V3, FrameRefusal> {
 
 /// `infer_part_frame`: a rigid-equivariant material origin and a local basis from the part's
 /// plane normals and cylinder axes. Choose the orthogonal basis supported by the most analytic
-/// faces (one vote per plane normal or cylinder axis, within `DIRECTION_COS` of a basis line).
+/// surfaces (one vote per coplanar plane or coaxial equal-radius cylinder, not per split face).
+/// Directions match within `DIRECTION_COS`; plane offsets, cylinder axis distances and radii
+/// match within the kernel's `COORD_FLOOR`. Supports need not share a topological edge.
 /// File axes win an equal support count; otherwise the frame follows the material directions.
 /// Within the winning set, area in the legacy angular band ranks the axes, followed by the
 /// exact class signatures; face offsets orient them.
@@ -265,6 +292,17 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
             _ => continue,
         };
         let direction = canonical_sign(unit(raw)?);
+        let surface = match &face.surface {
+            Surface::Plane { frame } => AnalyticSupport {
+                origin: frame.origin,
+                radius: None,
+            },
+            Surface::Cylinder { frame, radius } => AnalyticSupport {
+                origin: frame.origin,
+                radius: Some(*radius),
+            },
+            _ => unreachable!(),
+        };
         let moments = part
             .face_moments(index)
             .ok_or(FrameRefusal::UnmeasuredFace)?;
@@ -282,6 +320,13 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
                 if py::dot(&direction, &class.direction) < 0.0 {
                     offset = -offset;
                 }
+                if !class
+                    .surfaces
+                    .iter()
+                    .any(|s| s.same_surface(&surface, class.direction))
+                {
+                    class.surfaces.push(surface);
+                }
                 class.area += area;
                 class.face_areas.push(area);
                 class.face_offsets.push((offset, area));
@@ -289,6 +334,7 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
             None => classes.push(DirectionClass {
                 direction,
                 area,
+                surfaces: vec![surface],
                 face_areas: vec![area],
                 face_offsets: vec![(offset, area)],
             }),
@@ -329,7 +375,7 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
                 axes.iter()
                     .any(|axis| py::dot(axis, &class.direction).abs() >= DIRECTION_COS)
             })
-            .map(|class| class.face_areas.len())
+            .map(|class| class.surfaces.len())
             .sum()
     };
     let file_axes = [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]];
@@ -358,7 +404,9 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
                 z,
                 gauge,
             };
-            let votes = support([x, y, z]);
+            // Keep the second material class's own votes when its direction is adjusted
+            // by Gram-Schmidt (the perpendicular tolerance is wider than DIRECTION_COS).
+            let votes = support([first, second, z]);
             // Strict improvement preserves the invariant signature ordering at a tie.
             if best.as_ref().is_none_or(|(count, _)| votes > *count) {
                 best = Some((votes, candidate));
@@ -597,6 +645,7 @@ mod axial_tie_tests {
                 .map(|direction| DirectionClass {
                     direction,
                     area: 1.,
+                    surfaces: vec![],
                     face_areas: vec![1.],
                     face_offsets: vec![(0., 1.)],
                 })

@@ -137,11 +137,16 @@ It infers the part's frame, transforms the loaded geometry in memory, recognises
 maps records back. It does not re-read STEP. `frame` reports `Inferred` or `Refused { reason }`;
 fields without corresponding file axes remain `local` and must be interpreted through `frame`.
 Frame selection (for #81) compares complete orthogonal sets of three direction lines. Each
-analytic planar face normal or cylinder axis gives one vote to a set when it lies within
-`cos(angle) >= 1 - 1e-10` of one of its lines (about 0.0008°). The candidates come from
-perpendicular material direction pairs, with the existing perpendicular tolerance of 0.001
-in cosine. The highest face count wins; the file's axes win an equal count when two material
-directions establish them. Within a winning set, area within the legacy cosine-0.999 angular band ranks
+distinct analytic surface gives one vote to a set when its plane normal or cylinder axis
+lies within `cos(angle) >= 1 - 1e-10` of one of its lines (about 0.0008°). Coplanar planes
+and coaxial cylinders of equal radius count once, including disconnected patches: plane
+normal offsets, cylinder axis distances and radii match within the kernel's 1e-6 mm
+coordinate floor. Splitting a supporting surface into more B-rep faces cannot add votes.
+Candidates come from perpendicular material direction pairs, with the existing perpendicular
+tolerance of 0.001 in cosine. The pair's original direction classes vote even when the second
+axis is orthogonalised; the third line is their normalised cross product. The highest distinct
+surface count wins; the file's axes win an equal count when two material directions establish
+them. Within a winning set, area within the legacy cosine-0.999 angular band ranks
 its axes, followed by the exact class signatures; face offsets orient them. Area is summed
 independently about each line, so nearby directions remain distinct and face order does not
 choose their representative. This retains the aligned rc/rd axis order. Counts keep a large minority angled surface from choosing the
