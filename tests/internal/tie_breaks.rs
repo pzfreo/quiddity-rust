@@ -839,3 +839,45 @@ fn a_five_hundred_hole_perforated_plate_has_one_grid() {
         holes.reverse();
     }
 }
+
+/// For #83: equal seats at opposite mouths are interchangeable end gauges. Their
+/// evidence is the pair, independent of the representative end or discovery order.
+#[test]
+fn symmetric_countersink_seats_survive_motion_and_seat_permutation() {
+    let path = common::fixtures().join("countersink_two_face.step.gz");
+    let mut claims = None;
+    for at in motions() {
+        let part = read_step_file_placed(&path, &at).unwrap();
+        let ctx = Context::new(&part);
+        let mut seats = features::countersinks::discover_verified(&ctx).unwrap();
+        assert_eq!(seats.len(), 2);
+        for _ in 0..2 {
+            let found = features::holes::discover_verified(&ctx, &seats).unwrap();
+            assert_eq!(found.len(), 1);
+            let hole = &found[0].record;
+            let seat = hole.csink.as_ref().expect("symmetric seats retained");
+            assert_eq!(
+                (hole.diameter, seat.major_diameter, seat.depth),
+                (6., 14., 4.)
+            );
+            assert!(
+                quiddity::kernel::geom::dot(
+                    hole.axis,
+                    quiddity::kernel::geom::unit(seat.axis).unwrap()
+                ) > 1. - 1e-6
+            );
+            let mut context = found[0].context.clone();
+            context.sort_unstable();
+            context.dedup();
+            let mut expected: Vec<_> = seats
+                .iter()
+                .flat_map(|s| s.defining.iter().copied())
+                .collect();
+            expected.sort_unstable();
+            expected.dedup();
+            assert_eq!(context, expected);
+            assert_eq!(claims.get_or_insert_with(|| context.clone()), &context);
+            seats.reverse();
+        }
+    }
+}
