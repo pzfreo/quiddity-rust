@@ -13,6 +13,17 @@ in [docs/alpha1.md](docs/alpha1.md).
   extend a predominant plate skin within the opposing skin's transverse envelope:
   whistle_frame_reference is 7.0 mm thick again (for #85). The six supporting-plane
   corrections from #71 remain in place; only whistle's plate fingerprint thickness changes.
+- **CTC-02's 49.5 mm rows are not published as a pattern (for #82).** Its six ø8.38
+  holes at x = ±25, ±74, ±122 are spaced 48, 49, 50, 49, 48. Alpha.8 chose one of two
+  mirror-image three-hole rows (spacings 49 and 50, mean 49.5) by input order; both share
+  the two central holes and have equal support, so under ADR 0011 neither is published.
+  No refusal record is emitted; every hole is still recognised, and the 13 other patterns
+  remain. A regression test pins the part and its hole stations.
+- **Identical countersinks at opposite bore mouths stay attached (for #83).** The ø6 hole
+  in draftwright-rust's two-face fixture again links to its ø14, 90°, 4 mm deep seat;
+  both countersink records remain (2). A through hole retains its symmetric seats and
+  both sets of supporting faces. Its `csink` refers to the seat at the presentation end;
+  competing seats at one mouth still refuse.
 
 ## 0.1.1 (2026-10-22)
 

@@ -1339,3 +1339,63 @@ fn a_seat_split_by_a_slot_stays_a_countersink() {
         );
     }
 }
+
+/// For #82: alpha.8 chose one of two overlapping, equal-support 49.5 mm rows by
+/// input order. Under ADR 0011 neither is published: neither row owns the two central holes
+/// uniquely. No refusal record is emitted; the holes themselves are still recognised.
+#[test]
+fn ctc02_refuses_the_ambiguous_49_5_hole_arrays() {
+    use features::hole_patterns::HolePattern;
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let (recognised, _) = default(&dir.join("nist/nist_ctc_02_asme1_rc.stp"), &IDENTITY);
+    let patterns = &recognised.features.hole_patterns;
+    assert_eq!(patterns.len(), 13);
+    let mut pitches: Vec<_> = patterns
+        .iter()
+        .filter_map(|p| match p {
+            HolePattern::LinearArray { pitch, .. } => Some(*pitch),
+            _ => None,
+        })
+        .collect();
+    pitches.sort_by(f64::total_cmp);
+    pitches.dedup();
+    assert_eq!(pitches, [48., 49.76, 75.]);
+    assert!(!patterns.iter().any(|p| matches!(p,
+        HolePattern::LinearArray { pitch, holes, .. } if *pitch == 49.5 && holes.len() >= 3
+    )));
+    let mut stations: Vec<_> = recognised
+        .features
+        .holes
+        .iter()
+        .filter(|h| h.diameter == 8.38 && h.location[1] == 128. && h.location[2] == -360.)
+        .map(|h| h.location[0])
+        .collect();
+    stations.sort_by(f64::total_cmp);
+    assert_eq!(stations, [-122., -74., -25., 25., 74., 122.]);
+    // Reflection exchanges these span-99 readings; both claim x = -25 and +25.
+    assert_eq!((stations[3] - stations[1]) / 2., 49.5);
+    assert_eq!((stations[4] - stations[2]) / 2., 49.5);
+}
+
+/// For #83: draftwright-rust's identical seats at opposite mouths remain attached.
+#[test]
+fn a_two_face_countersink_is_attached_to_its_bore() {
+    let path = fixture("countersink_two_face.step.gz");
+    let (recognised, _) = default(&path, &IDENTITY);
+    let features = &recognised.features;
+    assert_eq!(features.countersinks.len(), 2);
+    let hole = features.holes.iter().find(|h| h.diameter == 6.).unwrap();
+    let seat = hole.csink.as_ref().expect("the 6 mm bore has a seat");
+    assert!(features.countersinks.contains(seat));
+    assert_eq!(
+        (
+            seat.drill_diameter,
+            seat.major_diameter,
+            seat.included_angle
+        ),
+        (6., 14., 90.)
+    );
+}

@@ -7,3 +7,7 @@ the copyright owner.
 The regression fixture tests/fixtures/whistle_frame_reference.step.gz is the maintainer's
 own model from draftwright-rust (tests/fixtures/recognition/issues/whistle_frame_reference.step.gz),
 copied unchanged for #85.
+
+Test fixture tests/fixtures/countersink_two_face.step.gz is from draftwright-rust's
+tests/fixtures/coverage-holes/countersink-two-face.step, a CC0/own build123d model
+by Paul Fremantle, supplied for issue #83.

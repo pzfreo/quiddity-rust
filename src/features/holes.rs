@@ -59,7 +59,9 @@ pub enum Bottom {
 /// the top of the bore to the hole's deep end. `bottom` is `"through"`, `"flat"`,
 /// `"drill_point"` or `"unknown"`. For interchangeable mouths, axis/location are a
 /// presentation end gauge. Identical counterbore/spotface readings at both mouths are retained
-/// with both sets of defining faces; differing readings are omitted. With no proved attachment,
+/// with both sets of defining faces; differing readings are omitted. Identical countersinks
+/// at opposite mouths retain both seats as context, presenting the seat at the gauge end.
+/// With no proved attachment,
 /// the gauge is on the bore itself. No material drilling-entry end is asserted.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct HoleRecord {
@@ -526,6 +528,44 @@ fn bore_depth(
     )
 }
 
+/// Equal seats at the two ends of a through bore are an interchangeable pair, not
+/// competing attributions at one mouth. Keep both as evidence and use the gauge end
+/// only to present the one-seat field. Distinct seats at the same end still refuse.
+fn symmetric_seats(matching: &[&Occurrence<CounterSink>], mouth: &HoleMouth) -> bool {
+    if !mouth.through || matching.len() != 2 {
+        return false;
+    }
+    let a = &matching[0].record;
+    let b = &matching[1].record;
+    let spec = |cs: &CounterSink| {
+        [
+            cs.major_diameter,
+            cs.drill_diameter,
+            cs.included_angle,
+            cs.depth,
+        ]
+    };
+    if spec(a)
+        .iter()
+        .zip(spec(b))
+        .any(|(a, b)| (a - b).abs() > COORD_FLOOR)
+    {
+        return false;
+    }
+    let tol = policy::length_tol(mouth.diameter, 1e-4);
+    let at_end = |cs: &CounterSink, far: bool| {
+        let direction = if far { -1. } else { 1. };
+        let end = geom::add(
+            mouth.location,
+            geom::scale(mouth.axis, if far { mouth.depth } else { 0. }),
+        );
+        let minor = geom::add(*cs.location, geom::scale(cs.axis, cs.depth));
+        geom::unit(cs.axis).is_some_and(|axis| geom::dot(axis, mouth.axis) * direction > 1. - 1e-6)
+            && geom::norm(geom::sub(minor, end)) <= tol
+    };
+    (at_end(a, false) && at_end(b, true)) || (at_end(b, false) && at_end(a, true))
+}
+
 internal_entry! {
 /// Holes in stack order, each with its defining cylinder faces; *csinks* are composed onto the
 /// holes they flare.
@@ -629,11 +669,29 @@ pub fn discover(
                 .iter()
                 .zip(rank(matching[1]))
                 .all(|(a, b)| (a - b).abs() <= COORD_FLOOR);
+        // Prove the pair on the measured bore, before its depth is rounded for publication.
+        let symmetric = presentation && symmetric_seats(&matching, &HoleMouth {
+            location: *record.location.raw(),
+            depth,
+            ..mouth
+        });
+        if symmetric {
+            // The representative end can change under motion, just as for a plain bore.
+            // Both seats remain consulted evidence whichever representative is presented.
+            for cs in &matching {
+                terminal.extend(&cs.defining);
+            }
+            matching.sort_by(|a, b| {
+                py::order(geom::dot(b.record.axis, axis), geom::dot(a.record.axis, axis))
+            });
+        }
         // Ambiguous attribution cannot remove the independently established bore.
-        if let Some(cs) = matching.first().filter(|_| !ambiguous_seat) {
+        if let Some(cs) = matching.first().filter(|_| !ambiguous_seat || symmetric) {
             record.csink = Some(cs.record.clone());
             // The seat's face is consulted evidence: it must share the hole's solid.
-            terminal.extend(&cs.defining);
+            if !symmetric {
+                terminal.extend(&cs.defining);
+            }
         }
         out.push(Occurrence {
             record,
