@@ -7,3 +7,11 @@ the copyright owner.
 The test fixtures nist_ctc_02_asme1_ap242-e2.stp.gz and
 nist_ftc_07_asme1_ap242-e2.stp.gz are NIST public-domain test models,
 retained as supplied, including their STEP headers.
+
+The regression fixture tests/fixtures/whistle_frame_reference.step.gz is the maintainer's
+own model from draftwright-rust (tests/fixtures/recognition/issues/whistle_frame_reference.step.gz),
+copied unchanged for #85.
+
+Test fixture tests/fixtures/countersink_two_face.step.gz is from draftwright-rust's
+tests/fixtures/coverage-holes/countersink-two-face.step, a CC0/own build123d model
+by Paul Fremantle, supplied for issue #83.

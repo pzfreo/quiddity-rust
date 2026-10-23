@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::planes::unit_plane_normal;
 use super::policy::{self, AXIS_ALIGNED_COS};
 use super::turned::axis_letter;
@@ -33,8 +34,8 @@ const ORIENTED_ANGLE_DIGITS: usize = 9;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Plate {
     pub axis: char,
-    pub lo: f64,
-    pub hi: f64,
+    pub lo: Placed<f64>,
+    pub hi: Placed<f64>,
     pub u: f64,
     pub v: f64,
     pub body_key: Option<BodyKey>,
@@ -42,7 +43,7 @@ pub struct Plate {
 
 impl Plate {
     pub fn thickness(&self) -> f64 {
-        self.hi - self.lo
+        *self.hi - *self.lo
     }
 }
 
@@ -165,7 +166,7 @@ pub fn discover(ctx: &Context<'_>, opts: &PlateOptions) -> Vec<Occurrence<Plate>
             {
                 continue;
             }
-            let key = (o.record.axis, o.record.lo, o.record.hi);
+            let key = (o.record.axis, *o.record.lo, *o.record.hi);
             if seen.contains(&key) {
                 continue;
             }
@@ -178,8 +179,8 @@ pub fn discover(ctx: &Context<'_>, opts: &PlateOptions) -> Vec<Occurrence<Plate>
         let (a, b) = (&a.record, &b.record);
         a.axis
             .cmp(&b.axis)
-            .then(py::order(a.lo, b.lo))
-            .then(py::order(a.hi, b.hi))
+            .then(py::order(*a.lo, *b.lo))
+            .then(py::order(*a.hi, *b.hi))
             .then(py::order(a.u, b.u))
             .then(py::order(a.v, b.v))
     });
@@ -266,15 +267,24 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
             if thickness <= tol || !policy::clears_threshold(maximum_thickness, thickness) {
                 continue;
             }
+            // Coordinate bands can include a nearby tab projecting beyond the opposing
+            // skin (#85). Such a face is evidence for the band, but cannot extend a
+            // plate whose opposite skin has no support there. Keep the original bands
+            // for admission (#71); select both skins against those same original bands,
+            // so exchanging the sides under axis reversal gives the same pair.
+            let low_skin = supported_skin(part, low_group, high_group, i);
+            let high_skin = supported_skin(part, high_group, low_group, i);
+            let low_group = low_skin.as_ref().unwrap_or(low_group);
+            let high_group = high_skin.as_ref().unwrap_or(high_group);
             let combined_area = low_group.area + high_group.area;
-            // The band midpoints chose this pair; the plate is bounded by the outermost real
-            // planes of each side (the −axis side's lowest, the +axis side's highest), which
-            // exchange with each other when the axis reverses (#71).
+            // The plate is bounded by its skins' outermost real planes (#71).
             out.push(Occurrence {
                 record: Plate {
                     axis: axis_letter(i),
-                    lo: low_group.low,
-                    hi: high_group.high,
+                    // Recognition and fingerprints use the exact planes (#71).
+                    // Retain them through subsequent publication and motions (#69, #84).
+                    lo: Placed::from_parts(low_group.low, low_group.low, Grid::Decimals(3)),
+                    hi: Placed::from_parts(high_group.high, high_group.high, Grid::Decimals(3)),
                     u: (low_group.u_sum + high_group.u_sum) / combined_area,
                     v: (low_group.v_sum + high_group.v_sum) / combined_area,
                     body_key: None,
@@ -293,8 +303,8 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
         let (a, b) = (&a.record, &b.record);
         a.axis
             .cmp(&b.axis)
-            .then(py::order(a.lo, b.lo))
-            .then(py::order(a.hi, b.hi))
+            .then(py::order(*a.lo, *b.lo))
+            .then(py::order(*a.hi, *b.hi))
     });
     out
 }
@@ -342,6 +352,63 @@ fn group(side: &[Entry], tol: f64) -> BTreeMap<Coord, Group> {
         );
     }
     groups
+}
+
+/// A face outside the opposing band's transverse envelope belongs to a projecting
+/// detail, rather than the plate skin. Prune it only when the band also contains a
+/// predominant skin within that envelope. A small contained patch cannot replace
+/// a larger real skin (for example holdout/808's stepped underside, #71). Otherwise
+/// retain the band's outer real planes. Single-plane bands cannot move.
+fn supported_skin(part: &Part, band: &Group, opposite: &Group, axis: usize) -> Option<Group> {
+    let floor = crate::kernel::geom::COORD_FLOOR;
+    if band.high - band.low <= floor {
+        return None;
+    }
+    let mut envelope = Bounds::empty();
+    for &face in &opposite.faces {
+        envelope.merge(&part.face_bounds(face));
+    }
+    let faces: Vec<usize> = band
+        .faces
+        .iter()
+        .copied()
+        .filter(|&face| {
+            let bounds = part.face_bounds(face);
+            (0..3).filter(|&j| j != axis).all(|j| {
+                bounds.min[j] >= envelope.min[j] - floor && bounds.max[j] <= envelope.max[j] + floor
+            })
+        })
+        .collect();
+    if faces.is_empty() || faces.len() == band.faces.len() {
+        return None;
+    }
+    let other: Vec<usize> = (0..3).filter(|&j| j != axis).collect();
+    let entries: Vec<Entry> = faces
+        .into_iter()
+        .map(|face| {
+            let Surface::Plane { frame } = part.faces[face].surface else {
+                unreachable!("planar face band");
+            };
+            let [area, _] = part.face_mass(face).unwrap();
+            let centre = part.face_centre(face).unwrap();
+            (
+                frame.origin[axis],
+                area,
+                centre[other[0]] * area,
+                centre[other[1]] * area,
+                face,
+            )
+        })
+        .collect();
+    // A subset of this already-established band remains one cluster. Keeping its
+    // original width avoids applying the default tolerance to a custom-options run.
+    let skin = group(&entries, band.high - band.low).into_values().next()?;
+    if !policy::clears_threshold(skin.area, band.area - skin.area)
+        || (skin.low == band.low && skin.high == band.high)
+    {
+        return None;
+    }
+    Some(skin)
 }
 
 /// `_oriented_cross_area`: the smallest cross-envelope of the body across axis *i*, over the

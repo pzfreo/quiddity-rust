@@ -23,8 +23,9 @@
 //! coordinate floor taking the even neighbour), so a published position is on its grid, never
 //! a frame-rounded value plus the frame's origin. A position derived from published ones (a
 //! pattern's centre, a mirror plane, an oriented slot's centre) is derived again from the
-//! published values in the file. Positions the recogniser publishes unrounded (a plate's faces,
-//! a boss's location) are carried unrounded. [`Mapped::fingerprinted`] keeps the published values
+//! published values in the file. Plate face planes stay exact during recognition and for
+//! fingerprints; their endpoints are published once on the file's 0.001 mm grid. Other exact
+//! positions (a boss's location) are carried unrounded. [`Mapped::fingerprinted`] keeps the published values
 //! as found in the frame, carried without rounding again, so fingerprints stay intrinsic to the
 //! part. Orders and signs a recogniser chooses by coordinates (records
 //! within a family, a direction's canonical sense, which end of a through hole is its entry, a
@@ -1340,7 +1341,7 @@ fn plate(out: &mut Out, r: Plate) -> Plate {
         body_key,
     } = r;
     let i = index(axis);
-    let (lo, hi) = out.interval(i, (lo, hi), "lo");
+    let (lo, hi) = out.placed_interval(i, (lo, hi), "lo");
     let [u, v] = out.across(i, [u, v], "u");
     if out.axes.is_none() {
         out.mark("hi");
