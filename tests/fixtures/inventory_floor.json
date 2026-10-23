@@ -1,6 +1,6 @@
 {
   "revision": "5fb1706",
-  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts.",
+  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts. For #89, convex fillets require an outward-facing cylinder in both prismatic paths. Original fillet baselines remain; per-face material-side evidence bounds concave false-positive removals, and recovered blend counts tighten floors/allowances.",
   "files": {
     "captured/0043cf4564250883.step.gz": {
       "accepted": {
@@ -14503,7 +14503,7 @@
     },
     "corpus/cadgenbench_inputs/cgb202.step.gz": {
       "accepted": {
-        "blends": 59,
+        "blends": 62,
         "bosses": 14,
         "fillets": 296,
         "flats": 4,
@@ -17111,7 +17111,7 @@
     },
     "corpus/nist/nist_ctc_03_asme1_rc.stp": {
       "accepted": {
-        "blends": 10,
+        "blends": 15,
         "chamfers": 6,
         "fillets": 17,
         "hole_patterns": 3,
@@ -17137,7 +17137,7 @@
         "thin_wall_bodies": 1
       },
       "framed": {
-        "blends": 10,
+        "blends": 15,
         "chamfers": 6,
         "fillets": 17,
         "hole_patterns": 3,
@@ -18079,9 +18079,9 @@
       "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
       "mode": "framed",
       "family": "blends",
-      "max_lost": 6,
-      "reason": "More specific fillet claims replace blend chains on the same faces after the file-axis frame wins. (for #81)",
-      "evidence": "Analytic cylinders defining old blend faces 1252,1254,1256,1258,1450 are now fillets; other shallow cylindrical chains change their approximate convex-corner reading. src/features/reconcile.rs rejects a blend only when all its faces have surviving fillet claims. The general shallow-support limitation is retained, not hidden by changing raw floors."
+      "max_lost": 3,
+      "reason": "For #81, specific fillets replace some generic blend chains in the file-axis frame. For #89, removing inward-facing fillets restores three accepted concave blends (59 -> 62), tightening the old six-blend allowance to three.",
+      "evidence": "The remaining #81 family substitutions retain their defining cylindrical surfaces. The #89 raw fillet exclusions all have frame_points_outward=Some(false); reconciliation now retains three additional concave blend claims on the inward-facing cylinders. The framed baseline remains 65 and the actual count is 62; no physical blend is lost by #89."
     },
     {
       "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
@@ -18103,9 +18103,9 @@
       "file": "corpus/cadgenbench_inputs/cgb241.step",
       "mode": "framed",
       "family": "blends",
-      "max_lost": 2,
-      "reason": "Two convex cylindrical blend faces become specific fillets in the winning direction set. (for #81)",
-      "evidence": "Analytic cylinder faces 27 and 47 are claimed by fillets in the new frame instead of blends; reconcile::BlendSupersededByFillet suppresses their duplicate blend claims."
+      "max_lost": 1,
+      "reason": "Only outward-facing face 47 remains a specific fillet instead of a generic blend in the #81 direction set. For #89, inward-facing face 27 is restored as a concave blend (4 -> 5), tightening the old two-blend allowance to one.",
+      "evidence": "frame_points_outward(27)=Some(false) proves its R20 cylinder is concave; frame_points_outward(47)=Some(true) proves the retained R23 fillet is convex. Face 27 is an accepted concave Blend in both inferred and caller frames. The only remaining family substitution is face 47; the framed blend baseline stays 6 and the actual count is 5."
     },
     {
       "file": "fixture/nist_ctc_02_asme1_ap242-e2.stp.gz",
@@ -18114,6 +18114,606 @@
       "max_lost": 4,
       "reason": "The former risers are outer envelope walls seen obliquely by the wrong 60-degree frame, not bounded internal risers in the winning file-axis frame. (for #81)",
       "evidence": "AP242 faces 362/364 are planes at file X=+/-265 with normals +/-X; faces 363/365 are planes at file Y=-40/820 with normals -/+Y. In the new frame these normals are respectively +/-local Y and +/-local Z. The local-Z faces are outermost levels; the local-Y faces lie on the stock envelope. levels::riser_proposals excludes envelope walls; all four former readings used rotated-box positions rather than intrinsic interior steps."
+    },
+    {
+      "file": "captured/02ac34bf340323e0.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 2,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7, 15]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/092677e24c1ea6a8.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/1c956608aa2b4474.step.gz",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/1c956608aa2b4474.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/1f1654457f9d4c51.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/2056d738758be10a.step.gz",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/2056d738758be10a.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/2d3d4393961aefc7.step.gz",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 2,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [2, 14]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/2d3d4393961aefc7.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 2,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [2, 14]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/4e09bf66d2c8bc55.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/5ba7fe59ab5542e7.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/7b2ddc318dd06e29.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 2,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7, 15]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/825aec526c690833.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/85e5cdbaee3f051b.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/974673c7cdb48d11.step.gz",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [2]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/974673c7cdb48d11.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [2]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/aa698f333e21fc98.step.gz",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/aa698f333e21fc98.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/b4fc30f32c07da42.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/c82e05b0bdd65378.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/cb726fc6cac982c2.step.gz",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [6]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/cb726fc6cac982c2.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [6]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/d907f32ff546fe89.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/edc30852641a703f.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 17,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 296 -> 279. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [29, 31, 46, 571, 657, 662, 806, 876, 890, 984, 998, 1069, 1087, 1092, 1104, 1225, 1346]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 17,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 296 -> 279. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [29, 31, 46, 571, 657, 662, 806, 876, 890, 984, 998, 1069, 1087, 1092, 1104, 1225, 1346]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 17,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 296 -> 279. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [29, 31, 46, 571, 657, 662, 806, 876, 890, 984, 998, 1069, 1087, 1092, 1104, 1225, 1346]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb241.step",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 1. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [27]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/1000.step",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [22]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/1000.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [22]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/1000.step",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [22]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10000.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [10]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10033.step",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10033.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10033.step",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10063.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [11]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/1007.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [23]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10103.step",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [24]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10103.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [24]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10103.step",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [24]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10127.step",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [18]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10127.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [18]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10127.step",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [18]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10156.step",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [2, 5]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10156.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 2,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [2, 5]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10156.step",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [2, 5]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10163.step",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [9]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10163.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [9]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10163.step",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [9]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10212.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [14]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10224.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [13]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp/10252.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [10]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/18016.step",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [4, 5]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/18016.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 2,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [4, 5]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/18016.step",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [4, 5]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/181.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [5]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/20273.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 1. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [12]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/275.step",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [15]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/275.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [15]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/275.step",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [15]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/340.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [15]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/363.step",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 2,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [10, 14, 25]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/363.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 3,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 3 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [10, 14, 25]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/363.step",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 2,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [10, 14, 25]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/388.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [2]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/419.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 2,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [16, 25]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/464.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [3]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/471.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [3]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/483.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 2,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [11, 22]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/498.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 3,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 3 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [1, 4, 16]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/mfcadpp_holdout/520.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 2,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [4, 10]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 6,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 17 -> 11. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [15, 21, 25, 31, 35, 38]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 6,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 17 -> 11. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [15, 21, 25, 31, 35, 38]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 6,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 17 -> 11. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [15, 21, 25, 31, 35, 38]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "golden/golden_circular_blind_step.step",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
+      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
     }
   ]
 }
