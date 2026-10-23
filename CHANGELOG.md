@@ -4,6 +4,16 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## Unreleased
+
+- **CTC-02's ambiguous 49.5 mm rows stay refused (for #82).** Alpha.8 allocated one of
+  two overlapping, equally supported three-hole rows by input order. ADR 0011 requires
+  refusal; the 13 unambiguous patterns remain. A regression test pins the named part
+  and its symmetric hole stations. Restoring 14 would violate the intrinsic tie policy.
+- **Identical countersinks at opposite bore mouths stay attached (for #83).** A through
+  hole retains its symmetric seats and both sets of supporting faces. Its `csink` refers
+  to the seat at the presentation end; competing seats at one mouth still refuse.
+
 ## 0.1.1 (2026-10-22)
 
 Upgrading from 0.1.0:
