@@ -17024,13 +17024,11 @@
       "framed": {
         "angled_steps": 1,
         "chamfers": 1,
-        "fillets": 1,
         "holes": 1,
         "interior_voids": 1,
-        "oriented_chamfers": 1,
         "plates": 1,
         "rectangular_blind_slots": 1,
-        "risers": 7,
+        "risers": 2,
         "section_passages": 1,
         "section_recesses": 2,
         "step_levels": 3
@@ -18116,30 +18114,6 @@
       "max_lost": 4,
       "reason": "The former risers are outer envelope walls seen obliquely by the wrong 60-degree frame, not bounded internal risers in the winning file-axis frame. (for #81)",
       "evidence": "AP242 faces 362/364 are planes at file X=+/-265 with normals +/-X; faces 363/365 are planes at file Y=-40/820 with normals -/+Y. In the new frame these normals are respectively +/-local Y and +/-local Z. The local-Z faces are outermost levels; the local-Y faces lie on the stock envelope. levels::riser_proposals excludes envelope walls; all four former readings used rotated-box positions rather than intrinsic interior steps."
-    },
-    {
-      "file": "corpus/mfcadpp_regressions/11512.step",
-      "mode": "framed",
-      "family": "fillets",
-      "max_lost": 1,
-      "reason": "The former external fillet reading is a concave cylinder, not a convex edge round. (for #81)",
-      "evidence": "Face 28 is an R1 cylinder on file Z at (18.431825930033,2.410118441809); frame_points_outward(28)=Some(false) proves its material side is inward. The spurious fillet appeared only under the split-face 17-vote oblique basis. split_channel_surfaces_do_not_outvote_file_axes pins both the inward classification and zero external fillets."
-    },
-    {
-      "file": "corpus/mfcadpp_regressions/11512.step",
-      "mode": "framed",
-      "family": "oriented_chamfers",
-      "max_lost": 1,
-      "reason": "The same face is a principal chamfer, not an oblique-run chamfer. (for #81)",
-      "evidence": "Face 2 has file normal (sqrt(0.5),0,-sqrt(0.5)), with its run along file Y. The corrected frame is file Z/X/Y: the same face is retained by chamfers/0 and the run is principal. The oriented chamfer recogniser explicitly excludes principal runs. No physical bevel is lost; its 45-degree subtype is pinned alongside the recovered features."
-    },
-    {
-      "file": "corpus/mfcadpp_regressions/11512.step",
-      "mode": "framed",
-      "family": "risers",
-      "max_lost": 5,
-      "reason": "The extra rotated-box readings are outer envelope walls, bounded slot walls and a horizontal level, not five additional internal risers. (for #81)",
-      "evidence": "The old oblique basis labelled faces [19,18,7,11,12,0,4] as risers. Faces 7,11,0,4 are planes on the exact body envelope Y=27.992631384756, X=25.46840104338, X=0 and Y=0. Face 12 is now a horizontal local-Z level (step_levels/1). Faces 18/19 are the bounded opposing slot walls at X=15.295401971547/12.837401302257, Z in [8.189143528267,14.863339271081], not steps spanning the whole body Z in [0,14.863339271081]; both survive in rectangular_blind_slots/0 and section_recesses/1. The real risers [3] and [30] remain, matching origin/main's count two. The floor stays seven and only these five additional false readings are allowed absent."
     }
   ]
 }
