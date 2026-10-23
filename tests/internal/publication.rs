@@ -132,6 +132,14 @@ fn published_positions_are_on_their_grids_on_every_corpus_part() {
             fingerprinted,
             ..
         } = framed_records::to_file(features::recognise(&working), &frame, &working);
+        for plate in &features.plates {
+            for end in [plate.lo, plate.hi] {
+                assert!(
+                    (end - (end * 1000.0).round() / 1000.0).abs() < 1e-10,
+                    "{name}: {plate:?}"
+                );
+            }
+        }
         let before = audit::count(|| drop(serde_json::to_value(&fingerprinted).unwrap()));
         let after = audit::count(|| drop(serde_json::to_value(&features).unwrap()));
         Some((name.clone(), before, after))
@@ -309,5 +317,132 @@ fn sm_hanger_is_mapped_in_the_files_axes() {
             .max_by(|&a, &b| cyl.z[a].abs().total_cmp(&cyl.z[b].abs()))
             .unwrap();
         assert_eq!(fillet.axis, ['x', 'y', 'z'][w], "{fillet:?}");
+    }
+}
+
+/// For #84: plate ends share the file-coordinate 0.001 mm publication grid. The
+/// fingerprint keeps the actual face separation, independent of the publication's origin.
+#[test]
+fn mfcadpp_1000_plate_bounds_publish_once_on_the_file_grid() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let part = quiddity::read_step_file(&dir.join("mfcadpp/1000.step")).unwrap();
+    let found = correspondence::recognise(&part);
+    let plate = &found.features.plates[0];
+    assert_eq!(plate.axis, 'x');
+    assert_eq!((plate.lo, plate.hi), (0.0, 4.219));
+    assert_eq!(plate.thickness(), 4.219);
+    let fingerprints = serde_json::to_value(&found.fingerprints).unwrap();
+    let plate = fingerprints["features"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|f| f["id"] == "plates/0")
+        .unwrap();
+    assert!((plate["sizes"]["thickness"].as_f64().unwrap() - 4.219087637691).abs() < 1e-10);
+    let at = [
+        [1.0, 0.0, 0.0, 0.00045],
+        [0.0, 1.0, 0.0, -0.00045],
+        [0.0, 0.0, 1.0, 0.00045],
+    ];
+    let moved = correspondence::recognise(&part.transformed(&at).unwrap());
+    assert_eq!(
+        (moved.features.plates[0].lo, moved.features.plates[0].hi),
+        (0.0, 4.220)
+    );
+    let moved = serde_json::to_value(&moved.fingerprints).unwrap();
+    let moved = moved["features"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|f| f["id"] == "plates/0")
+        .unwrap();
+    assert!(
+        (moved["sizes"]["thickness"].as_f64().unwrap()
+            - plate["sizes"]["thickness"].as_f64().unwrap())
+        .abs()
+            < 1e-10
+    );
+}
+
+/// For #85: the inner skin of the frame is at -7.7; small nearby faces at -7.4
+/// belong to details in the opening and must not extend the plate's face band.
+#[test]
+fn whistle_frame_plate_ends_on_its_own_skin() {
+    let part =
+        quiddity::read_step_file(&common::fixtures().join("whistle_frame_reference.step.gz"))
+            .unwrap();
+    let found = correspondence::recognise(&part);
+    let plate = &found.features.plates[0];
+    assert_eq!(plate.axis, 'x');
+    assert_eq!((plate.lo, plate.hi), (-14.7, -7.7));
+    assert!((plate.thickness() - 7.0).abs() < 1e-12);
+    assert_eq!(found.features.defining["plates"][0], [4, 6, 10, 14, 39, 62]);
+    // The same skins and dimension survive reversal and an off-grid translation.
+    let at = [
+        [-1.0, 0.0, 0.0, 5.1234],
+        [0.0, -1.0, 0.0, -9.8765],
+        [0.0, 0.0, 1.0, 12.3456],
+    ];
+    let moved_part = part.transformed(&at).unwrap();
+    for candidate in [&part, &moved_part] {
+        let skin =
+            features::plates::discover(&features::Context::new(candidate), &Default::default())
+                .into_iter()
+                .find(|o| {
+                    let mut faces = o.defining.clone();
+                    faces.sort_unstable();
+                    faces == [4, 6, 10, 14, 39, 62]
+                })
+                .expect("same plate skins under axis reversal");
+        assert!((skin.record.thickness() - 7.0).abs() < 1e-12);
+    }
+    let moved = correspondence::recognise(&moved_part);
+    assert_eq!(
+        moved.features.defining["plates"][0],
+        found.features.defining["plates"][0]
+    );
+    assert!((moved.features.plates[0].thickness() - 7.0).abs() < 1e-12);
+    let fingerprints = serde_json::to_value(&found.fingerprints).unwrap();
+    let plate = fingerprints["features"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|f| f["id"] == "plates/0")
+        .unwrap();
+    assert!((plate["sizes"]["thickness"].as_f64().unwrap() - 7.0).abs() < 1e-12);
+}
+
+/// The six physical thickness corrections agreed for #71 remain exact in the
+/// fingerprints, even though the displayed positions now use the file's grid.
+#[test]
+fn plate_support_selection_preserves_the_six_plane_corrections() {
+    let Some(dir) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    for (file, expected) in [
+        ("gramel/GRM-03_thumbwheel_drive_screw.step", 2.5),
+        ("mfcadpp/10049.step", 4.519223921896),
+        ("mfcadpp_holdout/182.step", 1.128803214932),
+        ("mfcadpp_holdout/340.step", 1.593091728916),
+        ("mfcadpp_holdout/808.step", 3.0),
+        ("ttt_inputs/sm-hanger.step", 4.0),
+    ] {
+        let part = quiddity::read_step_file(&dir.join(file)).unwrap();
+        let found = correspondence::recognise(&part);
+        let fingerprints = serde_json::to_value(&found.fingerprints).unwrap();
+        let plate = fingerprints["features"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|f| f["id"] == "plates/0")
+            .unwrap();
+        assert!(
+            (plate["sizes"]["thickness"].as_f64().unwrap() - expected).abs() < 1e-10,
+            "{file}"
+        );
     }
 }

@@ -4,6 +4,14 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## Unreleased
+
+- Plate endpoints are published once on the file's 0.001 mm grid, with exact face
+  separation retained for fingerprints (for #84). Nearby projecting details no longer
+  extend a predominant plate skin within the opposing skin's transverse envelope:
+  whistle_frame_reference is 7.0 mm thick again (for #85). The six supporting-plane
+  corrections from #71 remain in place; only whistle's plate fingerprint thickness changes.
+
 ## 0.1.1 (2026-10-22)
 
 Upgrading from 0.1.0:
