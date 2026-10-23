@@ -377,14 +377,14 @@ fn plate_bounds_are_outermost_supporting_face_planes() {
                 }
                 let lo = sides[0].iter().copied().fold(f64::INFINITY, f64::min);
                 let hi = sides[1].iter().copied().fold(f64::NEG_INFINITY, f64::max);
-                if p.lo != lo || p.hi != hi {
-                    let on = sides[0].contains(&p.lo) && sides[1].contains(&p.hi);
+                if *p.lo != lo || *p.hi != hi {
+                    let on = sides[0].contains(&*p.lo) && sides[1].contains(&*p.hi);
                     problems.push(format!(
                     "{file}: {} plate {} lo {} hi {} (faces {:?}), supporting planes −{:?} +{:?}",
                     if on { "inner-plane" } else { "off-plane" },
                     p.axis,
-                    p.lo,
-                    p.hi,
+                    *p.lo,
+                    *p.hi,
                     o.defining, sides[0], sides[1]
                 ));
                 }

@@ -6,6 +6,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- Plate endpoints are published once on the file's 0.001 mm grid, with exact face
+  separation retained for fingerprints (for #84). Their `lo`/`hi` fields now use
+  `Placed<f64>`, as other rounded positions do, retaining the original planes through
+  subsequent motions. Nearby projecting details no longer
+  extend a predominant plate skin within the opposing skin's transverse envelope:
+  whistle_frame_reference is 7.0 mm thick again (for #85). The six supporting-plane
+  corrections from #71 remain in place; only whistle's plate fingerprint thickness changes.
 - **CTC-02's 49.5 mm rows are not published as a pattern (for #82).** Its six ø8.38
   holes at x = ±25, ±74, ±122 are spaced 48, 49, 50, 49, 48. Alpha.8 chose one of two
   mirror-image three-hole rows (spacings 49 and 50, mean 49.5) by input order; both share
