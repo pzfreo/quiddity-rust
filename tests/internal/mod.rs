@@ -14,6 +14,8 @@ mod correspondence;
 mod effective_surfaces;
 #[path = "evidence.rs"]
 mod evidence;
+#[path = "fillet_convexity.rs"]
+mod fillet_convexity;
 #[path = "frames.rs"]
 mod frames;
 #[path = "invariance.rs"]
