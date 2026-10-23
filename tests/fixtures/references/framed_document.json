@@ -2891,17 +2891,17 @@
     "file": "cadgenbench_inputs/cgb241.step",
     "check": "caller_space",
     "family": "blends",
-    "verdict": "rust-wrong",
-    "reason": "Caller-space convex/concave Blend readings on [27] (R20, concave) and [47] (R23, convex) are replaced by Fillet records on the same faces/radii in the 27.4-degree default frame. Both native axes are file Z, hence their run itself is principal in both queries. What changes is support roll: adjacent support normals (-0.9036892863,0.4281888296,0) and (0.4603475160,0.8877387930,0) enter the default coordinate-plane band. Their dot is -0.03589128343 (a non-right support pair); caller space uses the intrinsic blend proof, while the default primary approximate coordinate-corner path accepts them as fillets and reconciliation suppresses the generic blends. The geometry and radii are retained, not lost. The caller Blend classification is physically correct; specifically face 27 is inward-facing and the default convex label is wrong. This is the existing shallow-support fillet material-side limitation, not evidence that the two curves are absent. A general correction must audit that legacy approximate path (also used by NIST angled-support fillets), rather than changing the principal-axis record schema or special-casing these faces. changed_query_axes_retain_physical_rounds_and_bores pins native concavity and geometric coverage without pinning the erroneous convex label. (for #81)",
-    "max_differing": 2
+    "verdict": "equivalent",
+    "reason": "For #89, face 27 (R20) is again a concave Blend in both readings: frame_points_outward(27)=Some(false), so it cannot pass either convex fillet path. The former rust-wrong allowance for that face is removed. Only face 47 (R23) differs by family: a convex Fillet in the 27.4-degree default frame and a convex Blend in caller space. frame_points_outward(47)=Some(true); both readings retain its face, radius and convex side. Its shallow support pair has dot -0.03589128343 and enters the approximate coordinate-plane band only in the default frame. cgb241_inner_bend_is_concave_and_outer_bend_stays_a_fillet pins both results. This remaining family substitution is equivalent geometric coverage, not a convexity error.",
+    "max_differing": 1
   },
   {
     "file": "cadgenbench_inputs/cgb241.step",
     "check": "caller_space",
     "family": "fillets",
-    "verdict": "rust-wrong",
-    "reason": "Default-only faces [27,47] are the same R20/R23 cylindrical curves that caller space truthfully records as concave/convex Blends. The 27.4-degree frame rotates their supports into the approximate axis-aligned plane band, triggering the legacy coordinate-corner fillet path; its support normals have dot -0.03589128343 rather than zero. The caller generic-blend classification is physically correct, and its concave material-side label on face 27 is proved by frame_points_outward(27)=false; the default convex fillet label on that face is a known approximation error. Face 47 is outward-facing. Neither curve disappears from the default: faces, radii and run survive in the fillet records. This entry explicitly records a false-positive subtype/material-side classification, not permission to lose a real feature. See this file blend entry and changed_query_axes_retain_physical_rounds_and_bores for native-surface evidence. (for #81)",
-    "max_differing": 2
+    "verdict": "equivalent",
+    "reason": "For #89, face 27 (R20) is again a concave Blend in both readings: frame_points_outward(27)=Some(false), so it cannot pass either convex fillet path. The former rust-wrong allowance for that face is removed. Only face 47 (R23) differs by family: a convex Fillet in the 27.4-degree default frame and a convex Blend in caller space. frame_points_outward(47)=Some(true); both readings retain its face, radius and convex side. Its shallow support pair has dot -0.03589128343 and enters the approximate coordinate-plane band only in the default frame. cgb241_inner_bend_is_concave_and_outer_bend_stays_a_fillet pins both results. This remaining family substitution is equivalent geometric coverage, not a convexity error.",
+    "max_differing": 1
   },
   {
     "file": "cadgenbench_inputs/cgb241.step",

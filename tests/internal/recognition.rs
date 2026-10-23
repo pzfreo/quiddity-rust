@@ -926,6 +926,18 @@ fn rejected_candidates_are_absent_from_recognition_and_the_document() {
         let rejected = rejected(&inventory);
         let recognition = correspondence::caller_space_recognise(&part);
         let document = recognition::document(&recognition, part.faces.len());
+        if *file == "mfcadpp/10000.step" {
+            // #89: this inward-facing round used to reach reconciliation as a false
+            // convex fillet. Reject it at discovery, retaining its circular-step reading.
+            assert_eq!(part.frame_points_outward(10), Some(false));
+            assert!(!inventory.physical.defining["fillets"].contains(&vec![10]));
+            assert!(
+                document
+                    .records
+                    .iter()
+                    .any(|r| { r.family == "circular_blind_steps" && r.faces == vec![9, 10] })
+            );
+        }
         let reasons: Vec<&str> = inventory
             .dispositions
             .iter()
@@ -983,6 +995,9 @@ fn rejected_candidates_are_absent_from_recognition_and_the_document() {
     // Every rejecting rule but those only the synthetic scenarios reach
     // (`tests/reconcile.rs`).
     let unreached = [
+        // #89 removes the concave false candidates that formerly reached this rule.
+        // reconcile::rust_snapshot_reconcile_scenarios still exercises it explicitly.
+        "blend.fillet_superseded_by_circular_blind_step",
         "bore.hole_superseded_by_double_d_bore",
         "recess.pocket_superseded_by_edge_open_circular_pocket",
         "recess.pocket_superseded_by_prismatic",

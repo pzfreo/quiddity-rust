@@ -6,6 +6,16 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Decide fillet convexity from the face (for #89).** Both prismatic paths now require
+  an outward-facing cylinder. cgb241 face 27 returns to its concave R20 blend: fillets
+  fall from 2 to 1, with convex face 47 retained. cgb202 loses 17 inward-facing false
+  fillets (296 to 279) and recovers 3 concave blends (59 to 62); CTC-03 loses 6
+  inward-facing false fillets (17 to 11) and recovers 5 blends (10 to 15).
+  CTC-02 rc/AP242 keep 21/20 fillets; FTC-07 rd/AP242 keep 16/16. The raw inventory
+  also drops 13 concave candidates on 12 MFCAD++ parts, 21 on 13 holdout parts,
+  21 on 18 captured fixtures, and 1 on golden_circular_blind_step. Every removal
+  has per-face material-side evidence; no outward-facing fillet is removed.
+
 - **Preserve tiny material rotations during recognition (for #81).** File-axis support
   preference keeps the original near-axis material representative; publication alone snaps
   within the coordinate floor. sm-hanger again retains its 2.42e-9-radian inferred tilt while

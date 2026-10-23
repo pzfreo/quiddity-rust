@@ -161,6 +161,12 @@ fn prismatic(
         return None;
     }
     let edge_axis = principal_axis(frame.z)?;
+    // Convexity belongs to the cylinder's oriented material side, independently of the
+    // query axes. Approximate coordinate support planes can put a concave round's
+    // reconstructed sharp corner in free space, so neither corner proof suffices alone.
+    if part.frame_points_outward(face) != Some(true) {
+        return None;
+    }
     let centre = part.face_bounds(face).centre();
     let planes = nearest_axis_aligned_planes(part, face, centre, edge_axis, true);
     let at = fillet_anchor(part, face)?;
@@ -171,9 +177,6 @@ fn prismatic(
     } else {
         // A principal cylinder can have transverse supports at any roll. Its axis-letter
         // record remains exact; only the support-plane test needed to become intrinsic.
-        if part.frame_points_outward(face) != Some(true) {
-            return None;
-        }
         let corner = transverse_corner(part, face, at, frame.z)?;
         // The two planes must be tangent to this cylinder, not unrelated nearby walls.
         if corner.normals.iter().any(|&n| {

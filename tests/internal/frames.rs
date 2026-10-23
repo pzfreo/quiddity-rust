@@ -464,10 +464,9 @@ fn majority_frame_recovers_specify_fillets_and_parallel_support_chamfer() {
         (
             "cadgenbench_inputs/cgb202.step.gz",
             "fillets",
-            296,
+            279,
             vec![
-                1069, 1087, 1092, 1104, 1225, 1248, 1250, 1453, 1464, 1473, 1475, 1477, 1623, 1631,
-                2056, 2057, 571, 657, 806, 876, 890, 984, 998, 31,
+                1248, 1250, 1453, 1464, 1473, 1475, 1477, 1623, 1631, 2056, 2057,
             ],
         ),
         ("cadgenbench_inputs/cgb207.step", "fillets", 20, vec![176]),
@@ -491,6 +490,18 @@ fn majority_frame_recovers_specify_fillets_and_parallel_support_chamfer() {
                 found.contains(&vec![face]),
                 "{file}: missing {family}:{face}"
             );
+        }
+        if file == "cadgenbench_inputs/cgb202.step.gz" {
+            // #89: the old 296 included 17 concave cylinders, including 13 of the
+            // #81 "recovered" faces. Pin their actual material side instead of a false
+            // convex label; the eleven genuinely convex recovered faces stay above.
+            for face in [
+                29, 31, 46, 571, 657, 662, 806, 876, 890, 984, 998, 1069, 1087, 1092, 1104, 1225,
+                1346,
+            ] {
+                assert_eq!(part.frame_points_outward(face), Some(false), "face {face}");
+                assert!(!found.contains(&vec![face]), "concave fillet {face}");
+            }
         }
         if family == "oriented_chamfers" {
             let chamfer = &recognised.features.oriented_chamfers[0];
