@@ -24,8 +24,9 @@ in [docs/alpha1.md](docs/alpha1.md).
   and step levels (2 to 13); its 4 former risers were outer envelope walls seen in the wrong
   frame, and are gone. FTC-07 AP242 step levels rise from 6 to 8. Mixed-direction parts can
   change frame and so directional families: cgb217 moves from 13.1° to 45° (98 against 96
-  supports) and cgb241 from the file axes to 27.4° (20 against 18), gaining 2 fillets and
-  2 step levels. Counting distinct surfaces rather than faces keeps
+  supports) and cgb241 from the file axes to 27.4° (20 against 18). On cgb241 that relabels
+  two blends (faces 27 and 47) as fillets, and face 27, a concave R20, is wrongly called
+  convex: the known shallow-support corner-probe limitation, recorded as `rust-wrong`. Counting distinct surfaces rather than faces keeps
   mfcadpp_regressions/11512 aligned and unchanged despite split channel faces (15
   file-axis surfaces against 10 rotated). Measured analytic evidence accompanies every bounded framed-floor allowance; broader
   shallow-support fillet coverage remains a limitation.
