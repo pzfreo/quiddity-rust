@@ -4,6 +4,10 @@ Copyright 2026 Paul Fremantle
 A Rust port of quiddity (https://github.com/pzfreo/quiddity), released under Apache-2.0 by
 the copyright owner.
 
+The test fixtures nist_ctc_02_asme1_ap242-e2.stp.gz and
+nist_ftc_07_asme1_ap242-e2.stp.gz are NIST public-domain test models,
+retained as supplied, including their STEP headers.
+
 The regression fixture tests/fixtures/whistle_frame_reference.step.gz is the maintainer's
 own model from draftwright-rust (tests/fixtures/recognition/issues/whistle_frame_reference.step.gz),
 copied unchanged for #85.

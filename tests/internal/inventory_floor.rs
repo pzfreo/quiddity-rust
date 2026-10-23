@@ -1,6 +1,6 @@
 //! Recognition inventories at 5fb1706: motion stability alone cannot detect a lost feature.
 use super::common;
-use quiddity::{features, read_step_file};
+use quiddity::{correspondence, features, read_step_file};
 use serde_json::{Value, json};
 use std::collections::BTreeMap;
 
@@ -35,6 +35,12 @@ fn census() -> BTreeMap<String, Value> {
             paths.insert(format!("corpus/{file}"), dir.join(file));
         }
     }
+    for file in [
+        "nist_ctc_02_asme1_ap242-e2.stp.gz",
+        "nist_ftc_07_asme1_ap242-e2.stp.gz",
+    ] {
+        paths.insert(format!("fixture/{file}"), root.join(file));
+    }
     let calls: Value =
         serde_json::from_str(&std::fs::read_to_string(root.join("captured/calls.json")).unwrap())
             .unwrap();
@@ -63,10 +69,11 @@ fn census() -> BTreeMap<String, Value> {
             accepted.section_recesses = projection.section_recesses;
             accepted.section_recess_patterns = projection.patterns;
         }
-        (
-            key.clone(),
-            json!({"physical": counts(&raw), "accepted": counts(&accepted)}),
-        )
+        let mut result = json!({"physical": counts(&raw), "accepted": counts(&accepted)});
+        if key.starts_with("corpus/") || key.starts_with("fixture/") {
+            result["framed"] = json!(counts(&correspondence::recognise(&part).features));
+        }
+        (key.clone(), result)
     })
     .into_iter()
     .collect()
@@ -94,8 +101,8 @@ fn inventories_do_not_silently_shrink() {
             );
             continue;
         };
-        for mode in ["physical", "accepted"] {
-            for (family, baseline) in expected[mode].as_object().unwrap() {
+        for (mode, families) in expected.as_object().unwrap() {
+            for (family, baseline) in families.as_object().unwrap() {
                 let baseline = baseline.as_u64().unwrap();
                 let now = got[mode][family].as_u64().unwrap_or(0);
                 if now >= baseline {
@@ -103,7 +110,7 @@ fn inventories_do_not_silently_shrink() {
                 }
                 let allowance =
                     floor["losses"].as_array().unwrap().iter().find(|e| {
-                        e["file"] == *file && e["mode"] == mode && e["family"] == *family
+                        e["file"] == *file && e["mode"] == *mode && e["family"] == *family
                     });
                 let allowed = allowance.is_some_and(|e| {
                     !e["reason"].as_str().unwrap_or("").is_empty()

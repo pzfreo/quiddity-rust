@@ -136,7 +136,10 @@ fn pair(
         return None;
     }
     let run = normalized(span1)?;
-    if dot(run, normalized(span2)?) < 1.0 - SMOOTH_ARC_GAP {
+    let parallel = dot(run, normalized(span2)?);
+    // Lexicographic sorts can oppose parallel runs after round-off under a rigid motion.
+    // All endpoint uses below are order-symmetric, so only the direction line matters.
+    if parallel.abs() < 1.0 - SMOOTH_ARC_GAP {
         return None;
     }
     if run.iter().map(|c| c.abs()).fold(0.0, f64::max) >= AXIS_ALIGNED_COS {

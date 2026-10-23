@@ -28,8 +28,11 @@ use crate::kernel::step::Placement;
 #[cfg(test)]
 use crate::kernel::step::{read_step_file_placed, read_step_placed};
 
-/// `_PARALLEL_COS`: two directions closer than this are one direction line.
+/// Angular band for area ranking (the legacy `_PARALLEL_COS`), not for direction votes.
 const PARALLEL_COS: f64 = 0.999;
+/// Match material direction lines to numerical precision, rather than swallowing a real 1°
+/// feature into whichever class happened to be read first (~0.0008° angular tolerance).
+const DIRECTION_COS: f64 = 1.0 - 1e-10;
 /// `_ORTHOGONAL_COS`: two direction lines at least this close to perpendicular make a basis.
 const ORTHOGONAL_COS: f64 = 1.0 - PARALLEL_COS;
 /// `_COMPONENT_EPS`: components this close to 0 or ±1 are snapped there.
@@ -106,9 +109,34 @@ impl PartFrame {
 struct DirectionClass {
     direction: V3,
     area: f64,
+    /// Distinct infinite analytic supports, independent of B-rep face splits.
+    surfaces: Vec<AnalyticSupport>,
     face_areas: Vec<f64>,
     /// Each face's centroid offset from the origin along `direction`, with its area.
     face_offsets: Vec<(f64, f64)>,
+}
+
+/// One plane or infinite cylinder within a tight direction class. A cylinder's axial
+/// placement and a plane's in-plane placement do not distinguish their supporting surfaces.
+struct AnalyticSupport {
+    origin: V3,
+    radius: Option<f64>,
+}
+
+impl AnalyticSupport {
+    fn same_surface(&self, other: &Self, direction: V3) -> bool {
+        let delta = geom::sub(self.origin, other.origin);
+        let along = geom::dot(delta, direction);
+        match (self.radius, other.radius) {
+            (None, None) => along.abs() <= geom::COORD_FLOOR,
+            (Some(a), Some(b)) => {
+                (a - b).abs() <= geom::COORD_FLOOR
+                    && geom::norm(geom::sub(delta, geom::scale(direction, along)))
+                        <= geom::COORD_FLOOR
+            }
+            _ => false,
+        }
+    }
 }
 
 /// `_DirectionClass.signature`, rounded to 9 decimals: the rotation-invariant rank of a class.
@@ -245,7 +273,15 @@ fn material_origin(part: &Part) -> Result<V3, FrameRefusal> {
 }
 
 /// `infer_part_frame`: a rigid-equivariant material origin and a local basis from the part's
-/// plane normals and cylinder axes, ranked by area and by how the faces sit along them.
+/// plane normals and cylinder axes. Choose the orthogonal basis supported by the most analytic
+/// surfaces (one vote per coplanar plane or coaxial equal-radius cylinder, not per split face).
+/// Directions match within `DIRECTION_COS`; plane offsets, cylinder axis distances and radii
+/// match within the kernel's `COORD_FLOOR`. Supports need not share a topological edge.
+/// File axes win an equal support count; otherwise the frame follows the material directions.
+/// Within the winning set, area in the legacy angular band ranks the axes, followed by the
+/// exact class signatures; face offsets orient them.
+/// Thus a rigid motion carries the intrinsic frame unless the moved file axes win this vote.
+/// An axial part retains its explicit roll gauge; no unsupported second material axis is added.
 pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
     let origin = material_origin(part)?;
     let mut classes: Vec<DirectionClass> = Vec::new();
@@ -256,6 +292,17 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
             _ => continue,
         };
         let direction = canonical_sign(unit(raw)?);
+        let surface = match &face.surface {
+            Surface::Plane { frame } => AnalyticSupport {
+                origin: frame.origin,
+                radius: None,
+            },
+            Surface::Cylinder { frame, radius } => AnalyticSupport {
+                origin: frame.origin,
+                radius: Some(*radius),
+            },
+            _ => unreachable!(),
+        };
         let moments = part
             .face_moments(index)
             .ok_or(FrameRefusal::UnmeasuredFace)?;
@@ -267,11 +314,18 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
         let mut offset = py::dot(&relative, &direction);
         match classes
             .iter_mut()
-            .find(|c| py::dot(&direction, &c.direction).abs() >= PARALLEL_COS)
+            .find(|c| py::dot(&direction, &c.direction).abs() >= DIRECTION_COS)
         {
             Some(class) => {
                 if py::dot(&direction, &class.direction) < 0.0 {
                     offset = -offset;
+                }
+                if !class
+                    .surfaces
+                    .iter()
+                    .any(|s| s.same_surface(&surface, class.direction))
+                {
+                    class.surfaces.push(surface);
                 }
                 class.area += area;
                 class.face_areas.push(area);
@@ -280,19 +334,54 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
             None => classes.push(DirectionClass {
                 direction,
                 area,
+                surfaces: vec![surface],
                 face_areas: vec![area],
                 face_offsets: vec![(offset, area)],
             }),
         }
     }
 
-    // Python's `sorted(..., reverse=True)`: descending, equal signatures in face order.
+    // Keep the area ranking's existing angular band without merging its real directions.
+    // Sum independently about each line, so face order cannot choose which 1° line represents
+    // a class. This preserves the axis order of aligned rc/rd parts and follows rigid motion.
     let signatures: Vec<Signature> = classes.iter().map(DirectionClass::signature).collect();
+    let rank_areas: Vec<_> = classes
+        .iter()
+        .map(|a| {
+            py::round_to(
+                classes
+                    .iter()
+                    .filter(|b| py::dot(&a.direction, &b.direction).abs() >= PARALLEL_COS)
+                    .map(|b| b.area)
+                    .sum(),
+                9,
+            )
+        })
+        .collect();
+    let rank_order = |a: usize, b: usize| {
+        py::order(rank_areas[a], rank_areas[b])
+            .then_with(|| signature_order(&signatures[a], &signatures[b]))
+    };
     let mut ranked: Vec<usize> = (0..classes.len()).collect();
-    ranked.sort_by(|&a, &b| signature_order(&signatures[b], &signatures[a]));
+    ranked.sort_by(|&a, &b| rank_order(b, a));
     // Any equal-ranked class leaves a possible axis interchange, even when it is not chosen.
-    let distinct = (1..ranked.len())
-        .all(|i| signature_order(&signatures[ranked[i - 1]], &signatures[ranked[i]]).is_ne());
+    let distinct = (1..ranked.len()).all(|i| rank_order(ranked[i - 1], ranked[i]).is_ne());
+    // Compare complete sets of three lines, not just the largest face-area class. In
+    // particular, a shared dominant line must not let a minority angled feature choose roll.
+    let support = |axes: [V3; 3]| -> usize {
+        classes
+            .iter()
+            .filter(|class| {
+                axes.iter()
+                    .any(|axis| py::dot(axis, &class.direction).abs() >= DIRECTION_COS)
+            })
+            .map(|class| class.surfaces.len())
+            .sum()
+    };
+    let file_axes = [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]];
+    let file_support = support(file_axes);
+    let mut best = None;
+    let mut aligned = None;
     for (k, &a) in ranked.iter().enumerate() {
         for &b in &ranked[k + 1..] {
             let (first, first_signed) = classes[a].oriented();
@@ -308,14 +397,45 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
             } else {
                 FrameGauge::Orthogonal
             };
-            return Ok(PartFrame {
+            let candidate = PartFrame {
                 origin,
                 x,
                 y,
                 z,
                 gauge,
-            });
+            };
+            // Keep the second material class's own votes when its direction is adjusted
+            // by Gram-Schmidt (the perpendicular tolerance is wider than DIRECTION_COS).
+            let votes = support([first, second, z]);
+            // Strict improvement preserves the invariant signature ordering at a tie.
+            if best.as_ref().is_none_or(|(count, _)| votes > *count) {
+                best = Some((votes, candidate));
+            }
+            let file_line = |v: V3| {
+                file_axes
+                    .iter()
+                    .find(|axis| py::dot(&v, *axis).abs() >= DIRECTION_COS)
+                    .map(|axis| clean(axis.map(|c| c * py::dot(&v, axis).signum())))
+            };
+            if aligned.is_none()
+                && let (Some(x), Some(y)) = (file_line(first), file_line(second))
+                && py::dot(&x, &y).abs() < ORTHOGONAL_COS
+            {
+                // This is the file-axis direction set, but its material representative
+                // must retain a real tiny rotation. Snapping recognition geometry here
+                // leaves tilted pocket walls in an unrotated working frame (#70).
+                // Only publication may snap, bounded by movement at the coordinate floor.
+                aligned = Some(candidate);
+            }
         }
+    }
+    if let Some((votes, frame)) = best {
+        if file_support >= votes
+            && let Some(frame) = aligned
+        {
+            return Ok(frame);
+        }
+        return Ok(frame);
     }
     let Some(&first) = ranked.first() else {
         return Err(FrameRefusal::NoAnalyticDirection);
@@ -327,7 +447,7 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
     let tied: Vec<_> = ranked
         .iter()
         .copied()
-        .take_while(|&i| signature_order(&signatures[first], &signatures[i]).is_eq())
+        .take_while(|&i| rank_order(first, i).is_eq())
         .collect();
     let x = axial_line(&classes, &tied)?;
     // Roll around this established line is an explicit gauge; a world seed represents it.
@@ -524,6 +644,7 @@ mod axial_tie_tests {
                 .map(|direction| DirectionClass {
                     direction,
                     area: 1.,
+                    surfaces: vec![],
                     face_areas: vec![1.],
                     face_offsets: vec![(0., 1.)],
                 })

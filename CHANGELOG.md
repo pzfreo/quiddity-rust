@@ -6,6 +6,30 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Preserve tiny material rotations during recognition (for #81).** File-axis support
+  preference keeps the original near-axis material representative; publication alone snaps
+  within the coordinate floor. sm-hanger again retains its 2.42e-9-radian inferred tilt while
+  publishing in file axes, and a 1e-6-radian copy retains all 6 blind pockets and its pattern.
+
+- **Frame inference votes over complete direction sets (for #81).** Planar normals and
+  cylinder axes each vote once per distinct coplanar plane or coaxial equal-radius cylinder; file axes win a tie, while genuinely rotated parts retain
+  their intrinsic frame. Real 1° features no longer merge into the first direction read.
+  CTC-02 AP242 fillets rise from 3 to 20 (rc has 21: its extra R1.093 feature is absent
+  from AP242); FTC-07 AP242 fillets rise from 13 to 16 and polygonal bosses from 0 to 4,
+  with all 5 plates retained. cgb202 fillets rise from 272 to 296 and cgb217 from 6 to 14;
+  cgb207 recovers its missing file-axis fillet at a total of 20. All 43 Specify fillet
+  regressions are recovered. Parallel chamfer support edge directions are compared without endpoint-order dependence
+  after frame normalisation, recovering mfcadpp/10252's missing 18.694-mm, 0.54×45°
+  chamfer (0 to 1), the 44th Specify regression. CTC-02 AP242 also gains 4 pockets (0 to 4)
+  and step levels (2 to 13); its 4 former risers were outer envelope walls seen in the wrong
+  frame, and are gone. FTC-07 AP242 step levels rise from 6 to 8. Mixed-direction parts can
+  change frame and so directional families: cgb217 moves from 13.1° to 45° (98 against 96
+  supports) and cgb241 from the file axes to 27.4° (20 against 18). On cgb241 that relabels
+  two blends (faces 27 and 47) as fillets, and face 27, a concave R20, is wrongly called
+  convex: the known shallow-support corner-probe limitation, recorded as `rust-wrong`. Counting distinct surfaces rather than faces keeps
+  mfcadpp_regressions/11512 aligned and unchanged despite split channel faces (15
+  file-axis surfaces against 10 rotated). Measured analytic evidence accompanies every bounded framed-floor allowance; broader
+  shallow-support fillet coverage remains a limitation.
 - Plate endpoints are published once on the file's 0.001 mm grid, with exact face
   separation retained for fingerprints (for #84). Their `lo`/`hi` fields now use
   `Placed<f64>`, as other rounded positions do, retaining the original planes through
