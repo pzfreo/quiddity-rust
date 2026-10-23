@@ -18,11 +18,11 @@ in [docs/alpha1.md](docs/alpha1.md).
   chamfer (0 to 1), the 44th Specify regression. CTC-02 AP242 also gains 4 pockets (0 to 4)
   and step levels (2 to 13); its 4 former risers were outer envelope walls seen in the wrong
   frame, and are gone. FTC-07 AP242 step levels rise from 6 to 8. Mixed-direction parts can
-  change directional families; distinct-surface support keeps mfcadpp_regressions/11512
-  aligned despite split channel faces (15 file-axis surfaces versus 10 rotated), retaining
-  its slot (1), section recesses (2), accepted interior void (1), angled step (1) and plate
-  (1). Its former oblique-frame fillet is a concave cylinder; its principal chamfer remains.
-  Measured analytic evidence accompanies every bounded framed-floor allowance; broader
+  change frame and so directional families: cgb217 moves from 13.1° to 45° (98 against 96
+  supports) and cgb241 from the file axes to 27.4° (20 against 18), gaining 2 fillets and
+  2 step levels. Counting distinct surfaces rather than faces keeps
+  mfcadpp_regressions/11512 aligned and unchanged despite split channel faces (15
+  file-axis surfaces against 10 rotated). Measured analytic evidence accompanies every bounded framed-floor allowance; broader
   shallow-support fillet coverage remains a limitation.
 
 ## 0.1.1 (2026-10-22)
