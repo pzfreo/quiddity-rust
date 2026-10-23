@@ -141,8 +141,10 @@ analytic planar face normal or cylinder axis gives one vote to a set when it lie
 `cos(angle) >= 1 - 1e-10` of one of its lines (about 0.0008°). The candidates come from
 perpendicular material direction pairs, with the existing perpendicular tolerance of 0.001
 in cosine. The highest face count wins; the file's axes win an equal count when two material
-directions establish them. Within a winning set, the existing area/face-offset signatures
-order and orient its axes. Counts keep a large minority angled surface from choosing the
+directions establish them. Within a winning set, area within the legacy cosine-0.999 angular band ranks
+its axes, followed by the exact class signatures; face offsets orient them. Area is summed
+independently about each line, so nearby directions remain distinct and face order does not
+choose their representative. This retains the aligned rc/rd axis order. Counts keep a large minority angled surface from choosing the
 frame's roll; tight direction matching keeps real 1° features distinct, independent of STEP
 face order. A rigid motion carries the intrinsic frame unless the moved file axes win this
 vote. Parts with only one established material line retain the axial gauge, including its

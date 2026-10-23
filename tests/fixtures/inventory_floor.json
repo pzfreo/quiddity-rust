@@ -4017,8 +4017,12 @@
       }
     },
     "captured/4a3870a8c7c43b83.step.gz": {
-      "accepted": {},
-      "physical": {}
+      "accepted": {
+        "circular_face_patterns": 1
+      },
+      "physical": {
+        "circular_face_patterns": 1
+      }
     },
     "captured/4a7f6a6171b284a7.step.gz": {
       "accepted": {
@@ -4972,7 +4976,8 @@
     "captured/5a30bebb2ebfc23c.step.gz": {
       "accepted": {
         "blends": 4,
-        "pockets": 1
+        "pockets": 1,
+        "prismatic_pockets": 1
       },
       "physical": {
         "blends": 4,
@@ -5408,12 +5413,14 @@
     "captured/60275841a02f03b9.step.gz": {
       "accepted": {
         "blends": 4,
+        "fillets": 4,
         "plates": 1,
         "polygonal_bosses": 1,
         "step_levels": 1
       },
       "physical": {
         "blends": 4,
+        "fillets": 4,
         "plates": 1,
         "polygonal_bosses": 1,
         "step_levels": 1
@@ -14479,7 +14486,7 @@
       "accepted": {
         "blends": 59,
         "bosses": 14,
-        "fillets": 288,
+        "fillets": 296,
         "flats": 4,
         "freeform_surfaces": 576,
         "grooves": 1,
@@ -14490,7 +14497,7 @@
       "physical": {
         "blends": 69,
         "bosses": 14,
-        "fillets": 288,
+        "fillets": 296,
         "flats": 4,
         "freeform_surfaces": 576,
         "grooves": 1,
@@ -14578,7 +14585,7 @@
       "accepted": {
         "blends": 14,
         "bosses": 9,
-        "fillets": 128,
+        "fillets": 130,
         "flats": 5,
         "freeform_surfaces": 190,
         "holes": 11,
@@ -14587,7 +14594,7 @@
       "physical": {
         "blends": 26,
         "bosses": 9,
-        "fillets": 128,
+        "fillets": 130,
         "flats": 5,
         "freeform_surfaces": 190,
         "holes": 11,

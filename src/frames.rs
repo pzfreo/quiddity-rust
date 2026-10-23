@@ -28,7 +28,7 @@ use crate::kernel::step::Placement;
 #[cfg(test)]
 use crate::kernel::step::{read_step_file_placed, read_step_placed};
 
-/// `_PARALLEL_COS`: two directions closer than this are one direction line.
+/// Angular band for area ranking (the legacy `_PARALLEL_COS`), not for direction votes.
 const PARALLEL_COS: f64 = 0.999;
 /// Match material direction lines to numerical precision, rather than swallowing a real 1°
 /// feature into whichever class happened to be read first (~0.0008° angular tolerance).
@@ -251,7 +251,8 @@ fn material_origin(part: &Part) -> Result<V3, FrameRefusal> {
 /// plane normals and cylinder axes. Choose the orthogonal basis supported by the most analytic
 /// faces (one vote per plane normal or cylinder axis, within `DIRECTION_COS` of a basis line).
 /// File axes win an equal support count; otherwise the frame follows the material directions.
-/// Within the winning set, area and face-offset signatures still order and orient the axes.
+/// Within the winning set, area in the legacy angular band ranks the axes, followed by the
+/// exact class signatures; face offsets orient them.
 /// Thus a rigid motion carries the intrinsic frame unless the moved file axes win this vote.
 /// An axial part retains its explicit roll gauge; no unsupported second material axis is added.
 pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
@@ -294,13 +295,31 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
         }
     }
 
-    // Python's `sorted(..., reverse=True)`: descending, equal signatures in face order.
+    // Keep the area ranking's existing angular band without merging its real directions.
+    // Sum independently about each line, so face order cannot choose which 1° line represents
+    // a class. This preserves the axis order of aligned rc/rd parts and follows rigid motion.
     let signatures: Vec<Signature> = classes.iter().map(DirectionClass::signature).collect();
+    let rank_areas: Vec<_> = classes
+        .iter()
+        .map(|a| {
+            py::round_to(
+                classes
+                    .iter()
+                    .filter(|b| py::dot(&a.direction, &b.direction).abs() >= PARALLEL_COS)
+                    .map(|b| b.area)
+                    .sum(),
+                9,
+            )
+        })
+        .collect();
+    let rank_order = |a: usize, b: usize| {
+        py::order(rank_areas[a], rank_areas[b])
+            .then_with(|| signature_order(&signatures[a], &signatures[b]))
+    };
     let mut ranked: Vec<usize> = (0..classes.len()).collect();
-    ranked.sort_by(|&a, &b| signature_order(&signatures[b], &signatures[a]));
+    ranked.sort_by(|&a, &b| rank_order(b, a));
     // Any equal-ranked class leaves a possible axis interchange, even when it is not chosen.
-    let distinct = (1..ranked.len())
-        .all(|i| signature_order(&signatures[ranked[i - 1]], &signatures[ranked[i]]).is_ne());
+    let distinct = (1..ranked.len()).all(|i| rank_order(ranked[i - 1], ranked[i]).is_ne());
     // Compare complete sets of three lines, not just the largest face-area class. In
     // particular, a shared dominant line must not let a minority angled feature choose roll.
     let support = |axes: [V3; 3]| -> usize {
@@ -381,7 +400,7 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
     let tied: Vec<_> = ranked
         .iter()
         .copied()
-        .take_while(|&i| signature_order(&signatures[first], &signatures[i]).is_eq())
+        .take_while(|&i| rank_order(first, i).is_eq())
         .collect();
     let x = axial_line(&classes, &tied)?;
     // Roll around this established line is an explicit gauge; a world seed represents it.
