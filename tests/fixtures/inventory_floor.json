@@ -17437,15 +17437,67 @@
       }
     },
     "fixture/nist_ctc_02_asme1_ap242-e2.stp.gz": {
+      "accepted": {
+        "blends": 34,
+        "fillets": 20,
+        "freeform_surfaces": 34,
+        "hole_patterns": 13,
+        "holes": 85,
+        "pockets": 4,
+        "section_recesses": 2,
+        "step_levels": 5
+      },
       "framed": {
-        "fillets": 20
+        "blends": 34,
+        "fillets": 20,
+        "freeform_surfaces": 34,
+        "hole_patterns": 13,
+        "holes": 85,
+        "pockets": 4,
+        "risers": 4,
+        "section_recesses": 2,
+        "step_levels": 13
+      },
+      "physical": {
+        "blends": 36,
+        "fillets": 20,
+        "freeform_surfaces": 34,
+        "hole_patterns": 13,
+        "holes": 85,
+        "pockets": 4,
+        "step_levels": 5
       }
     },
     "fixture/nist_ftc_07_asme1_ap242-e2.stp.gz": {
-      "framed": {
+      "accepted": {
+        "blends": 13,
         "fillets": 16,
+        "freeform_surfaces": 20,
+        "hole_patterns": 5,
+        "holes": 23,
+        "plates": 5,
         "polygonal_bosses": 4,
-        "plates": 5
+        "step_levels": 10
+      },
+      "framed": {
+        "blends": 13,
+        "fillets": 16,
+        "freeform_surfaces": 20,
+        "hole_patterns": 5,
+        "holes": 23,
+        "plates": 5,
+        "polygonal_bosses": 4,
+        "step_levels": 8
+      },
+      "physical": {
+        "blends": 13,
+        "fillets": 16,
+        "freeform_surfaces": 20,
+        "hole_patterns": 5,
+        "holes": 23,
+        "plates": 5,
+        "polygonal_bosses": 4,
+        "step_levels": 10
       }
     },
     "golden/golden_angled_blind_step.step": {
@@ -18104,6 +18156,14 @@
       "max_lost": 1,
       "reason": "The principal-only rectangular slot becomes oblique in the winning mixed-direction frame. (for #81)",
       "evidence": "The real slot faces [18,19,20,29] retain file-axis walls +/-X and +/-Z, while the new axes include (0.401686406968178,-0.915777282125406,0). This recogniser cannot encode that oblique run with an axis letter. Faces 18/19 are now risers; general mixed-direction slot coverage is a retained limitation, not an unexplained floor reduction."
+    },
+    {
+      "file": "fixture/nist_ctc_02_asme1_ap242-e2.stp.gz",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 4,
+      "reason": "The former risers are outer envelope walls seen obliquely by the wrong 60-degree frame, not bounded internal risers in the winning file-axis frame. (for #81)",
+      "evidence": "AP242 faces 362/364 are planes at file X=+/-265 with normals +/-X; faces 363/365 are planes at file Y=-40/820 with normals -/+Y. In the new frame these normals are respectively +/-local Y and +/-local Z. The local-Z faces are outermost levels; the local-Y faces lie on the stock envelope. levels::riser_proposals excludes envelope walls; all four former readings used rotated-box positions rather than intrinsic interior steps."
     }
   ]
 }

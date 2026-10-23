@@ -15,7 +15,13 @@ in [docs/alpha1.md](docs/alpha1.md).
   cgb207 recovers its missing file-axis fillet at a total of 20. All 43 Specify fillet
   regressions are recovered. Parallel chamfer support edges are oriented consistently
   after frame normalisation, recovering mfcadpp/10252's missing 18.694-mm, 0.54×45°
-  chamfer (0 to 1), the 44th Specify regression.
+  chamfer (0 to 1), the 44th Specify regression. CTC-02 AP242 also gains 4 pockets (0 to 4)
+  and step levels (2 to 13); its 4 former risers were outer envelope walls seen in the wrong
+  frame, and are gone. FTC-07 AP242 step levels rise from 6 to 8. Mixed-direction parts can
+  change directional families: on mfcadpp_regressions/11512, rectangular blind slots fall
+  from 1 to 0, section recesses from 2 to 1 and accepted grid voids from 1 to 0. Measured
+  direction/family evidence accompanies every bounded framed-floor allowance; broader
+  oblique-slot and shallow-support fillet coverage remains a limitation.
 
 ## 0.1.1 (2026-10-22)
 
