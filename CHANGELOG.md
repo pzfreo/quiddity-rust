@@ -10,9 +10,11 @@ in [docs/alpha1.md](docs/alpha1.md).
   two overlapping, equally supported three-hole rows by input order. ADR 0011 requires
   refusal; the 13 unambiguous patterns remain. A regression test pins the named part
   and its symmetric hole stations. Restoring 14 would violate the intrinsic tie policy.
-- **Identical countersinks at opposite bore mouths stay attached (for #83).** A through
-  hole retains its symmetric seats and both sets of supporting faces. Its `csink` refers
-  to the seat at the presentation end; competing seats at one mouth still refuse.
+- **Identical countersinks at opposite bore mouths stay attached (for #83).** The ø6 hole
+  in draftwright-rust's two-face fixture again links to its ø14, 90°, 4 mm deep seat;
+  both countersink records remain (2). A through hole retains its symmetric seats and
+  both sets of supporting faces. Its `csink` refers to the seat at the presentation end;
+  competing seats at one mouth still refuse.
 
 ## 0.1.1 (2026-10-22)
 
