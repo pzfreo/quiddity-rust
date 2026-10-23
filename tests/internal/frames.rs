@@ -354,3 +354,190 @@ fn working_faces_are_the_caller_faces_on_every_corpus_part() {
     assert!(checked > 90, "only {checked} corpus parts had a frame");
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
+
+/// #81: the AP242 minority angled faces must not choose roll, and a real placement must
+/// carry the frame and the same fillet evidence. A 1° motion is deliberately inside the old
+/// direction-class tolerance, so these copies must be transformed in memory, not re-exported.
+#[test]
+fn axis_majorities_and_intrinsic_frames_survive_sixty_and_one_degree_motions() {
+    use quiddity::{correspondence, frames::RecordFrame};
+    let corpus = common::corpus_dir();
+    let mut cases = vec![
+        (
+            common::fixtures().join("nist_ctc_02_asme1_ap242-e2.stp.gz"),
+            20,
+            0,
+            0,
+        ),
+        (
+            common::fixtures().join("nist_ftc_07_asme1_ap242-e2.stp.gz"),
+            16,
+            4,
+            5,
+        ),
+    ];
+    if let Some(dir) = corpus {
+        cases.extend([
+            (dir.join("nist/nist_ctc_02_asme1_rc.stp"), 21, 0, 0),
+            (dir.join("nist/nist_ftc_07_asme1_rd.stp"), 16, 4, 5),
+        ]);
+    }
+    for (path, fillets, bosses, plates) in cases {
+        let part = quiddity::read_step_file(&path).unwrap();
+        let frame = infer_part_frame(&part).unwrap();
+        assert!(
+            [frame.x, frame.y, frame.z]
+                .iter()
+                .all(|a| a.iter().any(|c| c.abs() == 1.)),
+            "{path:?}: {frame:?}"
+        );
+        let mut original_faces = None;
+        for placement in [
+            IDENTITY,
+            motion([0., 0., 1.], 60., [12.3, -45.6, 78.9]),
+            motion([0., 0., 1.], 1., [12.3, -45.6, 78.9]),
+        ] {
+            let moved = part.transformed(&placement).unwrap();
+            let recognised = correspondence::recognise(&moved);
+            let RecordFrame::Inferred(actual) = recognised.frame else {
+                panic!("{path:?}: frame refused")
+            };
+            let (fields, _, why) = equivariance(
+                &placement,
+                &Ok(frame),
+                &Ok(actual),
+                part.bounds().diagonal(),
+            );
+            assert!(fields.is_empty(), "{path:?}: {why}");
+            assert_eq!(
+                recognised.features.fillets.len(),
+                fillets,
+                "{path:?}: {placement:?}"
+            );
+            assert_eq!(
+                recognised.features.polygonal_bosses.len(),
+                bosses,
+                "{path:?}"
+            );
+            assert_eq!(recognised.features.plates.len(), plates, "{path:?}");
+            let mut faces = recognised.features.defining["fillets"].clone();
+            faces.sort();
+            if let Some(original) = &original_faces {
+                assert_eq!(&faces, original, "{path:?}");
+            } else {
+                original_faces = Some(faces);
+            }
+        }
+        if path.file_name().unwrap() == "nist_ctc_02_asme1_ap242-e2.stp.gz" {
+            let faces = original_faces.unwrap();
+            for face in [
+                391, 394, 396, 399, 475, 519, 522, 532, 542, 545, 548, 625, 626, 630, 631, 77, 78,
+                79,
+            ] {
+                assert!(faces.contains(&vec![face]), "missing AP242 fillet {face}");
+            }
+            // rc's 21st fillet is its face 635, R1.092560827904 on a 2° cylinder.
+            // That small feature is absent from this AP242 geometry, whose minimum cylinder
+            // radius is 4.19 mm. Do not invent a 21st record just to match another edition.
+            assert!(
+                part.faces
+                    .iter()
+                    .filter_map(|f| match f.surface {
+                        quiddity::kernel::geom::Surface::Cylinder { radius, .. } => Some(radius),
+                        _ => None,
+                    })
+                    .all(|r| r > 4.18)
+            );
+        }
+    }
+}
+
+#[test]
+fn majority_frame_recovers_specify_fillets_and_parallel_support_chamfer() {
+    use quiddity::{correspondence, frames::RecordFrame};
+    let Some(dir) = common::corpus_dir() else {
+        return;
+    };
+    for (file, family, count, faces) in [
+        (
+            "cadgenbench_inputs/cgb202.step.gz",
+            "fillets",
+            296,
+            vec![
+                1069, 1087, 1092, 1104, 1225, 1248, 1250, 1453, 1464, 1473, 1475, 1477, 1623, 1631,
+                2056, 2057, 571, 657, 806, 876, 890, 984, 998, 31,
+            ],
+        ),
+        ("cadgenbench_inputs/cgb207.step", "fillets", 20, vec![176]),
+        ("mfcadpp/10252.step", "oriented_chamfers", 1, vec![2]),
+    ] {
+        let part = quiddity::read_step_file(&dir.join(file)).unwrap();
+        let recognised = correspondence::recognise(&part);
+        let RecordFrame::Inferred(frame) = recognised.frame else {
+            panic!("{file}: frame refused")
+        };
+        assert!(
+            [frame.x, frame.y, frame.z]
+                .iter()
+                .all(|a| a.iter().any(|c| c.abs() == 1.)),
+            "{file}"
+        );
+        let found = &recognised.features.defining[family];
+        assert_eq!(found.len(), count, "{file}/{family}");
+        for face in faces {
+            assert!(
+                found.contains(&vec![face]),
+                "{file}: missing {family}:{face}"
+            );
+        }
+        if family == "oriented_chamfers" {
+            let chamfer = &recognised.features.oriented_chamfers[0];
+            assert_eq!(
+                (chamfer.length, chamfer.leg1, chamfer.leg2, chamfer.angle),
+                (18.694, 0.54, 0.54, 45.)
+            );
+            assert_eq!(*chamfer.corner, [31.254, 12.205, 0.]);
+        }
+    }
+}
+
+#[test]
+fn genuinely_rotated_corpus_direction_sets_keep_their_winning_frames() {
+    let Some(dir) = common::corpus_dir() else {
+        return;
+    };
+    for (file, expected_y) in [
+        (
+            "cadgenbench_inputs/cgb203.step",
+            [0.18196311701898504, 0.9833053564609191, 0.],
+        ),
+        (
+            "cadgenbench_inputs/cgb217.step.gz",
+            [
+                std::f64::consts::FRAC_1_SQRT_2,
+                -std::f64::consts::FRAC_1_SQRT_2,
+                0.,
+            ],
+        ),
+        (
+            "cadgenbench/threaded_connector_109.step",
+            [-0.45979133716192094, -0.8880269851028474, 0.],
+        ),
+    ] {
+        let part = quiddity::read_step_file(&dir.join(file)).unwrap();
+        let frame = infer_part_frame(&part).unwrap();
+        assert!(
+            largest_difference(frame.y, expected_y) < 1e-10,
+            "{file}: {frame:?}"
+        );
+        let placement = motion([0., 0., 1.], 1., [12.3, -45.6, 78.9]);
+        let moved = part.transformed(&placement).unwrap();
+        let (fields, _, why) = equivariance(
+            &placement,
+            &Ok(frame),
+            &infer_part_frame(&moved),
+            part.bounds().diagonal(),
+        );
+        assert!(fields.is_empty(), "{file}: {why}");
+    }
+}

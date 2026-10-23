@@ -136,6 +136,18 @@ two STEP files) and writes the `Correspondence`. In the library: `correspondence
 It infers the part's frame, transforms the loaded geometry in memory, recognises there and
 maps records back. It does not re-read STEP. `frame` reports `Inferred` or `Refused { reason }`;
 fields without corresponding file axes remain `local` and must be interpreted through `frame`.
+Frame selection (for #81) compares complete orthogonal sets of three direction lines. Each
+analytic planar face normal or cylinder axis gives one vote to a set when it lies within
+`cos(angle) >= 1 - 1e-10` of one of its lines (about 0.0008°). The candidates come from
+perpendicular material direction pairs, with the existing perpendicular tolerance of 0.001
+in cosine. The highest face count wins; the file's axes win an equal count when two material
+directions establish them. Within a winning set, the existing area/face-offset signatures
+order and orient its axes. Counts keep a large minority angled surface from choosing the
+frame's roll; tight direction matching keeps real 1° features distinct, independent of STEP
+face order. A rigid motion carries the intrinsic frame unless the moved file axes win this
+vote. Parts with only one established material line retain the axial gauge, including its
+unobservable roll; this rule does not invent a second material direction.
+
 The CLI, service and recognition document use this same route. `recognise_placed` is removed.
 Caller-space recognition, discovery, inventory, context construction and evidence builders
 are crate-private by default. Record types remain public at their existing paths. The legacy

@@ -30,6 +30,9 @@ use crate::kernel::step::{read_step_file_placed, read_step_placed};
 
 /// `_PARALLEL_COS`: two directions closer than this are one direction line.
 const PARALLEL_COS: f64 = 0.999;
+/// Match material direction lines to numerical precision, rather than swallowing a real 1°
+/// feature into whichever class happened to be read first (~0.0008° angular tolerance).
+const DIRECTION_COS: f64 = 1.0 - 1e-10;
 /// `_ORTHOGONAL_COS`: two direction lines at least this close to perpendicular make a basis.
 const ORTHOGONAL_COS: f64 = 1.0 - PARALLEL_COS;
 /// `_COMPONENT_EPS`: components this close to 0 or ±1 are snapped there.
@@ -245,7 +248,12 @@ fn material_origin(part: &Part) -> Result<V3, FrameRefusal> {
 }
 
 /// `infer_part_frame`: a rigid-equivariant material origin and a local basis from the part's
-/// plane normals and cylinder axes, ranked by area and by how the faces sit along them.
+/// plane normals and cylinder axes. Choose the orthogonal basis supported by the most analytic
+/// faces (one vote per plane normal or cylinder axis, within `DIRECTION_COS` of a basis line).
+/// File axes win an equal support count; otherwise the frame follows the material directions.
+/// Within the winning set, area and face-offset signatures still order and orient the axes.
+/// Thus a rigid motion carries the intrinsic frame unless the moved file axes win this vote.
+/// An axial part retains its explicit roll gauge; no unsupported second material axis is added.
 pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
     let origin = material_origin(part)?;
     let mut classes: Vec<DirectionClass> = Vec::new();
@@ -267,7 +275,7 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
         let mut offset = py::dot(&relative, &direction);
         match classes
             .iter_mut()
-            .find(|c| py::dot(&direction, &c.direction).abs() >= PARALLEL_COS)
+            .find(|c| py::dot(&direction, &c.direction).abs() >= DIRECTION_COS)
         {
             Some(class) => {
                 if py::dot(&direction, &class.direction) < 0.0 {
@@ -293,6 +301,22 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
     // Any equal-ranked class leaves a possible axis interchange, even when it is not chosen.
     let distinct = (1..ranked.len())
         .all(|i| signature_order(&signatures[ranked[i - 1]], &signatures[ranked[i]]).is_ne());
+    // Compare complete sets of three lines, not just the largest face-area class. In
+    // particular, a shared dominant line must not let a minority angled feature choose roll.
+    let support = |axes: [V3; 3]| -> usize {
+        classes
+            .iter()
+            .filter(|class| {
+                axes.iter()
+                    .any(|axis| py::dot(axis, &class.direction).abs() >= DIRECTION_COS)
+            })
+            .map(|class| class.face_areas.len())
+            .sum()
+    };
+    let file_axes = [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]];
+    let file_support = support(file_axes);
+    let mut best = None;
+    let mut aligned = None;
     for (k, &a) in ranked.iter().enumerate() {
         for &b in &ranked[k + 1..] {
             let (first, first_signed) = classes[a].oriented();
@@ -308,14 +332,44 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
             } else {
                 FrameGauge::Orthogonal
             };
-            return Ok(PartFrame {
+            let candidate = PartFrame {
                 origin,
                 x,
                 y,
                 z,
                 gauge,
-            });
+            };
+            let votes = support([x, y, z]);
+            // Strict improvement preserves the invariant signature ordering at a tie.
+            if best.as_ref().is_none_or(|(count, _)| votes > *count) {
+                best = Some((votes, candidate));
+            }
+            let file_line = |v: V3| {
+                file_axes
+                    .iter()
+                    .find(|axis| py::dot(&v, *axis).abs() >= DIRECTION_COS)
+                    .map(|axis| clean(axis.map(|c| c * py::dot(&v, axis).signum())))
+            };
+            if aligned.is_none()
+                && let (Some(x), Some(y)) = (file_line(first), file_line(second))
+                && py::dot(&x, &y).abs() < ORTHOGONAL_COS
+            {
+                aligned = Some(PartFrame {
+                    x,
+                    y,
+                    z: clean(cross(x, y)),
+                    ..candidate
+                });
+            }
         }
+    }
+    if let Some((votes, frame)) = best {
+        if file_support >= votes
+            && let Some(frame) = aligned
+        {
+            return Ok(frame);
+        }
+        return Ok(frame);
     }
     let Some(&first) = ranked.first() else {
         return Err(FrameRefusal::NoAnalyticDirection);

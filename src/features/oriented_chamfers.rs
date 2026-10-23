@@ -127,7 +127,7 @@ fn pair(
         p.sort_by(|a, b| py::tuple_order(a, b));
         p
     };
-    let (ends1, ends2) = (ends(edge1), ends(edge2));
+    let (ends1, mut ends2) = (ends(edge1), ends(edge2));
     if ends1.len() != 2 || ends2.len() != 2 {
         return None;
     }
@@ -136,8 +136,15 @@ fn pair(
         return None;
     }
     let run = normalized(span1)?;
-    if dot(run, normalized(span2)?) < 1.0 - SMOOTH_ARC_GAP {
+    let parallel = dot(run, normalized(span2)?);
+    if parallel.abs() < 1.0 - SMOOTH_ARC_GAP {
         return None;
+    }
+    // Lexicographic endpoint order can oppose parallel edges after a rigid motion: a
+    // nominally zero component acquires opposite round-off on the two support edges.
+    // Orient the second edge by the first edge's run, not by a second coordinate sort.
+    if parallel < 0.0 {
+        ends2.reverse();
     }
     if run.iter().map(|c| c.abs()).fold(0.0, f64::max) >= AXIS_ALIGNED_COS {
         return None;

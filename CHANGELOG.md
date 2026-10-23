@@ -4,6 +4,19 @@ All notable changes to quiddity-rust and haecceity. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Alpha 1's gates and their evidence are
 in [docs/alpha1.md](docs/alpha1.md).
 
+## Unreleased
+
+- **Frame inference votes over complete direction sets (for #81).** Planar normals and
+  cylinder axes each vote once; file axes win a tie, while genuinely rotated parts retain
+  their intrinsic frame. Real 1° features no longer merge into the first direction read.
+  CTC-02 AP242 fillets rise from 3 to 20 (rc has 21: its extra R1.093 feature is absent
+  from AP242); FTC-07 AP242 fillets rise from 13 to 16 and polygonal bosses from 0 to 4,
+  with all 5 plates retained. cgb202 fillets rise from 272 to 296 and cgb217 from 6 to 14;
+  cgb207 recovers its missing file-axis fillet at a total of 20. All 43 Specify fillet
+  regressions are recovered. Parallel chamfer support edges are oriented consistently
+  after frame normalisation, recovering mfcadpp/10252's missing 18.694-mm, 0.54×45°
+  chamfer (0 to 1), the 44th Specify regression.
+
 ## 0.1.1 (2026-10-22)
 
 Upgrading from 0.1.0:
