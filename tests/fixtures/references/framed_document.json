@@ -19,25 +19,9 @@
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "check": "caller_space",
     "family": "blends",
-    "verdict": "rust-correct",
-    "reason": "The part's frame is not the file's axes, so the default finds other fillets (this file's fillets entry) and reconciliation (blend_superseded_by_fillet) rejects other blends: of the 69 blend candidates caller space rejects 10 (as Python does), the default 4: 2 of caller space's (faces 1466, 1630) and 2 caller space keeps (faces 2, 692), so 8 blends (faces 29, 662, 1252, 1254, 1256, 1258, 1346, 1450) are in the default document only and 2 in caller space only (65 against 59). Blends found in both differ only in sense: path.direction or path.normal is negated, chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice). Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
+    "verdict": "equivalent",
+    "reason": "For #81 the frame is now a signed permutation of the file axes, not the old rotated set. All 59 blend face sets, radii and material sides agree with caller space. Canonical path directions/normals reverse on faces [2, 687, 692, 1418, 1447, 1459, 1461, 1527, 1535, 1538, 1556, 1559, 1562, 1565, 1568, 1571, 1574, 1577, 1595, 1598, 1603], because canonical sense is chosen in the query basis and retained when mapped back; points on those same axis lines can also be published from a different axial station/grid rounding. These are the same physical cylindrical/toroidal blend geometries, so both readings are physically correct representations. No blend is added or lost. This replaces the obsolete explanation that a rotated frame selected different physical blends.",
     "max_differing": 30
-  },
-  {
-    "file": "cadgenbench_inputs/cgb202.step.gz",
-    "check": "caller_space",
-    "family": "fillets",
-    "verdict": "rust-correct",
-    "reason": "The part's frame is not the file's axes (frame x = file y, y = (-0.0872, 0, -0.9962), 5 degrees off file -z; Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
-    "max_differing": 42
-  },
-  {
-    "file": "cadgenbench_inputs/cgb202.step.gz",
-    "check": "caller_space",
-    "family": "grooves",
-    "verdict": "rust-correct",
-    "reason": "The part's frame is not the file's axes (frame x = file y, y = (-0.0872, 0, -0.9962), 5 degrees off file -z; Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
-    "max_differing": 1
   },
   {
     "file": "cadgenbench_inputs/cgb203.step",
@@ -59,33 +43,25 @@
     "file": "cadgenbench_inputs/cgb207.step",
     "check": "caller_space",
     "family": "blends",
-    "verdict": "rust-correct",
-    "reason": "The part's frame is not the file's axes, so the default finds other fillets (this file's fillets entry) and reconciliation (blend_superseded_by_fillet) rejects other blends: of the 7 blend candidates caller space rejects 2 (faces 86, 88, as Python does), the default those and the blend on face 208, which is in caller space only (4 against 5). Blends found in both differ only in sense: path.direction or path.normal is negated, chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice). Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
+    "verdict": "equivalent",
+    "reason": "For #81 the frame is now a signed permutation of the file axes, not the old rotated set. All 5 blend face sets, radii and material sides agree with caller space. Canonical path directions/normals reverse on faces [52, 95, 208], because canonical sense is chosen in the query basis and retained when mapped back; points on those same axis lines can also be published from a different axial station/grid rounding. These are the same physical cylindrical/toroidal blend geometries, so both readings are physically correct representations. No blend is added or lost. This replaces the obsolete explanation that a rotated frame selected different physical blends.",
     "max_differing": 4
-  },
-  {
-    "file": "cadgenbench_inputs/cgb207.step",
-    "check": "caller_space",
-    "family": "fillets",
-    "verdict": "rust-correct",
-    "reason": "The part's frame is not the file's axes (frame x = file z, y = (-0.7464, -0.6655, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
-    "max_differing": 2
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "check": "caller_space",
     "family": "blends",
-    "verdict": "rust-correct",
-    "reason": "The part's frame is not the file's axes, so the default finds other fillets (this file's fillets entry) and reconciliation (blend_superseded_by_fillet) rejects other blends: of the 39 blend candidates caller space rejects 10, the default only 2 of them (faces 138, 139), so 8 blends (faces 191, 196, 219, 224, 247, 252, 296, 301) are in the default document only (37 against 29). Blends found in both differ only in sense: path.direction or path.normal is negated, chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice). Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
+    "verdict": "equivalent",
+    "reason": "For #81 the distinct-surface winner is the 45-degree basis (file Z,(X-Y)/sqrt(2),(X+Y)/sqrt(2)), not the former 13.1-degree body-wall basis. Default-specific R1 external fillets are faces [177,182,205,210,233,238,261,266], whose cylinder axes are file +/-45 degrees; caller-specific R1 external fillets are [191,196,219,224,247,252,296,301], whose axes are file X/Y. These are disjoint physical quarter-rounds: every native cylinder points outward and meets perpendicular tangent planes. Both readings are physically correct. The axis-letter fillet family can name only principal runs in its query frame. Every one of the eight caller fillets remains an accepted convex R1 straight Blend on the same face in the default, and all eight default fillets remain equivalent convex R1 Blends in caller space. Thus all sixteen real rounds survive in both documents; there is no lost feature. BlendSupersededByFillet changes the family on the appropriate eight faces, while remaining blend paths can reverse their canonical direction. tests/internal/recognition.rs::changed_query_axes_retain_physical_rounds_and_bores independently pins the geometry, both substitutions and the complete sixteen-face coverage.",
     "max_differing": 24
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "check": "caller_space",
     "family": "fillets",
-    "verdict": "rust-correct",
-    "reason": "The part's frame is not the file's axes (frame x = file z, y = (-0.9741, -0.2261, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
-    "max_differing": 8
+    "verdict": "equivalent",
+    "reason": "For #81 the distinct-surface winner is the 45-degree basis (file Z,(X-Y)/sqrt(2),(X+Y)/sqrt(2)), not the former 13.1-degree body-wall basis. Default-specific R1 external fillets are faces [177,182,205,210,233,238,261,266], whose cylinder axes are file +/-45 degrees; caller-specific R1 external fillets are [191,196,219,224,247,252,296,301], whose axes are file X/Y. These are disjoint physical quarter-rounds: every native cylinder points outward and meets perpendicular tangent planes. Both readings are physically correct. The axis-letter fillet family can name only principal runs in its query frame. Every one of the eight caller fillets remains an accepted convex R1 straight Blend on the same face in the default, and all eight default fillets remain equivalent convex R1 Blends in caller space. Thus all sixteen real rounds survive in both documents; there is no lost feature. BlendSupersededByFillet changes the family on the appropriate eight faces, while remaining blend paths can reverse their canonical direction. tests/internal/recognition.rs::changed_query_axes_retain_physical_rounds_and_bores independently pins the geometry, both substitutions and the complete sixteen-face coverage.",
+    "max_differing": 16
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -108,15 +84,15 @@
     "check": "caller_space",
     "family": "interior_voids",
     "verdict": "rust-correct",
-    "reason": "The part's frame is not the file's axes (frame x = file z, y = (-0.9741, -0.2261, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
-    "max_differing": 1
+    "reason": "For #81 the grid is now cast in the 45-degree frame. The default emits an InteriorVoidRefusal on [26,28,41] with widening_behind_throat_unproved, whereas caller space accepts an InteriorVoid on [26,41] and misidentifies the other cylindrical wall [28] as an opening. Analytic anatomy is two parallel constant-R4.25 cross bores [26,28], perpendicular to a continuous constant-R5.1 through bore [41]; [25,27,40,53] are the mouth regions. All three remain accepted through holes in both readings. There is no separate enlarged chamber behind a constricted throat: the larger through bore stays R5.1 to its exits. At either orthogonal junction, even the cross-bore clearance bound sqrt(4.25^2+5.1^2)=6.639 is below 1.5*5.1=7.65, the recogniser widening requirement. Caller-space integer-grid clearances spuriously pass that test (pitch 2.072037, 167 enclosed samples); the rotated grid (pitch 2.251423, 292 samples) correctly refuses. The default refusal has the complete three-cylinder anatomy and is physically correct; this is removal of a false chamber claim, not a lost real void. The two differing records count an accepted caller record removed plus a default refusal added, not two recognised voids. changed_query_axes_retain_physical_rounds_and_bores pins the native radii, perpendicular axes, all three accepted holes and the default refusal.",
+    "max_differing": 2
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "check": "caller_space",
     "family": "turned_steps",
     "verdict": "rust-correct",
-    "reason": "The part's frame is not the file's axes (frame x = file z, y = (-0.9741, -0.2261, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
+    "reason": "The part's frame is not the file's axes (frame x = file z, y = (0.7071067812, -0.7071067812, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
     "max_differing": 1
   },
   {
@@ -1650,18 +1626,10 @@
   {
     "file": "cadgenbench_inputs/cgb202.step.gz",
     "check": "caller_space",
-    "family": "risers",
-    "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (-0.9962, 0.0000, 0.0872), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
-    "max_differing": 1
-  },
-  {
-    "file": "cadgenbench_inputs/cgb202.step.gz",
-    "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (-0.9962, 0.0000, 0.0872), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
-    "max_differing": 13
+    "reason": "For #81 the default frame is file (Y,-Z,-X), so its height direction is -X, not caller-space Z. Default-only level face groups are [2024], [1804], [1770,2039], [1914,1917,1918,1930,1933,1934], [1915,1919,1920,1931,1935,1936]. Caller-only groups are [2079,2084], [1958], [1736], [1737], [1734], [1735], [1738], [1739], [1876], [1956], [2052,2055]. These are actual planar faces viewed along different height axes; neither surface set is absent or invented. Both are physically legitimate directional level queries. The automatic API correctly uses its declared material-frame height; caller-space Z answers a different query. The document leaves height/span fields local. Axis-letter families that now agree (fillets, grooves and risers) have no allowance.",
+    "max_differing": 16
   },
   {
     "file": "cadgenbench_inputs/cgb243.step.gz",
@@ -1972,8 +1940,8 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.6655, -0.7464, 0.0000), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
-    "max_differing": 7
+    "reason": "For #81 the default frame is file (Z,-Y,X), making X its height direction instead of caller-space Z. The default level is face [167]; caller-space levels are [156,273], [247,250], [148], [237], [171,173], [267,269], [149]. Both lists describe real planar faces under different directional queries, not missing geometry. The automatic API correctly uses its declared frame height; caller-space Z is also physically meaningful but is not the same query. Height/span fields remain local. Fillets now agree and their stale exception is removed.",
+    "max_differing": 8
   },
   {
     "file": "mfcadpp/10077.step",
@@ -2140,7 +2108,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.2261, -0.9741, 0.0000), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.7071067812, 0.7071067812, 0.0000), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
     "max_differing": 3
   },
   {
@@ -2148,7 +2116,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.2261, -0.9741, 0.0000), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.7071067812, 0.7071067812, 0.0000), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
     "max_differing": 10
   },
   {
@@ -2172,7 +2140,7 @@
     "check": "caller_space",
     "family": "section_recesses",
     "verdict": "equivalent",
-    "reason": "Equivalent geometry expressed in the recognition run's section basis: the one triangular pocket on walls 15, 16, 17 (published since the local-degradation retry is ported) has its frame's u and v reversed in the default document and its boundary started at another vertex. Lifted to file coordinates (origin + u·p.u + v·p.v) its three vertices agree with caller space's within 0.001 mm (the publication grid), and its origin, run, interval, ends, classification, body and both evidence lists agree.",
+    "reason": "Equivalent geometry expressed in the recognition run's section basis: the one triangular pocket on walls 15, 16, 17 (published since the local-degradation retry is ported) has its frame's u and v reversed in the default document and its boundary started at another vertex. Lifted to file coordinates (origin + u\u00b7p.u + v\u00b7p.v) its three vertices agree with caller space's within 0.001 mm (the publication grid), and its origin, run, interval, ends, classification, body and both evidence lists agree.",
     "max_differing": 1
   },
   {
@@ -2918,5 +2886,29 @@
     "verdict": "equivalent",
     "reason": "The four double-counterbored holes have interchangeable ends. Independent OpenCascade establishes diameter-7 length-55 bores between z=-27.5 and +27.5 and equal diameter-10 length-10 mouths extending to z=+-37.5. Caller space presents axis -Z at +37.5; the inferred-frame API presents +Z at -37.5. Both retain CounterBore(10, 10) and claim the bore plus both mouths: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. tests/tie_breaks.rs::symmetric_double_counterbores_preserve_ftc10_and_captured_inventory checks both APIs retain 30 holes/seven patterns and verifies the physical bore endpoints, dimensions and claims under rigid motions. Only the presentation end gauge differs; no numeric tolerance or allowance changes.",
     "max_differing": 4
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "check": "caller_space",
+    "family": "blends",
+    "verdict": "rust-wrong",
+    "reason": "Caller-space convex/concave Blend readings on [27] (R20, concave) and [47] (R23, convex) are replaced by Fillet records on the same faces/radii in the 27.4-degree default frame. Both native axes are file Z, hence their run itself is principal in both queries. What changes is support roll: adjacent support normals (-0.9036892863,0.4281888296,0) and (0.4603475160,0.8877387930,0) enter the default coordinate-plane band. Their dot is -0.03589128343 (a non-right support pair); caller space uses the intrinsic blend proof, while the default primary approximate coordinate-corner path accepts them as fillets and reconciliation suppresses the generic blends. The geometry and radii are retained, not lost. The caller Blend classification is physically correct; specifically face 27 is inward-facing and the default convex label is wrong. This is the existing shallow-support fillet material-side limitation, not evidence that the two curves are absent. A general correction must audit that legacy approximate path (also used by NIST angled-support fillets), rather than changing the principal-axis record schema or special-casing these faces. changed_query_axes_retain_physical_rounds_and_bores pins native concavity and geometric coverage without pinning the erroneous convex label. (for #81)",
+    "max_differing": 2
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "check": "caller_space",
+    "family": "fillets",
+    "verdict": "rust-wrong",
+    "reason": "Default-only faces [27,47] are the same R20/R23 cylindrical curves that caller space truthfully records as concave/convex Blends. The 27.4-degree frame rotates their supports into the approximate axis-aligned plane band, triggering the legacy coordinate-corner fillet path; its support normals have dot -0.03589128343 rather than zero. The caller generic-blend classification is physically correct, and its concave material-side label on face 27 is proved by frame_points_outward(27)=false; the default convex fillet label on that face is a known approximation error. Face 47 is outward-facing. Neither curve disappears from the default: faces, radii and run survive in the fillet records. This entry explicitly records a false-positive subtype/material-side classification, not permission to lose a real feature. See this file blend entry and changed_query_axes_retain_physical_rounds_and_bores for native-surface evidence. (for #81)",
+    "max_differing": 2
+  },
+  {
+    "file": "cadgenbench_inputs/cgb241.step",
+    "check": "caller_space",
+    "family": "step_levels",
+    "verdict": "not-applicable",
+    "reason": "The 27.4-degree default frame has height line (-0.8877387930,0.4603475160,0), rather than caller-space Z. Default-only planar faces [26] and [46] have normals +/-(-0.9036892863,0.4281888296,0), within the existing level angular band of that height line; caller space correctly has no Z-level on either vertical wall. Both are real planar wall patches. The default classification is the material-frame directional level query, not a claim that these walls are horizontal in the file; the corresponding height/span fields remain local. This is a physically valid change of height context, not added or lost surfaces. (for #81)",
+    "max_differing": 2
   }
 ]

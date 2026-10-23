@@ -6,6 +6,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Preserve tiny material rotations during recognition (for #81).** File-axis support
+  preference keeps the original near-axis material representative; publication alone snaps
+  within the coordinate floor. sm-hanger again retains its 2.42e-9-radian inferred tilt while
+  publishing in file axes, and a 1e-6-radian copy retains all 6 blind pockets and its pattern.
+
 - **Frame inference votes over complete direction sets (for #81).** Planar normals and
   cylinder axes each vote once per distinct coplanar plane or coaxial equal-radius cylinder; file axes win a tie, while genuinely rotated parts retain
   their intrinsic frame. Real 1° features no longer merge into the first direction read.

@@ -1339,3 +1339,143 @@ fn a_seat_split_by_a_slot_stays_a_countersink() {
         );
     }
 }
+
+/// #81: a different set of principal runs must not erase physical rounds. The other set
+/// remains represented by exact cylindrical blends. Cross-drilled through holes also must
+/// survive even when the six-axis chamber sampler correctly refuses its old coarse-grid claim.
+#[test]
+fn changed_query_axes_retain_physical_rounds_and_bores() {
+    use quiddity::kernel::geom::{self, Surface};
+    let Some(dir) = common::corpus_dir() else {
+        return;
+    };
+    let part = quiddity::read_step_file(&dir.join("cadgenbench_inputs/cgb217.step.gz")).unwrap();
+    let framed = correspondence::recognise(&part);
+    let caller = correspondence::caller_space_recognise(&part);
+    for (specific, general, faces) in [
+        (&framed, &caller, [177, 182, 205, 210, 233, 238, 261, 266]),
+        (&caller, &framed, [191, 196, 219, 224, 247, 252, 296, 301]),
+    ] {
+        for face in faces {
+            let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
+                panic!("{face}")
+            };
+            assert_eq!(radius, 1.);
+            assert_eq!(part.frame_points_outward(face), Some(true), "{face}");
+            let planes: Vec<_> = part
+                .neighbours(face)
+                .into_iter()
+                .filter_map(|f| {
+                    let Surface::Plane { frame: plane } = part.faces[f].surface else {
+                        return None;
+                    };
+                    Some(plane)
+                })
+                .collect();
+            assert_eq!(planes.len(), 2, "{face}");
+            assert!(geom::dot(planes[0].z, planes[1].z).abs() < 1e-9, "{face}");
+            for plane in planes {
+                assert!(geom::dot(plane.z, frame.z).abs() < 1e-9, "{face}");
+                assert!(
+                    (geom::dot(geom::sub(frame.origin, plane.origin), plane.z).abs() - radius)
+                        .abs()
+                        < 1e-6,
+                    "{face}"
+                );
+            }
+            let index = specific.features.defining["fillets"]
+                .iter()
+                .position(|f| *f == vec![face])
+                .unwrap();
+            assert_eq!(specific.features.fillets[index].radius, radius);
+            let index = general.features.defining["blends"]
+                .iter()
+                .position(|f| *f == vec![face])
+                .unwrap();
+            let blend = &general.features.blends[index];
+            assert_eq!(blend.radius, radius);
+            assert_eq!(blend.side, "convex");
+            let features::blends::BlendPath::Straight(path) = &blend.path else {
+                panic!("{face}")
+            };
+            assert!(
+                geom::dot(geom::unit(path.direction).unwrap(), frame.z).abs() > 1. - 1e-9,
+                "{face}"
+            );
+        }
+    }
+    let mut bores = Vec::new();
+    for (face, radius) in [(26, 4.25), (28, 4.25), (41, 5.1)] {
+        let Surface::Cylinder {
+            frame,
+            radius: measured,
+        } = part.faces[face].surface
+        else {
+            panic!("{face}")
+        };
+        assert!((measured - radius).abs() < 1e-9);
+        assert_eq!(part.frame_points_outward(face), Some(false));
+        bores.push(frame.z);
+        for reading in [&framed, &caller] {
+            let index = reading.features.defining["holes"]
+                .iter()
+                .position(|f| *f == vec![face])
+                .unwrap();
+            assert!((reading.features.holes[index].diameter - 2. * radius).abs() < 1e-9);
+            assert_eq!(
+                reading.features.holes[index].bottom,
+                features::holes::Bottom::Through
+            );
+        }
+    }
+    assert!(geom::dot(bores[0], bores[1]).abs() > 1. - 1e-9);
+    assert!(geom::dot(bores[0], bores[2]).abs() < 1e-9);
+    // Neither cross-bore junction establishes 1.5x widening relative to the continuous
+    // R5.1 exit. The old caller grid accepted an incomplete two-wall sampled component.
+    assert!((4.25_f64.powi(2) + 5.1_f64.powi(2)).sqrt() < 1.5 * 5.1);
+    assert!(framed.features.interior_voids.is_empty());
+    let document = recognition::document(&framed, part.faces.len());
+    assert!(
+        document
+            .records
+            .iter()
+            .any(|r| r.record_type == "InteriorVoidRefusal" && r.faces == vec![26, 28, 41])
+    );
+
+    let part = quiddity::read_step_file(&dir.join("cadgenbench_inputs/cgb241.step")).unwrap();
+    let framed = correspondence::recognise(&part);
+    let caller = correspondence::caller_space_recognise(&part);
+    for (face, radius, outward, side) in [(27, 20., false, "concave"), (47, 23., true, "convex")] {
+        let Surface::Cylinder {
+            radius: measured, ..
+        } = part.faces[face].surface
+        else {
+            panic!("{face}")
+        };
+        assert_eq!(measured, radius);
+        assert_eq!(part.frame_points_outward(face), Some(outward));
+        let index = caller.features.defining["blends"]
+            .iter()
+            .position(|f| *f == vec![face])
+            .unwrap();
+        assert_eq!(caller.features.blends[index].side, side);
+        // Permit a future correction of the approximate fillet label; require the curve
+        // itself to remain represented with the right radius in either accepted family.
+        let found = framed.features.defining["fillets"]
+            .iter()
+            .zip(&framed.features.fillets)
+            .any(|(f, r)| *f == vec![face] && r.radius == radius)
+            || framed.features.defining["blends"]
+                .iter()
+                .zip(&framed.features.blends)
+                .any(|(f, r)| *f == vec![face] && r.radius == radius);
+        assert!(found, "lost physical cylindrical blend {face}");
+    }
+    let normal = |f: usize| {
+        let Surface::Plane { frame } = part.faces[f].surface else {
+            panic!()
+        };
+        frame.z
+    };
+    assert!((geom::dot(normal(26), normal(28)) + 0.03589128343024717).abs() < 1e-12);
+}
