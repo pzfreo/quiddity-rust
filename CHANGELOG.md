@@ -7,7 +7,9 @@ in [docs/alpha1.md](docs/alpha1.md).
 ## Unreleased
 
 - Plate endpoints are published once on the file's 0.001 mm grid, with exact face
-  separation retained for fingerprints (for #84). Nearby projecting details no longer
+  separation retained for fingerprints (for #84). Their `lo`/`hi` fields now use
+  `Placed<f64>`, as other rounded positions do, retaining the original planes through
+  subsequent motions. Nearby projecting details no longer
   extend a predominant plate skin within the opposing skin's transverse envelope:
   whistle_frame_reference is 7.0 mm thick again (for #85). The six supporting-plane
   corrections from #71 remain in place; only whistle's plate fingerprint thickness changes.

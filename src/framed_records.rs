@@ -1341,14 +1341,7 @@ fn plate(out: &mut Out, r: Plate) -> Plate {
         body_key,
     } = r;
     let i = index(axis);
-    let (lo, hi) = out.interval(i, (lo, hi), "lo");
-    // Keep physical face separation exact for fingerprints (#71), but publish both
-    // endpoints once in the target space, as other framed positions are (#69, #84).
-    let (lo, hi) = if out.publish {
-        (Grid::Decimals(3).publish(lo), Grid::Decimals(3).publish(hi))
-    } else {
-        (lo, hi)
-    };
+    let (lo, hi) = out.placed_interval(i, (lo, hi), "lo");
     let [u, v] = out.across(i, [u, v], "u");
     if out.axes.is_none() {
         out.mark("hi");

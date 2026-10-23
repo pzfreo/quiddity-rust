@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
+use super::placed::{Grid, Placed};
 use super::planes::unit_plane_normal;
 use super::policy::{self, AXIS_ALIGNED_COS};
 use super::turned::axis_letter;
@@ -33,8 +34,8 @@ const ORIENTED_ANGLE_DIGITS: usize = 9;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Plate {
     pub axis: char,
-    pub lo: f64,
-    pub hi: f64,
+    pub lo: Placed<f64>,
+    pub hi: Placed<f64>,
     pub u: f64,
     pub v: f64,
     pub body_key: Option<BodyKey>,
@@ -42,7 +43,7 @@ pub struct Plate {
 
 impl Plate {
     pub fn thickness(&self) -> f64 {
-        self.hi - self.lo
+        *self.hi - *self.lo
     }
 }
 
@@ -165,7 +166,7 @@ pub fn discover(ctx: &Context<'_>, opts: &PlateOptions) -> Vec<Occurrence<Plate>
             {
                 continue;
             }
-            let key = (o.record.axis, o.record.lo, o.record.hi);
+            let key = (o.record.axis, *o.record.lo, *o.record.hi);
             if seen.contains(&key) {
                 continue;
             }
@@ -178,8 +179,8 @@ pub fn discover(ctx: &Context<'_>, opts: &PlateOptions) -> Vec<Occurrence<Plate>
         let (a, b) = (&a.record, &b.record);
         a.axis
             .cmp(&b.axis)
-            .then(py::order(a.lo, b.lo))
-            .then(py::order(a.hi, b.hi))
+            .then(py::order(*a.lo, *b.lo))
+            .then(py::order(*a.hi, *b.hi))
             .then(py::order(a.u, b.u))
             .then(py::order(a.v, b.v))
     });
@@ -280,8 +281,10 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
             out.push(Occurrence {
                 record: Plate {
                     axis: axis_letter(i),
-                    lo: low_group.low,
-                    hi: high_group.high,
+                    // Recognition and fingerprints use the exact planes (#71).
+                    // Retain them through subsequent publication and motions (#69, #84).
+                    lo: Placed::from_parts(low_group.low, low_group.low, Grid::Decimals(3)),
+                    hi: Placed::from_parts(high_group.high, high_group.high, Grid::Decimals(3)),
                     u: (low_group.u_sum + high_group.u_sum) / combined_area,
                     v: (low_group.v_sum + high_group.v_sum) / combined_area,
                     body_key: None,
@@ -300,8 +303,8 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
         let (a, b) = (&a.record, &b.record);
         a.axis
             .cmp(&b.axis)
-            .then(py::order(a.lo, b.lo))
-            .then(py::order(a.hi, b.hi))
+            .then(py::order(*a.lo, *b.lo))
+            .then(py::order(*a.hi, *b.hi))
     });
     out
 }

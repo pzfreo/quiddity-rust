@@ -133,7 +133,7 @@ fn published_positions_are_on_their_grids_on_every_corpus_part() {
             ..
         } = framed_records::to_file(features::recognise(&working), &frame, &working);
         for plate in &features.plates {
-            for end in [plate.lo, plate.hi] {
+            for end in [*plate.lo, *plate.hi] {
                 assert!(
                     (end - (end * 1000.0).round() / 1000.0).abs() < 1e-10,
                     "{name}: {plate:?}"
@@ -332,7 +332,7 @@ fn mfcadpp_1000_plate_bounds_publish_once_on_the_file_grid() {
     let found = correspondence::recognise(&part);
     let plate = &found.features.plates[0];
     assert_eq!(plate.axis, 'x');
-    assert_eq!((plate.lo, plate.hi), (0.0, 4.219));
+    assert_eq!((*plate.lo, *plate.hi), (0.0, 4.219));
     assert_eq!(plate.thickness(), 4.219);
     let fingerprints = serde_json::to_value(&found.fingerprints).unwrap();
     let plate = fingerprints["features"]
@@ -347,9 +347,17 @@ fn mfcadpp_1000_plate_bounds_publish_once_on_the_file_grid() {
         [0.0, 1.0, 0.0, -0.00045],
         [0.0, 0.0, 1.0, 0.00045],
     ];
+    let carried = map_features(found.features.clone(), &Rigid::from_placement(&at));
+    assert_eq!(
+        (
+            *carried.features.plates[0].lo,
+            *carried.features.plates[0].hi
+        ),
+        (0.0, 4.220)
+    );
     let moved = correspondence::recognise(&part.transformed(&at).unwrap());
     assert_eq!(
-        (moved.features.plates[0].lo, moved.features.plates[0].hi),
+        (*moved.features.plates[0].lo, *moved.features.plates[0].hi),
         (0.0, 4.220)
     );
     let moved = serde_json::to_value(&moved.fingerprints).unwrap();
@@ -377,7 +385,7 @@ fn whistle_frame_plate_ends_on_its_own_skin() {
     let found = correspondence::recognise(&part);
     let plate = &found.features.plates[0];
     assert_eq!(plate.axis, 'x');
-    assert_eq!((plate.lo, plate.hi), (-14.7, -7.7));
+    assert_eq!((*plate.lo, *plate.hi), (-14.7, -7.7));
     assert!((plate.thickness() - 7.0).abs() < 1e-12);
     assert_eq!(found.features.defining["plates"][0], [4, 6, 10, 14, 39, 62]);
     // The same skins and dimension survive reversal and an off-grid translation.
