@@ -146,7 +146,10 @@ Candidates come from perpendicular material direction pairs, with the existing p
 tolerance of 0.001 in cosine. The pair's original direction classes vote even when the second
 axis is orthogonalised; the third line is their normalised cross product. The highest distinct
 surface count wins; the file's axes win an equal count when two material directions establish
-them. Within a winning set, area within the legacy cosine-0.999 angular band ranks
+them. This preference retains the original material basis within the tight direction band;
+recognition does not snap its real tiny rotations to exact coordinate axes. Publication alone
+may snap a near-axis motion when no part point moves beyond the coordinate floor (#70).
+Within a winning set, area within the legacy cosine-0.999 angular band ranks
 its axes, followed by the exact class signatures; face offsets orient them. Area is summed
 independently about each line, so nearby directions remain distinct and face order does not
 choose their representative. This retains the aligned rc/rd axis order. Counts keep a large minority angled surface from choosing the

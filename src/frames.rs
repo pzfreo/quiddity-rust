@@ -421,12 +421,11 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
                 && let (Some(x), Some(y)) = (file_line(first), file_line(second))
                 && py::dot(&x, &y).abs() < ORTHOGONAL_COS
             {
-                aligned = Some(PartFrame {
-                    x,
-                    y,
-                    z: clean(cross(x, y)),
-                    ..candidate
-                });
+                // This is the file-axis direction set, but its material representative
+                // must retain a real tiny rotation. Snapping recognition geometry here
+                // leaves tilted pocket walls in an unrotated working frame (#70).
+                // Only publication may snap, bounded by movement at the coordinate floor.
+                aligned = Some(candidate);
             }
         }
     }
