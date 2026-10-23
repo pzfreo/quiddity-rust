@@ -1,6 +1,6 @@
 {
   "revision": "5fb1706",
-  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed counts over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts.",
+  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts.",
   "files": {
     "captured/0043cf4564250883.step.gz": {
       "accepted": {
@@ -14617,7 +14617,6 @@
         "freeform_surfaces": 80,
         "hole_patterns": 1,
         "holes": 19,
-        "interior_voids": 1,
         "risers": 3,
         "step_levels": 1,
         "turned_steps": 4
@@ -14876,7 +14875,7 @@
         "prismatic_pockets": 2,
         "risers": 1,
         "section_passages": 3,
-        "section_recesses": 9,
+        "section_recesses": 8,
         "step_levels": 4
       }
     },
@@ -15032,7 +15031,7 @@
         "pockets": 4,
         "prismatic_pockets": 1,
         "section_passages": 1,
-        "section_recesses": 6,
+        "section_recesses": 2,
         "step_levels": 1,
         "through_steps": 1
       }
@@ -15214,7 +15213,7 @@
         "prismatic_pockets": 1,
         "risers": 1,
         "section_passages": 1,
-        "section_recesses": 5,
+        "section_recesses": 4,
         "step_levels": 7
       }
     },
@@ -15295,7 +15294,7 @@
         "chamfers": 1,
         "holes": 1,
         "pockets": 2,
-        "section_recesses": 2,
+        "section_recesses": 1,
         "step_levels": 2
       }
     },
@@ -15326,7 +15325,7 @@
         "paired_ramp_steps": 1,
         "pockets": 1,
         "risers": 3,
-        "section_recesses": 2,
+        "section_recesses": 1,
         "step_levels": 6
       }
     },
@@ -15414,7 +15413,7 @@
         "holes": 3,
         "pockets": 1,
         "risers": 1,
-        "section_recesses": 3,
+        "section_recesses": 2,
         "step_levels": 6,
         "through_steps": 1
       }
@@ -15450,7 +15449,7 @@
         "pockets": 3,
         "risers": 2,
         "section_passages": 1,
-        "section_recesses": 5,
+        "section_recesses": 4,
         "step_levels": 6,
         "through_steps": 1
       }
@@ -15510,7 +15509,7 @@
         "holes": 2,
         "prismatic_pockets": 2,
         "risers": 2,
-        "section_recesses": 2,
+        "section_recesses": 1,
         "step_levels": 2,
         "through_steps": 1
       }
@@ -15564,7 +15563,7 @@
         "pockets": 1,
         "risers": 1,
         "section_passages": 1,
-        "section_recesses": 2,
+        "section_recesses": 1,
         "step_levels": 2,
         "through_steps": 1
       }
@@ -15594,7 +15593,7 @@
         "holes": 3,
         "prismatic_pockets": 1,
         "section_passages": 1,
-        "section_recesses": 3,
+        "section_recesses": 2,
         "step_levels": 4
       }
     },
@@ -15818,7 +15817,7 @@
         "pockets": 2,
         "prismatic_pockets": 1,
         "risers": 3,
-        "section_recesses": 3,
+        "section_recesses": 2,
         "slots": 1,
         "step_levels": 3
       }
@@ -15945,7 +15944,7 @@
         "pockets": 1,
         "risers": 3,
         "section_passages": 2,
-        "section_recesses": 3,
+        "section_recesses": 2,
         "step_levels": 1,
         "through_steps": 2
       }
@@ -16122,7 +16121,7 @@
         "prismatic_pockets": 1,
         "risers": 1,
         "section_passages": 2,
-        "section_recesses": 4,
+        "section_recesses": 3,
         "step_levels": 3
       }
     },
@@ -16235,8 +16234,7 @@
       },
       "framed": {
         "plates": 3,
-        "pockets": 1,
-        "section_recesses": 1
+        "pockets": 1
       }
     },
     "corpus/mfcadpp_holdout/183.step": {
@@ -16285,7 +16283,7 @@
         "holes": 2,
         "pockets": 1,
         "prismatic_pockets": 2,
-        "section_recesses": 3,
+        "section_recesses": 2,
         "step_levels": 1,
         "through_steps": 1
       }
@@ -16822,7 +16820,7 @@
         "prismatic_pockets": 1,
         "rectangular_blind_slots": 1,
         "section_passages": 1,
-        "section_recesses": 8,
+        "section_recesses": 4,
         "step_levels": 5
       }
     },
@@ -16849,7 +16847,7 @@
         "pockets": 1,
         "risers": 1,
         "section_passages": 1,
-        "section_recesses": 2,
+        "section_recesses": 1,
         "slots": 2,
         "step_levels": 2
       }
@@ -16995,7 +16993,7 @@
         "prismatic_pockets": 1,
         "round_bottom_blind_slots": 1,
         "section_passages": 1,
-        "section_recesses": 8,
+        "section_recesses": 6,
         "step_levels": 4
       }
     },
@@ -17028,7 +17026,7 @@
         "chamfers": 1,
         "fillets": 1,
         "holes": 1,
-        "interior_voids": 3,
+        "interior_voids": 1,
         "oriented_chamfers": 1,
         "plates": 1,
         "rectangular_blind_slots": 1,
@@ -17109,7 +17107,7 @@
         "hole_patterns": 13,
         "holes": 85,
         "pockets": 4,
-        "section_recesses": 8,
+        "section_recesses": 4,
         "step_levels": 13
       }
     },
@@ -17233,7 +17231,7 @@
         "holes": 21,
         "pockets": 10,
         "risers": 2,
-        "section_recesses": 6,
+        "section_recesses": 4,
         "step_levels": 2,
         "turned_steps": 3
       }
@@ -18095,9 +18093,9 @@
       "file": "corpus/mfcadpp_regressions/11512.step",
       "mode": "framed",
       "family": "interior_voids",
-      "max_lost": 3,
-      "reason": "Six-axis grid readings change when the analytic channels become principal. (for #81)",
-      "evidence": "All three old void face pairs [13,14], [30,31], [33,34] have plane normals (-0.915777282125406,-0.401686406968178,0) and cylinder axes (0.401686406968178,-0.915777282125406,0). These become principal; the old openings are [3,12], [7]/[17], [10,28,32], so the old finite six-axis occlusion samples were not evidence of sealed cavities. Two old records explicitly said widening_behind_throat_unproved."
+      "max_lost": 1,
+      "reason": "The accepted six-axis grid reading changes when the analytic channel becomes principal; the two other old document entries were refusals, not features. (for #81)",
+      "evidence": "Old accepted void faces [13,14] have plane normal (-0.915777282125406,-0.401686406968178,0) and cylinder axis (0.401686406968178,-0.915777282125406,0), which become principal in the new frame. Its openings are [3,12]. This finite six-axis visibility reading is sensitive to that change of ray directions; retaining oblique-channel coverage needs a broader grid/recogniser change. Only one accepted reading is allowed to decline; the two old widening_behind_throat_unproved refusals do not count as features."
     },
     {
       "file": "corpus/mfcadpp_regressions/11512.step",
