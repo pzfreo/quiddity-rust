@@ -2980,7 +2980,7 @@
     "tests/fixtures/interrupted_corner.step": "4677d32a9c655eddfa5ef7f4f8f153007fa5b14abdcd95758b0640605b1691da",
     "tests/fixtures/interrupted_corner_mirror.step": "e11c0dfe7de4f7abaa92a1dd7e35fe5911f23df070f0e5d0078274b5a115a571",
     "tests/fixtures/interrupted_corner_rot.step": "e384424458d1510d4c5cc540427deea9308785b2db342256f7671ac6fe2ddfe9",
-    "tests/fixtures/inventory_floor.json": "12488be492d570fa718011958a2b11c8eb7eea705a852a197df3a0eba2ca9ea4",
+    "tests/fixtures/inventory_floor.json": "7678583c7b8ea0ab6bbae6a4be0e8b1ffbd60bc33d2c0b6cea1ea050688eca5f",
     "tests/fixtures/kissing_cylinders_knife.step": "2208a45500ffbd4b7fb8de3faf6548c7593eaf9b2613cfd5ae7597f90b61cfe6",
     "tests/fixtures/kissing_cylinders_notch.step": "c36b869747e41d40ccadadbd17934abeec3e661fcb6e87a69930ce3d30e7119a",
     "tests/fixtures/large_block_small_fillets.step": "bfcbd950368723969e8881d09386a579654546f1e36700afa8a773d0d4aece55",
@@ -3150,7 +3150,7 @@
     "calls/recognise_through_steps.json.gz": "ab6a0b5b06756fa3435099be76e5ab432b867be4d4a1b42c49047ff83b086cca",
     "calls/recognise_turned_steps.json.gz": "37d10e8c5e2ce5dcf6c5bd2fdc7444e86494bb44768e9d32d9a1abfd3f2fbd90",
     "channel_geometry.json.gz": "bd25ff87def7f73b4f119d26614600b141ee4350f45c77cef55aae7ea787e85f",
-    "corpus.json.gz": "3ff773ac3e791caef36a9d0e8cacaa48c8512d6bf57493b7bcddee3406cd3da5",
+    "corpus.json.gz": "a911853803e9de956c290b65ac2087855eebbb4e1460337559c02c4e32c350e1",
     "coverage.json.gz": "c835b80d39757ae5ef556953e11a2d7e8bbde3148a233f2af51ae92e1d23a971",
     "cylindrical_proofs/corpus/cadgenbench/flanged_spool_132.step.json.gz": "b93acca566253df99ab62bb5ac97424226850b3ee3963c8d1025939a7339d823",
     "cylindrical_proofs/corpus/cadgenbench/threaded_connector_109.step.json.gz": "eea12e52bf91a9c762e7cadc1b12994398bf8f3836ab11ab8b58a2bf4c5d9a4e",
@@ -3891,7 +3891,7 @@
     "frames/corpus/mfcadpp_holdout/498.step.json.gz": "c6c297cfa9c7c170f2c60a6ffe9cac6f08a862eea662d9d75a7738eb110cdac1",
     "frames/corpus/mfcadpp_holdout/520.step.json.gz": "7cf07754ceeca26f0e24387ff19eaf8cdd5c430f03dcb0b5db011c0393b54ed9",
     "frames/corpus/mfcadpp_holdout/808.step.json.gz": "65b7c67b0b5ec35e662ccb85edf04eb77f09529ab659f1aef6dce4d90e9d4e09",
-    "frames/corpus/mfcadpp_regressions/11512.step.json.gz": "578da523fde8a96aa326c86af5d292fa352e00ceea30faacf2c05f955c7246e2",
+    "frames/corpus/mfcadpp_regressions/11512.step.json.gz": "6151a8fdaf68245a559226dbc258ba3c05b565218b34aef106de14afe4ab026e",
     "frames/corpus/nist/nist_ctc_01_asme1_rd.stp.json.gz": "8048b91f93162e5ecea24d871d0abb4e0f1b672c701608b4187ace1bdf860b70",
     "frames/corpus/nist/nist_ctc_02_asme1_rc.stp.json.gz": "d1efcf89b21bb2aa49a50b538bd3a16a2942fb676a94c45fa2ca0f37baeafd8b",
     "frames/corpus/nist/nist_ctc_03_asme1_rc.stp.json.gz": "f197c9614b38029adf98c387e99fcff3c45e045cc8833c052c5040a345fa0d2e",
@@ -5806,5 +5806,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "511971fef1a268a5e2d04af307b7708ffed6e268"
+  "source_commit": "5beddf86758b34ee3ac39148178caee17308b15b"
 }
