@@ -1478,6 +1478,7 @@ fn changed_query_axes_retain_physical_rounds_and_bores() {
         frame.z
     };
     assert!((geom::dot(normal(26), normal(28)) + 0.03589128343024717).abs() < 1e-12);
+}
 
 /// For #82: alpha.8 chose one of two overlapping, equal-support 49.5 mm rows by
 /// input order. Under ADR 0011 neither is published: neither row owns the two central holes
