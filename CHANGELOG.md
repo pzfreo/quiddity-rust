@@ -6,10 +6,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
-- **CTC-02's ambiguous 49.5 mm rows stay refused (for #82).** Alpha.8 allocated one of
-  two overlapping, equally supported three-hole rows by input order. ADR 0011 requires
-  refusal; the 13 unambiguous patterns remain. A regression test pins the named part
-  and its symmetric hole stations. Restoring 14 would violate the intrinsic tie policy.
+- **CTC-02's 49.5 mm rows are not published as a pattern (for #82).** Its six ø8.38
+  holes at x = ±25, ±74, ±122 are spaced 48, 49, 50, 49, 48. Alpha.8 chose one of two
+  mirror-image three-hole rows (spacings 49 and 50, mean 49.5) by input order; both share
+  the two central holes and have equal support, so under ADR 0011 neither is published.
+  No refusal record is emitted; every hole is still recognised, and the 13 other patterns
+  remain. A regression test pins the part and its hole stations.
 - **Identical countersinks at opposite bore mouths stay attached (for #83).** The ø6 hole
   in draftwright-rust's two-face fixture again links to its ø14, 90°, 4 mm deep seat;
   both countersink records remain (2). A through hole retains its symmetric seats and

@@ -1341,7 +1341,8 @@ fn a_seat_split_by_a_slot_stays_a_countersink() {
 }
 
 /// For #82: alpha.8 chose one of two overlapping, equal-support 49.5 mm rows by
-/// input order. ADR 0011 requires refusal: neither row owns the two central holes uniquely.
+/// input order. Under ADR 0011 neither is published: neither row owns the two central holes
+/// uniquely. No refusal record is emitted; the holes themselves are still recognised.
 #[test]
 fn ctc02_refuses_the_ambiguous_49_5_hole_arrays() {
     use features::hole_patterns::HolePattern;
