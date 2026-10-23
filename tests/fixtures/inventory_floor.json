@@ -18049,7 +18049,7 @@
       "family": "blends",
       "max_lost": 8,
       "reason": "Eight convex cylindrical blend faces are now specific fillets. (for #81)",
-      "evidence": "The eight old blend faces 218,223,228,233,238,243,261,266 have cylinder axes at file +/-45 degrees. They become principal in the winning 154-vote basis and are claimed by fillets; reconcile::BlendSupersededByFillet removes the duplicate chains."
+      "evidence": "The eight old blend faces 210,205,177,182,238,233,261,266 have cylinder axes at file +/-45 degrees. They become principal in the winning 154-vote basis and are claimed by fillets; reconcile::BlendSupersededByFillet removes the duplicate chains."
     },
     {
       "file": "corpus/cadgenbench_inputs/cgb241.step",
@@ -18057,7 +18057,7 @@
       "family": "blends",
       "max_lost": 2,
       "reason": "Two convex cylindrical blend faces become specific fillets in the winning direction set. (for #81)",
-      "evidence": "The corpus snapshot records the same cylindrical defining faces in fillets instead of blends; reconcile::BlendSupersededByFillet suppresses their duplicate blend claims."
+      "evidence": "Analytic cylinder faces 27 and 47 are claimed by fillets in the new frame instead of blends; reconcile::BlendSupersededByFillet suppresses their duplicate blend claims."
     },
     {
       "file": "corpus/mfcadpp_regressions/11512.step",
