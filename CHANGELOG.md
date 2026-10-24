@@ -6,11 +6,27 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.2.0-alpha.1 (2026-10-24)
+
+Upgrading from 0.1.1:
+
+- **Recognition schema 6 (#92).** Published records have no `local` fields. An axis field
+  (`axis`, `long_axis`, `width_axis`, `other_axis`, ...) is a file-axis letter as before, or a
+  unit vector in file coordinates; a converted record carries an `origin` and its measuring
+  axes. Only records that had `local` fields change; the top-level `frame` is provenance only.
+  Readers must accept `quiddity-rust/recognition/6`: see [docs/recognition-6.md](docs/recognition-6.md).
+  Fingerprints stay `quiddity-rust/fingerprint/3`.
+- **API.** `Recognition.features` and `Mapped` use `PublishedFeatures`; `Mapped::local`,
+  `fingerprinted_local` and `LocalFields` are removed. Plate `lo`/`hi` are `Placed<f64>` (#84).
+- **Changed results.** Frames change on parts whose file axes win the new vote (#81): CTC-02
+  and FTC-07 AP242 become axis-aligned, cgb217 and cgb241 change frame. Concave rounds are no
+  longer convex fillets (#89). CTC-02's 49.5 mm rows are no longer a pattern (#82).
+  Re-recognise rather than reuse 0.1.1 output.
+
 - **Publish nonprincipal measurements in file coordinates (for #92).** Recognition schema 6
   removes `local`. Formerly frame-relative directions use unit vectors; relative coordinates
   have explicit origins and measuring axes. Ordinary file-axis records and intrinsic
   fingerprints retain their values. Recognition frame voting and oriented families are unchanged.
-
 
 - **Decide fillet convexity from the face (for #89).** Both prismatic paths now require
   an outward-facing cylinder. cgb241 face 27 returns to its concave R20 blend: fillets
@@ -41,8 +57,8 @@ in [docs/alpha1.md](docs/alpha1.md).
   frame, and are gone. FTC-07 AP242 step levels rise from 6 to 8. Mixed-direction parts can
   change frame and so directional families: cgb217 moves from 13.1° to 45° (98 against 96
   supports) and cgb241 from the file axes to 27.4° (20 against 18). On cgb241 that relabels
-  two blends (faces 27 and 47) as fillets, and face 27, a concave R20, is wrongly called
-  convex: the known shallow-support corner-probe limitation, recorded as `rust-wrong`. Counting distinct surfaces rather than faces keeps
+  two blends (faces 27 and 47) as fillets; face 27, a concave R20, is a blend again after
+  #89, leaving only face 47 relabelled. Counting distinct surfaces rather than faces keeps
   mfcadpp_regressions/11512 aligned and unchanged despite split channel faces (15
   file-axis surfaces against 10 rotated). Measured analytic evidence accompanies every bounded framed-floor allowance; broader
   shallow-support fillet coverage remains a limitation.
