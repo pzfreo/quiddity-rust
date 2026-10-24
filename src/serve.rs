@@ -178,7 +178,7 @@ fn recognition_warnings(
             .iter()
             .map(|repair| format!("{path}: warning: {repair}")),
     );
-    if let Some(reason) = &recognition.features.section_recess_refusal {
+    if let Some(reason) = &recognition.features.working().section_recess_refusal {
         warnings.push(format!(
             "{path}: warning: section-recess projection refused: {reason}"
         ));
@@ -217,12 +217,14 @@ pub fn fingerprints_value(mut value: Value, source: &str) -> Result<Fingerprints
     if let Some(inner) = value.get_mut("fingerprints") {
         value = inner.take();
     }
-    serde_json::from_value(value).map_err(|e| {
+    let mut fingerprints: Fingerprints = serde_json::from_value(value).map_err(|e| {
         Failure::new(
             "bad_document",
             format!("{source}: no fingerprints ({e}); write it with `quiddity <file.step>`"),
         )
-    })
+    })?;
+    correspondence::fingerprint::migrate_v3(&mut fingerprints);
+    Ok(fingerprints)
 }
 
 /// A revision's fingerprints from the file at *path*: a STEP file recognised, or a JSON file

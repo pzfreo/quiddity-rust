@@ -63,9 +63,10 @@ pub fn recognise(part: &Part) -> Recognition {
         Ok(frame) => frame,
         Err(reason) => {
             let features = features::recognise(part);
-            let fingerprints = fingerprint(part, &features);
+            let features: PublishedFeatures = features.into();
+            let fingerprints = fingerprint::published_fingerprint(part, &features);
             return Recognition {
-                features: features.into(),
+                features,
                 fingerprints,
                 frame: RecordFrame::Refused { reason },
                 source_sha256: None,
@@ -122,9 +123,10 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
 #[cfg(test)]
 pub(crate) fn caller_space_recognise(part: &Part) -> Recognition {
     let features = features::recognise(part);
-    let fingerprints = fingerprint(part, &features);
+    let features: PublishedFeatures = features.into();
+    let fingerprints = fingerprint::published_fingerprint(part, &features);
     Recognition {
-        features: features.into(),
+        features,
         fingerprints,
         frame: RecordFrame::CallerSpace,
         source_sha256: None,
@@ -332,6 +334,17 @@ pub fn correspond_with(
     new: &Fingerprints,
     th: &Thresholds,
 ) -> Result<Correspondence, String> {
+    let upgrade = |f: &Fingerprints| {
+        (f.fingerprint_version == "quiddity-rust/fingerprint/3").then(|| {
+            let mut f = f.clone();
+            fingerprint::migrate_v3(&mut f);
+            f
+        })
+    };
+    let old_upgraded = upgrade(old);
+    let new_upgraded = upgrade(new);
+    let old = old_upgraded.as_ref().unwrap_or(old);
+    let new = new_upgraded.as_ref().unwrap_or(new);
     for (which, f) in [("old", old), ("new", new)] {
         validate(f).map_err(|e| format!("the {which} fingerprints {e}"))?;
     }

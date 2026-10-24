@@ -461,3 +461,78 @@ fn brep_writes_the_pmi_document_given_in_place_of_the_files() {
     );
     std::fs::remove_dir_all(&dir).ok();
 }
+
+/// Captured with alpha.1 (a4d07a0), including file-axis golden recognition to exercise
+/// the formerly oriented slots and their pattern, plus inferred-frame corpus chamfers.
+#[test]
+fn schema6_oriented_fingerprints_correspond_to_schema7_step() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let bytes = include_bytes!("fixtures/recognition6_oriented.json.gz");
+    let capture: serde_json::Value =
+        serde_json::from_reader(flate2::read::GzDecoder::new(&bytes[..])).unwrap();
+    let temporary = std::env::temp_dir().join(format!("quiddity-schema6-{}", std::process::id()));
+    std::fs::create_dir_all(&temporary).unwrap();
+    let mut formerly_oriented = 0;
+    for case in capture["cases"].as_array().unwrap() {
+        let path = case["path"].as_str().unwrap();
+        let step = if case["kind"] == "fixture" {
+            root.join("tests/fixtures").join(path)
+        } else if let Some(corpus) = std::env::var_os("QUIDDITY_CORPUS").filter(|v| v != "off") {
+            PathBuf::from(corpus).join(path)
+        } else {
+            assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+            continue;
+        };
+        let old = temporary.join("schema6.json");
+        std::fs::write(&old, serde_json::to_vec(case).unwrap()).unwrap();
+        let output = quiddity(&["correspond", old.to_str().unwrap(), step.to_str().unwrap()]);
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let result: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+        let recognised = quiddity(&[step.to_str().unwrap()]);
+        assert!(recognised.status.success());
+        let recognised: serde_json::Value = serde_json::from_slice(&recognised.stdout).unwrap();
+        assert_eq!(
+            recognised["document"]["schema_version"],
+            "quiddity-rust/recognition/7"
+        );
+        for old in case["fingerprints"]["features"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|f| f["family"].as_str().unwrap().starts_with("oriented_"))
+        {
+            formerly_oriented += 1;
+            let pair = result["features"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|p| p["old"] == old["id"])
+                .unwrap();
+            assert_eq!(pair["class"], "carried", "{path}: {pair}");
+            let new = recognised["document"]["records"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|r| r["id"] == pair["new"])
+                .expect("merged record");
+            assert_eq!(
+                new["family"],
+                old["family"]
+                    .as_str()
+                    .unwrap()
+                    .strip_prefix("oriented_")
+                    .unwrap()
+            );
+            assert_eq!(new["faces"], old["faces"]);
+        }
+    }
+    assert!(
+        formerly_oriented >= 4,
+        "three slots and their accepted pattern"
+    );
+    std::fs::remove_dir_all(temporary).unwrap();
+}

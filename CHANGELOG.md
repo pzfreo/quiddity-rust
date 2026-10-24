@@ -6,6 +6,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **One published family per feature kind (for #92).** Recognition schema 7 merges
+  oriented slots, chamfers and slot patterns into their plain families, preserving
+  proofs and counts. Plain records precede oriented records; IDs, pattern members,
+  evidence and accounting follow the merge. Fingerprints become version 4; correspondence
+  accepts saved version-3 output. See [recognition-7.md](docs/recognition-7.md) for field
+  mapping and migration by defining faces or correspondence. File-axis letters and the
+  crate version remain unchanged.
+
 ## 0.2.0-alpha.1 (2026-10-24)
 
 Upgrading from 0.1.1:

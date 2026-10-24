@@ -13,7 +13,7 @@ use crate::kernel::geom::{self, Surface, V3};
 
 /// Bumped whenever a fingerprint's content or meaning changes: [`super::correspond`] refuses to
 /// compare fingerprints of two versions.
-pub const FINGERPRINT_VERSION: &str = "quiddity-rust/fingerprint/3";
+pub const FINGERPRINT_VERSION: &str = "quiddity-rust/fingerprint/4";
 
 /// The fingerprints of one recognition result.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -940,9 +940,47 @@ pub(crate) fn published_fingerprint(
     part: &Part,
     features: &crate::published_records::PublishedFeatures,
 ) -> Fingerprints {
-    fingerprint_with_axes(part, features, |id, path, value| {
+    let mut fingerprints = fingerprint_with_axes(part, features.working(), |id, path, value| {
         features.fingerprint_axis(id, path, value)
-    })
+    });
+    for f in &mut fingerprints.features {
+        let n =
+            f.id.rsplit_once('/')
+                .expect("record ID")
+                .1
+                .parse()
+                .expect("index");
+        f.id = features.published_id(&f.family, n);
+        merge_fingerprint(f);
+    }
+    fingerprints
+}
+
+/// Adapt the three former namespaces without changing intrinsic measurements. Optional
+/// source detail is not a semantic distinction between two instances of the same kind.
+pub(crate) fn merge_fingerprint(f: &mut FeatureFingerprint) {
+    match f.family.as_str() {
+        "oriented_chamfers" => {
+            f.traits.insert("turned".into(), "false".into());
+        }
+        "oriented_slots" => {
+            f.traits.remove("source.ends.low_capped");
+            f.traits.remove("source.ends.high_capped");
+        }
+        _ => {}
+    }
+    f.family = crate::published_records::publication_family(&f.family).into();
+}
+
+/// Schema-6 CLI documents carry v3 fingerprints. Keep their old IDs in the result so
+/// saved references can follow correspondence into the new namespace.
+pub(crate) fn migrate_v3(fingerprints: &mut Fingerprints) {
+    if fingerprints.fingerprint_version == "quiddity-rust/fingerprint/3" {
+        for f in &mut fingerprints.features {
+            merge_fingerprint(f);
+        }
+        fingerprints.fingerprint_version = FINGERPRINT_VERSION.into();
+    }
 }
 
 fn fingerprint_with_axes(

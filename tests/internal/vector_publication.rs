@@ -102,7 +102,7 @@ fn golden_slots_and_levels_reconstruct_on_faces_and_move_rigidly() {
         near(l[1].abs(), 0.5, 1e-10);
         slot_endpoints(&base, r);
     }
-    for degrees in [0., 30., -30., 60., 1.] {
+    for degrees in [0., 30., -30., 60., 1., 150.] {
         let placement = if degrees == 0. {
             IDENTITY
         } else {
@@ -116,6 +116,16 @@ fn golden_slots_and_levels_reconstruct_on_faces_and_move_rigidly() {
             .filter(|r| r.family == "slots")
             .collect();
         assert_eq!(found.len(), 3, "at {degrees}");
+        let patterns: Vec<_> = copy
+            .records
+            .iter()
+            .filter(|r| r.family == "slot_patterns")
+            .collect();
+        assert_eq!(patterns.len(), 1);
+        assert_eq!(patterns[0].parameters["slots"].as_array().unwrap().len(), 3);
+        for member in patterns[0].parameters["slots"].as_array().unwrap() {
+            assert!(found.iter().any(|r| json!(r.parameters) == *member));
+        }
         for r in found {
             let points = slot_endpoints(&part, r);
             let original = slots
@@ -226,6 +236,15 @@ fn no_local(v: &Value) {
         Value::Object(o) => {
             for (k, v) in o {
                 assert_ne!(k, "local", "published local key");
+                assert!(
+                    ![
+                        "oriented_slots",
+                        "oriented_chamfers",
+                        "oriented_slot_patterns"
+                    ]
+                    .contains(&k.as_str()),
+                    "published oriented family"
+                );
                 no_local(v);
             }
         }
@@ -546,5 +565,126 @@ fn snapped_reversed_height_orders_body_levels_and_end_flags_in_the_published_sen
     );
     for level in levels {
         assert_eq!(level["height_axis"], "x");
+    }
+}
+
+#[test]
+fn merged_publication_preserves_each_proof_and_schema6_correspondence() {
+    let mut paths = vec![common::fixtures().join("golden_oriented_slots.step")];
+    if let Some(dir) = common::corpus_dir() {
+        paths.extend([
+            dir.join("mfcadpp/10252.step"),
+            dir.join("nist/nist_ctc_03_asme1_rc.stp"),
+        ]);
+    }
+    for path in paths {
+        let part = read_step_file_placed(&path, &IDENTITY).unwrap();
+        // File-axis recognition exercises the oriented issuers even where the inferred frame
+        // happens to give a plain proof. Its v3 fingerprint data is the schema-6 contract.
+        let working = quiddity::features::recognise(&part);
+        let mut legacy = correspondence::fingerprint(&part, &working);
+        legacy.fingerprint_version = "quiddity-rust/fingerprint/3".into();
+        let published = quiddity::published_records::PublishedFeatures::from(working.clone());
+        let families: std::collections::BTreeMap<_, _> = published.families().into_iter().collect();
+        for (old, plain) in [
+            ("oriented_slots", "slots"),
+            ("oriented_chamfers", "chamfers"),
+            ("oriented_slot_patterns", "slot_patterns"),
+        ] {
+            let raw = serde_json::to_value(&working).unwrap();
+            assert!(!families.contains_key(old));
+            assert_eq!(
+                families[plain].len(),
+                raw[old].as_array().unwrap().len() + raw[plain].as_array().unwrap().len()
+            );
+        }
+        let current = correspondence::caller_space_recognise(&part);
+        let doc = recognition::document(&current, part.faces.len());
+        for slot in doc.records.iter().filter(|r| r.family == "slots") {
+            slot_endpoints(&part, slot);
+        }
+        let result = correspondence::correspond(&legacy, &current.fingerprints).unwrap();
+        for old in legacy
+            .features
+            .iter()
+            .filter(|f| f.family.starts_with("oriented_"))
+        {
+            let entry = result
+                .features
+                .iter()
+                .find(|e| e.old == old.id)
+                .expect("old feature");
+            let new = doc
+                .records
+                .iter()
+                .find(|r| Some(&r.id) == entry.new.as_ref())
+                .expect("paired merged record");
+            assert_eq!(new.faces, old.faces);
+            assert!(!new.family.starts_with("oriented_"));
+            assert_eq!(new.evidence_status, recognition::EvidenceStatus::Verified);
+        }
+        // The default frame must likewise keep all chamfers under the one public kind.
+        let base = document(&part);
+        let chamfers: Vec<_> = base
+            .records
+            .iter()
+            .filter(|r| r.family == "chamfers")
+            .collect();
+        if path.ends_with("10252.step") {
+            assert_eq!(chamfers.len(), 1);
+            assert_eq!(chamfers[0].faces, [2]);
+            near(number(&chamfers[0].parameters["leg1"]), 0.54, 1e-12);
+            near(number(&chamfers[0].parameters["angle"]), 45., 1e-12);
+        } else if path.ends_with("nist_ctc_03_asme1_rc.stp") {
+            assert_eq!(chamfers.len(), 6);
+            for face in [95, 96, 97, 98] {
+                let corner = chamfers
+                    .iter()
+                    .find(|r| r.faces == [face])
+                    .expect("CTC-03 corner");
+                near(number(&corner.parameters["leg1"]), 12.7, 1e-12);
+            }
+        }
+        for degrees in [30., -30., 60., 1., 150.] {
+            let placement = moved(degrees);
+            let moved_part = read_step_file_placed(&path, &placement).unwrap();
+            let moved_doc = document(&moved_part);
+            let moved_chamfers: Vec<_> = moved_doc
+                .records
+                .iter()
+                .filter(|r| r.family == "chamfers")
+                .collect();
+            assert_eq!(
+                moved_chamfers.len(),
+                chamfers.len(),
+                "{} at {degrees}",
+                path.display()
+            );
+            for original in &chamfers {
+                let copy = moved_chamfers
+                    .iter()
+                    .find(|r| r.faces == original.faces)
+                    .expect("same chamfer faces");
+                for key in ["leg1", "leg2", "angle"] {
+                    near(
+                        number(&original.parameters[key]),
+                        number(&copy.parameters[key]),
+                        0.002,
+                    );
+                }
+                let old_at = vector(&original.parameters["at"]);
+                let at = vector(&copy.parameters["at"]);
+                for i in 0..3 {
+                    let expected =
+                        (0..3).map(|j| placement[i][j] * old_at[j]).sum::<f64>() + placement[i][3];
+                    near(at[i], expected, 0.002);
+                }
+                let axis = vector(&copy.parameters["axis"]);
+                let before = vector(&original.parameters["axis"]);
+                let rotated =
+                    std::array::from_fn(|i| (0..3).map(|j| placement[i][j] * before[j]).sum());
+                near(dot(axis, rotated).abs(), 1., 1e-6);
+            }
+        }
     }
 }

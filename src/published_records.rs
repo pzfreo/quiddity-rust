@@ -1,9 +1,10 @@
 //! Self-contained publication of fields that cannot use the file's principal axes.
 //!
-//! Recognition's typed working records remain available through `Deref` for kernel algorithms.
+//! Working records remain internal; consumers cannot accidentally read an unmerged typed family.
 //! Consumers use `families()` or serialization for the published contract. Only records needing
 //! an explicit measuring basis acquire fields; ordinary file-axis records retain their bytes.
 use std::collections::BTreeMap;
+#[cfg(test)]
 use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, OnceLock};
 
@@ -25,12 +26,14 @@ pub struct PublishedFeatures {
     reach: f64,
 }
 
+#[cfg(test)]
 impl Deref for PublishedFeatures {
     type Target = Features;
     fn deref(&self) -> &Features {
         &self.working
     }
 }
+#[cfg(test)]
 impl DerefMut for PublishedFeatures {
     fn deref_mut(&mut self) -> &mut Features {
         self.records.take();
@@ -39,6 +42,10 @@ impl DerefMut for PublishedFeatures {
 }
 
 impl PublishedFeatures {
+    pub(crate) fn working(&self) -> &Features {
+        &self.working
+    }
+
     pub(crate) fn new(
         working: Features,
         pending: BTreeMap<String, Vec<String>>,
@@ -86,10 +93,7 @@ impl PublishedFeatures {
     /// All document families, including refusals, in registry order. Each payload is usable
     /// without the document's provenance frame.
     pub fn families(&self) -> Vec<(String, Vec<Value>)> {
-        let mut families = crate::recognition::families(&self.working);
-        if self.pending.is_empty() {
-            return families;
-        }
+        let mut families = crate::recognition::working_families(&self.working);
         let records = self
             .records
             .get_or_init(|| self.converted_records(&families));
@@ -100,6 +104,7 @@ impl PublishedFeatures {
                 }
             }
         }
+        merge_families(&mut families);
         families
     }
 
@@ -117,9 +122,6 @@ impl PublishedFeatures {
 
 impl Serialize for PublishedFeatures {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        if self.pending.is_empty() {
-            return self.working.serialize(serializer);
-        }
         // Preserve the old top-level family coverage and order, including omitted empty threads.
         let raw = self.families();
         let mut map = serializer.serialize_map(None)?;
@@ -137,6 +139,170 @@ impl Serialize for PublishedFeatures {
         }
         map.end()
     }
+}
+
+/// The publication namespace; recognition and proofs retain their source families.
+pub(crate) fn publication_family(family: &str) -> &str {
+    match family {
+        "oriented_slots" => "slots",
+        "oriented_chamfers" => "chamfers",
+        "oriented_slot_patterns" => "slot_patterns",
+        _ => family,
+    }
+}
+
+impl PublishedFeatures {
+    /// Translate a working record ID once, appending oriented records after plain records.
+    pub(crate) fn published_id(&self, family: &str, n: usize) -> String {
+        let offset = match family {
+            "oriented_slots" => self.working.slots.len(),
+            "oriented_chamfers" => self.working.chamfers.len(),
+            "oriented_slot_patterns" => self.working.slot_patterns.len(),
+            _ => 0,
+        };
+        format!("{}/{}", publication_family(family), offset + n)
+    }
+
+    pub(crate) fn working_record<'a>(&self, family: &'a str, n: usize) -> (&'a str, usize) {
+        let (oriented, count) = match family {
+            "slots" => ("oriented_slots", self.working.slots.len()),
+            "chamfers" => ("oriented_chamfers", self.working.chamfers.len()),
+            "slot_patterns" => ("oriented_slot_patterns", self.working.slot_patterns.len()),
+            _ => return (family, n),
+        };
+        if n < count {
+            (family, n)
+        } else {
+            (oriented, n - count)
+        }
+    }
+}
+
+fn merge_families(families: &mut Vec<(String, Vec<Value>)>) {
+    for (old, new) in [
+        ("oriented_slots", "slots"),
+        ("oriented_chamfers", "chamfers"),
+        ("oriented_slot_patterns", "slot_patterns"),
+    ] {
+        let index = families
+            .iter()
+            .position(|(f, _)| f == old)
+            .expect("working family");
+        let (_, mut oriented) = families.remove(index);
+        let (_, plain) = families
+            .iter_mut()
+            .find(|(f, _)| f == new)
+            .expect("plain family");
+        for record in plain.iter_mut() {
+            match new {
+                "slots" => {
+                    record["source"] = Value::Null;
+                }
+                "chamfers" => {
+                    for key in [
+                        "leg1_direction",
+                        "leg2_direction",
+                        "length",
+                        "support_spans",
+                        "body_key",
+                    ] {
+                        record[key] = Value::Null;
+                    }
+                }
+                "slot_patterns" => {
+                    for member in record["slots"].as_array_mut().expect("slot members") {
+                        member["source"] = Value::Null;
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }
+        for record in &mut oriented {
+            match new {
+                "slots" => merge_slot(record),
+                "chamfers" => {
+                    let obj = record.as_object_mut().expect("chamfer");
+                    let run = obj.remove("run").expect("run");
+                    obj.insert("axis".into(), run);
+                    obj.insert("turned".into(), json!(false));
+                }
+                "slot_patterns" => {
+                    for member in record["slots"].as_array_mut().expect("slot members") {
+                        merge_slot(member);
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }
+        plain.extend(oriented);
+        if new == "slot_patterns" {
+            for pattern in plain {
+                grid_directions(pattern);
+            }
+        }
+    }
+}
+
+fn grid_directions(pattern: &mut Value) {
+    let Some(angle) = pattern["angle"].as_f64() else {
+        return;
+    };
+    let first = &pattern["slots"][0];
+    let normal: V3 = if first["depth_axis"].is_null() {
+        let w = axis_index(&first["width_axis"]).expect("width axis");
+        let l = axis_index(&first["long_axis"]).expect("long axis");
+        std::array::from_fn(|i| if i == 3 - w - l { 1. } else { 0. })
+    } else if let Some(i) = axis_index(&first["depth_axis"]) {
+        std::array::from_fn(|j| if i == j { 1. } else { 0. })
+    } else {
+        serde_json::from_value(first["depth_axis"].clone()).expect("depth vector")
+    };
+    let (u, v) = crate::features::pattern_geometry::plane_uv(normal);
+    let (s, c) = angle.to_radians().sin_cos();
+    pattern["col_direction"] = json!((0..3).map(|i| c * u[i] + s * v[i]).collect::<Vec<_>>());
+    pattern["row_direction"] = json!((0..3).map(|i| -s * u[i] + c * v[i]).collect::<Vec<_>>());
+}
+
+/// Project the already proved profile into the slot's measuring basis. No geometry is
+/// recognised here; the detailed passage and its original run stations remain intact.
+fn merge_slot(record: &mut Value) {
+    let source = record["source"].clone();
+    let vector = |v: &Value| -> V3 { serde_json::from_value(v.clone()).expect("vector") };
+    let u = vector(&source["frame"]["u"]);
+    let v = vector(&source["frame"]["v"]);
+    let w = vector(&record["width_direction"]);
+    let l = vector(&record["long_direction"]);
+    let project = |axis: V3| -> (f64, f64) {
+        source["section"]["boundary"]
+            .as_array()
+            .expect("profile")
+            .iter()
+            .map(|vertex| {
+                let a = vertex["point"][0].as_f64().expect("coordinate");
+                let b = vertex["point"][1].as_f64().expect("coordinate");
+                (0..3).map(|i| (a * u[i] + b * v[i]) * axis[i]).sum::<f64>()
+            })
+            .fold((f64::INFINITY, f64::NEG_INFINITY), |(lo, hi), x| {
+                (lo.min(x), hi.max(x))
+            })
+    };
+    let (w_lo, w_hi) = project(w);
+    let (lo, hi) = project(l);
+    let obj = record.as_object_mut().expect("slot");
+    obj.remove("width_direction");
+    obj.remove("long_direction");
+    obj.remove("center");
+    obj.insert("width_axis".into(), json!(w));
+    obj.insert("long_axis".into(), json!(l));
+    obj.insert("depth_axis".into(), source["frame"]["run"].clone());
+    obj.insert("origin".into(), source["frame"]["origin"].clone());
+    obj.insert("w_center".into(), json!((w_lo + w_hi) / 2.));
+    obj.insert("lo".into(), json!(lo));
+    obj.insert("hi".into(), json!(hi));
+    obj.insert("d_lo".into(), source["run_interval"][0].clone());
+    obj.insert("d_hi".into(), source["run_interval"][1].clone());
+    obj.insert("end_radius".into(), Value::Null);
+    obj.insert("corner_radius".into(), Value::Null);
 }
 
 /// Input to a subsequent rigid mapping. Retaining the recognition source lets motions compose

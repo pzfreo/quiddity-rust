@@ -18,7 +18,8 @@
 //! the file, so its records depend on that placement), or `caller-space` for a part recognised in
 //! memory without one. In version 6 every record is self-contained in file coordinates:
 //! directions that cannot name a file axis use unit vectors, and their scalar coordinates have
-//! an explicit record origin. The top-level frame is provenance only. See docs/recognition-6.md.
+//! an explicit record origin. The top-level frame is provenance only. Version 7 also unifies
+//! oriented families; see docs/recognition-7.md.
 
 use std::collections::BTreeMap;
 
@@ -36,8 +37,8 @@ use crate::features::recess_patterns::{PocketPattern, SlotPattern};
 use crate::features::section_recess::SectionRecessPattern;
 use crate::frames::RecordFrame;
 
-/// Version 6 publishes formerly frame-relative fields in self-contained file coordinates.
-pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/6";
+/// Version 7 unifies the plain and oriented slot, chamfer and slot-pattern namespaces.
+pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/7";
 /// Historical pre-thread contract, accepted on input but no longer emitted.
 pub const LEGACY_SCHEMA_VERSION: &str = "quiddity-rust/recognition/3";
 
@@ -147,7 +148,6 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("angled_steps", &["AngledStep"]),
     ("flats", &["Flat"]),
     ("paired_ramp_steps", &["PairedRampStep"]),
-    ("oriented_chamfers", &["OrientedChamfer"]),
     ("circular_face_patterns", &["CircularFacePattern"]),
     ("oblique_through_steps", &["ObliqueThroughStep"]),
     ("circular_blind_steps", &["CircularBlindStep"]),
@@ -192,11 +192,6 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("polygonal_stock", &["PolygonalStock"]),
     ("section_passages", &["SectionPassage"]),
     ("prismatic_pockets", &["PrismaticPocket"]),
-    ("oriented_slots", &["OrientedSlot"]),
-    (
-        "oriented_slot_patterns",
-        &["OrientedSlotGrid", "OrientedSlotArray"],
-    ),
     ("pads", &["RaisedPad"]),
     ("step_levels", &["FaceLevel"]),
     ("risers", &["RiserEvidence"]),
@@ -222,6 +217,8 @@ pub fn record_types(family: &str) -> Option<&'static [&'static str]> {
 /// Python's record class name for record *n* of *family*.
 pub fn record_type(features: &Features, family: &str, n: usize) -> &'static str {
     match family {
+        "oriented_slots" => "Slot",
+        "oriented_chamfers" => "Chamfer",
         "section_recess_patterns" => match &features.section_recess_patterns[n] {
             SectionRecessPattern::Array(_) => "SectionRecessArray",
             SectionRecessPattern::Grid(_) => "SectionRecessGrid",
@@ -259,8 +256,8 @@ pub fn record_type(features: &Features, family: &str, n: usize) -> &'static str 
             PocketPattern::PocketArray { .. } => "PocketArray",
         },
         "oriented_slot_patterns" => match &features.oriented_slot_patterns[n] {
-            OrientedSlotPattern::OrientedSlotGrid { .. } => "OrientedSlotGrid",
-            OrientedSlotPattern::OrientedSlotArray { .. } => "OrientedSlotArray",
+            OrientedSlotPattern::OrientedSlotGrid { .. } => "SlotGrid",
+            OrientedSlotPattern::OrientedSlotArray { .. } => "SlotArray",
         },
         _ => match record_types(family) {
             Some([one]) => one,
@@ -275,7 +272,14 @@ pub fn record_type(features: &Features, family: &str, n: usize) -> &'static str 
 /// Each family's document records as JSON, in [`Features`]' field order, with section-recess
 /// source refusals appended after occurrences (a `serde_json::Value` object
 /// would sort the families by name).
-pub fn families(features: &Features) -> Vec<(String, Vec<Value>)> {
+pub fn families(
+    features: &crate::published_records::PublishedFeatures,
+) -> Vec<(String, Vec<Value>)> {
+    features.families()
+}
+
+/// Working recogniser records before file-coordinate conversion and namespace merging.
+pub(crate) fn working_families(features: &Features) -> Vec<(String, Vec<Value>)> {
     struct Ordered(Vec<(String, Vec<Value>)>);
     impl<'de> Deserialize<'de> for Ordered {
         fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
@@ -343,6 +347,7 @@ pub fn families(features: &Features) -> Vec<(String, Vec<Value>)> {
 /// The document of *recognition*, a part of *face_count* faces: each record with its
 /// fingerprint's faces (or source evidence's defining faces for a refusal).
 pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocument {
+    let working = recognition.features.working();
     let faces: BTreeMap<&str, &Vec<usize>> = recognition
         .fingerprints
         .features
@@ -358,48 +363,42 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
                 panic!("{id} is not a record");
             };
             // Refusals describe source evidence, not recognised geometry to fingerprint.
-            let faces =
-                if family == "interior_voids" && n >= recognition.features.interior_voids.len() {
-                    recognition.features.interior_void_refusals
-                        [n - recognition.features.interior_voids.len()]
+            let faces = if family == "interior_voids" && n >= working.interior_voids.len() {
+                working.interior_void_refusals[n - working.interior_voids.len()]
                     .candidate
                     .void_faces
                     .clone()
-                } else if family == "modelled_thread_refusals" {
-                    recognition.features.modelled_thread_refusals[n]
-                        .faces
-                        .clone()
-                } else if family == "section_recess_patterns" {
-                    let mut faces: Vec<_> = recognition.features.section_recess_patterns[n]
-                        .members()
-                        .iter()
-                        .flat_map(|&m| {
-                            recognition.features.section_recesses[m]
-                                .evidence()
-                                .defining_faces()
-                                .iter()
-                                .copied()
-                        })
-                        .collect();
-                    faces.sort_unstable();
-                    faces.dedup();
-                    faces
-                } else if family == "section_recesses"
-                    && n >= recognition.features.section_recesses.len()
-                {
-                    recognition.features.section_recess_refusals
-                        [n - recognition.features.section_recesses.len()]
+            } else if family == "modelled_thread_refusals" {
+                working.modelled_thread_refusals[n].faces.clone()
+            } else if family == "section_recess_patterns" {
+                let mut faces: Vec<_> = working.section_recess_patterns[n]
+                    .members()
+                    .iter()
+                    .flat_map(|&m| {
+                        working.section_recesses[m]
+                            .evidence()
+                            .defining_faces()
+                            .iter()
+                            .copied()
+                    })
+                    .collect();
+                faces.sort_unstable();
+                faces.dedup();
+                faces
+            } else if family == "section_recesses" && n >= working.section_recesses.len() {
+                working.section_recess_refusals[n - working.section_recesses.len()]
                     .evidence()
                     .defining_faces()
                     .to_vec()
-                } else {
-                    faces
-                        .get(id.as_str())
-                        .unwrap_or_else(|| panic!("{id} has no fingerprint"))
-                        .to_vec()
-                };
+            } else {
+                faces
+                    .get(id.as_str())
+                    .unwrap_or_else(|| panic!("{id} has no fingerprint"))
+                    .to_vec()
+            };
+            let (working_family, working_n) = recognition.features.working_record(family, n);
             records.push(Record {
-                record_type: record_type(&recognition.features, family, n).into(),
+                record_type: record_type(working, working_family, working_n).into(),
                 faces,
                 id,
                 family: family.clone(),
@@ -416,7 +415,7 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
     }
     let face_accounting = account_faces(&records, &recognition.body_evidence, face_count);
     RecognitionDocument {
-        schema_version: schema_version(&recognition.features).into(),
+        schema_version: schema_version(working).into(),
         package: Package {
             name: "quiddity-rust".into(),
             version: env!("CARGO_PKG_VERSION").into(),
@@ -427,7 +426,7 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
         face_accounting: Some(face_accounting),
         records,
         source_sha256: recognition.source_sha256.clone(),
-        run_mode: recognition.features.run_mode,
+        run_mode: working.run_mode,
         input_repairs: recognition.input_repairs.clone(),
     }
 }
@@ -435,14 +434,16 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
 /// Derived records inherit every member's proof, including consulted faces absent from the
 /// fingerprint. Embedded members are resolved in the same order as fingerprint::derived_faces.
 fn record_status(
-    features: &Features,
+    features: &crate::published_records::PublishedFeatures,
     family: &str,
     n: usize,
     parameters: &Map<String, Value>,
     families: &[(String, Vec<Value>)],
 ) -> EvidenceStatus {
     let status = |family: &str, n: usize| {
+        let (family, n) = features.working_record(family, n);
         features
+            .working()
             .evidence_status
             .get(family)
             .and_then(|s| s.get(n))
@@ -450,7 +451,7 @@ fn record_status(
             .unwrap_or_default()
     };
     if family == "section_recess_patterns" {
-        let members = features.section_recess_patterns[n].members();
+        let members = features.working().section_recess_patterns[n].members();
         return if !members.is_empty()
             && members
                 .iter()
