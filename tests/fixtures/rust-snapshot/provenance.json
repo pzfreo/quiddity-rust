@@ -2981,7 +2981,7 @@
     "tests/fixtures/interrupted_corner.step": "4677d32a9c655eddfa5ef7f4f8f153007fa5b14abdcd95758b0640605b1691da",
     "tests/fixtures/interrupted_corner_mirror.step": "e11c0dfe7de4f7abaa92a1dd7e35fe5911f23df070f0e5d0078274b5a115a571",
     "tests/fixtures/interrupted_corner_rot.step": "e384424458d1510d4c5cc540427deea9308785b2db342256f7671ac6fe2ddfe9",
-    "tests/fixtures/inventory_floor.json": "77ed0acce4e2c3e53c5290bdb4251f03bbbb06d642cf9d844c7fcba1a15f5b6d",
+    "tests/fixtures/inventory_floor.json": "6eaabc6ab3375d3eda9b8eda0e6fcadf40105ed0e053ea85f35199aa37eb2b0f",
     "tests/fixtures/kissing_cylinders_knife.step": "2208a45500ffbd4b7fb8de3faf6548c7593eaf9b2613cfd5ae7597f90b61cfe6",
     "tests/fixtures/kissing_cylinders_notch.step": "c36b869747e41d40ccadadbd17934abeec3e661fcb6e87a69930ce3d30e7119a",
     "tests/fixtures/large_block_small_fillets.step": "bfcbd950368723969e8881d09386a579654546f1e36700afa8a773d0d4aece55",
@@ -3029,7 +3029,7 @@
     "tests/fixtures/references/face_moments.json": "25df3e453274523b7f690a9886299f689e9d0242aba90c498210569f6b5f4d9a",
     "tests/fixtures/references/face_sources.json": "c645e79fcca0e7ee94aba6fac129188b8b9eabe4e27d761fa0d8c1dd985bc6dd",
     "tests/fixtures/references/frame_equivariance.json": "f9f609ab454e765acc4bcbf9b497361ed1f59820074c18e235a1456ba662e49b",
-    "tests/fixtures/references/framed_document.json": "ae2507e0c1db348df12df621a42c6171eb3d75c2b93af3fc22fcdf17ffce2626",
+    "tests/fixtures/references/framed_document.json": "b2025b4d9814602a1980bfdb1e46a55d1c649842cc1619c24c31d8c5f6d64cb6",
     "tests/fixtures/references/invariance.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
     "tests/fixtures/references/occt_corpus.json": "d9de41b694e690c20691fec1f599fa6334869ffc3506e0ce1acf40221df86c9a",
     "tests/fixtures/references/outer_profile_motion.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
@@ -3152,7 +3152,7 @@
     "calls/recognise_through_steps.json.gz": "ab6a0b5b06756fa3435099be76e5ab432b867be4d4a1b42c49047ff83b086cca",
     "calls/recognise_turned_steps.json.gz": "37d10e8c5e2ce5dcf6c5bd2fdc7444e86494bb44768e9d32d9a1abfd3f2fbd90",
     "channel_geometry.json.gz": "bd25ff87def7f73b4f119d26614600b141ee4350f45c77cef55aae7ea787e85f",
-    "corpus.json.gz": "7c5b8d4f3608ca8b116a990290379bd9e9c1fcb54bc8f011c2bba261012b771d",
+    "corpus.json.gz": "ec7a2f466404b44d63d57905e7792067b109affe59dd13bae5eb1ad02f4eb33f",
     "coverage.json.gz": "c835b80d39757ae5ef556953e11a2d7e8bbde3148a233f2af51ae92e1d23a971",
     "cylindrical_proofs/corpus/cadgenbench/flanged_spool_132.step.json.gz": "b93acca566253df99ab62bb5ac97424226850b3ee3963c8d1025939a7339d823",
     "cylindrical_proofs/corpus/cadgenbench/threaded_connector_109.step.json.gz": "eea12e52bf91a9c762e7cadc1b12994398bf8f3836ab11ab8b58a2bf4c5d9a4e",
@@ -3810,8 +3810,8 @@
     "frames/corpus/cadgenbench_inputs/cgb202.step.gz.json.gz": "d57e9e54010f92225c068306b6a832e3d6b69645ddb313f749df9c740e608736",
     "frames/corpus/cadgenbench_inputs/cgb203.step.json.gz": "b88da541e2771b6650581b811664948f8d4fd487c1445296de6ca8389d053b59",
     "frames/corpus/cadgenbench_inputs/cgb207.step.json.gz": "eb0ef4238c57cac450525aca00089b29c5ab7d68b3dbb09bcc59c1c5c410af34",
-    "frames/corpus/cadgenbench_inputs/cgb217.step.gz.json.gz": "08b7b8a60389ad0e7459a77d3d15773780f183d33981b50dc0ba9e9b1d215d52",
-    "frames/corpus/cadgenbench_inputs/cgb241.step.json.gz": "a0dbbc8a64ae02b4ade9ecb08403a77b66f75202cdabb7010e9b9e17b24adfc8",
+    "frames/corpus/cadgenbench_inputs/cgb217.step.gz.json.gz": "7eb44687c934e2fe1a75b445903a54d6e796cc096a28762c0a3ffb10adff6ba4",
+    "frames/corpus/cadgenbench_inputs/cgb241.step.json.gz": "58eaea539f60648546d26031911e88d7c7fccadee4cd954625cd05778c95ac2c",
     "frames/corpus/cadgenbench_inputs/cgb242.step.gz.json.gz": "1fb52690c5840de0ddc2c92e169811e921260cabb4c74f66b9b0e1f9ff5bf9fb",
     "frames/corpus/cadgenbench_inputs/cgb243.step.gz.json.gz": "c58798345ff7e8f098e1fd3dcc900de608a5491741e54a41284f9f8a551b7902",
     "frames/corpus/cadgenbench_inputs/cgb245.step.json.gz": "6616d84d87c2f569defbd7cf119ab4002dd9a42acc6a1b6b2bc633506071c48e",
@@ -3926,7 +3926,7 @@
     "frames/fixture/golden_oblique_through_step.step.json.gz": "ad4dfe75d8e2d2c4cd03d4f47ca90792f5423dc61c7562d608bffe0c08a5ce9c",
     "frames/fixture/golden_open_channels.step.json.gz": "5815e9847c508dcbb5d5189ee8dd3f385a68bde7d73368d153b00782f50a6b05",
     "frames/fixture/golden_oriented_chamfer.step.json.gz": "e806d22cbb2b18e15d6b394f4f5f786239201c7fa83da57c980eb590f7b1333b",
-    "frames/fixture/golden_oriented_slots.step.json.gz": "bd3d9819de215bd09a37a0f8febb34a7e0af9dccd8f3bb2cb275c4863f1a21b6",
+    "frames/fixture/golden_oriented_slots.step.json.gz": "5afad4642eb10a1521ee2841db5f3d23156481b8f58329b0ffac9ffa63bb721d",
     "frames/fixture/golden_paired_ramp_step.step.json.gz": "1c8273735dc28081eb3a5bbbf47e09fd5712e1539ba2236edfe4adc5d4a9959a",
     "frames/fixture/golden_plates_pads_levels_and_slanted_steps.step.json.gz": "0d21c04acb533118fdf318d8fd10e471f82a20dd3e9265b493fbe83d4d52c638",
     "frames/fixture/golden_polygonal_boss.step.json.gz": "9d93244f11fd41d1232e106dd4a9196d2533ec801d6c127b71a95e7b71b93095",
@@ -5808,5 +5808,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "862613a17aefe8271b36b0a991721e180ce92152"
+  "source_commit": "fe359eacaf792d10a79d941cab975e5743c2c07f"
 }
