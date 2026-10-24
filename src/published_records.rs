@@ -2,7 +2,8 @@
 //!
 //! Working records remain internal; consumers cannot accidentally read an unmerged typed family.
 //! Consumers use `families()` or serialization for the published contract. Only records needing
-//! an explicit measuring basis acquire fields; ordinary file-axis records retain their bytes.
+//! an explicit measuring basis acquire coordinate fields; file-axis measuring fields retain
+//! their representation. Merged families also expose their optional detail fields.
 use std::collections::BTreeMap;
 #[cfg(test)]
 use std::ops::{Deref, DerefMut};
@@ -223,7 +224,7 @@ fn merge_families(families: &mut Vec<(String, Vec<Value>)>) {
                 "chamfers" => {
                     let obj = record.as_object_mut().expect("chamfer");
                     let run = obj.remove("run").expect("run");
-                    obj.insert("axis".into(), run);
+                    obj.insert("axis".into(), json!(measuring_axis(&run)));
                     obj.insert("turned".into(), json!(false));
                 }
                 "slot_patterns" => {
@@ -263,6 +264,14 @@ fn grid_directions(pattern: &mut Value) {
     pattern["row_direction"] = json!((0..3).map(|i| -s * u[i] + c * v[i]).collect::<Vec<_>>());
 }
 
+/// Existing explicit directions may have the recogniser's six-decimal precision. When
+/// promoted into the common measurement-axis contract they must be unit length; detailed
+/// source geometry and other existing vector fields keep their original precision.
+fn measuring_axis(value: &Value) -> V3 {
+    let d: V3 = serde_json::from_value(value.clone()).expect("measuring direction");
+    crate::kernel::geom::unit(d).expect("issued nonzero measuring direction")
+}
+
 /// Project the already proved profile into the slot's measuring basis. No geometry is
 /// recognised here; the detailed passage and its original run stations remain intact.
 fn merge_slot(record: &mut Value) {
@@ -270,8 +279,8 @@ fn merge_slot(record: &mut Value) {
     let vector = |v: &Value| -> V3 { serde_json::from_value(v.clone()).expect("vector") };
     let u = vector(&source["frame"]["u"]);
     let v = vector(&source["frame"]["v"]);
-    let w = vector(&record["width_direction"]);
-    let l = vector(&record["long_direction"]);
+    let w = measuring_axis(&record["width_direction"]);
+    let l = measuring_axis(&record["long_direction"]);
     let project = |axis: V3| -> (f64, f64) {
         source["section"]["boundary"]
             .as_array()
@@ -294,7 +303,10 @@ fn merge_slot(record: &mut Value) {
     obj.remove("center");
     obj.insert("width_axis".into(), json!(w));
     obj.insert("long_axis".into(), json!(l));
-    obj.insert("depth_axis".into(), source["frame"]["run"].clone());
+    obj.insert(
+        "depth_axis".into(),
+        json!(measuring_axis(&source["frame"]["run"])),
+    );
     obj.insert("origin".into(), source["frame"]["origin"].clone());
     obj.insert("w_center".into(), json!((w_lo + w_hi) / 2.));
     obj.insert("lo".into(), json!(lo));

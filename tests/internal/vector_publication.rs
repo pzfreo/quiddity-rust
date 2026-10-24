@@ -680,6 +680,7 @@ fn merged_publication_preserves_each_proof_and_schema6_correspondence() {
                     near(at[i], expected, 0.002);
                 }
                 let axis = vector(&copy.parameters["axis"]);
+                near(dot(axis, axis), 1., 1e-12);
                 let before = vector(&original.parameters["axis"]);
                 let rotated =
                     std::array::from_fn(|i| (0..3).map(|j| placement[i][j] * before[j]).sum());

@@ -19,6 +19,8 @@ remain separate.
 
 Each family contains accepted plain records first, then accepted oriented records, in
 each recogniser's existing deterministic order. IDs are `<merged-family>/<index>`.
+Promoted measuring axes are normalised to unit length; existing detailed source vectors
+retain their schema-6 precision. File-axis letters stay letters.
 The append offset is the number of plain records. Pattern members, fingerprint IDs,
 evidence status and face-accounting references use this same translation.
 
