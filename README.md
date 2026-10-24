@@ -30,8 +30,8 @@ let holes = &recognised.features.holes;
 ```
 
 This is the supported recognition route: infer the part frame, transform geometry in memory,
-and map records back to file coordinates. Some parameters remain local on oblique parts;
-read them through the result's frame. Caller-space recognition, discovery, inventories and
+and map records back to file coordinates. Nonprincipal directions use file-coordinate vectors and explicit record origins;
+the result's frame is provenance only ([migration](docs/recognition-6.md)). Caller-space recognition, discovery, inventories and
 contexts are private implementation details. Internal unit tests can exercise them without a
 Cargo feature. There is no `python-parity` feature.
 

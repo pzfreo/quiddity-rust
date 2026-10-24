@@ -566,7 +566,7 @@ pub fn working_part(
 #[serde(tag = "status", rename_all = "kebab-case")]
 pub enum RecordFrame {
     /// Recognised in the part's own frame ([`infer_part_frame`]) and carried back to the file's
-    /// coordinates; fields no file axis corresponds to are left in this frame and labelled.
+    /// coordinates. This frame is provenance; published record bases are self-contained.
     Inferred(PartFrame),
     /// No frame could be inferred, so the part was recognised as placed in the file: records
     /// depend on that placement (review M8), as caller-space recognition's do.

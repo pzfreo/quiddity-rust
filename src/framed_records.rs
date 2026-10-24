@@ -9,10 +9,10 @@
 //! through step's two-dimensional section). Where the rotation is a signed permutation, as it is
 //! for a part whose frame is aligned with the file's axes, those are carried exactly: the letter
 //! renamed, the coordinate moved and, along a reversed axis, negated (an interval's ends swapped,
-//! a sign flipped). Where it is not, no file axis corresponds, so the value stays as found in
-//! the frame and its field path is listed in [`Mapped::local`]: a letter names the frame's axis,
-//! and a coordinate is measured along it from the frame's origin. A value is never left
-//! frame-relative without that label.
+//! a sign flipped). Other directions are published as file-coordinate unit vectors by
+//! [`crate::published_records`]. Distances retain a record-owned measuring basis and an explicit
+//! file-coordinate origin. Transient pending field paths connect the exhaustive typed mapper to
+//! that publication boundary; they are consumed there and are never part of the public payload.
 //!
 //! Every record is destructured in full, with no `..`: a field or family added later fails to
 //! compile here until its mapping is decided.
@@ -107,7 +107,7 @@ pub struct Rigid {
 }
 
 impl Rigid {
-    /// The motion taking the frame's local coordinates to the caller's ([`PartFrame::to_world`]).
+    /// The motion taking the frame's relative coordinates to the caller's ([`PartFrame::to_world`]).
     pub fn from_frame(frame: &PartFrame) -> Rigid {
         let (x, y, z) = (frame.x, frame.y, frame.z);
         Rigid {
@@ -121,6 +121,20 @@ impl Rigid {
         Rigid {
             rotation: p.map(|row| [row[0], row[1], row[2]]),
             translation: p.map(|row| row[3]),
+        }
+    }
+
+    /// Apply `before`, then this motion.
+    pub fn compose(&self, before: &Rigid) -> Rigid {
+        Rigid {
+            rotation: std::array::from_fn(|i| {
+                std::array::from_fn(|j| {
+                    (0..3)
+                        .map(|k| self.rotation[i][k] * before.rotation[k][j])
+                        .sum()
+                })
+            }),
+            translation: self.point(before.translation),
         }
     }
 
@@ -198,24 +212,11 @@ impl Rigid {
     }
 }
 
-/// The field paths of each record left in the frame's local coordinates, by record ID
-/// (`<family>/<index>`, as in the fingerprints and the recognition document). Paths are as the
-/// fingerprint tables write them: `a.b` a nested record's field, `a[]` each item of a list.
-pub type LocalFields = BTreeMap<String, Vec<String>>;
-
-/// Records carried through a motion, and the fields that could not be.
+/// Records carried through a motion, with self-contained file-coordinate payloads.
 pub struct Mapped {
-    /// The records, their positions published in the target space.
-    pub features: Features,
-    /// The fields of [`Mapped::features`] left in the source frame.
-    pub local: LocalFields,
-    /// The same records with each published value carried as it is (not published again in
-    /// the target space) through the exact motion, as before #69 and #70: what fingerprints
-    /// read, so they stay intrinsic to the part.
-    pub fingerprinted: Features,
-    /// The fields of [`Mapped::fingerprinted`] left in the source frame.
-    pub fingerprinted_local: LocalFields,
-    /// The motion [`Mapped::features`] were published through.
+    pub features: crate::published_records::PublishedFeatures,
+    /// Exact-motion view for intrinsic fingerprints, without publication rounding.
+    pub fingerprinted: crate::published_records::PublishedFeatures,
     pub motion: Rigid,
 }
 
@@ -230,7 +231,7 @@ pub fn to_file(features: Features, frame: &PartFrame, working: &Part) -> Mapped 
         .sum::<f64>()
         .sqrt();
     let published = exact.aligned_within(reach);
-    carry_both(features, &published, &exact)
+    carry_both(features, &published, &exact, reach)
 }
 
 const LETTERS: [char; 3] = ['x', 'y', 'z'];
@@ -260,7 +261,7 @@ fn others(axis: usize) -> [usize; 2] {
     }
 }
 
-/// One record's mapping: the motion, and the paths it left local.
+/// One record's mapping: the motion, and the paths it left relative.
 struct Out<'a> {
     motion: &'a Rigid,
     /// Whether positions are published in the target space ([`Placed::carried`]): their
@@ -270,7 +271,7 @@ struct Out<'a> {
     axes: Option<[(usize, f64); 3]>,
     /// Prepended to every path (a pattern's members: `holes[].`).
     prefix: &'static str,
-    local: Vec<String>,
+    relative: Vec<String>,
 }
 
 impl<'a> Out<'a> {
@@ -280,12 +281,12 @@ impl<'a> Out<'a> {
             publish,
             axes: motion.axes(),
             prefix,
-            local: Vec::new(),
+            relative: Vec::new(),
         }
     }
 
     fn mark(&mut self, path: &str) {
-        self.local.push(format!("{}{path}", self.prefix));
+        self.relative.push(format!("{}{path}", self.prefix));
     }
 
     fn point(&self, p: V3) -> V3 {
@@ -304,7 +305,7 @@ impl<'a> Out<'a> {
         self.motion.translation[w]
     }
 
-    /// Source axis *axis*'s target axis and sign, or `None` (the path marked) when the rotation
+    /// Source axis *axis*'s target axis and sign, or a pending vector conversion when the rotation
     /// is not a signed permutation.
     fn target(&mut self, axis: usize, path: &str) -> Option<(usize, f64)> {
         match self.axes {
@@ -498,33 +499,44 @@ impl<'a> Out<'a> {
     }
 
     fn done(mut self) -> Vec<String> {
-        self.local.sort();
-        self.local.dedup();
-        self.local
+        self.relative.sort();
+        self.relative.dedup();
+        self.relative
     }
 }
 
 /// *features*, carried through *motion*: see the module documentation.
-pub fn map_features(features: Features, motion: &Rigid) -> Mapped {
-    carry_both(features, motion, motion)
+pub fn map_features(
+    features: impl Into<crate::published_records::MappingSource>,
+    motion: &Rigid,
+) -> Mapped {
+    let source = features.into();
+    let motion = motion.compose(&source.motion);
+    let published = motion.aligned_within(source.reach);
+    carry_both(source.features, &published, &motion, source.reach)
 }
 
 /// *features* published through *published*, and carried as found through *exact*.
-fn carry_both(features: Features, published: &Rigid, exact: &Rigid) -> Mapped {
-    let (fingerprinted, fingerprinted_local) = carry(features.clone(), exact, false);
-    let (features, local) = carry(features, published, true);
+fn carry_both(features: Features, published: &Rigid, exact: &Rigid, reach: f64) -> Mapped {
+    let source = std::sync::Arc::new(features.clone());
+    let fingerprinted = carry(features.clone(), exact, false, source.clone(), reach);
+    let features = carry(features, published, true, source, reach);
     Mapped {
         features,
-        local,
         fingerprinted,
-        fingerprinted_local,
         motion: *published,
     }
 }
 
 /// [`map_features`]'s records, their positions published in the target space or carried as
-/// they are (*publish*), and the fields left local.
-fn carry(features: Features, motion: &Rigid, publish: bool) -> (Features, LocalFields) {
+/// they are (*publish*), and the fields left relative.
+fn carry(
+    features: Features,
+    motion: &Rigid,
+    publish: bool,
+    source: std::sync::Arc<Features>,
+    reach: f64,
+) -> crate::published_records::PublishedFeatures {
     let Features {
         run_mode,
         evidence_status,
@@ -581,10 +593,10 @@ fn carry(features: Features, motion: &Rigid, publish: bool) -> (Features, LocalF
         section_recess_refusal,
         defining,
     } = features;
-    let mut local = LocalFields::new();
+    let mut relative = BTreeMap::new();
     let mut family = |name: &str, n: usize, paths: Vec<String>| {
         if !paths.is_empty() {
-            local.insert(format!("{name}/{n}"), paths);
+            relative.insert(format!("{name}/{n}"), paths);
         }
     };
     macro_rules! each {
@@ -716,7 +728,7 @@ fn carry(features: Features, motion: &Rigid, publish: bool) -> (Features, LocalF
         // The working part's faces are the caller's, under the same indices.
         defining,
     };
-    (features, local)
+    crate::published_records::PublishedFeatures::new(features, relative, *motion, source, reach)
 }
 
 fn fillet(out: &mut Out, r: Fillet) -> Fillet {
@@ -844,7 +856,7 @@ fn flat(out: &mut Out, r: Flat) -> Flat {
 
 /// `half_widths` is low side first along the axis the two ramps oppose across, which the record
 /// does not name: it is kept when both axes across the run keep their sense, swapped when both
-/// reverse, and left local otherwise.
+/// reverse, and left relative otherwise.
 fn paired_ramp_step(out: &mut Out, r: PairedRampStep) -> PairedRampStep {
     let PairedRampStep {
         axis,
@@ -854,6 +866,7 @@ fn paired_ramp_step(out: &mut Out, r: PairedRampStep) -> PairedRampStep {
         opening_direction,
         half_width,
         half_widths,
+        half_width_axis,
     } = r;
     let i = index(axis);
     let half_widths = half_widths.map(|(low, high)| {
@@ -875,6 +888,9 @@ fn paired_ramp_step(out: &mut Out, r: PairedRampStep) -> PairedRampStep {
         opening_direction: out.direction(opening_direction),
         half_width,
         half_widths,
+        half_width_axis: out.axes.map_or(half_width_axis, |axes| {
+            LETTERS[axes[index(half_width_axis)].0]
+        }),
     }
 }
 
@@ -1146,7 +1162,7 @@ fn gusset_rib_pattern(out: &mut Out, r: GussetRibPattern) -> GussetRibPattern {
             .into_iter()
             .map(|r| gusset_rib(&mut members, r))
             .collect();
-        out.local.extend(members.done());
+        out.relative.extend(members.done());
         ribs
     };
     match r {
@@ -1855,7 +1871,7 @@ fn slot_pattern(out: &mut Out, r: SlotPattern) -> SlotPattern {
     let members = |out: &mut Out, slots: Vec<Slot>| {
         let mut each = Out::new(out.motion, out.publish, "slots[].");
         let slots: Vec<Slot> = slots.into_iter().map(|s| slot(&mut each, s)).collect();
-        out.local.extend(each.done());
+        out.relative.extend(each.done());
         slots
     };
     match r {
@@ -1898,7 +1914,7 @@ fn pocket_pattern(out: &mut Out, r: PocketPattern) -> PocketPattern {
     let members = |out: &mut Out, pockets: Vec<Pocket>| {
         let mut each = Out::new(out.motion, out.publish, "pockets[].");
         let pockets: Vec<Pocket> = pockets.into_iter().map(|p| pocket(&mut each, p)).collect();
-        out.local.extend(each.done());
+        out.relative.extend(each.done());
         pockets
     };
     match r {
@@ -2085,15 +2101,20 @@ fn section_passage(out: &mut Out, r: SectionPassage) -> SectionPassage {
 /// each published once on its grid. Carried as found (for fingerprints), the shift is taken on
 /// the three-decimal grid and the frame's origin set off along `run` by the rest (at most
 /// 0.0005 mm), so each coordinate moves exactly on its grid. A record whose checks still refuse
-/// the moved values (a rounding tie) stays in the frame, its placed fields listed local.
+/// independently reanchored values (a rounding tie) instead keeps its validated relative geometry
+/// and carries its complete measuring frame without a second rounding.
 fn section_recess(out: &mut Out, r: SectionRecess) -> SectionRecess {
     match moved_section_recess(out, &r) {
         Some(moved) => moved,
         None => {
-            for path in ["geometry.frame", "geometry.run_interval", "geometry.ends"] {
-                out.mark(path);
-            }
-            r
+            let frame = r.geometry().frame();
+            let mapped = PassageFrame {
+                origin: frame.origin.carried(false, |p| out.point(p)),
+                run: out.direction(frame.run),
+                u: out.direction(frame.u),
+                v: out.direction(frame.v),
+            };
+            r.with_frame(mapped)
         }
     }
 }
@@ -2263,7 +2284,7 @@ fn oriented_slot_pattern(out: &mut Out, r: OrientedSlotPattern) -> OrientedSlotP
             .into_iter()
             .map(|s| oriented_slot(&mut each, s))
             .collect();
-        out.local.extend(each.done());
+        out.relative.extend(each.done());
         slots
     };
     match r {
@@ -2353,7 +2374,7 @@ fn z_kept(out: &Out) -> Option<[(usize, f64); 3]> {
 }
 
 /// A horizontal level: carried when [`z_kept`] (the spans exchanged where the frame's x is the
-/// file's y), and left local otherwise.
+/// file's y), and left relative otherwise.
 fn face_level(out: &mut Out, r: FaceLevel) -> FaceLevel {
     let FaceLevel {
         z,
@@ -2389,7 +2410,7 @@ fn face_level(out: &mut Out, r: FaceLevel) -> FaceLevel {
 }
 
 /// A riser: carried when [`z_kept`], its positions and body levels kept ascending and, along a
-/// reversed z, its ends (and which of them is at the envelope) exchanged; left local otherwise.
+/// reversed z, its ends (and which of them is at the envelope) exchanged; left relative otherwise.
 fn riser(out: &mut Out, r: RiserEvidence) -> RiserEvidence {
     let RiserEvidence {
         vertical,
@@ -2411,7 +2432,7 @@ fn riser(out: &mut Out, r: RiserEvidence) -> RiserEvidence {
         .into_iter()
         .map(|l| face_level(&mut levels, l))
         .collect();
-    out.local.extend(levels.done());
+    out.relative.extend(levels.done());
     let Some(axes) = z_kept(out) else {
         for path in [
             "axis",
@@ -2596,7 +2617,7 @@ fn passage_ends(e: PassageEnds) -> PassageEnds {
     }
 }
 
-/// Patterns retain run-local occurrence references; only their spatial fields move.
+/// Patterns retain run-relative occurrence references; only their spatial fields move.
 fn section_recess_pattern(out: &mut Out, r: SectionRecessPattern) -> SectionRecessPattern {
     let moved = match &r {
         SectionRecessPattern::Array(a) => SectionRecessArray::new(

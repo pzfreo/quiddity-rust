@@ -68,3 +68,6 @@ mod trust_contract;
 mod volume_probe;
 #[path = "wiring.rs"]
 mod wiring;
+
+#[path = "vector_publication.rs"]
+mod vector_publication;

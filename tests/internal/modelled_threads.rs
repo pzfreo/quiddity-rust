@@ -225,7 +225,7 @@ fn the_document_publishes_measurements_claims_and_fingerprints_without_a_designa
     )
     .unwrap();
     let doc = &out.document;
-    assert_eq!(doc.schema_version, "quiddity-rust/recognition/5");
+    assert_eq!(doc.schema_version, "quiddity-rust/recognition/6");
     let records: Vec<_> = doc
         .records
         .iter()
@@ -234,7 +234,7 @@ fn the_document_publishes_measurements_claims_and_fingerprints_without_a_designa
     assert_eq!(records.len(), 1);
     let r = records[0];
     assert_eq!(r.record_type, "ModelledThread");
-    assert!(r.local.is_empty());
+    assert!(!r.parameters.contains_key("local"));
     assert!(r.parameters.get("designation").is_none());
     let t = &out.recognition.features.modelled_threads[0];
     let expected = &out.recognition.features.defining["modelled_threads"][0];

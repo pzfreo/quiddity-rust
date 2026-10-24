@@ -92,8 +92,8 @@
     "check": "caller_space",
     "family": "turned_steps",
     "verdict": "rust-correct",
-    "reason": "The part's frame is not the file's axes (frame x = file z, y = (0.7071067812, -0.7071067812, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
-    "max_differing": 1
+    "reason": "The part's frame is not the file's axes (frame x = file z, y = (0.7071067812, -0.7071067812, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced. For #92 the formerly skipped lo/hi stations are now compared in file coordinates. In addition to the pre-existing unmatched shoulder group, face [314] has a 5 mm framed shoulder interval (approximately file Z -30 to -25) versus the caller-space interval -29 to -25. Both readings already occur on 0f5e94a; publication retains the framed measurements and its unchanged fingerprint. The file's cylinder face itself spans -29 to -26, so neither reported shoulder interval is simply the cylindrical wall's axial trim. vector_publication::cgb217_turning_stations_preserve_the_recognised_context pins both recogniser intervals and the file-coordinate reconstruction. This raises the comparison's coverage by one formerly excluded record; no occurrence, station or inventory floor is changed.",
+    "max_differing": 2
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
@@ -1324,7 +1324,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -1332,7 +1332,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -1340,7 +1340,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -1348,7 +1348,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 9
   },
   {
@@ -1356,7 +1356,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -1364,7 +1364,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -1372,7 +1372,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1380,7 +1380,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -1388,7 +1388,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -1396,7 +1396,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1404,7 +1404,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 13
   },
   {
@@ -1412,7 +1412,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -1420,7 +1420,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 11
   },
   {
@@ -1428,7 +1428,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 19
   },
   {
@@ -1436,7 +1436,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 10
   },
   {
@@ -1444,7 +1444,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.8880, -0.4598, 0.0000), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.8880, -0.4598, 0.0000), so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 8
   },
   {
@@ -1452,7 +1452,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -1460,7 +1460,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 16
   },
   {
@@ -1468,7 +1468,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -1476,7 +1476,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -1484,7 +1484,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1492,7 +1492,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -1500,7 +1500,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1508,7 +1508,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 6
   },
   {
@@ -1516,7 +1516,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1524,7 +1524,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 6
   },
   {
@@ -1532,7 +1532,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 10
   },
   {
@@ -1540,7 +1540,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -1548,7 +1548,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1556,7 +1556,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -1564,7 +1564,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -1572,7 +1572,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -1580,7 +1580,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -1588,7 +1588,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -1596,7 +1596,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1604,7 +1604,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -1612,7 +1612,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -1620,7 +1620,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 6
   },
   {
@@ -1636,7 +1636,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -1644,7 +1644,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -1652,7 +1652,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -1660,7 +1660,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 6
   },
   {
@@ -1668,7 +1668,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -1676,7 +1676,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -1684,7 +1684,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -1692,7 +1692,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1700,7 +1700,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -1708,7 +1708,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 8
   },
   {
@@ -1716,7 +1716,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -1724,7 +1724,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 8
   },
   {
@@ -1732,7 +1732,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1740,7 +1740,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 7
   },
   {
@@ -1748,7 +1748,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 6
   },
   {
@@ -1756,7 +1756,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1764,7 +1764,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1772,7 +1772,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -1780,7 +1780,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -1788,7 +1788,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -1796,7 +1796,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 7
   },
   {
@@ -1804,7 +1804,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 16
   },
   {
@@ -1812,7 +1812,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 22
   },
   {
@@ -1820,7 +1820,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.9833, -0.1820, 0.0000), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.9833, -0.1820, 0.0000), so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -1828,7 +1828,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 29
   },
   {
@@ -1836,7 +1836,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -1844,7 +1844,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 8
   },
   {
@@ -1852,7 +1852,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1860,7 +1860,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1868,7 +1868,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1876,7 +1876,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -1884,7 +1884,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -1892,7 +1892,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1900,7 +1900,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -1908,7 +1908,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 7
   },
   {
@@ -1916,7 +1916,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -1924,7 +1924,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 9
   },
   {
@@ -1932,7 +1932,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 11
   },
   {
@@ -1948,7 +1948,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -1956,7 +1956,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -1964,7 +1964,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -1972,7 +1972,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 11
   },
   {
@@ -1980,7 +1980,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -1988,7 +1988,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 13
   },
   {
@@ -1996,7 +1996,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -2004,7 +2004,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -2012,7 +2012,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -2020,7 +2020,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -2028,7 +2028,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -2036,7 +2036,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 6
   },
   {
@@ -2044,7 +2044,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -2052,7 +2052,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 6
   },
   {
@@ -2060,7 +2060,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -2068,7 +2068,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 6
   },
   {
@@ -2076,7 +2076,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -2084,7 +2084,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -2092,7 +2092,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -2100,7 +2100,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 12
   },
   {
@@ -2108,7 +2108,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.7071067812, 0.7071067812, 0.0000), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.7071067812, 0.7071067812, 0.0000), so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -2116,7 +2116,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.7071067812, 0.7071067812, 0.0000), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.7071067812, 0.7071067812, 0.0000), so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 10
   },
   {
@@ -2124,7 +2124,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -2132,7 +2132,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -2148,7 +2148,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -2156,7 +2156,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 8
   },
   {
@@ -2164,7 +2164,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -2172,7 +2172,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 9
   },
   {
@@ -2180,7 +2180,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -2188,7 +2188,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -2196,7 +2196,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -2204,7 +2204,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 7
   },
   {
@@ -2212,7 +2212,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 6
   },
   {
@@ -2220,7 +2220,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 7
   },
   {
@@ -2228,7 +2228,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -2236,7 +2236,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -2244,7 +2244,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -2252,7 +2252,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 2
   },
   {
@@ -2260,7 +2260,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -2268,7 +2268,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -2276,7 +2276,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 6
   },
   {
@@ -2284,7 +2284,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -y axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 3
   },
   {
@@ -2292,7 +2292,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 4
   },
   {
@@ -2300,7 +2300,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 5
   },
   {
@@ -2308,7 +2308,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 1
   },
   {
@@ -2316,7 +2316,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's -x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 13
   },
   {
@@ -2324,7 +2324,7 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's x axis, so the two read other faces as horizontal and vertical (schema 6 now publishes each record's height_axis explicitly).",
     "max_differing": 18
   },
   {
@@ -2910,5 +2910,37 @@
     "verdict": "not-applicable",
     "reason": "The 27.4-degree default frame has height line (-0.8877387930,0.4603475160,0), rather than caller-space Z. Default-only planar faces [26] and [46] have normals +/-(-0.9036892863,0.4281888296,0), within the existing level angular band of that height line; caller space correctly has no Z-level on either vertical wall. Both are real planar wall patches. The default classification is the material-frame directional level query, not a claim that these walls are horizontal in the file; the corresponding height/span fields remain local. This is a physically valid change of height context, not added or lost surfaces. (for #81)",
     "max_differing": 2
+  },
+  {
+    "file": "nist/nist_ctc_03_asme1_rc.stp",
+    "check": "caller_space",
+    "family": "risers",
+    "verdict": "not-applicable",
+    "reason": "For #92 all published measurements are now compared in file geometry, including formerly skipped local paths. On faces [5] and [6], caller-space recognition measures height along file Z while inferred recognition measures height along file X. These are different height-context descriptions of the same oblique walls, with different horizontal stations and end-envelope associations, not a rigid-motion failure or lost feature. The existing step_levels entry for this part records the same height-context difference. Keep both records and their independently reconstructed coordinates; do not equate their height planes.",
+    "max_differing": 2
+  },
+  {
+    "file": "gramel/GRM-03_thumbwheel_drive_screw.step",
+    "check": "generic_framed",
+    "family": "risers",
+    "verdict": "not-applicable",
+    "reason": "For #92 the document motion test now compares every file-coordinate measurement instead of comparing formerly local fields only in their recognition frames. Face [0] has an Axial frame gauge: roll about the turning axis is unconstrained. The two valid frame representatives choose different transverse height directions for the cylindrical riser. Its explicitly published height and other axes therefore describe different support planes of the same face. Frame voting, face identity and intrinsic fingerprints are unchanged; this height-context ambiguity requires the deferred recognition-frame work, not a publication exception. The vector publication tests independently check scalar extrema against the defining face.",
+    "max_differing": 1
+  },
+  {
+    "file": "gramel/GRM-05_depth_lock_bolt.step",
+    "check": "rot_z90",
+    "family": "risers",
+    "verdict": "not-applicable",
+    "reason": "For #92 the document motion test now compares every file-coordinate measurement instead of comparing formerly local fields only in their recognition frames. Face [2] has an Axial frame gauge: roll about the turning axis is unconstrained. The two valid frame representatives choose different transverse height directions for the cylindrical riser. Its explicitly published height and other axes therefore describe different support planes of the same face. Frame voting, face identity and intrinsic fingerprints are unchanged; this height-context ambiguity requires the deferred recognition-frame work, not a publication exception. The vector publication tests independently check scalar extrema against the defining face.",
+    "max_differing": 1
+  },
+  {
+    "file": "gramel/GRM-05_depth_lock_bolt.step",
+    "check": "generic_framed",
+    "family": "risers",
+    "verdict": "not-applicable",
+    "reason": "For #92 the document motion test now compares every file-coordinate measurement instead of comparing formerly local fields only in their recognition frames. Face [2] has an Axial frame gauge: roll about the turning axis is unconstrained. The two valid frame representatives choose different transverse height directions for the cylindrical riser. Its explicitly published height and other axes therefore describe different support planes of the same face. Frame voting, face identity and intrinsic fingerprints are unchanged; this height-context ambiguity requires the deferred recognition-frame work, not a publication exception. The vector publication tests independently check scalar extrema against the defining face.",
+    "max_differing": 1
   }
 ]

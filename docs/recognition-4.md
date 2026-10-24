@@ -1,7 +1,7 @@
 # Recognition document 4
 
-Historical contract. Newly produced documents use [version 5 face accounting](face-accounting.md),
-including documents with no measured threads or refusals. Record payloads below are unchanged.
+Historical contract. Newly produced documents use [recognition 6](recognition-6.md),
+including [version 5 face accounting](face-accounting.md).
 
 `quiddity-rust/recognition/4` adds measured `modelled_threads` (`ModelledThread`)
 and `modelled_thread_refusals` (`ModelledThreadRefusal`), and the diagnostic

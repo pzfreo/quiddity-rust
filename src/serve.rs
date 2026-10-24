@@ -7,8 +7,7 @@
 //!   `quiddity <file.step>` writes ([`RecognitionOutput`]): each family's records, their
 //!   `fingerprints` and the versioned recognition `document`. The part is recognised in its own
 //!   frame and the records reported in the file's coordinates
-//!   ([`correspondence::recognise`]); the document says which frame, and which record
-//!   fields are left in it.
+//!   ([`correspondence::recognise`]); the document gives the frame as provenance only.
 //! - `{"id": ID, "op": "correspond", "old": REV, "new": REV}` → `{"id": ID, "result": C}`, `C`
 //!   the correspondence `quiddity correspond` writes. A revision is a path, to a STEP file
 //!   (recognised on the spot) or to a JSON file `quiddity <file.step>` wrote, or a recognise

@@ -11,6 +11,8 @@
 
 use super::common;
 use super::slices;
+#[path = "../support/published_geometry.rs"]
+mod published_geometry;
 #[path = "../support/recess_samples.rs"]
 mod recess_samples;
 
@@ -19,10 +21,11 @@ use std::path::{Path, PathBuf};
 
 use quiddity::correspondence::{self, Recognition};
 use quiddity::features::section_recess_family::recognise_section_recesses;
-use quiddity::features::{self, Features, reconcile};
+use quiddity::features::{self, reconcile};
 use quiddity::framed_records::{self, Rigid, map_features};
 use quiddity::frames::{self, PartFrame, RecordFrame};
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
+use quiddity::published_records::PublishedFeatures;
 use quiddity::recognition::{self, RECORD_TYPES, RecognitionDocument, families, record_types};
 use quiddity::serve;
 use serde_json::Value;
@@ -166,10 +169,16 @@ fn the_document_round_trips_and_is_deterministic() {
 /// coordinates; one turned 37° off them (`nonprincipal_37.step`, an orthogonal-gauge box) keeps
 /// its axis letters in the frame, labelled, while its points and directions are the file's.
 #[test]
-fn fields_without_a_file_axis_are_labelled() {
+fn fields_without_a_file_axis_publish_vectors() {
     let (_, aligned) = default(&fixture("filleted_plate_with_holes.step"), &IDENTITY);
     assert!(matches!(aligned.frame, RecordFrame::Inferred(_)));
-    assert!(aligned.records.iter().all(|r| r.local.is_empty()));
+    assert!(
+        aligned
+            .records
+            .iter()
+            .filter(|r| r.family == "fillets")
+            .all(|r| r.parameters["axis"].is_string())
+    );
     let (recognition, turned) = default(&fixture("nonprincipal_37.step"), &IDENTITY);
     let RecordFrame::Inferred(frame) = turned.frame else {
         panic!("no frame: {:?}", turned.frame);
@@ -181,17 +190,12 @@ fn fields_without_a_file_axis_are_labelled() {
         .collect();
     assert!(!fillets.is_empty());
     for r in &fillets {
-        assert_eq!(r.local, ["axis"], "{}", r.id);
+        assert!(r.parameters["axis"].is_array(), "{}", r.id);
     }
     // A blend along a fillet runs along the fillet's frame axis, in file coordinates.
     // Reconciliation rejects each blend for its fillet, so they are the working part's
     // candidates, carried into the file's coordinates as the default carries its records.
-    let letter = fillets[0].parameters["axis"].as_str().unwrap();
-    let axis = match letter {
-        "x" => frame.x,
-        "y" => frame.y,
-        _ => frame.z,
-    };
+    let axis: [f64; 3] = serde_json::from_value(fillets[0].parameters["axis"].clone()).unwrap();
     let path = fixture("nonprincipal_37.step");
     let read = |p: &Placement| read_step_file_placed(&path, p);
     let part = read(&IDENTITY).unwrap();
@@ -200,7 +204,8 @@ fn fields_without_a_file_axis_are_labelled() {
     assert!(recognition.features.blends.is_empty());
     let blends = framed_records::to_file(physical, &frame, &working)
         .features
-        .blends;
+        .blends
+        .clone();
     assert!(blends.iter().any(|b| match &b.path {
         quiddity::BlendPath::Straight(s) =>
             (0..3).all(|i| (s.direction[i].abs() - axis[i].abs()).abs() < 1e-6),
@@ -219,21 +224,25 @@ fn fields_without_a_file_axis_are_labelled() {
 /// What is wrong with the frame and labels of *doc*: a label only where a frame was inferred,
 /// and each naming a parameter the record has.
 fn check_labels(name: &str, doc: &RecognitionDocument, out: &mut Vec<String>) {
-    let inferred = matches!(doc.frame, RecordFrame::Inferred(_));
-    for r in &doc.records {
-        if !inferred && !r.local.is_empty() {
-            out.push(format!("{name}: {} has local fields without a frame", r.id));
-        }
-        let mut parameters = Value::Object(r.parameters.clone());
-        for path in &r.local {
-            if take(&mut parameters, path).is_empty() {
-                out.push(format!(
-                    "{name}: {} labels {path}, which it does not have",
-                    r.id
-                ));
+    fn scan(v: &Value, path: &str, out: &mut Vec<String>) {
+        match v {
+            Value::Object(fields) => {
+                for (key, value) in fields {
+                    if key == "local" {
+                        out.push(format!("{path}: published local key"));
+                    }
+                    scan(value, &format!("{path}.{key}"), out);
+                }
             }
+            Value::Array(items) => {
+                for value in items {
+                    scan(value, path, out);
+                }
+            }
+            _ => {}
         }
     }
+    scan(&serde_json::to_value(doc).unwrap(), name, out);
 }
 
 /// The motions of `tests/invariance.rs`: a non-round translation and right-angle rotations with
@@ -321,61 +330,33 @@ struct Compared {
     family: String,
     faces: Vec<usize>,
     parameters: Value,
-    local: Vec<String>,
 }
 
 /// *doc*'s records with the parameters *features* gives them (the document's records carried
-/// through some motion), and *extra* local paths by record ID.
-fn compared(
-    doc: &RecognitionDocument,
-    features: &Features,
-    extra: &BTreeMap<String, Vec<String>>,
-) -> Vec<Compared> {
-    let by_family: BTreeMap<String, Vec<Value>> = families(features).into_iter().collect();
+/// through some motion), reconstructed using their published measuring bases.
+fn compared(doc: &RecognitionDocument, features: &PublishedFeatures) -> Vec<Compared> {
+    let by_family: BTreeMap<String, Vec<Value>> = features.families().into_iter().collect();
     doc.records
         .iter()
         .map(|r| {
             let n: usize = r.id.rsplit('/').next().unwrap().parse().unwrap();
-            let mut local = r.local.clone();
-            local.extend(extra.get(&r.id).into_iter().flatten().cloned());
             Compared {
                 family: r.family.clone(),
                 faces: r.faces.clone(),
-                parameters: by_family[&r.family][n].clone(),
-                local,
+                parameters: {
+                    let mut record = by_family[&r.family][n].clone();
+                    if r.family == "paired_ramp_steps"
+                        && !record["half_widths"].is_null()
+                        && record.get("width_axis").is_none()
+                    {
+                        record["width_axis"] =
+                            serde_json::json!(features.paired_ramp_steps[n].half_width_axis);
+                    }
+                    published_geometry::canonical(&record, &r.family)
+                },
             }
         })
         .collect()
-}
-
-/// The values at *path* in *v* (`a.b` a nested field, `a[]` each item of a list), removed.
-fn take(v: &mut Value, path: &str) -> Vec<Value> {
-    let (head, rest) = match path.split_once('.') {
-        Some((h, r)) => (h, Some(r)),
-        None => (path, None),
-    };
-    let (name, each) = match head.strip_suffix("[]") {
-        Some(n) => (n, true),
-        None => (head, false),
-    };
-    let Some(object) = v.as_object_mut() else {
-        return Vec::new();
-    };
-    match (rest, each) {
-        (None, false) => object.remove(name).into_iter().collect(),
-        (None, true) => match object.get_mut(name) {
-            Some(Value::Array(items)) => std::mem::take(items),
-            _ => Vec::new(),
-        },
-        (Some(rest), false) => object
-            .get_mut(name)
-            .map(|inner| take(inner, rest))
-            .unwrap_or_default(),
-        (Some(rest), true) => match object.get_mut(name) {
-            Some(Value::Array(items)) => items.iter_mut().flat_map(|i| take(i, rest)).collect(),
-            _ => Vec::new(),
-        },
-    }
 }
 
 /// Numbers agree within one part in a million (of the larger, or of 1), as the parity tests
@@ -449,23 +430,9 @@ struct Difference {
     text: String,
 }
 
-/// How parameters left in a frame are compared.
-enum Local<'a> {
-    /// Through the two lists' records carried into their frames.
-    InFrames(&'a [Compared], &'a [Compared]),
-    /// Not at all (no file-space value to compare them with).
-    Skipped,
-}
-
 /// The families whose records differ between *expected* and *got*, matched by their faces
-/// (records on equal faces paired in order). Parameters other than the local paths of either are
-/// compared as they are; the local paths as *local* says.
-fn differences(
-    expected: &[Compared],
-    got: &[Compared],
-    local: Local,
-    grid: &mut usize,
-) -> Vec<Difference> {
+/// (records on equal faces paired in order), with every published measurement compared geometrically.
+fn differences(expected: &[Compared], got: &[Compared], grid: &mut usize) -> Vec<Difference> {
     let mut families: Vec<&str> = expected
         .iter()
         .chain(got)
@@ -491,31 +458,12 @@ fn differences(
             };
             let i = left.remove(k);
             let (a, b) = (&expected[i], &got[j]);
-            let mut paths: Vec<&String> = a.local.iter().chain(&b.local).collect();
-            paths.sort();
-            paths.dedup();
-            let (mut pa, mut pb) = (a.parameters.clone(), b.parameters.clone());
-            for p in &paths {
-                take(&mut pa, p);
-                take(&mut pb, p);
-            }
-            if !agree(&pa, &pb, grid) {
-                notes.push(format!("{:?}: {}", a.faces, disagreement(&pa, &pb)));
-                continue;
-            }
-            if paths.is_empty() {
-                continue;
-            }
-            let (le, lg) = match local {
-                Local::InFrames(le, lg) => (le, lg),
-                Local::Skipped => continue,
-            };
-            let (mut la, mut lb) = (le[i].parameters.clone(), lg[j].parameters.clone());
-            let fields =
-                |v: &mut Value| -> Vec<Value> { paths.iter().flat_map(|p| take(v, p)).collect() };
-            let (fa, fb) = (Value::Array(fields(&mut la)), Value::Array(fields(&mut lb)));
-            if !agree(&fa, &fb, grid) {
-                notes.push(format!("{:?}: local {}", a.faces, disagreement(&fa, &fb)));
+            if !agree(&a.parameters, &b.parameters, grid) {
+                notes.push(format!(
+                    "{:?}: {}",
+                    a.faces,
+                    disagreement(&a.parameters, &b.parameters)
+                ));
             }
         }
         unmatched.extend(left.iter().map(|&i| format!("-{:?}", expected[i].faces)));
@@ -553,21 +501,6 @@ fn frames_agree(a: &PartFrame, b: &PartFrame) -> bool {
         && close(a.z, b.z, 1e-9)
 }
 
-/// The records of *recognition* in its frame (its file-space records carried back by it).
-fn in_frame(
-    recognition: &Recognition,
-    frame: &PartFrame,
-    doc: &RecognitionDocument,
-) -> Vec<Compared> {
-    // Back through the motion the records were published through: the frame's, or the signed
-    // permutation a near-aligned frame is published through (#70).
-    let published = recognition
-        .published_by
-        .unwrap_or_else(|| Rigid::from_frame(frame));
-    let back = map_features(recognition.features.clone(), &published.inverse());
-    compared(doc, &back.features, &BTreeMap::new())
-}
-
 /// How the default recognition of a part placed by *motion* differs from its unmoved one, once
 /// carried back by the motion's inverse.
 fn under_motion(
@@ -578,15 +511,14 @@ fn under_motion(
 ) -> Vec<Difference> {
     let ((r0, d0), (r1, d1)) = (unmoved, moved);
     let back = map_features(r1.features.clone(), &motion.inverse());
-    let expected = compared(d0, &r0.features, &BTreeMap::new());
-    let got = compared(d1, &back.features, &back.local);
+    let expected = compared(d0, &r0.features);
+    let got = compared(d1, &back.features);
     match (&r0.frame, &r1.frame) {
         (RecordFrame::Inferred(f0), RecordFrame::Inferred(f1)) => {
             // Where the gauge leaves the frame free (a sign, an interchange, a roll about the
             // axis), the moved part's frame can be another representative: its records are then
             // compared all the same, and fields the freedom moves differ.
-            let (l0, l1) = (in_frame(r0, f0, d0), in_frame(r1, f1, d1));
-            let mut found = differences(&expected, &got, Local::InFrames(&l0, &l1), grid);
+            let mut found = differences(&expected, &got, grid);
             if !frames_agree(&moved_frame(f0, motion), f1) {
                 for d in &mut found {
                     d.text = format!("(frames differ: {:?} gauge) {}", f0.gauge, d.text);
@@ -595,7 +527,7 @@ fn under_motion(
             found
         }
         (RecordFrame::Refused { reason: a }, RecordFrame::Refused { reason: b }) if a == b => {
-            differences(&expected, &got, Local::Skipped, grid)
+            differences(&expected, &got, grid)
         }
         (a, b) => vec![Difference {
             family: "frame".into(),
@@ -802,29 +734,32 @@ fn agrees_with_caller_space(k: usize, n: usize) {
             recognition::document(&framed, part.faces.len()),
             recognition::document(&caller, part.faces.len()),
         );
-        let local = df.records.iter().filter(|r| !r.local.is_empty()).count();
+        let relative = df
+            .records
+            .iter()
+            .filter(|r| r.parameters.contains_key("origin"))
+            .count();
         let mut grid = 0;
         let d = differences(
-            &compared(&dc, &caller.features, &BTreeMap::new()),
-            &compared(&df, &framed.features, &BTreeMap::new()),
-            Local::Skipped,
+            &compared(&dc, &caller.features),
+            &compared(&df, &framed.features),
             &mut grid,
         );
-        (d, grid, local)
+        (d, grid, relative)
     });
-    let (mut grid, mut local) = (0, 0);
+    let (mut grid, mut relative) = (0, 0);
     let found: Vec<(String, String, Vec<Difference>)> = files
         .iter()
         .zip(found)
         .map(|(name, (d, g, l))| {
             grid += g;
-            local += l;
+            relative += l;
             (name.clone(), CALLER_SPACE.to_string(), d)
         })
         .collect();
     eprintln!(
-        "against caller space: {grid} values agree only to the two-decimal grid; {local} records \
-         have fields left in a frame that is not the file's axes"
+        "against caller space: {grid} values agree only to the two-decimal grid; {relative} records \
+         use an explicit measurement origin"
     );
     let owned = |file: &str| slices::owns(&all, k, n, file);
     let problems = unexplained(&[CALLER_SPACE], owned, found.into_iter());
@@ -1077,7 +1012,7 @@ fn a_pattern_never_includes_a_rejected_member() {
 /// section recesses `recognise_section_recesses` gives, or its refusal, each defined by its
 /// record's own defining faces and fingerprinted; the default (framed) recognition fingerprints
 /// those its run finds, and the document publishes every one with its file-space geometry,
-/// defining faces and local labels. One test per slice of the corpus (`tests/support/slices.rs`).
+/// defining faces and self-contained coordinates. One test per slice of the corpus (`tests/support/slices.rs`).
 fn carries_section_recesses(k: usize, n: usize) {
     let Some(dir) = common::corpus_dir() else {
         assert!(
@@ -1146,12 +1081,6 @@ fn carries_section_recesses(k: usize, n: usize) {
                 "{file}: the framed section recesses are not all fingerprinted"
             ));
         }
-        // A record whose moved values its checks refuse stays in the frame, labelled.
-        for (id, paths) in &framed.local {
-            if id.starts_with("section_recesses/") {
-                eprintln!("{file}: {id} left in the frame: {paths:?}");
-            }
-        }
         let published: Vec<_> = doc
             .records
             .iter()
@@ -1170,7 +1099,6 @@ fn carries_section_recesses(k: usize, n: usize) {
                 || record.record_type != "SectionRecess"
                 || record.faces != recess.evidence().defining_faces()
                 || Value::Object(record.parameters.clone()) != serde_json::to_value(recess).unwrap()
-                || record.local != framed.local.get(&id).cloned().unwrap_or_default()
             {
                 out.push(format!("{file}: {id} is not published faithfully"));
             }
@@ -1198,7 +1126,6 @@ fn carries_section_recesses(k: usize, n: usize) {
                 || record.faces != refusal.evidence().defining_faces()
                 || Value::Object(record.parameters.clone())
                     != serde_json::to_value(refusal).unwrap()
-                || !record.local.is_empty()
             {
                 out.push(format!("{file}: {id} refusal is not published faithfully"));
             }

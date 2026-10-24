@@ -16,11 +16,9 @@
 //! where the records were found: the inferred frame (origin and axes in the file's coordinates,
 //! and its gauge), the reason none could be inferred (the part was then recognised as placed in
 //! the file, so its records depend on that placement), or `caller-space` for a part recognised in
-//! memory without one. Each record's `local` lists the parameters, by path (`a.b` a nested
-//! field, `a[]` each item of a list), that no file axis corresponds to and so are left in the
-//! frame: an axis letter names the frame's axis, and a coordinate along it is measured from the
-//! frame's origin. It is empty wherever the frame's axes are the file's axes up to order and
-//! sign. Version 1 had neither field, and every axis letter named a file axis.
+//! memory without one. In version 6 every record is self-contained in file coordinates:
+//! directions that cannot name a file axis use unit vectors, and their scalar coordinates have
+//! an explicit record origin. The top-level frame is provenance only. See docs/recognition-6.md.
 
 use std::collections::BTreeMap;
 
@@ -38,8 +36,8 @@ use crate::features::recess_patterns::{PocketPattern, SlotPattern};
 use crate::features::section_recess::SectionRecessPattern;
 use crate::frames::RecordFrame;
 
-/// Version 5 accounts for every face, without changing any record payload.
-pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/5";
+/// Version 6 publishes formerly frame-relative fields in self-contained file coordinates.
+pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/6";
 /// Historical pre-thread contract, accepted on input but no longer emitted.
 pub const LEGACY_SCHEMA_VERSION: &str = "quiddity-rust/recognition/3";
 
@@ -80,8 +78,7 @@ pub struct RecognitionDocument {
     pub schema_version: String,
     /// The recogniser: `quiddity-rust` and its crate version.
     pub package: Package,
-    /// Coordinates in the records are the STEP file's (`file`), not a working frame's, except
-    /// the fields each record lists in `local`.
+    /// Coordinates in every record are the STEP file's (`file`).
     pub coordinate_space: String,
     /// Where the records were found: the part's own frame, or why none could be inferred.
     pub frame: RecordFrame,
@@ -124,9 +121,6 @@ pub struct Record {
     pub faces: Vec<usize>,
     /// The record as the family serialises it.
     pub parameters: Map<String, Value>,
-    /// The parameters left in the document's `frame` (no file axis corresponds to them), by
-    /// path; empty when every parameter is in the file's coordinates.
-    pub local: Vec<String>,
     /// Strict valid-solid proof on defining and consulted faces, or on every pattern member.
     /// Refusals and records from older documents are unproved.
     #[serde(default)]
@@ -356,7 +350,7 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
         .map(|f| (f.id.as_str(), &f.faces))
         .collect();
     let mut records = Vec::new();
-    let families = families(&recognition.features);
+    let families = recognition.features.families();
     for (family, list) in &families {
         for (n, record) in list.iter().enumerate() {
             let id = format!("{family}/{n}");
@@ -407,7 +401,6 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
             records.push(Record {
                 record_type: record_type(&recognition.features, family, n).into(),
                 faces,
-                local: recognition.local.get(&id).cloned().unwrap_or_default(),
                 id,
                 family: family.clone(),
                 evidence_status: record_status(
@@ -554,7 +547,6 @@ mod accounting_tests {
                 serde_json::json!({"reason":"unsupported_support_geometry"}),
             )
             .unwrap(),
-            local: vec![],
             evidence_status: EvidenceStatus::Unproved,
         };
         let records = vec![

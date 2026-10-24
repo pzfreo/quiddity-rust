@@ -844,6 +844,12 @@ impl SectionRecess {
         &self.geometry
     }
 
+    /// Carry an already validated measuring frame without changing its relative geometry.
+    pub(crate) fn with_frame(mut self, frame: PassageFrame) -> Self {
+        self.geometry.frame = frame;
+        self
+    }
+
     pub fn classification(&self) -> &SectionRecessClassification {
         &self.classification
     }

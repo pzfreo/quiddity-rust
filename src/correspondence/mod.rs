@@ -22,10 +22,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
 use crate::features::{self, Features};
-use crate::framed_records::{self, LocalFields, Mapped};
+use crate::framed_records::{self, Mapped};
 use crate::frames::{self, PartFrame, RecordFrame};
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{self, V3};
+use crate::published_records::PublishedFeatures;
 
 pub use align::Motion;
 pub use fingerprint::{
@@ -33,18 +34,15 @@ pub use fingerprint::{
 };
 
 /// A recognition result with its fingerprints: what `quiddity part.step` writes. The families'
-/// records are at the top level, as before, beside `fingerprints`; where they were found
-/// (`frame`) and which of their fields were left in that frame (`local`) are reported by the
-/// recognition document ([`crate::recognition`]).
+/// records are at the top level beside `fingerprints`. The recognition document reports the
+/// provenance frame; every record is self-contained in file coordinates.
 #[derive(Clone, Debug, Serialize)]
 pub struct Recognition {
     #[serde(flatten)]
-    pub features: Features,
+    pub features: PublishedFeatures,
     pub fingerprints: Fingerprints,
     #[serde(skip)]
     pub frame: RecordFrame,
-    #[serde(skip)]
-    pub local: LocalFields,
     /// SHA256 of the exact input file bytes; absent for caller-supplied in-memory geometry.
     #[serde(skip)]
     pub source_sha256: Option<String>,
@@ -54,16 +52,10 @@ pub struct Recognition {
     /// Positive body evidence in the inferred frame; never a feature claim.
     #[serde(skip)]
     pub(crate) body_evidence: BTreeMap<usize, crate::recognition::BodyReason>,
-    /// The motion the records were published through from the inferred frame (the frame's, or
-    /// the signed permutation it is within round-off of, [`framed_records::Rigid::aligned_within`]).
-    /// Read by the motion-invariance checks only.
-    #[cfg(test)]
-    #[serde(skip)]
-    pub(crate) published_by: Option<framed_records::Rigid>,
 }
 
 /// Recognise a loaded part in its inferred frame and map records back to caller space.
-/// Fields that cannot be mapped to caller axes remain `local`; read them through `frame`.
+/// Nonprincipal directions use vectors and explicit origins; `frame` is provenance only.
 /// If frame inference is refused, records are caller-space and `frame` carries the reason.
 /// This performs no STEP reads and preserves face and edge indices.
 pub fn recognise(part: &Part) -> Recognition {
@@ -73,15 +65,12 @@ pub fn recognise(part: &Part) -> Recognition {
             let features = features::recognise(part);
             let fingerprints = fingerprint(part, &features);
             return Recognition {
-                features,
+                features: features.into(),
                 fingerprints,
                 frame: RecordFrame::Refused { reason },
-                local: LocalFields::new(),
                 source_sha256: None,
                 input_repairs: part.input_repairs().to_vec(),
                 body_evidence: BTreeMap::new(),
-                #[cfg(test)]
-                published_by: None,
             };
         }
     };
@@ -96,16 +85,13 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
             let features = Features::default();
             return Recognition {
                 fingerprints: fingerprint(part, &features),
-                features,
+                features: features.into(),
                 frame: RecordFrame::Refused {
                     reason: frames::FrameRefusal::NonrigidFrame,
                 },
-                local: LocalFields::new(),
                 source_sha256: None,
                 input_repairs: part.input_repairs().to_vec(),
                 body_evidence: BTreeMap::new(),
-                #[cfg(test)]
-                published_by: None,
             };
         }
     };
@@ -113,34 +99,22 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
     let body_evidence = crate::body::evidence(&working);
     let Mapped {
         features,
-        local,
         fingerprinted,
-        fingerprinted_local,
         motion,
     } = framed_records::to_file(features, &frame, &working);
-    #[cfg(not(test))]
     let _ = motion;
     // Fingerprints read the published values as found in the frame, carried through the exact
     // motion, so they stay intrinsic to the part: publishing on the file's grid would make a
     // derived size (hi − lo) depend on where the part is placed, and a near-aligned frame's
     // publication in the file's axes (#70) would change its axes by the round-off it drops.
-    let mut fingerprints = fingerprint(part, &fingerprinted);
-    frame_axes(
-        &mut fingerprints,
-        &fingerprinted,
-        &fingerprinted_local,
-        &frame,
-    );
+    let fingerprints = fingerprint::published_fingerprint(part, &fingerprinted);
     Recognition {
         features,
         fingerprints,
         frame: RecordFrame::Inferred(frame),
-        local,
         source_sha256: None,
         input_repairs: part.input_repairs().to_vec(),
         body_evidence,
-        #[cfg(test)]
-        published_by: Some(motion),
     }
 }
 
@@ -150,55 +124,12 @@ pub(crate) fn caller_space_recognise(part: &Part) -> Recognition {
     let features = features::recognise(part);
     let fingerprints = fingerprint(part, &features);
     Recognition {
-        features,
+        features: features.into(),
         fingerprints,
         frame: RecordFrame::CallerSpace,
-        local: LocalFields::new(),
         source_sha256: None,
         input_repairs: part.input_repairs().to_vec(),
         body_evidence: BTreeMap::new(),
-        published_by: None,
-    }
-}
-
-/// A feature fingerprint's axis read from an axis letter that names the frame's axis (a field
-/// [`framed_records`] left local) is that frame axis, not the file's.
-fn frame_axes(
-    fingerprints: &mut Fingerprints,
-    features: &Features,
-    local: &LocalFields,
-    frame: &PartFrame,
-) {
-    if local.is_empty() {
-        return;
-    }
-    let json = fingerprint::records_json(features);
-    for f in &mut fingerprints.features {
-        let Some(paths) = local.get(&f.id) else {
-            continue;
-        };
-        let table = fingerprint::family(&f.family).expect("a fingerprinted family");
-        let n: usize =
-            f.id.rsplit('/')
-                .next()
-                .and_then(|n| n.parse().ok())
-                .expect("an ID");
-        let record = &json[&f.family][n];
-        let letter = table
-            .fields
-            .iter()
-            .filter(|(_, role)| *role == fingerprint::Role::Axis)
-            .find_map(|(path, _)| record.get(*path).map(|v| (*path, v)));
-        if let Some((path, Value::String(letter))) = letter
-            && paths.iter().any(|p| p == path)
-        {
-            f.axis = match letter.as_str() {
-                "x" => Some(frame.x),
-                "y" => Some(frame.y),
-                "z" => Some(frame.z),
-                _ => f.axis,
-            };
-        }
     }
 }
 
