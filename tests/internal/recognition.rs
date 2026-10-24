@@ -640,6 +640,10 @@ fn moves_with_the_part(k: usize, n: usize) {
     let mut read = common::parallel::map(&readings, |&(i, placement)| {
         let path = dir.join(&files[i]);
         serve::recognise_step(&path.to_string_lossy(), placement).map(|(part, recognition, _)| {
+            super::vector_publication::validate_boxes(
+                &serde_json::to_value(&recognition.features).unwrap(),
+                &part,
+            );
             let document = recognition::document(&recognition, part.faces.len());
             (recognition, document)
         })
@@ -721,6 +725,12 @@ fn agrees_with_caller_space(k: usize, n: usize) {
             return (Vec::new(), 0, 0);
         };
         let caller = correspondence::caller_space_recognise(&part);
+        for features in [&caller.features, &framed.features] {
+            super::vector_publication::validate_boxes(
+                &serde_json::to_value(features).unwrap(),
+                &part,
+            );
+        }
         let known = common::load("references/framed_document.json");
         if known.as_array().unwrap().iter().any(|v| {
             v["file"] == *name

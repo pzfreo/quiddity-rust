@@ -33,6 +33,7 @@ fillet's `axis`, whose position is already `at`) do not require an origin.
 | Unequal ramp `half_widths` | new `width_axis`, low side first |
 | Gusset support coordinates, mirror-plane coordinate | axis in the corresponding support/mirror pair |
 
+Riser `vertical` means parallel to the published `height_axis`, not necessarily file Z.
 `lo_at_envelope` and `hi_at_envelope` describe the low and high ends along `height_axis`;
 they follow those endpoints when sense reverses. `open_sign`, `depth_sign`, pad direction
 and gusset support-side signs refer to their published directions. Empty position arrays

@@ -261,7 +261,7 @@ fn all_fixture_and_corpus_publications_have_no_local_key() {
     no_local(&json!({"endpoint_scopes":["local","envelope"]}));
 }
 
-fn validate_boxes(v: &Value, part: &Part) {
+pub(super) fn validate_boxes(v: &Value, part: &Part) {
     let mut seen = std::collections::BTreeSet::new();
     check_boxes(v, part, &mut seen);
 }
@@ -288,7 +288,24 @@ fn check_boxes(v: &Value, part: &Part, seen: &mut std::collections::BTreeSet<Str
                     "published box does not reconstruct a body's extrema: {v}"
                 );
             }
-            for v in o.values() {
+            for (key, v) in o {
+                if let Some(a) = v.as_array()
+                    && ((key == "body_key" && a.len() == 8)
+                        || (key == "body_bounds" && a.len() == 6))
+                {
+                    let intervals: Vec<_> = (0..3)
+                        .map(|i| {
+                            if key == "body_key" {
+                                json!([a[i], a[i + 3]])
+                            } else {
+                                json!([a[2 * i], a[2 * i + 1]])
+                            }
+                        })
+                        .collect();
+                    let file_box =
+                        json!({"origin":[0.,0.,0.],"axes":["x","y","z"],"bounds":intervals});
+                    check_boxes(&file_box, part, seen);
+                }
                 check_boxes(v, part, seen);
             }
         }
