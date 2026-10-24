@@ -204,11 +204,27 @@ fn direction(m: &Rigid, i: usize, reach: f64) -> (Value, f64) {
         .max_by(|&a, &b| d[a].abs().total_cmp(&d[b].abs()))
         .unwrap();
     let sign = 1_f64.copysign(d[w]);
-    let deviation = (0..3)
-        .map(|k| (d[k] - if k == w { sign } else { 0. }).powi(2))
+    let squared_deviation = |d: V3| {
+        let w = (0..3)
+            .max_by(|&a, &b| d[a].abs().total_cmp(&d[b].abs()))
+            .unwrap();
+        let sign = 1_f64.copysign(d[w]);
+        (0..3)
+            .map(|k| (d[k] - if k == w { sign } else { 0. }).powi(2))
+            .sum::<f64>()
+    };
+    let deviation = squared_deviation(d);
+    // Bound the combined change of every snapped column, as #70 bounds the whole
+    // rotation. Three individually small snaps must not together exceed the coordinate floor.
+    let combined = (0..3)
+        .map(|j| squared_deviation(column(m, j)))
+        .filter(|&v| v == 0. || v.sqrt() * reach <= crate::kernel::geom::COORD_FLOOR)
         .sum::<f64>()
         .sqrt();
-    if deviation == 0. || deviation * reach <= crate::kernel::geom::COORD_FLOOR {
+    if deviation == 0.
+        || (deviation.sqrt() * reach <= crate::kernel::geom::COORD_FLOOR
+            && combined * reach <= crate::kernel::geom::COORD_FLOOR)
+    {
         (json!(["x", "y", "z"][w]), sign)
     } else {
         (json!(d), 1.)

@@ -394,3 +394,100 @@ fn cgb217_turning_stations_preserve_the_recognised_context() {
     near(*caller.turned_steps[index].lo, -29., 1e-9);
     near(*caller.turned_steps[index].hi, -25., 1e-9);
 }
+
+#[test]
+fn a_flat_axis_line_needs_no_provenance_even_with_a_tilted_stock_axis() {
+    use quiddity::features::{
+        Features,
+        flats::Flat,
+        placed::{Grid, Placed},
+    };
+    use quiddity::framed_records::{Rigid, map_features};
+    let d = quiddity::kernel::geom::unit([1., 0.02, 0.03]).unwrap();
+    let raw = Features {
+        flats: vec![Flat {
+            axis: 'x',
+            across: 4.,
+            at: Placed::new([0.; 3], Grid::Exact),
+            axis_line: Placed::new((2., 3.), Grid::Exact),
+            stock_span: Placed::new((5., 9.), Grid::Exact),
+            axis_direction: d,
+        }],
+        ..Features::default()
+    };
+    let motion = Rigid::from_placement(&moved(30.));
+    let mapped = map_features(raw, &motion);
+    let p = serde_json::to_value(&mapped.features).unwrap()["flats"][0].clone();
+    let o = origin(&p);
+    let a = vector(&p["axis"]);
+    let run = vector(&p["axis_direction"]);
+    let axes = p["section_axes"].as_array().unwrap();
+    let q = lifted(
+        o,
+        &[
+            (number(&p["axis_line"][0]), vector(&axes[0])),
+            (number(&p["axis_line"][1]), vector(&axes[1])),
+        ],
+    );
+    let relative = std::array::from_fn(|i| q[i] - o[i]);
+    let q = lifted(q, &[(-dot(relative, run) / dot(a, run), a)]);
+    let expected = motion.point([-(2. * d[1] + 3. * d[2]) / d[0], 2., 3.]);
+    for i in 0..3 {
+        near(q[i], expected[i], 1e-12);
+    }
+    let shift = dot(motion.translation, run);
+    near(number(&p["stock_span"][0]), 5. + shift, 1e-12);
+    near(number(&p["stock_span"][1]), 9. + shift, 1e-12);
+}
+
+#[test]
+fn vector_snaps_share_the_coordinate_floor_across_the_whole_basis() {
+    use quiddity::features::{
+        Features,
+        fillets::Fillet,
+        placed::{Grid, Placed},
+    };
+    use quiddity::frames::{FrameGauge, PartFrame};
+    let part = quiddity::read_step_file(&common::fixtures().join("filleted_plate_with_holes.step"))
+        .unwrap();
+    let bounds = part.bounds();
+    let reach = (0..3)
+        .map(|i| bounds.min[i].abs().max(bounds.max[i].abs()).powi(2))
+        .sum::<f64>()
+        .sqrt();
+    for (factor, snapped) in [(0.5, true), (0.9, false)] {
+        let radians = factor * quiddity::kernel::geom::COORD_FLOOR / reach;
+        let (s, c) = radians.sin_cos();
+        let k = 1. / 3_f64.sqrt();
+        let t = (1. - c) / 3.;
+        let rows = [
+            [t + c, t - s * k, t + s * k],
+            [t + s * k, t + c, t - s * k],
+            [t - s * k, t + s * k, t + c],
+        ];
+        let frame = PartFrame {
+            origin: [0.; 3],
+            x: rows.map(|r| r[0]),
+            y: rows.map(|r| r[1]),
+            z: rows.map(|r| r[2]),
+            gauge: FrameGauge::Full,
+        };
+        let raw = Features {
+            fillets: ['x', 'y', 'z']
+                .map(|axis| Fillet {
+                    axis,
+                    radius: 1.,
+                    at: Placed::new([0.; 3], Grid::Exact),
+                    turned: false,
+                    side: "convex",
+                })
+                .into(),
+            ..Features::default()
+        };
+        let mapped = quiddity::framed_records::to_file(raw, &frame, &part);
+        let json = serde_json::to_value(&mapped.features).unwrap();
+        for r in json["fillets"].as_array().unwrap() {
+            assert_eq!(r["axis"].is_string(), snapped);
+        }
+    }
+}

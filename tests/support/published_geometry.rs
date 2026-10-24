@@ -104,7 +104,10 @@ pub fn canonical(v: &Value, family: &str) -> Value {
             basis[1],
             p[1].as_f64().unwrap(),
         );
-        r.insert("axis_line".into(), json!(add(q, d, -dot(q, d))));
+        let run = vector(&raw["axis_direction"]).unwrap();
+        let relative: V3 = std::array::from_fn(|i| q[i] - o[i]);
+        let q = add(q, d, -dot(relative, run) / dot(d, run));
+        r.insert("axis_line".into(), json!(add(q, run, -dot(q, run))));
         r.remove("section_axes");
         r.remove("origin");
     }

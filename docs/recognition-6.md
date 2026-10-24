@@ -39,6 +39,10 @@ they follow those endpoints when sense reverses. `open_sign`, `depth_sign`, pad 
 and gusset support-side signs refer to their published directions. Empty position arrays
 remain empty. Nested levels and pattern members use the same decoding rules independently.
 An unconverted record without `origin` retains the existing absolute file-coordinate rules.
+Flat `axis_line` gives the two coordinates along `section_axes`. Start at
+`q = origin + axis_line[0] * section_axes[0] + axis_line[1] * section_axes[1]`, then move
+along `axis` until `dot(q - origin, axis_direction) = 0`. This also handles a stock cylinder
+slightly inclined to its principal measuring axis. The resulting point lies on the stock axis.
 Flat `stock_span` already uses `axis_direction` from the file origin and retains that rule.
 
 A converted `body_key` becomes `{origin, axes, bounds, volume, area}`. `axes` is an ordered
