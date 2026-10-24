@@ -49,6 +49,12 @@ fn census() -> BTreeMap<String, Value> {
             paths.insert(format!("captured/{file}"), root.join("captured").join(file));
         }
     }
+    for file in [
+        "passages/7802ff06fec22161.step.gz",
+        "sections/parts/6d574d007a42a547.step.gz",
+    ] {
+        paths.insert(format!("captured/{file}"), root.join("captured").join(file));
+    }
     let paths: Vec<_> = paths.into_iter().collect();
     common::parallel::map(&paths, |(key, path)| {
         let part = read_step_file(path).unwrap();
@@ -70,7 +76,25 @@ fn census() -> BTreeMap<String, Value> {
             accepted.section_recess_patterns = projection.patterns;
         }
         let mut result = json!({"physical": counts(&raw), "accepted": counts(&accepted)});
-        if key.starts_with("corpus/") || key.starts_with("fixture/") {
+        // #91 also ratchets every affected captured slotted plate and golden input.
+        if key.starts_with("corpus/")
+            || key.starts_with("fixture/")
+            || key == "golden/golden_oriented_slots.step"
+            || [
+                "13ef6f0530156a2a",
+                "3f89fd15d4993366",
+                "7802ff06fec22161",
+                "83ba2c37c00b754f",
+                "8443bc2e5a9d6ca9",
+                "849693aa7104ff51",
+                "9206ca6ded11c438",
+                "eaea9b3e567d92b4",
+                "ec6a3e238160bbb9",
+                "6d574d007a42a547",
+            ]
+            .iter()
+            .any(|name| key.contains(name))
+        {
             result["framed"] = json!(counts(&correspondence::recognise(&part).features));
         }
         (key.clone(), result)

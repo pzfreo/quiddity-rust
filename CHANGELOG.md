@@ -6,6 +6,47 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Prefer available file axes (for #91).** When two direction classes establish the file
+  frame, it wins regardless of votes; otherwise the #81 distinct-surface vote is unchanged.
+  ADR 0011 permits a rigid copy to change query frame when file axes become available;
+  generic poses without that frame keep the moved vote winner. Tiny material tilts remain
+  intact during recognition. Against main, only cgb217 (45°), cgb241 (27.4°),
+  golden_oriented_slots (30°), their captured copies, and the captured **17° slotted-plate
+  assembly** change to file axes: 14 STEP paths in the complete corpus/fixture audit.
+  The assembly is two file-axis plates with angled slots, the same intended preference as
+  oriented_slots, not a new inference exception.
+
+  cgb217 keeps 14 fillets and 29 blends (the eight file-X/Y R1 rounds replace the eight
+  ±45° rounds in the fillet family; all sixteen physical rounds survive). Its step levels
+  fall 1→0 and risers rise 2→3: face 123 is an oblique wall, not a horizontal level in the
+  file frame. Interior voids rise 0→1: **a restored sampler limitation**, not a real chamber
+  gain. The file-grid claim on faces [26,41] mistakes cross-bore wall 28 for an opening;
+  the analytic bound sqrt(4.25²+5.1²) < 1.5×5.1 still disproves the required widening.
+  File-coordinate publication also exposes an existing turned-profile limitation on face 314:
+  its published low end is −30 although the native cylindrical wall starts at −29; the
+  framed-document reference explicitly bounds this as wrong rather than equivalent.
+  cgb241 and capture `8443bc2e5a9d6ca9` change fillets 1→0, blends 5→6, levels 2→0.
+  Face 47 remains an outward R23 cylindrical blend; its support normals on 46/48 have
+  dot product −0.03589128343, not an orthogonal corner. The old specific fillet was a
+  rotated coordinate-corner-probe classification. Faces 26/46 are oblique body walls,
+  not file-frame levels. No physical round or wall is lost.
+
+  golden_oriented_slots and captures `13ef6f0530156a2a`, `7802ff06fec22161`,
+  `9206ca6ded11c438`, `passages/7802ff06fec22161`, and
+  `sections/parts/6d574d007a42a547` change slots 3→0, oriented slots 0→3,
+  slot patterns 1→0, oriented-slot patterns 0→1, step levels 6→0, and risers 10→6.
+  The 0.05-scale capture `849693aa7104ff51` has the same changes except levels 4→0.
+  All slot records now have no `local` fields. The six removed levels are the vertical
+  through-slot end walls [7,8,11,12,15,17], now included in the oriented-slot claims;
+  four removed risers [0,1,3,5] are exterior stock walls, not internal steps. The six
+  slot side walls remain risers. The 17° assembly captures `3f89fd15d4993366`,
+  `83ba2c37c00b754f`, `eaea9b3e567d92b4`, `ec6a3e238160bbb9` change slots 2→0,
+  oriented slots 0→2, levels 4→0, and risers 12→4: likewise four vertical slot end
+  walls enter the oriented-slot claims, eight exterior stock walls leave risers, and
+  all four slot side walls remain. All other family counts on these 14 paths are unchanged.
+  Floors retain evidence-backed high-water counts, ratchet rises, and remove or tighten
+  obsolete #81 framed-document exceptions. No version change.
+
 - **Decide fillet convexity from the face (for #89).** Both prismatic paths now require
   an outward-facing cylinder. cgb241 face 27 returns to its concave R20 blend: fillets
   fall from 2 to 1, with convex face 47 retained. cgb202 loses 17 inward-facing false
@@ -22,8 +63,9 @@ in [docs/alpha1.md](docs/alpha1.md).
   publishing in file axes, and a 1e-6-radian copy retains all 6 blind pockets and its pattern.
 
 - **Frame inference votes over complete direction sets (for #81).** Planar normals and
-  cylinder axes each vote once per distinct coplanar plane or coaxial equal-radius cylinder; file axes win a tie, while genuinely rotated parts retain
-  their intrinsic frame. Real 1° features no longer merge into the first direction read.
+  cylinder axes each vote once per distinct coplanar plane or coaxial equal-radius cylinder.
+  The #91 file-axis preference above supersedes the original tie-only preference;
+  when file axes are unavailable, genuinely rotated parts retain the vote winner. Real 1° features no longer merge into the first direction read.
   CTC-02 AP242 fillets rise from 3 to 20 (rc has 21: its extra R1.093 feature is absent
   from AP242); FTC-07 AP242 fillets rise from 13 to 16 and polygonal bosses from 0 to 4,
   with all 5 plates retained. cgb202 fillets rise from 272 to 296 and cgb217 from 6 to 14;
@@ -33,10 +75,11 @@ in [docs/alpha1.md](docs/alpha1.md).
   chamfer (0 to 1), the 44th Specify regression. CTC-02 AP242 also gains 4 pockets (0 to 4)
   and step levels (2 to 13); its 4 former risers were outer envelope walls seen in the wrong
   frame, and are gone. FTC-07 AP242 step levels rise from 6 to 8. Mixed-direction parts can
-  change frame and so directional families: cgb217 moves from 13.1° to 45° (98 against 96
-  supports) and cgb241 from the file axes to 27.4° (20 against 18). On cgb241 that relabels
-  two blends (faces 27 and 47) as fillets, and face 27, a concave R20, is wrongly called
-  convex: the known shallow-support corner-probe limitation, recorded as `rust-wrong`. Counting distinct surfaces rather than faces keeps
+  change directional families. The original vote turned cgb217 from 13.1° to 45°
+  (98 against 96 supports) and cgb241 from file axes to 27.4° (20 against 18);
+  #91 now keeps both on file axes. cgb241 face 27's concave R20 misclassification
+  was corrected by #89; #91 returns convex face 47 to its cylindrical blend family.
+  Counting distinct surfaces rather than faces keeps
   mfcadpp_regressions/11512 aligned and unchanged despite split channel faces (15
   file-axis surfaces against 10 rotated). Measured analytic evidence accompanies every bounded framed-floor allowance; broader
   shallow-support fillet coverage remains a limitation.

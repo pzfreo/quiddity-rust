@@ -50,57 +50,17 @@
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "check": "caller_space",
-    "family": "blends",
-    "verdict": "equivalent",
-    "reason": "For #81 the distinct-surface winner is the 45-degree basis (file Z,(X-Y)/sqrt(2),(X+Y)/sqrt(2)), not the former 13.1-degree body-wall basis. Default-specific R1 external fillets are faces [177,182,205,210,233,238,261,266], whose cylinder axes are file +/-45 degrees; caller-specific R1 external fillets are [191,196,219,224,247,252,296,301], whose axes are file X/Y. These are disjoint physical quarter-rounds: every native cylinder points outward and meets perpendicular tangent planes. Both readings are physically correct. The axis-letter fillet family can name only principal runs in its query frame. Every one of the eight caller fillets remains an accepted convex R1 straight Blend on the same face in the default, and all eight default fillets remain equivalent convex R1 Blends in caller space. Thus all sixteen real rounds survive in both documents; there is no lost feature. BlendSupersededByFillet changes the family on the appropriate eight faces, while remaining blend paths can reverse their canonical direction. tests/internal/recognition.rs::changed_query_axes_retain_physical_rounds_and_bores independently pins the geometry, both substitutions and the complete sixteen-face coverage.",
-    "max_differing": 24
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "check": "caller_space",
-    "family": "fillets",
-    "verdict": "equivalent",
-    "reason": "For #81 the distinct-surface winner is the 45-degree basis (file Z,(X-Y)/sqrt(2),(X+Y)/sqrt(2)), not the former 13.1-degree body-wall basis. Default-specific R1 external fillets are faces [177,182,205,210,233,238,261,266], whose cylinder axes are file +/-45 degrees; caller-specific R1 external fillets are [191,196,219,224,247,252,296,301], whose axes are file X/Y. These are disjoint physical quarter-rounds: every native cylinder points outward and meets perpendicular tangent planes. Both readings are physically correct. The axis-letter fillet family can name only principal runs in its query frame. Every one of the eight caller fillets remains an accepted convex R1 straight Blend on the same face in the default, and all eight default fillets remain equivalent convex R1 Blends in caller space. Thus all sixteen real rounds survive in both documents; there is no lost feature. BlendSupersededByFillet changes the family on the appropriate eight faces, while remaining blend paths can reverse their canonical direction. tests/internal/recognition.rs::changed_query_axes_retain_physical_rounds_and_bores independently pins the geometry, both substitutions and the complete sixteen-face coverage.",
-    "max_differing": 16
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "check": "caller_space",
-    "family": "hole_patterns",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same pattern of the same holes; its members are listed in another order (a bolt circle's or rectangle's start is chosen by coordinates, in the frame here and in the file in caller space) or described from their other ends (the holes entries), and for the counterbored-both-ends holes of nist_ftc_10 the member faces follow the holes entry.",
-    "max_differing": 1
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "check": "caller_space",
-    "family": "holes",
-    "verdict": "equivalent",
-    "reason": "Equivalent: the same through hole: the axis is negated and the location moves to the other opening (both openings are entries of a through hole), its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
-    "max_differing": 3
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "check": "caller_space",
-    "family": "interior_voids",
-    "verdict": "rust-correct",
-    "reason": "For #81 the grid is now cast in the 45-degree frame. The default emits an InteriorVoidRefusal on [26,28,41] with widening_behind_throat_unproved, whereas caller space accepts an InteriorVoid on [26,41] and misidentifies the other cylindrical wall [28] as an opening. Analytic anatomy is two parallel constant-R4.25 cross bores [26,28], perpendicular to a continuous constant-R5.1 through bore [41]; [25,27,40,53] are the mouth regions. All three remain accepted through holes in both readings. There is no separate enlarged chamber behind a constricted throat: the larger through bore stays R5.1 to its exits. At either orthogonal junction, even the cross-bore clearance bound sqrt(4.25^2+5.1^2)=6.639 is below 1.5*5.1=7.65, the recogniser widening requirement. Caller-space integer-grid clearances spuriously pass that test (pitch 2.072037, 167 enclosed samples); the rotated grid (pitch 2.251423, 292 samples) correctly refuses. The default refusal has the complete three-cylinder anatomy and is physically correct; this is removal of a false chamber claim, not a lost real void. The two differing records count an accepted caller record removed plus a default refusal added, not two recognised voids. changed_query_axes_retain_physical_rounds_and_bores pins the native radii, perpendicular axes, all three accepted holes and the default refusal.",
-    "max_differing": 2
-  },
-  {
-    "file": "cadgenbench_inputs/cgb217.step.gz",
-    "check": "caller_space",
     "family": "turned_steps",
-    "verdict": "rust-correct",
-    "reason": "The part's frame is not the file's axes (frame x = file z, y = (0.7071067812, -0.7071067812, 0); Python's frame agrees, captured/frames.json), so the default reads letter-axis families along the frame's axes and caller space along the file's, and directions and orders follow the frame: features found on other faces or not at all, and values differing. Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
-    "max_differing": 1
+    "verdict": "rust-wrong",
+    "reason": "For #91 the file-axis frame is (file Z, file X, file Y). One existing query-dependent substitution remains: caller-space claims a turned step on [321,330,332,334,336,338,340,342], while the inferred query keeps its boss. A second parameter difference is now visible on face 314: inferred lo=-30 versus caller lo=-29. The native R47.5 cylinder bounds are file Z=[-29,-26], so the inferred profile extends past the supporting face; this is a bounded coordinate/profile limitation, not an equivalent value. Its diameter remains 95 and all physical cylinder faces remain. The rule does not alter the turned-profile algorithm; #92 will replace axis-letter query contexts. Bound two differing records, not an assertion of manufacturing correctness.",
+    "max_differing": 2
   },
   {
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "check": "caller_space",
     "family": "bosses",
     "verdict": "rust-correct",
-    "reason": "Caller space finds a turned step on exactly this boss's faces (321, 330, 332, ..., 342) and reconciliation rejects the boss for it (turned.boss_superseded_by_step); the default, read along the part's frame, finds four of caller space's five turned steps but not that one (this file's turned_steps entry: the frame is not the file's axes), so the boss stays. Independent motion reference: tests/recognition.rs::the_default_document_moves_with_the_part checks the mapped-back document under translation, three principal rotations, cyclic rotation plus translation, and a generic 37-degree rotation about (1,2,3). All 12 slices pass; this file/family has no motion exception. Decision: for the automatic framed API, the part-inferred material axes are the intended query context; arbitrary file axes do not define the target. These axis-filtered families and reconciliation therefore correctly use the stable inferred context, while explicit caller-space recognition answers a different axis query. This verdict settles that API-context departure, not an unmeasured claim about manufacturing intent or every candidate's accuracy. Counts and the listed record differences remain enforced.",
+    "reason": "For #91 the frame is a signed permutation (file Z, file X, file Y). The existing axis-query/reconciliation distinction remains: caller-space accepts a turned step on [321,330,332,334,336,338,340,342], suppressing that boss; the inferred query retains the boss and has four rather than five turned steps. This one-family substitution is unchanged in count from #81, but its former 45-degree frame explanation no longer applies. Native round/bore evidence remains enforced by changed_query_axes_retain_physical_rounds_and_bores.",
     "max_differing": 1
   },
   {
@@ -2108,7 +2068,7 @@
     "check": "caller_space",
     "family": "risers",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.7071067812, 0.7071067812, 0.0000), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
+    "reason": "For #91 the selected local Z is file Y. Risers are read along the selected Z by specification, not along file Z as explicit caller-space recognition does. Inferred risers are faces 123,308,309 (three records); face 123 changes from the former rotated level to an oblique riser. Native wall normals and the absence of any removed physical face are pinned in changed_query_axes_retain_physical_rounds_and_bores. This is a query-context comparison, not a lost feature.",
     "max_differing": 3
   },
   {
@@ -2116,8 +2076,8 @@
     "check": "caller_space",
     "family": "step_levels",
     "verdict": "not-applicable",
-    "reason": "Not comparable by specification: step levels and risers are read along a z axis (quiddity.levels), the frame's in the default document (as in Python's own framed document) and the file's in caller space, and this part's frame z is the file's direction (0.7071067812, 0.7071067812, 0.0000), so the two read other faces as horizontal and vertical (the document lists the records' z-dependent fields as local, src/framed_records.rs z_kept).",
-    "max_differing": 10
+    "reason": "For #91 selected local Z is file Y, while explicit caller-space levels use file Z. Inferred levels are now empty; caller-space has nine records, on [270,273,276,279,282,285,288,305], [308,316,323,324,325,326,327,328,329], [318], [112], [313], [309], [317], [105,107,109], [24]. Tighten the former allowance of ten to nine. The former inferred level face 123 is now a riser; its physical wall is retained.",
+    "max_differing": 9
   },
   {
     "file": "gramel/GRM-05_depth_lock_bolt.step",
@@ -2886,29 +2846,5 @@
     "verdict": "equivalent",
     "reason": "The four double-counterbored holes have interchangeable ends. Independent OpenCascade establishes diameter-7 length-55 bores between z=-27.5 and +27.5 and equal diameter-10 length-10 mouths extending to z=+-37.5. Caller space presents axis -Z at +37.5; the inferred-frame API presents +Z at -37.5. Both retain CounterBore(10, 10) and claim the bore plus both mouths: [130,138,148], [132,144,149], [134,142,146], [136,140,147]. tests/tie_breaks.rs::symmetric_double_counterbores_preserve_ftc10_and_captured_inventory checks both APIs retain 30 holes/seven patterns and verifies the physical bore endpoints, dimensions and claims under rigid motions. Only the presentation end gauge differs; no numeric tolerance or allowance changes.",
     "max_differing": 4
-  },
-  {
-    "file": "cadgenbench_inputs/cgb241.step",
-    "check": "caller_space",
-    "family": "blends",
-    "verdict": "equivalent",
-    "reason": "For #89, face 27 (R20) is again a concave Blend in both readings: frame_points_outward(27)=Some(false), so it cannot pass either convex fillet path. The former rust-wrong allowance for that face is removed. Only face 47 (R23) differs by family: a convex Fillet in the 27.4-degree default frame and a convex Blend in caller space. frame_points_outward(47)=Some(true); both readings retain its face, radius and convex side. Its shallow support pair has dot -0.03589128343 and enters the approximate coordinate-plane band only in the default frame. cgb241_inner_bend_is_concave_and_outer_bend_stays_a_fillet pins both results. This remaining family substitution is equivalent geometric coverage, not a convexity error.",
-    "max_differing": 1
-  },
-  {
-    "file": "cadgenbench_inputs/cgb241.step",
-    "check": "caller_space",
-    "family": "fillets",
-    "verdict": "equivalent",
-    "reason": "For #89, face 27 (R20) is again a concave Blend in both readings: frame_points_outward(27)=Some(false), so it cannot pass either convex fillet path. The former rust-wrong allowance for that face is removed. Only face 47 (R23) differs by family: a convex Fillet in the 27.4-degree default frame and a convex Blend in caller space. frame_points_outward(47)=Some(true); both readings retain its face, radius and convex side. Its shallow support pair has dot -0.03589128343 and enters the approximate coordinate-plane band only in the default frame. cgb241_inner_bend_is_concave_and_outer_bend_stays_a_fillet pins both results. This remaining family substitution is equivalent geometric coverage, not a convexity error.",
-    "max_differing": 1
-  },
-  {
-    "file": "cadgenbench_inputs/cgb241.step",
-    "check": "caller_space",
-    "family": "step_levels",
-    "verdict": "not-applicable",
-    "reason": "The 27.4-degree default frame has height line (-0.8877387930,0.4603475160,0), rather than caller-space Z. Default-only planar faces [26] and [46] have normals +/-(-0.9036892863,0.4281888296,0), within the existing level angular band of that height line; caller space correctly has no Z-level on either vertical wall. Both are real planar wall patches. The default classification is the material-frame directional level query, not a claim that these walls are horizontal in the file; the corresponding height/span fields remain local. This is a physically valid change of height context, not added or lost surfaces. (for #81)",
-    "max_differing": 2
   }
 ]

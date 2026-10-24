@@ -1,6 +1,6 @@
 {
   "revision": "5fb1706",
-  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts. For #89, convex fillets require an outward-facing cylinder in both prismatic paths. Original fillet baselines remain; per-face material-side evidence bounds concave false-positive removals, and recovered blend counts tighten floors/allowances.",
+  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts. For #89, convex fillets require an outward-facing cylinder in both prismatic paths. Original fillet baselines remain; per-face material-side evidence bounds concave false-positive removals, and recovered blend counts tighten floors/allowances. For #91, file axes win whenever available. All 14 changed paths have framed high-water floors: count rises are ratcheted, falls retain the old baseline with native plane/cylinder and family-substitution evidence. The restored cgb217 interior-void count is a pinned grid-sampler limitation, not evidence of a real chamber.",
   "files": {
     "captured/0043cf4564250883.step.gz": {
       "accepted": {
@@ -1034,6 +1034,14 @@
         "oriented_slot_patterns": 1,
         "oriented_slots": 3,
         "section_passages": 3
+      },
+      "framed": {
+        "risers": 10,
+        "slot_patterns": 1,
+        "slots": 3,
+        "step_levels": 6,
+        "oriented_slot_patterns": 1,
+        "oriented_slots": 3
       }
     },
     "captured/146a28a97bb93e4d.step.gz": {
@@ -3372,6 +3380,12 @@
       "physical": {
         "oriented_slots": 2,
         "section_passages": 2
+      },
+      "framed": {
+        "risers": 12,
+        "slots": 2,
+        "step_levels": 4,
+        "oriented_slots": 2
       }
     },
     "captured/3f8e80f01da2ab70.step.gz": {
@@ -6885,6 +6899,14 @@
         "oriented_slot_patterns": 1,
         "oriented_slots": 3,
         "section_passages": 3
+      },
+      "framed": {
+        "risers": 10,
+        "slot_patterns": 1,
+        "slots": 3,
+        "step_levels": 6,
+        "oriented_slot_patterns": 1,
+        "oriented_slots": 3
       }
     },
     "captured/780c19f1ed88aa8f.step.gz": {
@@ -7508,6 +7530,12 @@
       "physical": {
         "oriented_slots": 2,
         "section_passages": 2
+      },
+      "framed": {
+        "risers": 12,
+        "slots": 2,
+        "step_levels": 4,
+        "oriented_slots": 2
       }
     },
     "captured/83bd0bbbd4ce54f1.step.gz": {
@@ -7551,6 +7579,14 @@
         "freeform_surfaces": 10,
         "holes": 3,
         "thin_wall_bodies": 1
+      },
+      "framed": {
+        "blends": 6,
+        "fillets": 1,
+        "freeform_surfaces": 10,
+        "holes": 3,
+        "step_levels": 2,
+        "thin_wall_bodies": 1
       }
     },
     "captured/849693aa7104ff51.step.gz": {
@@ -7562,6 +7598,14 @@
         "oriented_slot_patterns": 1,
         "oriented_slots": 3,
         "section_passages": 3
+      },
+      "framed": {
+        "risers": 10,
+        "slot_patterns": 1,
+        "slots": 3,
+        "step_levels": 4,
+        "oriented_slot_patterns": 1,
+        "oriented_slots": 3
       }
     },
     "captured/84b933d1227312c8.step.gz": {
@@ -8155,6 +8199,14 @@
         "oriented_slot_patterns": 1,
         "oriented_slots": 3,
         "section_passages": 3
+      },
+      "framed": {
+        "risers": 10,
+        "slot_patterns": 1,
+        "slots": 3,
+        "step_levels": 6,
+        "oriented_slot_patterns": 1,
+        "oriented_slots": 3
       }
     },
     "captured/9257fa1457e47eed.step.gz": {
@@ -13044,6 +13096,12 @@
       "physical": {
         "oriented_slots": 2,
         "section_passages": 2
+      },
+      "framed": {
+        "risers": 12,
+        "slots": 2,
+        "step_levels": 4,
+        "oriented_slots": 2
       }
     },
     "captured/eb58612bd41bd45f.step.gz": {
@@ -13100,6 +13158,12 @@
       "physical": {
         "oriented_slots": 2,
         "section_passages": 2
+      },
+      "framed": {
+        "risers": 12,
+        "slots": 2,
+        "step_levels": 4,
+        "oriented_slots": 2
       }
     },
     "captured/ec6a4f849ca053ee.step.gz": {
@@ -14619,7 +14683,8 @@
         "holes": 19,
         "risers": 3,
         "step_levels": 1,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "interior_voids": 1
       }
     },
     "corpus/cadgenbench_inputs/cgb241.step": {
@@ -17674,6 +17739,14 @@
         "oriented_slot_patterns": 1,
         "oriented_slots": 3,
         "section_passages": 3
+      },
+      "framed": {
+        "risers": 10,
+        "slot_patterns": 1,
+        "slots": 3,
+        "step_levels": 6,
+        "oriented_slot_patterns": 1,
+        "oriented_slots": 3
       }
     },
     "golden/golden_paired_ramp_step.step": {
@@ -17896,6 +17969,26 @@
         "step_levels": 2,
         "turned_steps": 3
       }
+    },
+    "captured/passages/7802ff06fec22161.step.gz": {
+      "framed": {
+        "risers": 10,
+        "slot_patterns": 1,
+        "slots": 3,
+        "step_levels": 6,
+        "oriented_slot_patterns": 1,
+        "oriented_slots": 3
+      }
+    },
+    "captured/sections/parts/6d574d007a42a547.step.gz": {
+      "framed": {
+        "risers": 10,
+        "slot_patterns": 1,
+        "slots": 3,
+        "step_levels": 6,
+        "oriented_slot_patterns": 1,
+        "oriented_slots": 3
+      }
     }
   },
   "losses": [
@@ -18082,30 +18175,6 @@
       "max_lost": 3,
       "reason": "For #81, specific fillets replace some generic blend chains in the file-axis frame. For #89, removing inward-facing fillets restores three accepted concave blends (59 -> 62), tightening the old six-blend allowance to three.",
       "evidence": "The remaining #81 family substitutions retain their defining cylindrical surfaces. The #89 raw fillet exclusions all have frame_points_outward=Some(false); reconciliation now retains three additional concave blend claims on the inward-facing cylinders. The framed baseline remains 65 and the actual count is 62; no physical blend is lost by #89."
-    },
-    {
-      "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
-      "mode": "framed",
-      "family": "risers",
-      "max_lost": 1,
-      "reason": "The old riser is a horizontal-level face in the newly winning basis. (for #81)",
-      "evidence": "Face 123 file normal (-0.792377626872759,-0.610030897931814,0) becomes local (0,-0.128938608561327,-0.991652577883136); it is now in step_levels. This is a frame-dependent family change, not a lost face."
-    },
-    {
-      "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
-      "mode": "framed",
-      "family": "blends",
-      "max_lost": 8,
-      "reason": "Eight convex cylindrical blend faces are now specific fillets. (for #81)",
-      "evidence": "The eight old blend faces 210,205,177,182,238,233,261,266 have cylinder axes at file +/-45 degrees. They become principal in the winning 98-distinct-surface basis (154 faces) and are claimed by fillets; reconcile::BlendSupersededByFillet removes the duplicate chains."
-    },
-    {
-      "file": "corpus/cadgenbench_inputs/cgb241.step",
-      "mode": "framed",
-      "family": "blends",
-      "max_lost": 1,
-      "reason": "Only outward-facing face 47 remains a specific fillet instead of a generic blend in the #81 direction set. For #89, inward-facing face 27 is restored as a concave blend (4 -> 5), tightening the old two-blend allowance to one.",
-      "evidence": "frame_points_outward(27)=Some(false) proves its R20 cylinder is concave; frame_points_outward(47)=Some(true) proves the retained R23 fillet is convex. Face 27 is an accepted concave Blend in both inferred and caller frames. The only remaining family substitution is face 47; the framed blend baseline stays 6 and the actual count is 5."
     },
     {
       "file": "fixture/nist_ctc_02_asme1_ap242-e2.stp.gz",
@@ -18330,14 +18399,6 @@
       "max_lost": 17,
       "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 296 -> 279. No outward-facing fillet is lost. (for #89)",
       "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [29, 31, 46, 571, 657, 662, 806, 876, 890, 984, 998, 1069, 1087, 1092, 1104, 1225, 1346]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
-    },
-    {
-      "file": "corpus/cadgenbench_inputs/cgb241.step",
-      "mode": "framed",
-      "family": "fillets",
-      "max_lost": 1,
-      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 2 -> 1. No outward-facing fillet is lost. (for #89)",
-      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [27]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
     },
     {
       "file": "corpus/mfcadpp/1000.step",
@@ -18714,6 +18775,374 @@
       "max_lost": 1,
       "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 1 -> 0. No outward-facing fillet is lost. (for #89)",
       "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
+    },
+    {
+      "file": "captured/13ef6f0530156a2a.step.gz",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 4,
+      "reason": "#91 removes exterior stock walls from the rotated-frame riser family. (for #91)",
+      "evidence": "Exterior walls [0,1,3,5] at file X=+/-60,Y=+/-45 (scaled in copies) drop; all six slot side walls [6,9,10,13,14,16] remain (10 -> 6). Native exterior planes bound their owning plate; the old slot basis made them apparent sloping risers. They are stock walls, not internal steps. The slot end walls remain in oriented-slot claims."
+    },
+    {
+      "file": "captured/13ef6f0530156a2a.step.gz",
+      "mode": "framed",
+      "family": "slot_patterns",
+      "max_lost": 1,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/13ef6f0530156a2a.step.gz",
+      "mode": "framed",
+      "family": "slots",
+      "max_lost": 3,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/13ef6f0530156a2a.step.gz",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 6,
+      "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+    },
+    {
+      "file": "captured/3f89fd15d4993366.step.gz",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 8,
+      "reason": "#91 removes exterior stock walls from the rotated-frame riser family. (for #91)",
+      "evidence": "Exterior walls [0,1,3,5,10,11,13,15] drop; slot side walls [6,8,16,18] remain (12 -> 4). Native exterior planes bound their owning plate; the old slot basis made them apparent sloping risers. They are stock walls, not internal steps. The slot end walls remain in oriented-slot claims."
+    },
+    {
+      "file": "captured/3f89fd15d4993366.step.gz",
+      "mode": "framed",
+      "family": "slots",
+      "max_lost": 2,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "Two 17-degree slots on [6,7,8,9] and [16,17,18,19] remain as oriented_slots=2. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/3f89fd15d4993366.step.gz",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 4,
+      "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
+      "evidence": "End walls [7,9,17,19] now belong to the two oriented-slot claims. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+    },
+    {
+      "file": "captured/7802ff06fec22161.step.gz",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 4,
+      "reason": "#91 removes exterior stock walls from the rotated-frame riser family. (for #91)",
+      "evidence": "Exterior walls [0,1,3,5] at file X=+/-60,Y=+/-45 (scaled in copies) drop; all six slot side walls [6,9,10,13,14,16] remain (10 -> 6). Native exterior planes bound their owning plate; the old slot basis made them apparent sloping risers. They are stock walls, not internal steps. The slot end walls remain in oriented-slot claims."
+    },
+    {
+      "file": "captured/7802ff06fec22161.step.gz",
+      "mode": "framed",
+      "family": "slot_patterns",
+      "max_lost": 1,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/7802ff06fec22161.step.gz",
+      "mode": "framed",
+      "family": "slots",
+      "max_lost": 3,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/7802ff06fec22161.step.gz",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 6,
+      "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+    },
+    {
+      "file": "captured/83ba2c37c00b754f.step.gz",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 8,
+      "reason": "#91 removes exterior stock walls from the rotated-frame riser family. (for #91)",
+      "evidence": "Exterior walls [0,1,3,5,10,11,13,15] drop; slot side walls [6,8,16,18] remain (12 -> 4). Native exterior planes bound their owning plate; the old slot basis made them apparent sloping risers. They are stock walls, not internal steps. The slot end walls remain in oriented-slot claims."
+    },
+    {
+      "file": "captured/83ba2c37c00b754f.step.gz",
+      "mode": "framed",
+      "family": "slots",
+      "max_lost": 2,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "Two 17-degree slots on [6,7,8,9] and [16,17,18,19] remain as oriented_slots=2. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/83ba2c37c00b754f.step.gz",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 4,
+      "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
+      "evidence": "End walls [7,9,17,19] now belong to the two oriented-slot claims. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+    },
+    {
+      "file": "captured/8443bc2e5a9d6ca9.step.gz",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 1,
+      "reason": "#89 removed concave face 27; #91 restores outward face 47 to its exact cylindrical blend instead of the rotated corner-probe fillet. (for #91)",
+      "evidence": "Native frame_points_outward(27)=false at R20 and (47)=true at R23. Both faces are accepted blends with correct radii and material sides. Face 47 joins support planes 46/48 with normal dot=-0.03589128343024717, not an orthogonal corner. The captured one-fillet high-water count is retained; current fillets=0, blends=6. changed_query_axes_retain_physical_rounds_and_bores pins these facts."
+    },
+    {
+      "file": "captured/8443bc2e5a9d6ca9.step.gz",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 2,
+      "reason": "Oblique walls 26/46 cease being near-horizontal levels in the #91 file frame. (for #91)",
+      "evidence": "Their native normals are (-0.9036892863259753,0.42818882958298826,0); their dot with old Z=(-0.8877387929690156,0.46034751596800805,0) exceeds 0.999, but with new Z=-file Y it is only 0.428. The planes and adjacent R20/R23 blends remain. No file-frame step floor was removed."
+    },
+    {
+      "file": "captured/849693aa7104ff51.step.gz",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 4,
+      "reason": "#91 removes exterior stock walls from the rotated-frame riser family. (for #91)",
+      "evidence": "Exterior walls [0,1,3,5] at file X=+/-60,Y=+/-45 (scaled in copies) drop; all six slot side walls [6,9,10,13,14,16] remain (10 -> 6). Native exterior planes bound their owning plate; the old slot basis made them apparent sloping risers. They are stock walls, not internal steps. The slot end walls remain in oriented-slot claims."
+    },
+    {
+      "file": "captured/849693aa7104ff51.step.gz",
+      "mode": "framed",
+      "family": "slot_patterns",
+      "max_lost": 1,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/849693aa7104ff51.step.gz",
+      "mode": "framed",
+      "family": "slots",
+      "max_lost": 3,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/849693aa7104ff51.step.gz",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 4,
+      "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+    },
+    {
+      "file": "captured/9206ca6ded11c438.step.gz",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 4,
+      "reason": "#91 removes exterior stock walls from the rotated-frame riser family. (for #91)",
+      "evidence": "Exterior walls [0,1,3,5] at file X=+/-60,Y=+/-45 (scaled in copies) drop; all six slot side walls [6,9,10,13,14,16] remain (10 -> 6). Native exterior planes bound their owning plate; the old slot basis made them apparent sloping risers. They are stock walls, not internal steps. The slot end walls remain in oriented-slot claims."
+    },
+    {
+      "file": "captured/9206ca6ded11c438.step.gz",
+      "mode": "framed",
+      "family": "slot_patterns",
+      "max_lost": 1,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/9206ca6ded11c438.step.gz",
+      "mode": "framed",
+      "family": "slots",
+      "max_lost": 3,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/9206ca6ded11c438.step.gz",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 6,
+      "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+    },
+    {
+      "file": "captured/eaea9b3e567d92b4.step.gz",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 8,
+      "reason": "#91 removes exterior stock walls from the rotated-frame riser family. (for #91)",
+      "evidence": "Exterior walls [0,1,3,5,10,11,13,15] drop; slot side walls [6,8,16,18] remain (12 -> 4). Native exterior planes bound their owning plate; the old slot basis made them apparent sloping risers. They are stock walls, not internal steps. The slot end walls remain in oriented-slot claims."
+    },
+    {
+      "file": "captured/eaea9b3e567d92b4.step.gz",
+      "mode": "framed",
+      "family": "slots",
+      "max_lost": 2,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "Two 17-degree slots on [6,7,8,9] and [16,17,18,19] remain as oriented_slots=2. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/eaea9b3e567d92b4.step.gz",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 4,
+      "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
+      "evidence": "End walls [7,9,17,19] now belong to the two oriented-slot claims. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+    },
+    {
+      "file": "captured/ec6a3e238160bbb9.step.gz",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 8,
+      "reason": "#91 removes exterior stock walls from the rotated-frame riser family. (for #91)",
+      "evidence": "Exterior walls [0,1,3,5,10,11,13,15] drop; slot side walls [6,8,16,18] remain (12 -> 4). Native exterior planes bound their owning plate; the old slot basis made them apparent sloping risers. They are stock walls, not internal steps. The slot end walls remain in oriented-slot claims."
+    },
+    {
+      "file": "captured/ec6a3e238160bbb9.step.gz",
+      "mode": "framed",
+      "family": "slots",
+      "max_lost": 2,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "Two 17-degree slots on [6,7,8,9] and [16,17,18,19] remain as oriented_slots=2. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/ec6a3e238160bbb9.step.gz",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 4,
+      "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
+      "evidence": "End walls [7,9,17,19] now belong to the two oriented-slot claims. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+    },
+    {
+      "file": "captured/passages/7802ff06fec22161.step.gz",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 4,
+      "reason": "#91 removes exterior stock walls from the rotated-frame riser family. (for #91)",
+      "evidence": "Exterior walls [0,1,3,5] at file X=+/-60,Y=+/-45 (scaled in copies) drop; all six slot side walls [6,9,10,13,14,16] remain (10 -> 6). Native exterior planes bound their owning plate; the old slot basis made them apparent sloping risers. They are stock walls, not internal steps. The slot end walls remain in oriented-slot claims."
+    },
+    {
+      "file": "captured/passages/7802ff06fec22161.step.gz",
+      "mode": "framed",
+      "family": "slot_patterns",
+      "max_lost": 1,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/passages/7802ff06fec22161.step.gz",
+      "mode": "framed",
+      "family": "slots",
+      "max_lost": 3,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/passages/7802ff06fec22161.step.gz",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 6,
+      "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+    },
+    {
+      "file": "captured/sections/parts/6d574d007a42a547.step.gz",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 4,
+      "reason": "#91 removes exterior stock walls from the rotated-frame riser family. (for #91)",
+      "evidence": "Exterior walls [0,1,3,5] at file X=+/-60,Y=+/-45 (scaled in copies) drop; all six slot side walls [6,9,10,13,14,16] remain (10 -> 6). Native exterior planes bound their owning plate; the old slot basis made them apparent sloping risers. They are stock walls, not internal steps. The slot end walls remain in oriented-slot claims."
+    },
+    {
+      "file": "captured/sections/parts/6d574d007a42a547.step.gz",
+      "mode": "framed",
+      "family": "slot_patterns",
+      "max_lost": 1,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/sections/parts/6d574d007a42a547.step.gz",
+      "mode": "framed",
+      "family": "slots",
+      "max_lost": 3,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "captured/sections/parts/6d574d007a42a547.step.gz",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 6,
+      "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+    },
+    {
+      "file": "golden/golden_oriented_slots.step",
+      "mode": "framed",
+      "family": "risers",
+      "max_lost": 4,
+      "reason": "#91 removes exterior stock walls from the rotated-frame riser family. (for #91)",
+      "evidence": "Exterior walls [0,1,3,5] at file X=+/-60,Y=+/-45 (scaled in copies) drop; all six slot side walls [6,9,10,13,14,16] remain (10 -> 6). Native exterior planes bound their owning plate; the old slot basis made them apparent sloping risers. They are stock walls, not internal steps. The slot end walls remain in oriented-slot claims."
+    },
+    {
+      "file": "golden/golden_oriented_slots.step",
+      "mode": "framed",
+      "family": "slot_patterns",
+      "max_lost": 1,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "golden/golden_oriented_slots.step",
+      "mode": "framed",
+      "family": "slots",
+      "max_lost": 3,
+      "reason": "#91 publishes angled slots and their pattern as oriented slots/patterns in file axes. (for #91)",
+      "evidence": "All three 24x6 slots remain as oriented_slots=3 and oriented_slot_patterns=1. Their claims include all four walls each, rather than only the former principal-slot side pairs. Native wall planes are unchanged; file_axis_slotted_plates_keep_all_walls_without_rotated_levels pins original and assembly anatomy."
+    },
+    {
+      "file": "golden/golden_oriented_slots.step",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 6,
+      "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 8,
+      "reason": "Eight file-axis R1 rounds are specific fillets in the #91 file frame; the total round coverage is unchanged. (for #91)",
+      "evidence": "Faces [191,196,219,224,247,252,296,301] are outward R1 cylinders with perpendicular tangent support planes; fillets replace their duplicate blends. The former +/-45-degree fillets [177,182,205,210,233,238,261,266] return to blends. changed_query_axes_retain_physical_rounds_and_bores pins both disjoint physical sets. The historical 37-blend floor remains; the accepted count is 29."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 1,
+      "reason": "Face 123 returns from a rotated level to an oblique riser in the #91 file frame. (for #91)",
+      "evidence": "Native plane normal (-0.792377626872759,-0.610030897931814,0) is not parallel to the new local Z = file Y. The same face is accepted in risers (2 -> 3); step levels 1 -> 0 is a query-family change, not a lost wall."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb241.step",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 2,
+      "reason": "#89 removed concave face 27; #91 restores outward face 47 to its exact cylindrical blend instead of the rotated corner-probe fillet. (for #91)",
+      "evidence": "Native frame_points_outward(27)=false at R20 and (47)=true at R23. Both faces are accepted blends with correct radii and material sides. Face 47 joins support planes 46/48 with normal dot=-0.03589128343024717, not an orthogonal corner. The two-fillets historical floor is retained; current fillets=0, blends=6. changed_query_axes_retain_physical_rounds_and_bores pins these facts."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb241.step",
+      "mode": "framed",
+      "family": "step_levels",
+      "max_lost": 2,
+      "reason": "Oblique walls 26/46 cease being near-horizontal levels in the #91 file frame. (for #91)",
+      "evidence": "Their native normals are (-0.9036892863259753,0.42818882958298826,0); their dot with old Z=(-0.8877387929690156,0.46034751596800805,0) exceeds 0.999, but with new Z=-file Y it is only 0.428. The planes and adjacent R20/R23 blends remain. No file-frame step floor was removed."
     }
   ]
 }

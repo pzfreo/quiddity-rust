@@ -354,7 +354,16 @@ fn framed_invariant_under_a_generic_rotation(k: usize, n: usize) {
     let mut read = common::parallel::map(&readings, |&(i, framed, at)| {
         let path = dir.join(&files[i]);
         if framed {
-            frames::prepare_framed_file(&path, at)
+            let at = if super::frames::prefers_file_axes(&files[i]) {
+                let at = super::frames::vote_only_pose(at);
+                super::frames::assert_no_file_axis_frame(
+                    &read_step_file_placed(&path, &at).unwrap(),
+                );
+                at
+            } else {
+                *at
+            };
+            frames::prepare_framed_file(&path, &at)
                 .map(|f| (Some(f.frame.gauge), signature(&f.part)))
                 .map_err(|e| e.to_string())
         } else {
@@ -1068,7 +1077,17 @@ fn golden_public_framed_route_survives_oblique_poses() {
     ];
     let paths = golden_paths();
     let results = common::parallel::map(&paths, |path| {
-        let read = |at: &Placement| read_step_file_placed(path, at);
+        // The #91 mixed-direction plate changes query at file-axis poses. Its
+        // transition is pinned in frames; here retain strict generic-pose checks.
+        let read = |at: &Placement| {
+            if path.file_name().unwrap() == "golden_oriented_slots.step" {
+                let part = read_step_file_placed(path, &super::frames::vote_only_pose(at))?;
+                super::frames::assert_no_file_axis_frame(&part);
+                Ok(part)
+            } else {
+                read_step_file_placed(path, at)
+            }
+        };
         let census = |at: &Placement| {
             let recognition = correspondence::recognise(&read(at).unwrap());
             assert!(matches!(

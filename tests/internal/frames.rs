@@ -38,6 +38,45 @@ fn motion(axis: [f64; 3], degrees: f64, translation: [f64; 3]) -> Placement {
     ]
 }
 
+/// #91's mixed-direction parts choose file axes as read. Test their vote-only
+/// equivariance between two generic poses, while separate tests pin file-axis transitions.
+pub(super) fn prefers_file_axes(file: &str) -> bool {
+    matches!(
+        file,
+        "cadgenbench_inputs/cgb217.step.gz"
+            | "cadgenbench_inputs/cgb241.step"
+            | "golden_oriented_slots.step"
+    )
+}
+
+pub(super) fn vote_only_pose(at: &Placement) -> Placement {
+    let anchor = motion([2., -3., 5.], 19., [0.; 3]);
+    [0, 1, 2].map(|i| {
+        [0, 1, 2, 3].map(|j| {
+            (0..3).map(|k| at[i][k] * anchor[k][j]).sum::<f64>()
+                + if j == 3 { at[i][3] } else { 0. }
+        })
+    })
+}
+
+pub(super) fn assert_no_file_axis_frame(part: &quiddity::Part) {
+    use quiddity::kernel::geom::Surface;
+    let axes = [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]];
+    let available = axes
+        .iter()
+        .filter(|axis| {
+            part.faces.iter().any(|face| {
+                let direction = match face.surface {
+                    Surface::Plane { frame } | Surface::Cylinder { frame, .. } => frame.z,
+                    _ => return false,
+                };
+                quiddity::kernel::geom::dot(**axis, direction).abs() >= 1. - 1e-10
+            })
+        })
+        .count();
+    assert!(available < 2, "generic pose gained file axes");
+}
+
 fn captured() -> Value {
     common::load("captured/frames.json")
 }
@@ -176,7 +215,22 @@ fn rust_snapshot_frames_and_equivariance() {
             &Value::Object(snapshot),
             &equal,
         );
-        let (fields, off, text) = equivariance(&generic, &frames[0].0, &frames[1].0, frames[0].1);
+        // The three #91 cases deliberately change query frame on leaving file axes.
+        // Keep strict generic-to-generic equivariance instead of allowing field differences.
+        let (fields, off, text) = if prefers_file_axes(file) {
+            let p0 = read_step_file_placed(&path, &vote_only_pose(&IDENTITY)).unwrap();
+            let p1 = read_step_file_placed(&path, &vote_only_pose(&generic)).unwrap();
+            assert_no_file_axis_frame(&p0);
+            assert_no_file_axis_frame(&p1);
+            equivariance(
+                &generic,
+                &infer_part_frame(&p0),
+                &infer_part_frame(&p1),
+                frames[0].1,
+            )
+        } else {
+            equivariance(&generic, &frames[0].0, &frames[1].0, frames[0].1)
+        };
         if !fields.is_empty() {
             out.push((file.to_string(), "equivariance", fields, off, text));
         }
@@ -392,13 +446,16 @@ fn axis_majorities_and_intrinsic_frames_survive_sixty_and_one_degree_motions() {
             "{path:?}: {frame:?}"
         );
         let mut original_faces = None;
-        for placement in [
+        for (pose, placement) in [
             IDENTITY,
             motion([0., 0., 1.], 60., [12.3, -45.6, 78.9]),
             motion([0., 0., 1.], 1., [12.3, -45.6, 78.9]),
             motion([1., 0., 0.], 60., [12.3, -45.6, 78.9]),
             motion([1., 0., 0.], 1., [12.3, -45.6, 78.9]),
-        ] {
+        ]
+        .into_iter()
+        .enumerate()
+        {
             let moved = part.transformed(&placement).unwrap();
             let recognised = correspondence::recognise(&moved);
             let RecordFrame::Inferred(actual) = recognised.frame else {
@@ -410,22 +467,62 @@ fn axis_majorities_and_intrinsic_frames_survive_sixty_and_one_degree_motions() {
                 &Ok(actual),
                 part.bounds().diagonal(),
             );
-            assert!(fields.is_empty(), "{path:?}: {why}");
+            let gains_file_axes = path.file_name().unwrap() == "nist_ftc_07_asme1_ap242-e2.stp.gz"
+                && matches!(pose, 2 | 4);
+            if gains_file_axes {
+                // #91: the real 1-degree minor directions now establish file axes.
+                // This changes the query; it is not a failure of generic equivariance.
+                let expected = if pose == 2 {
+                    vec!["y", "z"]
+                } else {
+                    vec!["x", "y", "z"]
+                };
+                assert_eq!(fields, expected, "{path:?}: {why}");
+                assert!(
+                    [actual.x, actual.y, actual.z]
+                        .iter()
+                        .all(|a| a.iter().any(|c| c.abs() > 1. - 1e-10))
+                );
+                let at = vote_only_pose(&placement);
+                let generic = part.transformed(&at).unwrap();
+                assert_no_file_axis_frame(&generic);
+                let generic_found = correspondence::recognise(&generic);
+                assert_eq!(generic_found.features.fillets.len(), fillets);
+                assert_eq!(generic_found.features.polygonal_bosses.len(), bosses);
+                assert_eq!(generic_found.features.plates.len(), plates);
+                let mut generic_faces = generic_found.features.defining["fillets"].clone();
+                generic_faces.sort();
+                assert_eq!(Some(&generic_faces), original_faces.as_ref());
+            } else {
+                assert!(fields.is_empty(), "{path:?}: {why}");
+            }
             assert_eq!(
                 recognised.features.fillets.len(),
-                fillets,
+                if gains_file_axes { 12 } else { fillets },
                 "{path:?}: {placement:?}"
             );
             assert_eq!(
                 recognised.features.polygonal_bosses.len(),
-                bosses,
+                if gains_file_axes { 0 } else { bosses },
                 "{path:?}"
             );
             assert_eq!(recognised.features.plates.len(), plates, "{path:?}");
             let mut faces = recognised.features.defining["fillets"].clone();
             faces.sort();
             if let Some(original) = &original_faces {
-                assert_eq!(&faces, original, "{path:?}");
+                let mut expected = original.clone();
+                if gains_file_axes {
+                    let missing = if pose == 2 {
+                        [224, 161, 170, 158]
+                    } else {
+                        [160, 161, 191, 158]
+                    };
+                    for face in missing {
+                        assert!(expected.contains(&vec![face]));
+                        expected.retain(|f| *f != vec![face]);
+                    }
+                }
+                assert_eq!(faces, expected, "{path:?}");
             } else {
                 original_faces = Some(faces);
             }
@@ -492,6 +589,7 @@ fn majority_frame_recovers_specify_fillets_and_parallel_support_chamfer() {
             );
         }
         if file == "cadgenbench_inputs/cgb202.step.gz" {
+            assert_eq!(recognised.features.blends.len(), 62);
             // #89: the old 296 included 17 concave cylinders, including 13 of the
             // #81 "recovered" faces. Pin their actual material side instead of a false
             // convex label; the eleven genuinely convex recovered faces stay above.
@@ -524,21 +622,7 @@ fn genuinely_rotated_corpus_direction_sets_keep_their_winning_frames() {
             "cadgenbench_inputs/cgb203.step",
             [0.18196311701898504, 0.9833053564609191, 0.],
         ),
-        (
-            "cadgenbench_inputs/cgb217.step.gz",
-            [
-                std::f64::consts::FRAC_1_SQRT_2,
-                -std::f64::consts::FRAC_1_SQRT_2,
-                0.,
-            ],
-        ),
-        // Distinct-surface maxima over every candidate basis: cgb203 5 > file 4,
-        // cgb217 98 > file 96, cgb241 20 > file 18, connector 19 > file 17.
-        // Area does not cast votes: cgb241's larger file-axis walls do not change this rule.
-        (
-            "cadgenbench_inputs/cgb241.step",
-            [0.46034751596800805, 0.8877387929690156, 0.],
-        ),
+        // Neither part has two file-axis classes; the #81 vote is unchanged.
         (
             "cadgenbench/threaded_connector_109.step",
             [-0.45979133716192094, -0.8880269851028474, 0.],
@@ -659,5 +743,183 @@ fn split_channel_surfaces_do_not_outvote_file_axes() {
             recognised.features.defining[family].contains(&faces),
             "{family}: {faces:?}"
         );
+    }
+}
+
+/// #91: the file-axis candidate wins even when the distinct-surface vote is larger
+/// on the angled features. Signs/order remain the existing material representatives.
+#[test]
+fn available_file_axes_override_the_surface_vote() {
+    let mut cases = vec![(
+        common::fixtures().join("golden_oriented_slots.step"),
+        [[0., 0., 1.], [0., 1., 0.], [-1., 0., 0.]],
+    )];
+    if let Some(dir) = common::corpus_dir() {
+        cases.extend([
+            (
+                dir.join("cadgenbench_inputs/cgb217.step.gz"),
+                [[0., 0., 1.], [1., 0., 0.], [0., 1., 0.]],
+            ),
+            (
+                dir.join("cadgenbench_inputs/cgb241.step"),
+                [[0., 0., 1.], [-1., 0., 0.], [0., -1., 0.]],
+            ),
+        ]);
+    }
+    for (path, expected) in cases {
+        let part = quiddity::read_step_file(&path).unwrap();
+        let frame = infer_part_frame(&part).unwrap();
+        assert_eq!([frame.x, frame.y, frame.z], expected, "{path:?}");
+        let generic = motion([1., 2., 3.], 37., [12.3, -45.6, 78.9]);
+        let first = part.transformed(&vote_only_pose(&IDENTITY)).unwrap();
+        let second = part.transformed(&vote_only_pose(&generic)).unwrap();
+        assert_no_file_axis_frame(&first);
+        assert_no_file_axis_frame(&second);
+        let (fields, _, why) = equivariance(
+            &generic,
+            &infer_part_frame(&first),
+            &infer_part_frame(&second),
+            part.bounds().diagonal(),
+        );
+        assert!(fields.is_empty(), "{path:?}: {why}");
+    }
+}
+
+/// ADR 0011: bringing angled slots onto file axes changes their published family;
+/// leaving both candidate bases oblique restores the unchanged surface-vote winner.
+#[test]
+fn oriented_slots_publish_in_file_axes_and_change_family_when_slots_align() {
+    use quiddity::{correspondence, recognition};
+    let part =
+        quiddity::read_step_file(&common::fixtures().join("golden_oriented_slots.step")).unwrap();
+    let found = correspondence::recognise(&part);
+    assert_eq!(found.features.oriented_slots.len(), 3);
+    assert_eq!(found.features.oriented_slot_patterns.len(), 1);
+    assert!(found.features.slots.is_empty());
+    let document = recognition::document(&found, part.faces.len());
+    let slots: Vec<_> = document
+        .records
+        .iter()
+        .filter(|r| r.family == "oriented_slots")
+        .collect();
+    assert_eq!(slots.len(), 3);
+    assert!(slots.iter().all(|r| r.local.is_empty()));
+    let oblique = part
+        .transformed(&motion([0., 0., 1.], 13., [0.; 3]))
+        .unwrap();
+    assert_no_file_axis_frame(&oblique);
+    let old_frame = infer_part_frame(&oblique).unwrap();
+    let old = correspondence::recognise(&oblique);
+    assert_eq!(old.features.slots.len(), 3);
+    let back = motion([0., 0., 1.], -13., [0.; 3]);
+    let returned = oblique.transformed(&back).unwrap();
+    let returned_frame = infer_part_frame(&returned).unwrap();
+    assert_eq!(
+        [returned_frame.x, returned_frame.y, returned_frame.z],
+        [[0., 0., 1.], [0., 1., 0.], [-1., 0., 0.]]
+    );
+    assert!(largest_difference(apply(&back, old_frame.y, false), returned_frame.y) > 0.1);
+    let returned = correspondence::recognise(&returned);
+    assert_eq!(returned.features.oriented_slots.len(), 3);
+    assert!(returned.features.slots.is_empty());
+    let aligned = part
+        .transformed(&motion([0., 0., 1.], -30., [0.; 3]))
+        .unwrap();
+    let found = correspondence::recognise(&aligned);
+    let frame = infer_part_frame(&aligned).unwrap();
+    assert!(
+        [frame.x, frame.y, frame.z]
+            .iter()
+            .all(|a| a.iter().any(|c| c.abs() == 1.))
+    );
+    assert_eq!(found.features.slots.len(), 3);
+    assert_eq!(found.features.slot_patterns.len(), 1);
+    assert!(found.features.oriented_slots.is_empty());
+    let document = recognition::document(&found, aligned.faces.len());
+    assert!(
+        document
+            .records
+            .iter()
+            .filter(|r| r.family == "slots")
+            .all(|r| r.local.is_empty())
+    );
+}
+
+/// Native anatomy explains the #91 count falls: slot end walls are vertical through
+/// the plate, and the removed risers are exterior stock walls. No slot wall disappears.
+#[test]
+fn file_axis_slotted_plates_keep_all_walls_without_rotated_levels() {
+    use quiddity::{
+        correspondence,
+        kernel::geom::{self, Surface},
+    };
+    for (file, groups, side_faces) in [
+        (
+            "golden_oriented_slots.step",
+            vec![vec![6, 7, 8, 9], vec![10, 11, 12, 13], vec![14, 15, 16, 17]],
+            vec![6, 9, 10, 13, 14, 16],
+        ),
+        (
+            "captured/3f89fd15d4993366.step.gz",
+            vec![vec![6, 7, 8, 9], vec![16, 17, 18, 19]],
+            vec![6, 8, 16, 18],
+        ),
+        (
+            "captured/83ba2c37c00b754f.step.gz",
+            vec![vec![6, 7, 8, 9], vec![16, 17, 18, 19]],
+            vec![6, 8, 16, 18],
+        ),
+        (
+            "captured/eaea9b3e567d92b4.step.gz",
+            vec![vec![6, 7, 8, 9], vec![16, 17, 18, 19]],
+            vec![6, 8, 16, 18],
+        ),
+        (
+            "captured/ec6a3e238160bbb9.step.gz",
+            vec![vec![6, 7, 8, 9], vec![16, 17, 18, 19]],
+            vec![6, 8, 16, 18],
+        ),
+    ] {
+        let part = quiddity::read_step_file(&common::fixtures().join(file)).unwrap();
+        let found = correspondence::recognise(&part);
+        assert!(found.features.step_levels.is_empty(), "{file}");
+        assert!(found.features.slots.is_empty(), "{file}");
+        let mut actual = found.features.defining["oriented_slots"].clone();
+        actual.sort();
+        assert_eq!(actual, groups, "{file}");
+        let mut risers: Vec<_> = found.features.defining["risers"]
+            .iter()
+            .flatten()
+            .copied()
+            .collect();
+        risers.sort();
+        assert_eq!(risers, side_faces, "{file}");
+        let frame = infer_part_frame(&part).unwrap();
+        assert_eq!(
+            [frame.x, frame.y, frame.z],
+            [[0., 0., 1.], [0., 1., 0.], [-1., 0., 0.]],
+            "{file}"
+        );
+        for face in groups.iter().flatten() {
+            let Surface::Plane { frame: wall } = part.faces[*face].surface else {
+                panic!("{face}")
+            };
+            // Every slot wall runs through file Z, rather than being a horizontal floor.
+            assert_eq!(wall.z[2], 0.);
+            assert!(geom::dot(wall.z, frame.z).abs() < 0.999);
+            let bounds = part.face_bounds(*face);
+            assert!((bounds.max[2] - bounds.min[2] - 10.).abs() < 1e-6);
+        }
+        // Four stock walls per plate are axis-aligned exterior supports; the old
+        // slot-based frame called these risers. They are not internal machining steps.
+        for base in (0..part.faces.len()).step_by(if groups.len() == 3 { 18 } else { 10 }) {
+            for face in [base, base + 1, base + 3, base + 5] {
+                let Surface::Plane { frame: wall } = part.faces[face].surface else {
+                    panic!("{face}")
+                };
+                assert!(wall.z[0].abs() == 1. || wall.z[1].abs() == 1.);
+                assert!(!risers.contains(&face));
+            }
+        }
     }
 }

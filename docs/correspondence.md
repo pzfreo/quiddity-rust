@@ -159,8 +159,9 @@ choose their representative. This retains the aligned rc/rd axis order. Counts k
 frame's roll; tight direction matching keeps real 1° features distinct, independent of STEP
 face order. Under ADR 0011 this is a file-axis preference: a rigid copy keeps the moved
 frame unless the moved part's file axes are available. Gaining a file-axis frame can therefore
-change the query frame and directional feature families; generic rotations without a
-file-axis frame keep the distinct-surface winner. Parts with only one established material line retain the axial gauge, including its
+change the query frame and directional feature families. Leaving a file-axis pose returns
+selection to the distinct-surface vote. Between generic poses without a file-axis frame,
+the vote winner moves rigidly with the part. Parts with only one established material line retain the axial gauge, including its
 unobservable roll; this rule does not invent a second material direction.
 
 The CLI, service and recognition document use this same route. `recognise_placed` is removed.

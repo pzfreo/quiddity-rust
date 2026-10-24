@@ -283,6 +283,8 @@ fn material_origin(part: &Part) -> Result<V3, FrameRefusal> {
 /// exact class signatures; face offsets orient them.
 /// ADR 0011: this is a file-axis preference. A rigid copy keeps the moved frame unless
 /// the moved part's file axes are available; gaining those axes can change the query frame.
+/// Leaving a file-axis pose returns to the distinct-surface vote. Between generic poses
+/// without file axes, that vote's frame moves rigidly with the part.
 /// An axial part retains its explicit roll gauge; no unsupported second material axis is added.
 pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
     let origin = material_origin(part)?;

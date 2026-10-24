@@ -723,12 +723,32 @@ fn moves_with_the_part(k: usize, n: usize) {
             continue;
         };
         for ((motion, placement), moved) in motions.iter().zip(moved) {
-            let d = under_motion(
-                &unmoved,
-                &moved.unwrap(),
-                &Rigid::from_placement(placement),
-                &mut grid,
-            );
+            // #91 deliberately changes the query on leaving the file-axis pose.
+            // For these two parts keep strict generic-to-generic document checks;
+            // principal motions still compare the original file-axis documents.
+            let d = if *motion == GENERIC && super::frames::prefers_file_axes(name) {
+                let path = dir.join(name);
+                let base = super::frames::vote_only_pose(&IDENTITY);
+                let at = super::frames::vote_only_pose(placement);
+                for pose in [base, at] {
+                    super::frames::assert_no_file_axis_frame(
+                        &read_step_file_placed(&path, &pose).unwrap(),
+                    );
+                }
+                under_motion(
+                    &default(&path, &base),
+                    &default(&path, &at),
+                    &Rigid::from_placement(placement),
+                    &mut grid,
+                )
+            } else {
+                under_motion(
+                    &unmoved,
+                    &moved.unwrap(),
+                    &Rigid::from_placement(placement),
+                    &mut grid,
+                )
+            };
             found.push((name.clone(), motion.to_string(), d));
         }
     }
@@ -1367,9 +1387,20 @@ fn changed_query_axes_retain_physical_rounds_and_bores() {
     let part = quiddity::read_step_file(&dir.join("cadgenbench_inputs/cgb217.step.gz")).unwrap();
     let framed = correspondence::recognise(&part);
     let caller = correspondence::caller_space_recognise(&part);
+    // The old #81 basis is now an explicit query, not the automatic frame.
+    let q = std::f64::consts::FRAC_1_SQRT_2;
+    let origin = frames::infer_part_frame(&part).unwrap().origin;
+    let working = part
+        .transformed(&[
+            [0., 0., 1., -origin[2]],
+            [q, -q, 0., -q * (origin[0] - origin[1])],
+            [q, q, 0., -q * (origin[0] + origin[1])],
+        ])
+        .unwrap();
+    let voted = correspondence::caller_space_recognise(&working);
     for (specific, general, faces) in [
-        (&framed, &caller, [177, 182, 205, 210, 233, 238, 261, 266]),
-        (&caller, &framed, [191, 196, 219, 224, 247, 252, 296, 301]),
+        (&voted, &framed, [177, 182, 205, 210, 233, 238, 261, 266]),
+        (&framed, &voted, [191, 196, 219, 224, 247, 252, 296, 301]),
     ] {
         for face in faces {
             let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
@@ -1414,11 +1445,34 @@ fn changed_query_axes_retain_physical_rounds_and_bores() {
                 panic!("{face}")
             };
             assert!(
-                geom::dot(geom::unit(path.direction).unwrap(), frame.z).abs() > 1. - 1e-9,
+                geom::dot(
+                    geom::unit(path.direction).unwrap(),
+                    if std::ptr::eq(general, &voted) {
+                        [
+                            frame.z[2],
+                            q * (frame.z[0] - frame.z[1]),
+                            q * (frame.z[0] + frame.z[1]),
+                        ]
+                    } else {
+                        frame.z
+                    }
+                )
+                .abs()
+                    > 1. - 1e-9,
                 "{face}"
             );
         }
     }
+    assert!(framed.features.step_levels.is_empty());
+    assert_eq!(framed.features.risers.len(), 3);
+    assert!(framed.features.defining["risers"].contains(&vec![123]));
+    let Surface::Plane { frame: wall } = part.faces[123].surface else {
+        panic!("123")
+    };
+    let RecordFrame::Inferred(query) = framed.frame else {
+        panic!("frame")
+    };
+    assert!(geom::dot(wall.z, query.z).abs() < 0.999);
     let mut bores = Vec::new();
     for (face, radius) in [(26, 4.25), (28, 4.25), (41, 5.1)] {
         let Surface::Cylinder {
@@ -1448,8 +1502,15 @@ fn changed_query_axes_retain_physical_rounds_and_bores() {
     // Neither cross-bore junction establishes 1.5x widening relative to the continuous
     // R5.1 exit. The old caller grid accepted an incomplete two-wall sampled component.
     assert!((4.25_f64.powi(2) + 5.1_f64.powi(2)).sqrt() < 1.5 * 5.1);
-    assert!(framed.features.interior_voids.is_empty());
-    let document = recognition::document(&framed, part.faces.len());
+    // File axes restore the old coarse-grid chamber claim. The analytic bound above
+    // still disproves it: pin this existing sampler limitation rather than calling it a gain.
+    assert_eq!(framed.features.interior_voids.len(), 1);
+    assert_eq!(
+        framed.features.defining["interior_voids"],
+        vec![vec![26, 41]]
+    );
+    assert!(voted.features.interior_voids.is_empty());
+    let document = recognition::document(&voted, part.faces.len());
     assert!(
         document
             .records
@@ -1474,17 +1535,13 @@ fn changed_query_axes_retain_physical_rounds_and_bores() {
             .position(|f| *f == vec![face])
             .unwrap();
         assert_eq!(caller.features.blends[index].side, side);
-        // Permit a future correction of the approximate fillet label; require the curve
-        // itself to remain represented with the right radius in either accepted family.
-        let found = framed.features.defining["fillets"]
+        let index = framed.features.defining["blends"]
             .iter()
-            .zip(&framed.features.fillets)
-            .any(|(f, r)| *f == vec![face] && r.radius == radius)
-            || framed.features.defining["blends"]
-                .iter()
-                .zip(&framed.features.blends)
-                .any(|(f, r)| *f == vec![face] && r.radius == radius);
-        assert!(found, "lost physical cylindrical blend {face}");
+            .position(|f| *f == vec![face])
+            .unwrap();
+        assert_eq!(framed.features.blends[index].radius, radius);
+        assert_eq!(framed.features.blends[index].side, side);
+        assert!(!framed.features.defining["fillets"].contains(&vec![face]));
     }
     let normal = |f: usize| {
         let Surface::Plane { frame } = part.faces[f].surface else {
@@ -1493,6 +1550,21 @@ fn changed_query_axes_retain_physical_rounds_and_bores() {
         frame.z
     };
     assert!((geom::dot(normal(26), normal(28)) + 0.03589128343024717).abs() < 1e-12);
+    // R23 face 47 joins oblique supports, not an exact orthogonal corner. The
+    // rotated coordinate-corner probe's specific fillet label was a query artefact.
+    assert!(part.neighbours(47).contains(&46) && part.neighbours(47).contains(&48));
+    assert!((geom::dot(normal(46), normal(48)) + 0.03589128343024717).abs() < 1e-12);
+    assert!(framed.features.fillets.is_empty());
+    assert_eq!(framed.features.blends.len(), 6);
+    assert!(framed.features.step_levels.is_empty());
+    let RecordFrame::Inferred(frame) = framed.frame else {
+        panic!("frame")
+    };
+    for face in [26, 46] {
+        // These are oblique body walls; only the former 27.4-degree query made
+        // them near-horizontal levels. Their physical planes remain in the part.
+        assert!(geom::dot(normal(face), frame.z).abs() < 0.999);
+    }
 }
 
 /// For #82: alpha.8 chose one of two overlapping, equal-support 49.5 mm rows by
