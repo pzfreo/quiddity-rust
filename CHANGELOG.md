@@ -6,6 +6,17 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.2.0-alpha.2 (2026-10-24)
+
+Upgrading from 0.2.0-alpha.1:
+
+- **`oriented_slots`, `oriented_chamfers` and `oriented_slot_patterns` are gone** from the
+  published document: their records are in `slots`, `chamfers` and `slot_patterns`, whatever
+  the recognition frame. Feature IDs of formerly oriented records change; the schema stays
+  `quiddity-rust/recognition/6` and fingerprints `/3`. See [docs/recognition-6.md](docs/recognition-6.md).
+- **API.** The typed `Deref` view of `PublishedFeatures` is removed: use `families()` or
+  serialisation.
+
 - **Slot precision in turned frames (for #92).** Converted slots retain measured
   extents instead of rounding distances to 0.01 mm. Slot patterns use raw member
   centres for pitches and directions, with coordinate-floor axis snapping and
