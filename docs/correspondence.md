@@ -145,8 +145,10 @@ coordinate floor. Splitting a supporting surface into more B-rep faces cannot ad
 Candidates come from perpendicular material direction pairs, with the existing perpendicular
 tolerance of 0.001 in cosine. The pair's original direction classes vote even when the second
 axis is orthogonalised; the third line is their normalised cross product. The highest distinct
-surface count wins; the file's axes win an equal count when two material directions establish
-them. This preference retains the original material basis within the tight direction band;
+surface count wins; when two material directions establish the file's axes, those axes win
+unless a turned basis has at least 1.5 times their count (`TURNED_FRAME_MARGIN`, #91). That keeps
+narrow wins (cgb217 98:96, cgb241 20:18) on the file axes, while rotated parts whose few features
+happen to lie on file axes keep their own frame. This preference retains the original material basis within the tight direction band;
 recognition does not snap its real tiny rotations to exact coordinate axes. Publication alone
 may snap a near-axis motion when no part point moves beyond the coordinate floor (#70).
 Within a winning set, area within the legacy cosine-0.999 angular band ranks

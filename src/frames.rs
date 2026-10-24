@@ -35,6 +35,11 @@ const PARALLEL_COS: f64 = 0.999;
 const DIRECTION_COS: f64 = 1.0 - 1e-10;
 /// `_ORTHOGONAL_COS`: two direction lines at least this close to perpendicular make a basis.
 const ORTHOGONAL_COS: f64 = 1.0 - PARALLEL_COS;
+/// How many times the file axes' distinct-surface votes a turned frame needs to replace them,
+/// when the file axes form a candidate (#91). Narrow wins (cgb217 98:96, cgb241 20:18, a 17°
+/// slotted-plate assembly 10:8) keep the file axes; rotated parts whose few features happen to
+/// lie on file axes (hex pockets and a polygonal boss turned 30°, from 1.8×) keep their own.
+const TURNED_FRAME_MARGIN: f64 = 1.5;
 /// `_COMPONENT_EPS`: components this close to 0 or ±1 are snapped there.
 const COMPONENT_EPS: f64 = 1e-12;
 
@@ -277,10 +282,12 @@ fn material_origin(part: &Part) -> Result<V3, FrameRefusal> {
 /// surfaces (one vote per coplanar plane or coaxial equal-radius cylinder, not per split face).
 /// Directions match within `DIRECTION_COS`; plane offsets, cylinder axis distances and radii
 /// match within the kernel's `COORD_FLOOR`. Supports need not share a topological edge.
-/// File axes win an equal support count; otherwise the frame follows the material directions.
+/// When the file axes form a candidate, they win unless a turned basis has at least
+/// `TURNED_FRAME_MARGIN` times their votes; otherwise the frame follows the material directions.
 /// Within the winning set, area in the legacy angular band ranks the axes, followed by the
 /// exact class signatures; face offsets orient them.
-/// Thus a rigid motion carries the intrinsic frame unless the moved file axes win this vote.
+/// Thus a rigid motion carries the intrinsic frame unless the moved file axes win this vote
+/// (ADR 0011's file-axis preference, widened from an exact tie to this margin).
 /// An axial part retains its explicit roll gauge; no unsupported second material axis is added.
 pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
     let origin = material_origin(part)?;
@@ -430,7 +437,7 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
         }
     }
     if let Some((votes, frame)) = best {
-        if file_support >= votes
+        if (votes as f64) < TURNED_FRAME_MARGIN * file_support as f64
             && let Some(frame) = aligned
         {
             return Ok(frame);
