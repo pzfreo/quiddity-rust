@@ -688,3 +688,60 @@ fn merged_publication_preserves_each_proof_and_schema6_correspondence() {
         }
     }
 }
+
+#[test]
+fn merged_patterns_append_after_plain_patterns_and_grids_state_their_directions() {
+    use quiddity::features::oriented_slots::OrientedSlotPattern;
+    use quiddity::features::recess_patterns::SlotPattern;
+    let part =
+        quiddity::read_step_file(&common::fixtures().join("golden_oriented_slots.step")).unwrap();
+    let mut working = quiddity::features::recognise(&part);
+    let plain = serde_json::from_value(json!({
+        "width_axis":"y", "long_axis":"x", "width":6., "length":24.,
+        "w_center":0., "lo":-12., "hi":12., "d_lo":-5., "d_hi":5.,
+        "body_key":null, "end_radius":null, "corner_radius":null
+    }))
+    .unwrap();
+    working.slots.push(plain);
+    working.slot_patterns.push(SlotPattern::SlotArray {
+        slots: working.slots.clone(),
+        pitch: 30.,
+        direction: [1., 0., 0.],
+    });
+    // Exercise the publication of an issued grid directly: the mapper must neither discover
+    // patterns nor re-prove its input. The real accepted golden array remains ahead of it.
+    working
+        .oriented_slot_patterns
+        .push(OrientedSlotPattern::OrientedSlotGrid {
+            slots: working.oriented_slots.clone(),
+            rows: 1,
+            cols: 3,
+            row_pitch: 40.,
+            col_pitch: 30.,
+            angle: 20.,
+            center: [0.; 3],
+        });
+    let published = quiddity::published_records::PublishedFeatures::from(working);
+    let families: std::collections::BTreeMap<_, _> = published.families().into_iter().collect();
+    assert_eq!(families["slots"].len(), 4);
+    assert!(families["slots"][0]["source"].is_null());
+    assert!(
+        families["slots"][1..]
+            .iter()
+            .all(|s| s["source"].is_object())
+    );
+    let patterns = &families["slot_patterns"];
+    assert_eq!(patterns.len(), 3);
+    assert!(patterns[0]["slots"][0]["source"].is_null());
+    assert!(patterns[1]["slots"][0]["source"].is_object());
+    let row = vector(&patterns[2]["row_direction"]);
+    let col = vector(&patterns[2]["col_direction"]);
+    let depth = vector(&patterns[2]["slots"][0]["depth_axis"]);
+    near(dot(row, row), 1., 1e-12);
+    near(dot(col, col), 1., 1e-12);
+    near(dot(row, col), 0., 1e-12);
+    near(dot(row, depth), 0., 1e-12);
+    near(dot(col, depth), 0., 1e-12);
+    near(col[0], 20_f64.to_radians().cos(), 1e-12);
+    near(col[1], 20_f64.to_radians().sin(), 1e-12);
+}

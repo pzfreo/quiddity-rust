@@ -903,10 +903,15 @@ mod normalisation_tests {
                 reason: frames::FrameRefusal::NonrigidFrame
             }
         );
-        assert_eq!(
-            serde_json::to_value(&result.features).unwrap(),
-            serde_json::to_value(Features::default()).unwrap()
-        );
+        let mut expected = serde_json::to_value(Features::default()).unwrap();
+        for family in [
+            "oriented_slots",
+            "oriented_chamfers",
+            "oriented_slot_patterns",
+        ] {
+            expected.as_object_mut().unwrap().remove(family);
+        }
+        assert_eq!(serde_json::to_value(&result.features).unwrap(), expected);
         assert!(result.fingerprints.features.is_empty());
     }
 }

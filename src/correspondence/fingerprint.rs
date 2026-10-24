@@ -11,8 +11,8 @@ use crate::features::Features;
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{self, Surface, V3};
 
-/// Bumped whenever a fingerprint's content or meaning changes: [`super::correspond`] refuses to
-/// compare fingerprints of two versions.
+/// Bumped whenever a fingerprint's content or meaning changes. Correspondence adapts v3
+/// namespaces to v4; other historical versions require re-recognition.
 pub const FINGERPRINT_VERSION: &str = "quiddity-rust/fingerprint/4";
 
 /// The fingerprints of one recognition result.
