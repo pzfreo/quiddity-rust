@@ -512,7 +512,15 @@ fn schema6_oriented_fingerprints_correspond_to_schema7_step() {
                 .iter()
                 .find(|p| p["old"] == old["id"])
                 .unwrap();
-            assert_eq!(pair["class"], "carried", "{path}: {pair}");
+            // File-axis golden recognition proves four walls per slot; inferred-frame
+            // recognition proves the opposed wall pair. The family union preserves those
+            // proofs, so cross-frame correspondence is adapted while the same path is carried.
+            let expected = if case["kind"] == "fixture" {
+                "adapted"
+            } else {
+                "carried"
+            };
+            assert_eq!(pair["class"], expected, "{path}: {pair}");
             let new = recognised["document"]["records"]
                 .as_array()
                 .unwrap()
@@ -527,7 +535,24 @@ fn schema6_oriented_fingerprints_correspond_to_schema7_step() {
                     .strip_prefix("oriented_")
                     .unwrap()
             );
-            assert_eq!(new["faces"], old["faces"]);
+            if case["kind"] == "fixture" {
+                let faces = new["faces"].as_array().unwrap();
+                assert_eq!(
+                    faces.len(),
+                    if old["family"] == "oriented_slot_patterns" {
+                        6
+                    } else {
+                        2
+                    }
+                );
+                assert!(
+                    faces
+                        .iter()
+                        .all(|f| old["faces"].as_array().unwrap().contains(f))
+                );
+            } else {
+                assert_eq!(new["faces"], old["faces"]);
+            }
         }
     }
     assert!(
