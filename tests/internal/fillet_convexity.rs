@@ -112,10 +112,13 @@ fn every_round_keeps_its_sense_on_rotated_cgb241_cgb202_and_ctc02_ap242() {
         for degrees in [5., 27.4, 60.] {
             let moved = part.transformed(&about_y(degrees)).unwrap();
             let reading = correspondence::recognise(&moved);
-            if path.file_name().unwrap() == "nist_ctc_02_asme1_ap242-e2.stp.gz" && degrees == 5. {
-                // #91: this exact Y5 pose gains a file-axis frame on minority
-                // directions. Pin its different query, not an equivariance exception
-                // on generic poses. The five principal-run labels are frame-filtered.
+            let name = path.file_name().unwrap().to_str().unwrap();
+            let gains_file_axes = (degrees == 5. && name == "nist_ctc_02_asme1_ap242-e2.stp.gz")
+                || ((degrees == 5. || degrees == 60.) && name == "cgb202.step.gz");
+            if gains_file_axes {
+                // #91: exact Y5/Y60 make minority directions available on file axes.
+                // Pin the changed query's exact face set and native material sides;
+                // retain the full original set under a generic no-file-axis motion.
                 let quiddity::frames::RecordFrame::Inferred(frame) = reading.frame else {
                     panic!("frame")
                 };
@@ -124,18 +127,40 @@ fn every_round_keeps_its_sense_on_rotated_cgb241_cgb202_and_ctc02_ap242() {
                         .iter()
                         .all(|a| a.iter().any(|c| c.abs() == 1.))
                 );
+                let (removed, added): (&[usize], &[usize]) =
+                    if name == "cgb202.step.gz" && degrees == 60. {
+                        (
+                            &[
+                                1248, 1250, 1453, 1464, 1468, 1470, 1472, 1473, 1475, 1477, 1498,
+                                1500, 1502, 1503, 1505, 1507, 1622, 1623, 2056, 2057,
+                            ],
+                            &[],
+                        )
+                    } else if name == "cgb202.step.gz" {
+                        (
+                            &[1498, 1500, 1502],
+                            &[1456, 1462, 1508, 1628, 1629, 2076, 2080, 2081],
+                        )
+                    } else {
+                        (&[399, 519, 548, 625, 631], &[])
+                    };
                 let mut expected = original.clone();
-                for face in [399, 519, 548, 625, 631] {
-                    assert_eq!(expected.remove(&face).as_deref(), Some("convex"));
+                for face in removed {
+                    assert_eq!(expected.remove(face).as_deref(), Some("convex"));
                 }
-                assert_eq!(round_sides(&reading), expected);
-                // Preserve the strict full-face check under a generic rotation with
-                // no file-axis frame, including all of the displaced round labels.
+                for face in added {
+                    assert!(expected.insert(*face, "convex".into()).is_none());
+                }
+                assert_eq!(
+                    round_sides(&reading),
+                    expected,
+                    "{path:?} Y{degrees} file query"
+                );
                 let pose = super::frames::vote_only_pose(&about_y(degrees));
                 let generic = part.transformed(&pose).unwrap();
                 super::frames::assert_no_file_axis_frame(&generic);
                 let generic_reading = correspondence::recognise(&generic);
-                assert_eq!(round_sides(&generic_reading), original);
+                assert_eq!(round_sides(&generic_reading), original, "{path:?} generic");
                 check_cylinder_sides(&generic, &generic_reading);
             } else {
                 assert_eq!(

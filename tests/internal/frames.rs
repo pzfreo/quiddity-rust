@@ -467,7 +467,9 @@ fn axis_majorities_and_intrinsic_frames_survive_sixty_and_one_degree_motions() {
                 &Ok(actual),
                 part.bounds().diagonal(),
             );
-            let gains_file_axes = path.file_name().unwrap() == "nist_ftc_07_asme1_ap242-e2.stp.gz"
+            let is_ftc_rd = path.file_name().unwrap() == "nist_ftc_07_asme1_rd.stp";
+            let gains_file_axes = (is_ftc_rd
+                || path.file_name().unwrap() == "nist_ftc_07_asme1_ap242-e2.stp.gz")
                 && matches!(pose, 2 | 4);
             if gains_file_axes {
                 // #91: the real 1-degree minor directions now establish file axes.
@@ -498,7 +500,11 @@ fn axis_majorities_and_intrinsic_frames_survive_sixty_and_one_degree_motions() {
             }
             assert_eq!(
                 recognised.features.fillets.len(),
-                if gains_file_axes { 12 } else { fillets },
+                if gains_file_axes && !is_ftc_rd {
+                    12
+                } else {
+                    fillets
+                },
                 "{path:?}: {placement:?}"
             );
             assert_eq!(
@@ -511,7 +517,7 @@ fn axis_majorities_and_intrinsic_frames_survive_sixty_and_one_degree_motions() {
             faces.sort();
             if let Some(original) = &original_faces {
                 let mut expected = original.clone();
-                if gains_file_axes {
+                if gains_file_axes && !is_ftc_rd {
                     let missing = if pose == 2 {
                         [224, 161, 170, 158]
                     } else {
