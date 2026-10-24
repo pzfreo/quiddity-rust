@@ -6,6 +6,22 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Slot precision in turned frames (for #92).** Converted slots retain measured
+  extents instead of rounding distances to 0.01 mm. Slot patterns use raw member
+  centres for pitches and directions, with coordinate-floor axis snapping and
+  face-stable array sense. File-axis slot extents keep their existing values.
+
+- **One published family per feature kind (for #92).** Recognition schema 6 merges
+  oriented slots, chamfers and slot patterns into their plain families, preserving
+  proofs and counts. Plain records precede oriented records; IDs, pattern members,
+  evidence and accounting follow the merge. Fingerprints stay version 3, but merged
+  records' fingerprint values change within v3: family/ID, oriented chamfer `turned`,
+  and oriented slot source-end proof traits. As with plates in #71, the version is
+  unchanged. Correspondence accepts 0.1.1's oriented records and retains their old IDs
+  in the pairs. See [recognition-6.md](docs/recognition-6.md) for field mapping and
+  moving saved references by defining faces or correspondence. File-axis letters
+  and the crate version remain unchanged.
+
 ## 0.2.0-alpha.1 (2026-10-24)
 
 Upgrading from 0.1.1:

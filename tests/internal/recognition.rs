@@ -26,7 +26,7 @@ use quiddity::framed_records::{self, Rigid, map_features};
 use quiddity::frames::{self, PartFrame, RecordFrame};
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
 use quiddity::published_records::PublishedFeatures;
-use quiddity::recognition::{self, RECORD_TYPES, RecognitionDocument, families, record_types};
+use quiddity::recognition::{self, RECORD_TYPES, RecognitionDocument, record_types};
 use quiddity::serve;
 use serde_json::Value;
 
@@ -49,7 +49,8 @@ fn document(path: &Path) -> RecognitionDocument {
 #[test]
 fn every_family_has_a_record_type() {
     let part = quiddity::read_step_file(&fixture("filleted_plate_with_holes.step")).unwrap();
-    let keys: Vec<String> = families(&features::recognise(&part))
+    let keys: Vec<String> = PublishedFeatures::from(features::recognise(&part))
+        .families()
         .into_iter()
         .map(|(key, _)| key)
         .collect();
@@ -858,6 +859,14 @@ fn rejected(inventory: &features::Inventory) -> Vec<(&'static str, Vec<usize>, u
 /// each family has exactly as many fewer records as it had rejected candidates.
 #[test]
 fn rejected_candidates_are_absent_from_recognition_and_the_document() {
+    fn published_family(family: &str) -> &str {
+        match family {
+            "oriented_slots" => "slots",
+            "oriented_chamfers" => "chamfers",
+            "oriented_slot_patterns" => "slot_patterns",
+            _ => family,
+        }
+    }
     let Some(dir) = common::corpus_dir() else {
         assert!(
             std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
@@ -902,26 +911,39 @@ fn rejected_candidates_are_absent_from_recognition_and_the_document() {
             let in_document = document
                 .records
                 .iter()
-                .filter(|r| r.family == *field && r.faces == *faces)
+                .filter(|r| r.family == published_family(field) && r.faces == *faces)
                 .count();
-            if kept != same - lost || in_document != same - lost {
+            // Another accepted proof in the merged family may have the same faces. Keep
+            // the source recogniser's rejection floor, and require the exact published sum.
+            let published_expected = recognition
+                .features
+                .defining
+                .iter()
+                .filter(|(f, _)| published_family(f) == published_family(field))
+                .flat_map(|(_, defining)| defining)
+                .filter(|f| sorted(f) == *faces)
+                .count();
+            if kept != same - lost || in_document != published_expected {
                 problems.push(format!(
                     "{file}: rejected {field} {faces:?} is kept {kept} times and in the document \
                      {in_document} times ({same} candidates, {lost} rejected)"
                 ));
             }
         }
+        let mut expected_counts: BTreeMap<&str, usize> = BTreeMap::new();
         for (field, candidates) in &inventory.physical.defining {
             let lost = rejected.iter().filter(|(f, ..)| f == field).count();
+            *expected_counts.entry(published_family(field)).or_default() += candidates.len() - lost;
+        }
+        for (family, expected) in expected_counts {
             let records = document
                 .records
                 .iter()
-                .filter(|r| r.family == *field)
+                .filter(|r| r.family == family)
                 .count();
-            if records != candidates.len() - lost {
+            if records != expected {
                 problems.push(format!(
-                    "{file}: {field} has {records} records of {} candidates, {lost} rejected",
-                    candidates.len()
+                    "{file}: published {family} has {records} records, expected the exact {expected} accepted source occurrences"
                 ));
             }
         }
@@ -1247,7 +1269,9 @@ fn pocket_rim_chamfer_corners_are_not_countersinks() {
     let count = |family: &str| doc.records.iter().filter(|r| r.family == family).count();
     assert_eq!(count("countersinks"), 0);
     // The straight runs of the rim chamfer are still recognised either side of each corner.
-    assert_eq!((count("chamfers"), count("oriented_chamfers")), (8, 4));
+    // Schema 6 publishes the eight plain and four oriented proofs together.
+    assert_eq!(count("chamfers"), 12);
+    assert_eq!(count("oriented_chamfers"), 0);
     let accounting = doc.face_accounting.as_ref().unwrap();
     for &f in &corners {
         // No record spans the rim round its corners, so these faces are left for review.

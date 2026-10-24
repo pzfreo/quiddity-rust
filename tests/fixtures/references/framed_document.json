@@ -330,9 +330,9 @@
   {
     "file": "mfcadpp/1007.step",
     "check": "caller_space",
-    "family": "oriented_chamfers",
+    "family": "chamfers",
     "verdict": "equivalent",
-    "reason": "Equivalent: two legs of equal length are ordered by their directions' coordinates, the frame's here, so leg1 and leg2 (and their directions and support spans) swap; or run is negated, its sense chosen by coordinates. The chamfer is the same.",
+    "reason": "Equivalent: two legs of equal length are ordered by their directions' coordinates, the frame's here, so leg1 and leg2 (and their directions and support spans) swap; or run is negated, its sense chosen by coordinates. The chamfer is the same. Schema 6 renames this publication family (for #92); the recogniser and comparison floor are unchanged.",
     "max_differing": 1
   },
   {
@@ -514,9 +514,9 @@
   {
     "file": "mfcadpp/10252.step",
     "check": "caller_space",
-    "family": "oriented_chamfers",
+    "family": "chamfers",
     "verdict": "rust-wrong",
-    "reason": "Independent MFCAD++ reference: the corpus is byte-identical to MFCAD++_dataset/step/test/10252.step (SHA256 da44c719d3343fb824a2f39af75c794fe4ec4698bc911acd6a1faa1daec198c7). ADVANCED_FACE #264, face 2, is named 0, Chamfer, in the dataset feature_labels.txt. Live OCCT verifies its index/geometry in the 134-face four-model check (relative area <=4.41e-11, scaled centroid <=3.18e-11). Caller space finds that bevel with legs 0.54/0.54; automatic framed recognition omits it. Cause isolated in oriented_chamfers.rs::pair: lexicographic sorting of each support edge's endpoints changes edge 10's direction after framing because its local x coordinates differ by only 1.78e-15 mm. Edges 10 and 8 have parallel runs in caller space (dot product +1); in the inferred frame they become (approximately) (0,-0.149678,-0.988735) and (0,0.149678,0.988735), dot product -1. The same-sense parallel-span predicate rejects that pair even though the physical support edges are unchanged. The run stays oblique, so the principal-run exclusion is not the cause. The labelled bevel and 0.54/0.54 legs survive the rigid motion; this is a round-off-sensitive endpoint-ordering defect. The near tie does not invalidate the independently labelled feature; record the missing occurrence without changing recogniser code.",
+    "reason": "Independent MFCAD++ reference: the corpus is byte-identical to MFCAD++_dataset/step/test/10252.step (SHA256 da44c719d3343fb824a2f39af75c794fe4ec4698bc911acd6a1faa1daec198c7). ADVANCED_FACE #264, face 2, is named 0, Chamfer, in the dataset feature_labels.txt. Live OCCT verifies its index/geometry in the 134-face four-model check (relative area <=4.41e-11, scaled centroid <=3.18e-11). Caller space finds that bevel with legs 0.54/0.54; automatic framed recognition omits it. Cause isolated in oriented_chamfers.rs::pair: lexicographic sorting of each support edge's endpoints changes edge 10's direction after framing because its local x coordinates differ by only 1.78e-15 mm. Edges 10 and 8 have parallel runs in caller space (dot product +1); in the inferred frame they become (approximately) (0,-0.149678,-0.988735) and (0,0.149678,0.988735), dot product -1. The same-sense parallel-span predicate rejects that pair even though the physical support edges are unchanged. The run stays oblique, so the principal-run exclusion is not the cause. The labelled bevel and 0.54/0.54 legs survive the rigid motion; this is a round-off-sensitive endpoint-ordering defect. The near tie does not invalidate the independently labelled feature; record the missing occurrence without changing recogniser code. Schema 6 renames this publication family (for #92); the recogniser and comparison floor are unchanged.",
     "max_differing": 1
   },
   {
@@ -826,9 +826,9 @@
   {
     "file": "nist/nist_ctc_01_asme1_rd.stp",
     "check": "caller_space",
-    "family": "oriented_chamfers",
+    "family": "chamfers",
     "verdict": "equivalent",
-    "reason": "Equivalent: two legs of equal length are ordered by their directions' coordinates, the frame's here, so leg1 and leg2 (and their directions and support spans) swap; or run is negated, its sense chosen by coordinates. The chamfer is the same.",
+    "reason": "Equivalent: two legs of equal length are ordered by their directions' coordinates, the frame's here, so leg1 and leg2 (and their directions and support spans) swap; or run is negated, its sense chosen by coordinates. The chamfer is the same. Schema 6 renames this publication family (for #92); the recogniser and comparison floor are unchanged.",
     "max_differing": 3
   },
   {
@@ -890,9 +890,9 @@
   {
     "file": "nist/nist_ctc_04_asme1_rd.stp",
     "check": "caller_space",
-    "family": "oriented_chamfers",
+    "family": "chamfers",
     "verdict": "equivalent",
-    "reason": "Equivalent: two legs of equal length are ordered by their directions' coordinates, the frame's here, so leg1 and leg2 (and their directions and support spans) swap; or run is negated, its sense chosen by coordinates. The chamfer is the same.",
+    "reason": "Equivalent: two legs of equal length are ordered by their directions' coordinates, the frame's here, so leg1 and leg2 (and their directions and support spans) swap; or run is negated, its sense chosen by coordinates. The chamfer is the same. Schema 6 renames this publication family (for #92); the recogniser and comparison floor are unchanged.",
     "max_differing": 2
   },
   {
@@ -1010,10 +1010,10 @@
   {
     "file": "nist/nist_ctc_04_asme1_rd.stp",
     "check": "generic_framed",
-    "family": "oriented_chamfers",
+    "family": "chamfers",
     "verdict": "equivalent",
-    "reason": "The run's sense is chosen by its coordinates in the frame, and one of them is zero up to round-off (mfcadpp/10155: run (0, 0.3147, -0.9492) in the frame; nist_ctc_04: (0, 0.3206, -0.9472)), so the placement's round-off decides it; the same line (and wall outline, listed from the other end).",
-    "max_differing": 2
+    "reason": "The run's sense is chosen by its coordinates in the frame, and one of them is zero up to round-off (mfcadpp/10155: run (0, 0.3147, -0.9492) in the frame; nist_ctc_04: (0, 0.3206, -0.9472)), so the placement's round-off decides it; the same line (and wall outline, listed from the other end). Schema 6 renames this publication family (for #92); the recogniser and comparison floor are unchanged. Resolved by the schema-6 run-to-axis mapping: the existing geometric comparator canonicalises the axis line sense, so these two sign-only differences disappear. The zero allowance is an absence ratchet; recognisers and geometry are unchanged.",
+    "max_differing": 0
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
@@ -1306,9 +1306,9 @@
   {
     "file": "mfcadpp_holdout/467.step",
     "check": "caller_space",
-    "family": "oriented_slots",
+    "family": "slots",
     "verdict": "equivalent",
-    "reason": "Equivalent: the same slot. Its source passage's frame (run sense, u and v) is chosen canonically by the dominant component of the run, and its width and long directions by their largest component, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the width direction are the same geometry expressed with the other senses (as this part's section_passages entry).",
+    "reason": "Equivalent: the same slot. Its source passage's frame (run sense, u and v) is chosen canonically by the dominant component of the run, and its width and long directions by their largest component, which the default applies in the part's frame: the run interval, the section's vertices (in u and v) and the width direction are the same geometry expressed with the other senses (as this part's section_passages entry). Schema 6 renames this publication family (for #92); the recogniser and comparison floor are unchanged.",
     "max_differing": 1
   },
   {

@@ -77,7 +77,7 @@ use crate::features::polygonal_bosses::PolygonalPrism;
 use crate::features::prismatic_pockets::PrismaticPocket;
 use crate::features::profiled_bores::DoubleDBore;
 use crate::features::recess_patterns::{PocketPattern, SlotPattern};
-use crate::features::recess_records::{Channel, Pocket, Slot};
+use crate::features::recess_records::{Channel, Pocket, Recess, Slot};
 use crate::features::rectangular_blind_slots::RectangularBlindSlot;
 use crate::features::repeating_profiles::RepeatingRadialProfile;
 use crate::features::round_bottom_slots::RoundBottomBlindSlot;
@@ -606,7 +606,7 @@ fn carry(
                 .enumerate()
                 .map(|(n, r)| {
                     let mut out = Out::new(motion, publish, "");
-                    let r = $f(&mut out, r);
+                    let r = ($f)(&mut out, r);
                     family($name, n, out.done());
                     r
                 })
@@ -690,7 +690,9 @@ fn carry(
         slots: each!("slots", slots, slot),
         pockets: each!("pockets", pockets, pocket),
         channels: each!("channels", channels, channel),
-        slot_patterns: each!("slot_patterns", slot_patterns, slot_pattern),
+        slot_patterns: each!("slot_patterns", slot_patterns, |out, r| slot_pattern(
+            out, r, &source
+        )),
         pocket_patterns: each!("pocket_patterns", pocket_patterns, pocket_pattern),
         repeating_radial_profiles: each!(
             "repeating_radial_profiles",
@@ -1772,6 +1774,24 @@ fn slot(out: &mut Out, r: Slot) -> Slot {
         corner_radius,
     } = r;
     let axes = RecessAxes::of(width_axis, long_axis);
+    // The legacy two-decimal grid describes absolute file-axis positions. In a
+    // converted record these are distances in a measuring basis, not file-grid
+    // coordinates. Keep the measured distances; snapping the basis is bounded
+    // separately by the publication coordinate floor.
+    let distance = |p: Placed<f64>| {
+        if out.axes.is_none() && out.publish {
+            Placed::exact(*p.raw())
+        } else {
+            p
+        }
+    };
+    let (w_center, lo, hi, d_lo, d_hi) = (
+        distance(w_center),
+        distance(lo),
+        distance(hi),
+        distance(d_lo),
+        distance(d_hi),
+    );
     let (w_center, (lo, hi), (d_lo, d_hi)) =
         recess_placement(out, &axes, w_center, (lo, hi), (d_lo, d_hi));
     Slot {
@@ -1867,7 +1887,46 @@ fn depth_normal(width_axis: char, long_axis: char) -> V3 {
     normal
 }
 
-fn slot_pattern(out: &mut Out, r: SlotPattern) -> SlotPattern {
+/// Remeasure a proved grid without searching for another pattern. Its existing
+/// angle and pitches identify each member's lattice cell; fit raw centres to
+/// those same cells, so position rounding cannot change the pitches or basis.
+fn measured_slot_grid(slots: &[Slot], row_pitch: f64, col_pitch: f64, angle: f64) -> (V3, V3, V3) {
+    let first = slots.first().expect("slot grid members");
+    let (u, v) = plane_uv(depth_normal(first.width_axis, first.long_axis));
+    let (s, c) = angle.to_radians().sin_cos();
+    let col = [0, 1, 2].map(|i| c * u[i] + s * v[i]);
+    let row = [0, 1, 2].map(|i| -s * u[i] + c * v[i]);
+    let base = first.region_center();
+    let cells: Vec<[f64; 2]> = slots
+        .iter()
+        .map(|slot| {
+            let delta = [0, 1, 2].map(|i| slot.region_center()[i] - base[i]);
+            [
+                py::dot(&delta, &col) / col_pitch,
+                py::dot(&delta, &row) / row_pitch,
+            ]
+            .map(f64::round_ties_even)
+        })
+        .collect();
+    let mean: V3 = std::array::from_fn(|i| {
+        slots.iter().map(|s| s.raw_center()[i]).sum::<f64>() / slots.len() as f64
+    });
+    let step = |axis: usize| {
+        let mid = cells.iter().map(|c| c[axis]).sum::<f64>() / cells.len() as f64;
+        let variance = cells.iter().map(|c| (c[axis] - mid).powi(2)).sum::<f64>();
+        std::array::from_fn(|i| {
+            slots
+                .iter()
+                .zip(&cells)
+                .map(|(s, c)| (s.raw_center()[i] - mean[i]) * (c[axis] - mid))
+                .sum::<f64>()
+                / variance
+        })
+    };
+    (step(0), step(1), mean)
+}
+
+fn slot_pattern(out: &mut Out, r: SlotPattern, source: &Features) -> SlotPattern {
     let members = |out: &mut Out, slots: Vec<Slot>| {
         let mut each = Out::new(out.motion, out.publish, "slots[].");
         let slots: Vec<Slot> = slots.into_iter().map(|s| slot(&mut each, s)).collect();
@@ -1882,14 +1941,24 @@ fn slot_pattern(out: &mut Out, r: SlotPattern) -> SlotPattern {
             row_pitch,
             col_pitch,
             angle,
-            center,
+            center: _,
         } => {
             let first = slots.first().expect("a slot pattern has members");
             let normal = depth_normal(first.width_axis, first.long_axis);
-            let angle = out.pattern_angle(normal, angle, 180.0);
+            let (col, row, center) = measured_slot_grid(&slots, row_pitch, col_pitch, angle);
+            let direction = out.direction(col);
+            let (u, v) = plane_uv(out.direction(normal));
+            let angle = py::modulo(
+                py::dot(&direction, &v)
+                    .atan2(py::dot(&direction, &u))
+                    .to_degrees(),
+                180.,
+            );
+            let (row_pitch, col_pitch, center) =
+                (py::hypot(&row), py::hypot(&col), out.point(center));
             let slots = members(out, slots);
             SlotPattern::SlotGrid {
-                center: out.pattern_center(center, &slots),
+                center,
                 angle,
                 slots,
                 rows,
@@ -1898,15 +1967,32 @@ fn slot_pattern(out: &mut Out, r: SlotPattern) -> SlotPattern {
                 col_pitch,
             }
         }
-        SlotPattern::SlotArray {
-            slots,
-            pitch,
-            direction,
-        } => SlotPattern::SlotArray {
-            slots: members(out, slots),
-            pitch,
-            direction: out.direction(direction),
-        },
+        SlotPattern::SlotArray { mut slots, .. } => {
+            // Keep the recogniser's membership. Only remeasure the
+            // accepted array, before any position publication can skew its line.
+            // Face identity fixes the sense when recognition reverses its frame.
+            // This changes neither the membership nor any recognition predicate.
+            let faces = |slot: &Slot| {
+                let n = source.slots.iter().position(|s| s == slot)?;
+                source.defining.get("slots")?.get(n)
+            };
+            if let (Some(first), Some(last)) = (faces(&slots[0]), faces(&slots[slots.len() - 1]))
+                && first < last
+            {
+                slots.reverse();
+            }
+            let first = slots.first().expect("slot array members").raw_center();
+            let last = slots.last().expect("slot array members").raw_center();
+            let delta = [0, 1, 2].map(|i| last[i] - first[i]);
+            let span = py::hypot(&delta);
+            let pitch = span / (slots.len() - 1) as f64;
+            let direction = delta.map(|v| v / span);
+            SlotPattern::SlotArray {
+                slots: members(out, slots),
+                pitch,
+                direction: out.direction(direction),
+            }
+        }
     }
 }
 
@@ -2781,5 +2867,77 @@ mod publication_tests {
             "{found:?}"
         );
         assert!(mapped.features.fillets[0].at.on_grid());
+    }
+
+    #[test]
+    fn slot_grid_uses_measured_centres_and_preserves_file_axis_extents() {
+        let mut slots = Vec::new();
+        for row in 0..2 {
+            for col in 0..3 {
+                let x = 13.98076211353316 + col as f64 * 9.87654321;
+                let y = -7.12345678 + row as f64 * 7.65432109;
+                let placed = |v| Placed::new(v, Grid::Decimals(2));
+                slots.push(Slot {
+                    width_axis: 'y',
+                    long_axis: 'x',
+                    width: 2.,
+                    length: 4.,
+                    w_center: placed(y),
+                    lo: placed(x - 2.),
+                    hi: placed(x + 2.),
+                    d_lo: placed(-5.),
+                    d_hi: placed(5.),
+                    body_key: None,
+                    end_radius: None,
+                    corner_radius: None,
+                });
+            }
+        }
+        let original = slots[0].clone();
+        let motion = Rigid::from_placement(&crate::kernel::step::IDENTITY);
+        let carried = slot(&mut Out::new(&motion, true, ""), original.clone());
+        assert_eq!(carried, original);
+        assert_eq!(*carried.lo, 11.98);
+        let (s, c) = 0.37_f64.sin_cos();
+        let motion = Rigid {
+            rotation: [[c, -s, 0.], [s, c, 0.], [0., 0., 1.]],
+            translation: [0.; 3],
+        };
+        let pattern = SlotPattern::SlotGrid {
+            slots,
+            rows: 2,
+            cols: 3,
+            row_pitch: 7.65,
+            col_pitch: 9.88,
+            angle: 0.,
+            center: [0.; 3],
+        };
+        let SlotPattern::SlotGrid {
+            slots,
+            rows,
+            cols,
+            row_pitch,
+            col_pitch,
+            angle,
+            center,
+        } = slot_pattern(
+            &mut Out::new(&motion, true, ""),
+            pattern,
+            &Features::default(),
+        )
+        else {
+            panic!("grid retained")
+        };
+        assert_eq!((rows, cols, slots.len()), (2, 3, 6));
+        assert!((row_pitch - 7.65432109).abs() < 1e-12);
+        assert!((col_pitch - 9.87654321).abs() < 1e-12);
+        assert!((angle - 0.37_f64.to_degrees()).abs() < 1e-12);
+        let expected = motion.point([
+            13.98076211353316 + 9.87654321,
+            -7.12345678 + 7.65432109 / 2.,
+            0.,
+        ]);
+        assert!((0..3).all(|i| (center[i] - expected[i]).abs() < 1e-12));
+        assert_eq!(*slots[0].lo, *original.lo.raw());
     }
 }

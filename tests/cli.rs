@@ -461,3 +461,153 @@ fn brep_writes_the_pmi_document_given_in_place_of_the_files() {
     );
     std::fs::remove_dir_all(&dir).ok();
 }
+
+/// Genuine schema-5/v3 captures from v0.1.1 (a27b706): default golden recognition
+/// and caller-space 10252 recognition. All five oriented features must follow the merge.
+#[test]
+fn v011_oriented_fingerprints_correspond_to_merged_step() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let bytes = include_bytes!("fixtures/recognition011_oriented.json.gz");
+    let capture: serde_json::Value =
+        serde_json::from_reader(flate2::read::GzDecoder::new(&bytes[..])).unwrap();
+    assert_eq!(capture["source_tag"], "v0.1.1");
+    assert_eq!(
+        capture["source_commit"],
+        "a27b7064a65358563f0168e97cb50d558397ece7"
+    );
+    let captured_oriented = capture["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|case| {
+            assert_eq!(
+                case["document"]["schema_version"],
+                "quiddity-rust/recognition/5"
+            );
+            assert_eq!(case["document"]["package"]["version"], "0.1.1");
+            assert_eq!(
+                case["fingerprints"]["fingerprint_version"],
+                "quiddity-rust/fingerprint/3"
+            );
+            case["fingerprints"]["features"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|f| f["family"].as_str().unwrap().starts_with("oriented_"))
+                .count()
+        })
+        .sum::<usize>();
+    assert_eq!(
+        captured_oriented, 5,
+        "three slots, one pattern, one chamfer"
+    );
+    let has_corpus = std::env::var_os("QUIDDITY_CORPUS").is_some_and(|v| v != "off");
+    let temporary = std::env::temp_dir().join(format!("quiddity-v011-{}", std::process::id()));
+    std::fs::create_dir_all(&temporary).unwrap();
+    let mut formerly_oriented = 0;
+    for case in capture["cases"].as_array().unwrap() {
+        let path = case["path"].as_str().unwrap();
+        let step = if case["kind"] == "fixture" {
+            root.join("tests/fixtures").join(path)
+        } else if let Some(corpus) = std::env::var_os("QUIDDITY_CORPUS").filter(|v| v != "off") {
+            PathBuf::from(corpus).join(path)
+        } else {
+            assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+            continue;
+        };
+        let old = temporary.join("v011.json");
+        std::fs::write(&old, serde_json::to_vec(case).unwrap()).unwrap();
+        let output = quiddity(&["correspond", old.to_str().unwrap(), step.to_str().unwrap()]);
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let result: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+        let recognised = quiddity(&[step.to_str().unwrap()]);
+        assert!(recognised.status.success());
+        let recognised: serde_json::Value = serde_json::from_slice(&recognised.stdout).unwrap();
+        assert_eq!(
+            recognised["document"]["schema_version"],
+            "quiddity-rust/recognition/6"
+        );
+        assert_eq!(
+            recognised["document"]["source_sha256"],
+            case["input_sha256"]
+        );
+        assert_eq!(
+            recognised["fingerprints"]["fingerprint_version"],
+            "quiddity-rust/fingerprint/3"
+        );
+        assert_eq!(result["fingerprint_version"], "quiddity-rust/fingerprint/3");
+        for old in case["fingerprints"]["features"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|f| f["family"].as_str().unwrap().starts_with("oriented_"))
+        {
+            let captured = case["document"]["records"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|r| r["id"] == old["id"])
+                .expect("captured schema-5 record");
+            assert_eq!(captured["family"], old["family"]);
+            assert_eq!(captured["faces"], old["faces"]);
+            formerly_oriented += 1;
+            let pair = result["features"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|p| p["old"] == old["id"])
+                .unwrap();
+            // File-axis golden recognition proves four walls per slot; inferred-frame
+            // recognition proves the opposed wall pair. The family union preserves those
+            // proofs, so cross-frame correspondence is adapted while the same path is carried.
+            let expected = if case["kind"] == "fixture" {
+                "adapted"
+            } else {
+                "carried"
+            };
+            assert_eq!(pair["class"], expected, "{path}: {pair}");
+            let new = recognised["document"]["records"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|r| r["id"] == pair["new"])
+                .expect("merged record");
+            assert_eq!(
+                new["family"],
+                old["family"]
+                    .as_str()
+                    .unwrap()
+                    .strip_prefix("oriented_")
+                    .unwrap()
+            );
+            if case["kind"] == "fixture" {
+                let faces = new["faces"].as_array().unwrap();
+                assert_eq!(
+                    faces.len(),
+                    if old["family"] == "oriented_slot_patterns" {
+                        6
+                    } else {
+                        2
+                    }
+                );
+                assert!(
+                    faces
+                        .iter()
+                        .all(|f| old["faces"].as_array().unwrap().contains(f))
+                );
+            } else {
+                assert_eq!(new["faces"], old["faces"]);
+            }
+        }
+    }
+    assert_eq!(
+        formerly_oriented,
+        if has_corpus { 5 } else { 4 },
+        "every available captured oriented feature must pair"
+    );
+    std::fs::remove_dir_all(temporary).unwrap();
+}

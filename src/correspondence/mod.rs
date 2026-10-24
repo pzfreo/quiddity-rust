@@ -63,9 +63,10 @@ pub fn recognise(part: &Part) -> Recognition {
         Ok(frame) => frame,
         Err(reason) => {
             let features = features::recognise(part);
-            let fingerprints = fingerprint(part, &features);
+            let features: PublishedFeatures = features.into();
+            let fingerprints = fingerprint::published_fingerprint(part, &features);
             return Recognition {
-                features: features.into(),
+                features,
                 fingerprints,
                 frame: RecordFrame::Refused { reason },
                 source_sha256: None,
@@ -122,9 +123,10 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
 #[cfg(test)]
 pub(crate) fn caller_space_recognise(part: &Part) -> Recognition {
     let features = features::recognise(part);
-    let fingerprints = fingerprint(part, &features);
+    let features: PublishedFeatures = features.into();
+    let fingerprints = fingerprint::published_fingerprint(part, &features);
     Recognition {
-        features: features.into(),
+        features,
         fingerprints,
         frame: RecordFrame::CallerSpace,
         source_sha256: None,
@@ -332,6 +334,24 @@ pub fn correspond_with(
     new: &Fingerprints,
     th: &Thresholds,
 ) -> Result<Correspondence, String> {
+    let merged = |f: &Fingerprints| {
+        (f.fingerprint_version == FINGERPRINT_VERSION
+            && f.features.iter().any(|feature| {
+                matches!(
+                    feature.family.as_str(),
+                    "oriented_slots" | "oriented_chamfers" | "oriented_slot_patterns"
+                )
+            }))
+        .then(|| {
+            let mut f = f.clone();
+            fingerprint::merge_legacy_families(&mut f);
+            f
+        })
+    };
+    let old_merged = merged(old);
+    let new_merged = merged(new);
+    let old = old_merged.as_ref().unwrap_or(old);
+    let new = new_merged.as_ref().unwrap_or(new);
     for (which, f) in [("old", old), ("new", new)] {
         validate(f).map_err(|e| format!("the {which} fingerprints {e}"))?;
     }
@@ -890,10 +910,15 @@ mod normalisation_tests {
                 reason: frames::FrameRefusal::NonrigidFrame
             }
         );
-        assert_eq!(
-            serde_json::to_value(&result.features).unwrap(),
-            serde_json::to_value(Features::default()).unwrap()
-        );
+        let mut expected = serde_json::to_value(Features::default()).unwrap();
+        for family in [
+            "oriented_slots",
+            "oriented_chamfers",
+            "oriented_slot_patterns",
+        ] {
+            expected.as_object_mut().unwrap().remove(family);
+        }
+        assert_eq!(serde_json::to_value(&result.features).unwrap(), expected);
         assert!(result.fingerprints.features.is_empty());
     }
 }

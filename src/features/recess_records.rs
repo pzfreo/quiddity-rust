@@ -45,6 +45,18 @@ pub struct Slot {
     pub corner_radius: Option<f64>,
 }
 
+impl Slot {
+    /// The measured centre, before the legacy record's two-decimal publication.
+    pub(crate) fn raw_center(&self) -> V3 {
+        let mut c = [0.; 3];
+        let (w, l) = (axis_index(self.width_axis), axis_index(self.long_axis));
+        c[w] = *self.w_center.raw();
+        c[l] = (self.lo.raw() + self.hi.raw()) / 2.;
+        c[third_axis(w, l)] = (self.d_lo.raw() + self.d_hi.raw()) / 2.;
+        c
+    }
+}
+
 /// A bounded blind recess: a slot capped by a floor, so with a `depth` (`d_hi - d_lo`) and the
 /// side it opens to along the depth axis (`open_sign`). `edge_anchored` marks a corner notch,
 /// located by the two envelope edges it touches.

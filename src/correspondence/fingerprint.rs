@@ -11,8 +11,8 @@ use crate::features::Features;
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{self, Surface, V3};
 
-/// Bumped whenever a fingerprint's content or meaning changes: [`super::correspond`] refuses to
-/// compare fingerprints of two versions.
+/// Fingerprint format version: correspondence refuses different formats.
+/// Intentional value changes within v3 are recorded in the changelog (#71, #92).
 pub const FINGERPRINT_VERSION: &str = "quiddity-rust/fingerprint/3";
 
 /// The fingerprints of one recognition result.
@@ -940,9 +940,46 @@ pub(crate) fn published_fingerprint(
     part: &Part,
     features: &crate::published_records::PublishedFeatures,
 ) -> Fingerprints {
-    fingerprint_with_axes(part, features, |id, path, value| {
+    let mut fingerprints = fingerprint_with_axes(part, features.working(), |id, path, value| {
         features.fingerprint_axis(id, path, value)
-    })
+    });
+    for f in &mut fingerprints.features {
+        let n =
+            f.id.rsplit_once('/')
+                .expect("record ID")
+                .1
+                .parse()
+                .expect("index");
+        f.id = features.published_id(&f.family, n);
+        merge_fingerprint(f);
+    }
+    fingerprints
+}
+
+/// Adapt the three former namespaces without changing intrinsic measurements. Optional
+/// source detail is not a semantic distinction between two instances of the same kind.
+pub(crate) fn merge_fingerprint(f: &mut FeatureFingerprint) {
+    match f.family.as_str() {
+        "oriented_chamfers" => {
+            f.traits.insert("turned".into(), "false".into());
+        }
+        "oriented_slots" => {
+            f.traits.remove("source.ends.low_capped");
+            f.traits.remove("source.ends.high_capped");
+        }
+        _ => {}
+    }
+    f.family = crate::published_records::publication_family(&f.family).into();
+}
+
+/// Match 0.1.1's oriented namespaces against the merged families within v3.
+/// Keep old IDs so saved references can follow the resulting correspondence pairs.
+pub(crate) fn merge_legacy_families(fingerprints: &mut Fingerprints) {
+    if fingerprints.fingerprint_version == FINGERPRINT_VERSION {
+        for f in &mut fingerprints.features {
+            merge_fingerprint(f);
+        }
+    }
 }
 
 fn fingerprint_with_axes(

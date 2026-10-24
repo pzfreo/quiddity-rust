@@ -71,7 +71,22 @@ fn census() -> BTreeMap<String, Value> {
         }
         let mut result = json!({"physical": counts(&raw), "accepted": counts(&accepted)});
         if key.starts_with("corpus/") || key.starts_with("fixture/") {
-            result["framed"] = json!(counts(&correspondence::recognise(&part).features));
+            let found = correspondence::recognise(&part);
+            let working_counts = counts(&found.features);
+            let published: BTreeMap<_, _> = found.features.families().into_iter().collect();
+            for (old, plain) in [
+                ("oriented_slots", "slots"),
+                ("oriented_chamfers", "chamfers"),
+                ("oriented_slot_patterns", "slot_patterns"),
+            ] {
+                assert!(!published.contains_key(old), "{key}: old published family");
+                assert_eq!(
+                    published[plain].len(),
+                    working_counts[plain] + working_counts[old],
+                    "{key}: merged {plain} inventory"
+                );
+            }
+            result["framed"] = json!(working_counts);
         }
         (key.clone(), result)
     })
