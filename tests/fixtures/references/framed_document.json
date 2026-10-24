@@ -1012,8 +1012,8 @@
     "check": "generic_framed",
     "family": "chamfers",
     "verdict": "equivalent",
-    "reason": "The run's sense is chosen by its coordinates in the frame, and one of them is zero up to round-off (mfcadpp/10155: run (0, 0.3147, -0.9492) in the frame; nist_ctc_04: (0, 0.3206, -0.9472)), so the placement's round-off decides it; the same line (and wall outline, listed from the other end). Schema 7 renames this publication family (for #92); the recogniser and comparison floor are unchanged.",
-    "max_differing": 2
+    "reason": "The run's sense is chosen by its coordinates in the frame, and one of them is zero up to round-off (mfcadpp/10155: run (0, 0.3147, -0.9492) in the frame; nist_ctc_04: (0, 0.3206, -0.9472)), so the placement's round-off decides it; the same line (and wall outline, listed from the other end). Schema 7 renames this publication family (for #92); the recogniser and comparison floor are unchanged. Resolved by the schema-7 run-to-axis mapping: the existing geometric comparator canonicalises the axis line sense, so these two sign-only differences disappear. The zero allowance is an absence ratchet; recognisers and geometry are unchanged.",
+    "max_differing": 0
   },
   {
     "file": "nist/nist_ftc_07_asme1_rd.stp",
