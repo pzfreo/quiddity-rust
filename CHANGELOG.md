@@ -22,9 +22,10 @@ in [docs/alpha1.md](docs/alpha1.md).
   file frame. Interior voids rise 0→1: **a restored sampler limitation**, not a real chamber
   gain. The file-grid claim on faces [26,41] mistakes cross-bore wall 28 for an opening;
   the analytic bound sqrt(4.25²+5.1²) < 1.5×5.1 still disproves the required widening.
-  File-coordinate publication also exposes an existing turned-profile limitation on face 314:
-  its published low end is −30 although the native cylindrical wall starts at −29; the
-  framed-document reference explicitly bounds this as wrong rather than equivalent.
+  File-coordinate publication also exposes a turned-profile description difference on face 314:
+  its nominal shoulder-to-shoulder span −30→−25 includes the R1 end rounds, while the
+  straight cylinder wall runs −29→−26. Native end planes 312/308 and adjacent tori
+  139/138 support the inferred 5 mm span; caller space omits the lower end round.
   cgb241 and capture `8443bc2e5a9d6ca9` change fillets 1→0, blends 5→6, levels 2→0.
   Face 47 remains an outward R23 cylindrical blend; its support normals on 46/48 have
   dot product −0.03589128343, not an orthogonal corner. The old specific fillet was a

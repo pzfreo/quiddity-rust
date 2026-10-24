@@ -51,8 +51,8 @@
     "file": "cadgenbench_inputs/cgb217.step.gz",
     "check": "caller_space",
     "family": "turned_steps",
-    "verdict": "rust-wrong",
-    "reason": "For #91 the file-axis frame is (file Z, file X, file Y). One existing query-dependent substitution remains: caller-space claims a turned step on [321,330,332,334,336,338,340,342], while the inferred query keeps its boss. A second parameter difference is now visible on face 314: inferred lo=-30 versus caller lo=-29. The native R47.5 cylinder bounds are file Z=[-29,-26], so the inferred profile extends past the supporting face; this is a bounded coordinate/profile limitation, not an equivalent value. Its diameter remains 95 and all physical cylinder faces remain. The rule does not alter the turned-profile algorithm; #92 will replace axis-letter query contexts. Bound two differing records, not an assertion of manufacturing correctness.",
+    "verdict": "rust-correct",
+    "reason": "For #91 the file-axis frame is (file Z, file X, file Y). The existing query-dependent substitution remains: caller space claims a turned step on [321,330,332,334,336,338,340,342], while the inferred query retains its boss. A second visible parameter difference on face 314 is inferred lo=-30 versus caller lo=-29 (both hi=-25, diameter=95). TurnedStep is a shoulder-to-shoulder segment, not just the straight cylinder wall: native plane 312 is at file Z=-30 and plane 308 at -25. Outward R47.5 cylinder 314 occupies [-29,-26]; its adjacent R1 tori 139 and 138 bridge [-30,-29] and [-26,-25], and connect to planes 312 and 308 respectively. Thus the inferred nominal 5-mm span includes both end rounds and matches the documented TurnedStep contract; caller space omits the lower end round. The earlier straight-wall-only interpretation was incorrect. Bound the same two differing records; no comparison tolerance or count allowance changes.",
     "max_differing": 2
   },
   {
