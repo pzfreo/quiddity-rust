@@ -88,6 +88,12 @@ pub fn recognise(part: &Part) -> Recognition {
     recognise_in_frame(part, frame)
 }
 
+/// Exercise the exact production mapping route with an independently specified frame.
+#[cfg(test)]
+pub(crate) fn recognise_in_frame_for_test(part: &Part, frame: PartFrame) -> Recognition {
+    recognise_in_frame(part, frame)
+}
+
 fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
     let working = match part.transformed(&frame.normalisation()) {
         Ok(working) => working,

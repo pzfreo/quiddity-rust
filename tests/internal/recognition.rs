@@ -724,20 +724,44 @@ fn moves_with_the_part(k: usize, n: usize) {
         };
         for ((motion, placement), moved) in motions.iter().zip(moved) {
             // #91 deliberately changes the query on leaving the file-axis pose.
-            // For these two parts keep strict generic-to-generic document checks;
-            // principal motions still compare the original file-axis documents.
+            // Preserve main's strict 37-degree document check against an independently
+            // specified surface-vote reference. The default as-read query is now file
+            // axes, so it cannot be the reference for a moved, vote-only query.
             let d = if *motion == GENERIC && super::frames::prefers_file_axes(name) {
                 let path = dir.join(name);
-                let base = super::frames::vote_only_pose(&IDENTITY);
-                let at = super::frames::vote_only_pose(placement);
-                for pose in [base, at] {
-                    super::frames::assert_no_file_axis_frame(
-                        &read_step_file_placed(&path, &pose).unwrap(),
-                    );
-                }
+                let part = quiddity::read_step_file(&path).unwrap();
+                let q = std::f64::consts::FRAC_1_SQRT_2;
+                let y = match name.as_str() {
+                    "cadgenbench_inputs/cgb217.step.gz" => [q, -q, 0.],
+                    "cadgenbench_inputs/cgb241.step" => {
+                        [0.46034751596800805, 0.8877387929690156, 0.]
+                    }
+                    _ => unreachable!(),
+                };
+                let frame = PartFrame {
+                    origin: frames::infer_part_frame(&part).unwrap().origin,
+                    x: [0., 0., 1.],
+                    y,
+                    z: [-y[1], y[0], 0.],
+                    gauge: frames::FrameGauge::Full,
+                };
+                let reference = correspondence::recognise_in_frame_for_test(&part, frame);
+                let reference_document = recognition::document(&reference, part.faces.len());
+                super::frames::assert_no_file_axis_frame(&part.transformed(placement).unwrap());
+                let moved = moved.unwrap();
+                let RecordFrame::Inferred(actual) = moved.0.frame else {
+                    panic!("frame refused")
+                };
+                assert!(
+                    frames_agree(
+                        &moved_frame(&frame, &Rigid::from_placement(placement)),
+                        &actual
+                    ),
+                    "{name}"
+                );
                 under_motion(
-                    &default(&path, &base),
-                    &default(&path, &at),
+                    &(reference, reference_document),
+                    &moved,
                     &Rigid::from_placement(placement),
                     &mut grid,
                 )

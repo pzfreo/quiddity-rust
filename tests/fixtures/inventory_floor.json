@@ -18806,7 +18806,7 @@
       "family": "step_levels",
       "max_lost": 6,
       "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
-      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; at 0.05 scale, coordinate clustering groups the six end walls into four level records [15], [11,17], [7,12], [8]. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
     },
     {
       "file": "captured/3f89fd15d4993366.step.gz",
@@ -18862,7 +18862,7 @@
       "family": "step_levels",
       "max_lost": 6,
       "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
-      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; at 0.05 scale, coordinate clustering groups the six end walls into four level records [15], [11,17], [7,12], [8]. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
     },
     {
       "file": "captured/83ba2c37c00b754f.step.gz",
@@ -18934,7 +18934,7 @@
       "family": "step_levels",
       "max_lost": 4,
       "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
-      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; at 0.05 scale, coordinate clustering groups the six end walls into four level records [15], [11,17], [7,12], [8]. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
     },
     {
       "file": "captured/9206ca6ded11c438.step.gz",
@@ -18966,7 +18966,7 @@
       "family": "step_levels",
       "max_lost": 6,
       "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
-      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; at 0.05 scale, coordinate clustering groups the six end walls into four level records [15], [11,17], [7,12], [8]. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
     },
     {
       "file": "captured/eaea9b3e567d92b4.step.gz",
@@ -19046,7 +19046,7 @@
       "family": "step_levels",
       "max_lost": 6,
       "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
-      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; at 0.05 scale, coordinate clustering groups the six end walls into four level records [15], [11,17], [7,12], [8]. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
     },
     {
       "file": "captured/sections/parts/6d574d007a42a547.step.gz",
@@ -19078,7 +19078,7 @@
       "family": "step_levels",
       "max_lost": 6,
       "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
-      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; at 0.05 scale, coordinate clustering groups the six end walls into four level records [15], [11,17], [7,12], [8]. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
     },
     {
       "file": "golden/golden_oriented_slots.step",
@@ -19110,7 +19110,7 @@
       "family": "step_levels",
       "max_lost": 6,
       "reason": "#91 removes rotated-frame slot end walls from the horizontal-level family. (for #91)",
-      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; the 0.05-scale input previously retained only four above its level tolerances. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
+      "evidence": "End walls [7,8,11,12,15,17] now belong to the three oriented-slot claims; at 0.05 scale, coordinate clustering groups the six end walls into four level records [15], [11,17], [7,12], [8]. Every wall is a plane through file Z, with native normal in file XY; none is horizontal in the new query frame. The slot claims preserve the full wall sets. This is a frame artefact, not a lost machining floor."
     },
     {
       "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
