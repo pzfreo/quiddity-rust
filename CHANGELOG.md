@@ -6,6 +6,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Slot precision in turned frames (for #92).** Converted slots retain measured
+  extents instead of rounding distances to 0.01 mm. Slot patterns use raw member
+  centres for pitches and directions, with coordinate-floor axis snapping and
+  face-stable array sense. File-axis slot extents keep their existing values.
+
 - **One published family per feature kind (for #92).** Recognition schema 7 merges
   oriented slots, chamfers and slot patterns into their plain families, preserving
   proofs and counts. Plain records precede oriented records; IDs, pattern members,

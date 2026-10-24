@@ -106,6 +106,20 @@ impl PublishedFeatures {
             }
         }
         merge_families(&mut families);
+        for (family, records) in &mut families {
+            if family != "slot_patterns" {
+                continue;
+            }
+            for record in records {
+                for key in ["direction", "row_direction", "col_direction"] {
+                    if record[key].is_array() {
+                        let d =
+                            serde_json::from_value(record[key].clone()).expect("pattern direction");
+                        record[key] = json!(snap_direction(d, self.reach));
+                    }
+                }
+            }
+        }
         families
     }
 
@@ -404,6 +418,21 @@ fn direction(m: &Rigid, i: usize, reach: f64) -> (Value, f64) {
         (json!(d), 1.)
     }
 }
+/// An explicit direction snapped only when its movement over the part is within
+/// the same coordinate floor used for measuring bases. Preserve vector sense.
+fn snap_direction(d: V3, reach: f64) -> V3 {
+    let w = (0..3)
+        .max_by(|&a, &b| d[a].abs().total_cmp(&d[b].abs()))
+        .unwrap();
+    let axis = std::array::from_fn(|i| if i == w { 1_f64.copysign(d[w]) } else { 0. });
+    let deviation = (0..3).map(|i| (d[i] - axis[i]).powi(2)).sum::<f64>().sqrt();
+    if deviation == 0. || deviation * reach <= crate::kernel::geom::COORD_FLOOR {
+        axis
+    } else {
+        d
+    }
+}
+
 fn scaled(v: &mut Value, sign: f64, interval: bool) {
     if sign == 1. {
         return;

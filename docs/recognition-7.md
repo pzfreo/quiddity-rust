@@ -45,3 +45,26 @@ Rust consumers obtain the merged contract through `PublishedFeatures::families()
 serialization. The public `Deref` into the working inventory is removed so typed field access cannot
 expose an unmerged family; working inventory access remains internal. The published family registry has
 45 families; raw recogniser APIs retain their internal types.
+
+## Slot precision correction (for #92)
+
+The plain recess recogniser retains its legacy two-decimal positions, for stable
+recognition and file-axis output. `Slot::published` in `recess_records.rs` applies
+that grid after reductions have measured the raw spans; channels apply the same
+position grid in `recess_core.rs`. These rounded values are unsuitable as distances
+in a turned measuring basis. Converted slots now publish their retained raw
+`w_center`, `lo`, `hi`, `d_lo` and `d_hi`; these distances are not independently
+rounded to a fictitious file grid. The measuring basis still uses #70's
+coordinate-floor snap. File-axis extents keep their existing publication rule.
+Pockets and channels are outside this correction.
+
+Slot patterns retain exactly their recognised members and grid cells. Publication
+remeasures arrays and grids from the raw member centres, before any position
+rounding, and snaps explicit directions to a file axis only within the existing
+coordinate-floor movement bound. Array sense runs from the endpoint with the
+lexicographically greater defining-face list to the other endpoint; reverse the
+member list together when necessary. This makes sense stable under rigid moves
+that preserve face identity. Grid pitches and centre come from those same raw
+centres. File-axis pattern geometry is also remeasured, so a copy that happens to
+land on file axes does not retain a rounding-induced skew. Feature IDs, proofs,
+inventory, schema 7, fingerprint version 4 and the crate version are unchanged.

@@ -96,6 +96,11 @@ fn golden_slots_and_levels_reconstruct_on_faces_and_move_rigidly() {
     let doc = document(&base);
     let slots: Vec<_> = doc.records.iter().filter(|r| r.family == "slots").collect();
     assert_eq!(slots.len(), 3);
+    let offset = 30. * 30_f64.to_radians().cos();
+    for (r, center) in slots.iter().zip([-offset, 0., offset]) {
+        near(number(&r.parameters["lo"]), center - 12., 1e-6);
+        near(number(&r.parameters["hi"]), center + 12., 1e-6);
+    }
     for r in &slots {
         let l = vector(&r.parameters["long_axis"]);
         near(l[0].abs(), 30_f64.to_radians().cos(), 1e-10);
@@ -122,11 +127,34 @@ fn golden_slots_and_levels_reconstruct_on_faces_and_move_rigidly() {
             .filter(|r| r.family == "slot_patterns")
             .collect();
         assert_eq!(patterns.len(), 1);
+        let direction = vector(&patterns[0].parameters["direction"]);
+        let expected_direction = [-placement[0][0], -placement[1][0], -placement[2][0]];
+        if degrees == 0. {
+            assert_eq!(direction, [-1., 0., 0.]);
+        }
+        for i in 0..3 {
+            near(direction[i], expected_direction[i], 1e-12);
+        }
+        near(number(&patterns[0].parameters["pitch"]), 30., 1e-10);
         assert_eq!(patterns[0].parameters["slots"].as_array().unwrap().len(), 3);
         for member in patterns[0].parameters["slots"].as_array().unwrap() {
             assert!(found.iter().any(|r| json!(r.parameters) == *member));
         }
         for r in found {
+            let p = json!(r.parameters);
+            if p.get("origin").is_some() {
+                let l = vector(&p["long_axis"]);
+                let actual = part.extent_along(&r.faces, l);
+                near(number(&p["lo"]), actual.0 - dot(origin(&p), l), 1e-6);
+                near(number(&p["hi"]), actual.1 - dot(origin(&p), l), 1e-6);
+            } else {
+                // This round deliberately preserves legacy file-axis extents,
+                // including copies whose slot axes land on the file axes.
+                let actual = part.extent_along(&r.faces, vector(&p["long_axis"]));
+                let grid = quiddity::features::placed::Grid::Decimals(2);
+                near(number(&p["lo"]), grid.publish(actual.0), 1e-6);
+                near(number(&p["hi"]), grid.publish(actual.1), 1e-6);
+            }
             let points = slot_endpoints(&part, r);
             let original = slots
                 .iter()
