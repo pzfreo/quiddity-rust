@@ -2981,7 +2981,7 @@
     "tests/fixtures/interrupted_corner.step": "4677d32a9c655eddfa5ef7f4f8f153007fa5b14abdcd95758b0640605b1691da",
     "tests/fixtures/interrupted_corner_mirror.step": "e11c0dfe7de4f7abaa92a1dd7e35fe5911f23df070f0e5d0078274b5a115a571",
     "tests/fixtures/interrupted_corner_rot.step": "e384424458d1510d4c5cc540427deea9308785b2db342256f7671ac6fe2ddfe9",
-    "tests/fixtures/inventory_floor.json": "6eaabc6ab3375d3eda9b8eda0e6fcadf40105ed0e053ea85f35199aa37eb2b0f",
+    "tests/fixtures/inventory_floor.json": "e2830a07d6e08aa6088c0a9246b55dad53ff3c33eeb342fa6d34d7a00e876496",
     "tests/fixtures/kissing_cylinders_knife.step": "2208a45500ffbd4b7fb8de3faf6548c7593eaf9b2613cfd5ae7597f90b61cfe6",
     "tests/fixtures/kissing_cylinders_notch.step": "c36b869747e41d40ccadadbd17934abeec3e661fcb6e87a69930ce3d30e7119a",
     "tests/fixtures/large_block_small_fillets.step": "bfcbd950368723969e8881d09386a579654546f1e36700afa8a773d0d4aece55",
@@ -5808,5 +5808,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "fe359eacaf792d10a79d941cab975e5743c2c07f"
+  "source_commit": "f46f9b19978119a0335199b08b817e277c99df58"
 }
