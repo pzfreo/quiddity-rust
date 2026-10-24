@@ -462,15 +462,47 @@ fn brep_writes_the_pmi_document_given_in_place_of_the_files() {
     std::fs::remove_dir_all(&dir).ok();
 }
 
-/// Captured with alpha.1 (a4d07a0), including file-axis golden recognition to exercise
-/// the formerly oriented slots and their pattern, plus inferred-frame corpus chamfers.
+/// Genuine schema-5/v3 captures from v0.1.1 (a27b706): default golden recognition
+/// and caller-space 10252 recognition. All five oriented features must follow the merge.
 #[test]
-fn schema6_oriented_fingerprints_correspond_to_schema7_step() {
+fn v011_oriented_fingerprints_correspond_to_merged_step() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let bytes = include_bytes!("fixtures/recognition6_oriented.json.gz");
+    let bytes = include_bytes!("fixtures/recognition011_oriented.json.gz");
     let capture: serde_json::Value =
         serde_json::from_reader(flate2::read::GzDecoder::new(&bytes[..])).unwrap();
-    let temporary = std::env::temp_dir().join(format!("quiddity-schema6-{}", std::process::id()));
+    assert_eq!(capture["source_tag"], "v0.1.1");
+    assert_eq!(
+        capture["source_commit"],
+        "a27b7064a65358563f0168e97cb50d558397ece7"
+    );
+    let captured_oriented = capture["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|case| {
+            assert_eq!(
+                case["document"]["schema_version"],
+                "quiddity-rust/recognition/5"
+            );
+            assert_eq!(case["document"]["package"]["version"], "0.1.1");
+            assert_eq!(
+                case["fingerprints"]["fingerprint_version"],
+                "quiddity-rust/fingerprint/3"
+            );
+            case["fingerprints"]["features"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|f| f["family"].as_str().unwrap().starts_with("oriented_"))
+                .count()
+        })
+        .sum::<usize>();
+    assert_eq!(
+        captured_oriented, 5,
+        "three slots, one pattern, one chamfer"
+    );
+    let has_corpus = std::env::var_os("QUIDDITY_CORPUS").is_some_and(|v| v != "off");
+    let temporary = std::env::temp_dir().join(format!("quiddity-v011-{}", std::process::id()));
     std::fs::create_dir_all(&temporary).unwrap();
     let mut formerly_oriented = 0;
     for case in capture["cases"].as_array().unwrap() {
@@ -483,7 +515,7 @@ fn schema6_oriented_fingerprints_correspond_to_schema7_step() {
             assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
             continue;
         };
-        let old = temporary.join("schema6.json");
+        let old = temporary.join("v011.json");
         std::fs::write(&old, serde_json::to_vec(case).unwrap()).unwrap();
         let output = quiddity(&["correspond", old.to_str().unwrap(), step.to_str().unwrap()]);
         assert!(
@@ -497,14 +529,31 @@ fn schema6_oriented_fingerprints_correspond_to_schema7_step() {
         let recognised: serde_json::Value = serde_json::from_slice(&recognised.stdout).unwrap();
         assert_eq!(
             recognised["document"]["schema_version"],
-            "quiddity-rust/recognition/7"
+            "quiddity-rust/recognition/6"
         );
+        assert_eq!(
+            recognised["document"]["source_sha256"],
+            case["input_sha256"]
+        );
+        assert_eq!(
+            recognised["fingerprints"]["fingerprint_version"],
+            "quiddity-rust/fingerprint/3"
+        );
+        assert_eq!(result["fingerprint_version"], "quiddity-rust/fingerprint/3");
         for old in case["fingerprints"]["features"]
             .as_array()
             .unwrap()
             .iter()
             .filter(|f| f["family"].as_str().unwrap().starts_with("oriented_"))
         {
+            let captured = case["document"]["records"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|r| r["id"] == old["id"])
+                .expect("captured schema-5 record");
+            assert_eq!(captured["family"], old["family"]);
+            assert_eq!(captured["faces"], old["faces"]);
             formerly_oriented += 1;
             let pair = result["features"]
                 .as_array()
@@ -555,9 +604,10 @@ fn schema6_oriented_fingerprints_correspond_to_schema7_step() {
             }
         }
     }
-    assert!(
-        formerly_oriented >= 4,
-        "three slots and their accepted pattern"
+    assert_eq!(
+        formerly_oriented,
+        if has_corpus { 5 } else { 4 },
+        "every available captured oriented feature must pair"
     );
     std::fs::remove_dir_all(temporary).unwrap();
 }

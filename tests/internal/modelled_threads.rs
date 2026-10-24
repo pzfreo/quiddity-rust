@@ -225,7 +225,7 @@ fn the_document_publishes_measurements_claims_and_fingerprints_without_a_designa
     )
     .unwrap();
     let doc = &out.document;
-    assert_eq!(doc.schema_version, "quiddity-rust/recognition/7");
+    assert_eq!(doc.schema_version, "quiddity-rust/recognition/6");
     let records: Vec<_> = doc
         .records
         .iter()

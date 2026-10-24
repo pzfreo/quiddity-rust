@@ -223,7 +223,7 @@ pub fn fingerprints_value(mut value: Value, source: &str) -> Result<Fingerprints
             format!("{source}: no fingerprints ({e}); write it with `quiddity <file.step>`"),
         )
     })?;
-    correspondence::fingerprint::migrate_v3(&mut fingerprints);
+    correspondence::fingerprint::merge_legacy_families(&mut fingerprints);
     Ok(fingerprints)
 }
 

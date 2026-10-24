@@ -11,9 +11,9 @@ use crate::features::Features;
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{self, Surface, V3};
 
-/// Bumped whenever a fingerprint's content or meaning changes. Correspondence adapts v3
-/// namespaces to v4; other historical versions require re-recognition.
-pub const FINGERPRINT_VERSION: &str = "quiddity-rust/fingerprint/4";
+/// Fingerprint format version: correspondence refuses different formats.
+/// Intentional value changes within v3 are recorded in the changelog (#71, #92).
+pub const FINGERPRINT_VERSION: &str = "quiddity-rust/fingerprint/3";
 
 /// The fingerprints of one recognition result.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -972,14 +972,13 @@ pub(crate) fn merge_fingerprint(f: &mut FeatureFingerprint) {
     f.family = crate::published_records::publication_family(&f.family).into();
 }
 
-/// Schema-6 CLI documents carry v3 fingerprints. Keep their old IDs in the result so
-/// saved references can follow correspondence into the new namespace.
-pub(crate) fn migrate_v3(fingerprints: &mut Fingerprints) {
-    if fingerprints.fingerprint_version == "quiddity-rust/fingerprint/3" {
+/// Match 0.1.1's oriented namespaces against the merged families within v3.
+/// Keep old IDs so saved references can follow the resulting correspondence pairs.
+pub(crate) fn merge_legacy_families(fingerprints: &mut Fingerprints) {
+    if fingerprints.fingerprint_version == FINGERPRINT_VERSION {
         for f in &mut fingerprints.features {
             merge_fingerprint(f);
         }
-        fingerprints.fingerprint_version = FINGERPRINT_VERSION.into();
     }
 }
 

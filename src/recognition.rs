@@ -18,8 +18,8 @@
 //! the file, so its records depend on that placement), or `caller-space` for a part recognised in
 //! memory without one. In version 6 every record is self-contained in file coordinates:
 //! directions that cannot name a file axis use unit vectors, and their scalar coordinates have
-//! an explicit record origin. The top-level frame is provenance only. Version 7 also unifies
-//! oriented families; see docs/recognition-7.md.
+//! an explicit record origin. The top-level frame is provenance only. Version 6 unifies
+//! oriented families as well; see docs/recognition-6.md.
 
 use std::collections::BTreeMap;
 
@@ -37,8 +37,8 @@ use crate::features::recess_patterns::{PocketPattern, SlotPattern};
 use crate::features::section_recess::SectionRecessPattern;
 use crate::frames::RecordFrame;
 
-/// Version 7 unifies the plain and oriented slot, chamfer and slot-pattern namespaces.
-pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/7";
+/// Version 6 unifies the plain and oriented slot, chamfer and slot-pattern namespaces.
+pub const SCHEMA_VERSION: &str = "quiddity-rust/recognition/6";
 /// Historical pre-thread contract, accepted on input but no longer emitted.
 pub const LEGACY_SCHEMA_VERSION: &str = "quiddity-rust/recognition/3";
 

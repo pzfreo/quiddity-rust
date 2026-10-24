@@ -334,17 +334,24 @@ pub fn correspond_with(
     new: &Fingerprints,
     th: &Thresholds,
 ) -> Result<Correspondence, String> {
-    let upgrade = |f: &Fingerprints| {
-        (f.fingerprint_version == "quiddity-rust/fingerprint/3").then(|| {
+    let merged = |f: &Fingerprints| {
+        (f.fingerprint_version == FINGERPRINT_VERSION
+            && f.features.iter().any(|feature| {
+                matches!(
+                    feature.family.as_str(),
+                    "oriented_slots" | "oriented_chamfers" | "oriented_slot_patterns"
+                )
+            }))
+        .then(|| {
             let mut f = f.clone();
-            fingerprint::migrate_v3(&mut f);
+            fingerprint::merge_legacy_families(&mut f);
             f
         })
     };
-    let old_upgraded = upgrade(old);
-    let new_upgraded = upgrade(new);
-    let old = old_upgraded.as_ref().unwrap_or(old);
-    let new = new_upgraded.as_ref().unwrap_or(new);
+    let old_merged = merged(old);
+    let new_merged = merged(new);
+    let old = old_merged.as_ref().unwrap_or(old);
+    let new = new_merged.as_ref().unwrap_or(new);
     for (which, f) in [("old", old), ("new", new)] {
         validate(f).map_err(|e| format!("the {which} fingerprints {e}"))?;
     }

@@ -1269,7 +1269,7 @@ fn pocket_rim_chamfer_corners_are_not_countersinks() {
     let count = |family: &str| doc.records.iter().filter(|r| r.family == family).count();
     assert_eq!(count("countersinks"), 0);
     // The straight runs of the rim chamfer are still recognised either side of each corner.
-    // Schema 7 publishes the eight plain and four oriented proofs together.
+    // Schema 6 publishes the eight plain and four oriented proofs together.
     assert_eq!(count("chamfers"), 12);
     assert_eq!(count("oriented_chamfers"), 0);
     let accounting = doc.face_accounting.as_ref().unwrap();

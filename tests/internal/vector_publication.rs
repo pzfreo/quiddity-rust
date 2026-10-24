@@ -597,7 +597,7 @@ fn snapped_reversed_height_orders_body_levels_and_end_flags_in_the_published_sen
 }
 
 #[test]
-fn merged_publication_preserves_each_proof_and_schema6_correspondence() {
+fn merged_publication_preserves_each_proof_and_oriented_correspondence() {
     let mut paths = vec![common::fixtures().join("golden_oriented_slots.step")];
     if let Some(dir) = common::corpus_dir() {
         paths.extend([
@@ -608,10 +608,11 @@ fn merged_publication_preserves_each_proof_and_schema6_correspondence() {
     for path in paths {
         let part = read_step_file_placed(&path, &IDENTITY).unwrap();
         // File-axis recognition exercises the oriented issuers even where the inferred frame
-        // happens to give a plain proof. Its v3 fingerprint data is the schema-6 contract.
+        // happens to give a plain proof. Raw fingerprints exercise the old namespaces;
+        // the CLI test separately checks genuine captured v0.1.1 recognition output.
         let working = quiddity::features::recognise(&part);
-        let mut legacy = correspondence::fingerprint(&part, &working);
-        legacy.fingerprint_version = "quiddity-rust/fingerprint/3".into();
+        let legacy = correspondence::fingerprint(&part, &working);
+        assert_eq!(legacy.fingerprint_version, "quiddity-rust/fingerprint/3");
         let published = quiddity::published_records::PublishedFeatures::from(working.clone());
         let families: std::collections::BTreeMap<_, _> = published.families().into_iter().collect();
         for (old, plain) in [
