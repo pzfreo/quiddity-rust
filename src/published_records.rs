@@ -483,6 +483,9 @@ fn convert(record: &mut Value, paths: &[String], m: &Rigid, family: &str, reach:
                 let b = obj["hi_at_envelope"].clone();
                 obj.insert("lo_at_envelope".into(), b);
                 obj.insert("hi_at_envelope".into(), a);
+                if let Some(levels) = obj.get_mut("body_levels").and_then(Value::as_array_mut) {
+                    levels.reverse();
+                }
             }
         }
     }

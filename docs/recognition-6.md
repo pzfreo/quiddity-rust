@@ -35,7 +35,8 @@ fillet's `axis`, whose position is already `at`) do not require an origin.
 
 Riser `vertical` means parallel to the published `height_axis`, not necessarily file Z.
 `lo_at_envelope` and `hi_at_envelope` describe the low and high ends along `height_axis`;
-they follow those endpoints when sense reverses. `open_sign`, `depth_sign`, pad direction
+they follow those endpoints when sense reverses. `body_levels` remains ascending along that
+same published height direction. `open_sign`, `depth_sign`, pad direction
 and gusset support-side signs refer to their published directions. Empty position arrays
 remain empty. Nested levels and pattern members use the same decoding rules independently.
 An unconverted record without `origin` retains the existing absolute file-coordinate rules.

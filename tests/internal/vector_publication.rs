@@ -491,3 +491,60 @@ fn vector_snaps_share_the_coordinate_floor_across_the_whole_basis() {
         }
     }
 }
+
+#[test]
+fn snapped_reversed_height_orders_body_levels_and_end_flags_in_the_published_sense() {
+    use quiddity::features::{
+        Features,
+        levels::{FaceLevel, RiserEvidence},
+    };
+    use quiddity::framed_records::{Rigid, map_features};
+    let levels = vec![-2., 5.]
+        .into_iter()
+        .map(|z| FaceLevel {
+            z,
+            x_span: Some((-4., 4.)),
+            y_span: Some((-1., 1.)),
+            body_key: None,
+        })
+        .collect();
+    let raw = Features {
+        risers: vec![RiserEvidence {
+            vertical: true,
+            axis: 'x',
+            positions: vec![],
+            other_axis: 'y',
+            other_positions: vec![],
+            z_lo: -2.,
+            z_hi: 5.,
+            lo_at_envelope: true,
+            hi_at_envelope: false,
+            tol: 0.5,
+            body_levels: levels,
+            body_key: None,
+        }],
+        ..Features::default()
+    };
+    let (s, c) = 30_f64.to_radians().sin_cos();
+    let motion = Rigid {
+        rotation: [[0., 0., -1.], [c, s, 0.], [s, -c, 0.]],
+        translation: [10., 20., 30.],
+    };
+    let mapped = map_features(raw, &motion);
+    let json = serde_json::to_value(&mapped.features).unwrap();
+    let p = &json["risers"][0];
+    assert_eq!(p["height_axis"], "x");
+    assert_eq!(p["origin"], json!([10., 20., 30.]));
+    assert_eq!(p["z_lo"], -5.);
+    assert_eq!(p["z_hi"], 2.);
+    assert_eq!(p["lo_at_envelope"], false);
+    assert_eq!(p["hi_at_envelope"], true);
+    let levels = p["body_levels"].as_array().unwrap();
+    assert_eq!(
+        levels.iter().map(|l| number(&l["z"])).collect::<Vec<_>>(),
+        [-5., 2.]
+    );
+    for level in levels {
+        assert_eq!(level["height_axis"], "x");
+    }
+}
