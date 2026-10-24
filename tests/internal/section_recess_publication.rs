@@ -199,7 +199,7 @@ fn rust_snapshot_pattern_publication() {
         let part = quiddity::read_step_file(&path).unwrap();
         let rec = correspondence::caller_space_recognise(&part);
         let doc = recognition::document(&rec, part.faces.len());
-        assert_eq!(doc.schema_version, "quiddity-rust/recognition/5");
+        assert_eq!(doc.schema_version, "quiddity-rust/recognition/6");
         let patterns: Vec<Value> = doc
             .records
             .iter()

@@ -6,6 +6,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Publish nonprincipal measurements in file coordinates (for #92).** Recognition schema 6
+  removes `local`. Formerly frame-relative directions use unit vectors; relative coordinates
+  have explicit origins and measuring axes. Ordinary file-axis records and intrinsic
+  fingerprints retain their values. Recognition frame voting and oriented families are unchanged.
+
+
 - **Decide fillet convexity from the face (for #89).** Both prismatic paths now require
   an outward-facing cylinder. cgb241 face 27 returns to its concave R20 blend: fillets
   fall from 2 to 1, with convex face 47 retained. cgb202 loses 17 inward-facing false

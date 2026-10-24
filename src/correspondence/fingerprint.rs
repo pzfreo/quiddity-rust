@@ -933,6 +933,23 @@ pub fn classify(key: &str, path: &str) -> Option<(&'static str, Role)> {
 /// Panics on a family missing from [`FAMILIES`], or one with neither defining faces in
 /// `features.defining` nor members: a wiring defect, not an input.
 pub fn fingerprint(part: &Part, features: &Features) -> Fingerprints {
+    fingerprint_with_axes(part, features, |_, _, _| None)
+}
+
+pub(crate) fn published_fingerprint(
+    part: &Part,
+    features: &crate::published_records::PublishedFeatures,
+) -> Fingerprints {
+    fingerprint_with_axes(part, features, |id, path, value| {
+        features.fingerprint_axis(id, path, value)
+    })
+}
+
+fn fingerprint_with_axes(
+    part: &Part,
+    features: &Features,
+    axis: impl Fn(&str, &str, &Value) -> Option<V3>,
+) -> Fingerprints {
     let faces: Vec<FaceFingerprint> = (0..part.faces.len()).map(|i| face(part, i)).collect();
     let scale = faces
         .iter()
@@ -968,6 +985,7 @@ pub fn fingerprint(part: &Part, features: &Features) -> Fingerprints {
                 table,
                 record,
                 faces_of,
+                &axis,
             ));
         }
     }
@@ -1257,6 +1275,7 @@ fn feature(
     table: &FamilyFingerprint,
     record: &Value,
     mut own: Vec<usize>,
+    published_axis: &impl Fn(&str, &str, &Value) -> Option<V3>,
 ) -> FeatureFingerprint {
     own.sort_unstable();
     own.dedup();
@@ -1296,7 +1315,7 @@ fn feature(
             }
             Axis => {
                 if axis.is_none() {
-                    axis = read_axis(values[0]);
+                    axis = published_axis(&id, path, values[0]).or_else(|| read_axis(values[0]));
                 }
             }
             Trait => {

@@ -1,7 +1,8 @@
 # Recognition document 3
 
-Historical contract. All newly emitted documents use [version 5](face-accounting.md),
-with the same record payloads plus complete face accounting.
+Historical contract; new output uses [recognition 6](recognition-6.md).
+
+Recognition 6 retains [version 5 face accounting](face-accounting.md).
 
 `quiddity-rust/recognition/3` is the native drawing contract. Version 2 already
 published unified `section_recesses`, including `SectionRecessRefusal` records
@@ -19,7 +20,7 @@ feature fingerprints. Refusals have no fingerprint either.
 
 The projection is computed once with recognition and reconciliation. Its patterns
 are retained rather than rederived by consumers. Rigid frame mapping carries
-pattern vectors and centres with the occurrences. Readers must reject local
+pattern vectors and centres with the occurrences. Historical v3 readers must reject local
 spatial fields they cannot interpret. Other record shapes, IDs and order stay as
 in version 2. All source recess families remain published for other consumers.
 

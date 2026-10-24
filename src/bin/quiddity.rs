@@ -2,8 +2,8 @@
 //! family's records at the top level, their `fingerprints`, and the versioned recognition
 //! `document` (`quiddity::recognition`: per feature its family, Python record type, defining
 //! faces and record). The part is recognised in its own frame and the records reported in the
-//! file's coordinates; the document gives the frame and, per record, the fields no file axis
-//! corresponds to (left in the frame). A part with no frame (no plane or cylinder, no material)
+//! file's coordinates; nonprincipal directions use vectors and record-owned origins. The
+//! document gives the recognition frame as provenance. A part with no frame (no plane or cylinder, no material)
 //! is recognised as placed in the file, with a warning on stderr.
 //!
 //! `quiddity correspond <old> <new>`: match two revisions and print the correspondence as JSON.

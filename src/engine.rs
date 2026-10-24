@@ -23,6 +23,8 @@ pub mod framed_records;
 pub mod frames;
 #[path = "pmi_json.rs"]
 pub mod pmi_json;
+#[path = "published_records.rs"]
+pub mod published_records;
 #[path = "recognition.rs"]
 pub mod recognition;
 #[path = "serve.rs"]

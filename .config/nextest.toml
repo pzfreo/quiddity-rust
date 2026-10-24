@@ -8,3 +8,19 @@ fail-fast = false
 # slows each one's longest item (a reading of cgb202, the costliest corpus part, ran four times
 # slower beside three other tests).
 test-threads = 1
+
+# File-coordinate publication and its downstream consumers (#92).
+[profile.file-coordinates]
+default-filter = '''
+    binary(cli) | binary(serve) | binary(rigid_transform) | binary(corpus_files) |
+    binary(snapshot_provenance) | binary(face_accounting) |
+    (binary(quiddity) & (
+        test(frames::) | test(framed_records::) | test(publication::) |
+        test(vector_publication::) | test(recognition::) | test(invariance::) |
+        test(correspondence::) | test(fingerprint::) | test(inventory_floor::) |
+        test(corpus::) | test(wiring::) | test(serve::) |
+        test(modelled_threads::) | test(section_recess_publication::)
+    ))
+'''
+fail-fast = false
+test-threads = 1

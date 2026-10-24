@@ -135,7 +135,8 @@ two STEP files) and writes the `Correspondence`. In the library: `correspondence
 `correspondence::recognise(&Part) -> Recognition` is the supported recognition entry point.
 It infers the part's frame, transforms the loaded geometry in memory, recognises there and
 maps records back. It does not re-read STEP. `frame` reports `Inferred` or `Refused { reason }`;
-fields without corresponding file axes remain `local` and must be interpreted through `frame`.
+directions without corresponding file axes use unit vectors and explicit record origins.
+The top-level frame is provenance only; see [schema 6 migration](recognition-6.md).
 Frame selection (for #81) compares complete orthogonal sets of three direction lines. Each
 distinct analytic surface gives one vote to a set when its plane normal or cylinder axis
 lies within `cos(angle) >= 1 - 1e-10` of one of its lines (about 0.0008°). Coplanar planes

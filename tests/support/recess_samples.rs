@@ -1,9 +1,8 @@
 //! Independent file-space reconstruction for the caller-space equivalence verdicts.
 use quiddity::correspondence::Recognition;
 use quiddity::features::section_recess::{EndSurface, SectionRecess};
-use quiddity::frames::RecordFrame;
 
-fn samples(record: &SectionRecess, recognition: &Recognition) -> Vec<[f64; 3]> {
+fn samples(record: &SectionRecess, _recognition: &Recognition) -> Vec<[f64; 3]> {
     let geometry = record.geometry();
     let frame = geometry.frame();
     let boundary = geometry.profile().boundary();
@@ -20,9 +19,6 @@ fn samples(record: &SectionRecess, recognition: &Recognition) -> Vec<[f64; 3]> {
             ]);
         }
     }
-    let local = recognition
-        .local
-        .contains_key(&format!("section_recesses/{}", record.index()));
     let (low, high) = geometry.run_interval();
     points
         .into_iter()
@@ -36,20 +32,12 @@ fn samples(record: &SectionRecess, recognition: &Recognition) -> Vec<[f64; 3]> {
                     EndSurface::Cylindrical(cylinder) => cylinder.height(point).unwrap(),
                     EndSurface::PlanarEnvelope(envelope) => envelope.height(point).unwrap(),
                 };
-                let p = std::array::from_fn(|i| {
+                std::array::from_fn(|i| {
                     frame.origin[i]
                         + height * frame.run[i]
                         + point[0] * frame.u[i]
                         + point[1] * frame.v[i]
-                });
-                if local {
-                    let RecordFrame::Inferred(part_frame) = &recognition.frame else {
-                        panic!("local geometry without inferred frame")
-                    };
-                    part_frame.to_world(p)
-                } else {
-                    p
-                }
+                })
             })
         })
         .collect()

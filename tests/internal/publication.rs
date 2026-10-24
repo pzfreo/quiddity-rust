@@ -195,16 +195,6 @@ fn a_moved_copy_publishes_the_carried_records() {
             v["step_levels"] = Value::Null;
             v["risers"] = Value::Null;
         }
-        // A field left in the frame is the same in both, not carried: not compared.
-        for id in unmoved.local.keys().chain(moved.local.keys()) {
-            let (family, n) = id.rsplit_once('/').unwrap();
-            let n: usize = n.parse().unwrap();
-            for v in [&mut expected, &mut got] {
-                if let Some(record) = v.get_mut(family).and_then(|f| f.get_mut(n)) {
-                    *record = Value::Null;
-                }
-            }
-        }
         compared += 1;
         let mut found = Vec::new();
         // 1e-7: less than any published grid's step (1e-6 mm at the finest), more than the
@@ -237,8 +227,7 @@ fn counts(r: &Recognition) -> Vec<(String, usize)> {
 /// every angle up to and beyond those a publication snap could accept (#70: recognition stays
 /// in the frame as inferred; the snap only publishes). Where the turn moves no point of the
 /// part by more than the coordinate floor (here up to sm-hanger's 2.42e-9 rad and a little
-/// more), the records come back in the file's axes as the unrotated part's: no field local
-/// that was not, and values to the floor (in any order ties among equal records leave).
+/// more), the records come back in the file's axes as the unrotated part's: the same file-coordinate fields, and values to the floor (in any order ties among equal records leave).
 #[test]
 fn a_tiny_rotation_is_recognised_and_published_as_the_aligned_part() {
     let mut compared = 0;
@@ -261,7 +250,6 @@ fn a_tiny_rotation_is_recognised_and_published_as_the_aligned_part() {
             assert_eq!(counts(&unmoved), counts(&moved), "{path:?} at {radians}");
             // A free gauge (a roll about a turned part's axis) may take another representative.
             if radians <= 2.5e-9 && f0.gauge == quiddity::frames::FrameGauge::Full {
-                assert_eq!(unmoved.local, moved.local, "{path:?} at {radians}");
                 let mut found = Vec::new();
                 differences(
                     &canonical(&records(&unmoved)),
@@ -281,8 +269,8 @@ fn a_tiny_rotation_is_recognised_and_published_as_the_aligned_part() {
 
 /// sm-hanger's frame is aligned with the file's axes up to 2.4e-9 rad: its records are published
 /// through that signed permutation, so its fillets name the file's axis their cylinder runs
-/// along, and nothing but the step levels (read along the frame's z by specification, here the
-/// file's x) is left local. The frame itself, and so recognition, is as inferred.
+/// along, and step levels (read along the frame's z by specification, here the
+/// file's x) acquire explicit origins and height directions. The frame itself, and so recognition, is as inferred.
 #[test]
 fn sm_hanger_is_mapped_in_the_files_axes() {
     let Some(dir) = common::corpus_dir() else {
@@ -304,9 +292,6 @@ fn sm_hanger_is_mapped_in_the_files_axes() {
         .flat_map(|(a, b)| (0..3).map(move |i| (a[i] - b[i]).abs()))
         .fold(0.0, f64::max);
     assert!(off > 0.0 && off < 3e-9, "{frame:?}");
-    for (id, paths) in &r.local {
-        assert!(id.starts_with("step_levels/"), "{id}: {paths:?}");
-    }
     assert_eq!(r.features.fillets.len(), 6);
     let defining = &r.features.defining["fillets"];
     for (fillet, faces) in r.features.fillets.iter().zip(defining) {

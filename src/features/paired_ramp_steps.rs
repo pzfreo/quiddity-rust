@@ -25,6 +25,9 @@ pub struct PairedRampStep {
     pub half_width: f64,
     /// Each side's width, low side first, when the two ramps differ.
     pub half_widths: Option<(f64, f64)>,
+    /// Working measurement axis for unequal half widths; published only when required.
+    #[serde(skip)]
+    pub(crate) half_width_axis: char,
 }
 
 internal_entry! {
@@ -261,6 +264,7 @@ fn candidate(
             opening_direction,
             half_width: py::round_to3(0.5 * (widths.0 + widths.1)),
             half_widths,
+            half_width_axis: ['x', 'y', 'z'][opposed],
         },
         defining: vec![left, right, inside],
         context: vec![],
