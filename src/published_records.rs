@@ -5,7 +5,7 @@
 //! an explicit measuring basis acquire fields; ordinary file-axis records retain their bytes.
 use std::collections::BTreeMap;
 use std::ops::{Deref, DerefMut};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use serde::ser::SerializeMap;
 use serde::{Serialize, Serializer};
@@ -18,8 +18,8 @@ use crate::kernel::geom::V3;
 #[derive(Clone, Debug)]
 pub struct PublishedFeatures {
     working: Features,
-    records: BTreeMap<String, Value>,
-    fingerprint_axes: BTreeMap<(String, String), V3>,
+    records: OnceLock<BTreeMap<String, Value>>,
+    pending: BTreeMap<String, Vec<String>>,
     source: Arc<Features>,
     motion: Rigid,
     reach: f64,
@@ -33,6 +33,7 @@ impl Deref for PublishedFeatures {
 }
 impl DerefMut for PublishedFeatures {
     fn deref_mut(&mut self) -> &mut Features {
+        self.records.take();
         &mut self.working
     }
 }
@@ -45,61 +46,56 @@ impl PublishedFeatures {
         source: Arc<Features>,
         reach: f64,
     ) -> Self {
-        let mut records = BTreeMap::new();
-        let mut fingerprint_axes = BTreeMap::new();
-        if !pending.is_empty() {
-            for (family, list) in crate::recognition::families(&working) {
-                for (n, mut record) in list.into_iter().enumerate() {
-                    let id = format!("{family}/{n}");
-                    let Some(paths) = pending.get(&id) else {
-                        continue;
-                    };
-                    // Preserve the exact v3 intrinsic axis, including the chosen sense. It is
-                    // read at extraction time, rather than repairing fingerprints afterwards.
-                    if let Some(table) = crate::correspondence::fingerprint::family(&family) {
-                        for &(path, role) in table.fields {
-                            if role == crate::correspondence::fingerprint::Role::Axis
-                                && paths.iter().any(|p| p == path)
-                                && let Some(i) = record.get(path).and_then(axis_index)
-                            {
-                                fingerprint_axes
-                                    .insert((id.clone(), path.into()), column(&motion, i));
-                            }
-                        }
-                    }
-                    if family == "paired_ramp_steps" && paths.iter().any(|p| p == "half_widths") {
-                        let i = axis_index(&json!(source.paired_ramp_steps[n].half_width_axis))
-                            .expect("width axis");
-                        let (d, sign) = direction(&motion, i, reach);
-                        record["width_axis"] = d;
-                        if sign < 0.
-                            && let Some(pair) = record["half_widths"].as_array_mut()
-                        {
-                            pair.reverse();
-                        }
-                    }
-                    convert(&mut record, paths, &motion, &family, reach);
-                    records.insert(id, record);
-                }
-            }
-        }
         Self {
             working,
-            records,
-            fingerprint_axes,
+            pending,
+            records: OnceLock::new(),
             source,
             motion,
             reach,
         }
     }
 
+    fn converted_records(&self, families: &[(String, Vec<Value>)]) -> BTreeMap<String, Value> {
+        let mut records = BTreeMap::new();
+        for (family, list) in families {
+            for (n, record) in list.iter().enumerate() {
+                let id = format!("{family}/{n}");
+                let Some(paths) = self.pending.get(&id) else {
+                    continue;
+                };
+                let mut record = record.clone();
+                if family == "paired_ramp_steps" && paths.iter().any(|p| p == "half_widths") {
+                    let i = axis_index(&json!(self.source.paired_ramp_steps[n].half_width_axis))
+                        .expect("width axis");
+                    let (d, sign) = direction(&self.motion, i, self.reach);
+                    record["width_axis"] = d;
+                    if sign < 0.
+                        && let Some(pair) = record["half_widths"].as_array_mut()
+                    {
+                        pair.reverse();
+                    }
+                }
+                convert(&mut record, paths, &self.motion, family, self.reach);
+                records.insert(id, record);
+            }
+        }
+        records
+    }
+
     /// All document families, including refusals, in registry order. Each payload is usable
     /// without the document's provenance frame.
     pub fn families(&self) -> Vec<(String, Vec<Value>)> {
         let mut families = crate::recognition::families(&self.working);
+        if self.pending.is_empty() {
+            return families;
+        }
+        let records = self
+            .records
+            .get_or_init(|| self.converted_records(&families));
         for (family, list) in &mut families {
             for (n, record) in list.iter_mut().enumerate() {
-                if let Some(published) = self.records.get(&format!("{family}/{n}")) {
+                if let Some(published) = records.get(&format!("{family}/{n}")) {
                     *record = published.clone();
                 }
             }
@@ -107,20 +103,25 @@ impl PublishedFeatures {
         families
     }
 
-    pub(crate) fn fingerprint_axis(&self, id: &str, path: &str) -> Option<V3> {
-        self.fingerprint_axes
-            .get(&(id.into(), path.into()))
-            .copied()
+    /// Read an exact intrinsic axis at fingerprint extraction, without constructing the
+    /// serialized publication view. Already mapped vectors keep their established contract.
+    pub(crate) fn fingerprint_axis(&self, id: &str, path: &str, value: &Value) -> Option<V3> {
+        self.pending
+            .get(id)?
+            .iter()
+            .any(|p| p == path)
+            .then_some(())?;
+        Some(column(&self.motion, axis_index(value)?))
     }
 }
 
 impl Serialize for PublishedFeatures {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        if self.records.is_empty() {
+        if self.pending.is_empty() {
             return self.working.serialize(serializer);
         }
         // Preserve the old top-level family coverage and order, including omitted empty threads.
-        let raw = crate::recognition::families(&self.working);
+        let raw = self.families();
         let mut map = serializer.serialize_map(None)?;
         for (family, mut list) in raw {
             if ["section_recess_patterns", "modelled_thread_refusals"].contains(&family.as_str()) {
@@ -131,11 +132,6 @@ impl Serialize for PublishedFeatures {
             }
             if family == "section_recesses" {
                 list.truncate(self.working.section_recesses.len());
-            }
-            for (n, record) in list.iter_mut().enumerate() {
-                if let Some(published) = self.records.get(&format!("{family}/{n}")) {
-                    *record = published.clone();
-                }
             }
             map.serialize_entry(&family, &list)?;
         }
