@@ -8,19 +8,3 @@ fail-fast = false
 # slows each one's longest item (a reading of cgb202, the costliest corpus part, ran four times
 # slower beside three other tests).
 test-threads = 1
-
-# Focused #91 release checks; the full workspace suite remains CI's job.
-[profile.file-axes-win]
-fail-fast = false
-test-threads = 1
-default-filter = """
-    test(regression_tests::frames::)
-    | test(regression_tests::invariance::)
-    | test(regression_tests::inventory_floor::)
-    | test(regression_tests::recognition::)
-    | test(regression_tests::publication::)
-    | test(regression_tests::fillet_convexity::)
-    | test(regression_tests::corpus::)
-    | binary(rigid_transform)
-    | binary(snapshot_provenance)
-"""
