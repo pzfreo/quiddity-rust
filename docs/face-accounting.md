@@ -83,7 +83,8 @@ lack that corner; edge pads and ribs on a lower exterior platform are vetoed eve
 with no feature records. Tests ask the geometry routine directly, independently
 of recognition precedence, for a round boss, an edge pad and a rib. Extremality
 alone was evaluated and rejected because it accepts the round boss cap. No label,
-record availability, feature count or dataset identity selects body evidence.
+feature count or dataset identity selects body evidence. Recognised corner treatments
+and plates supply only the geometric premises specified here.
 
 This is conservative evidence for box stock, not a reconstruction of design intent.
 Unusual profiles still need review. There is no turned-body rule: maximum radius
