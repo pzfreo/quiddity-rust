@@ -6,6 +6,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Drilled oblique-step walls.** Check the rectangular outer boundaries independently
+  of inner drill loops, retaining convex joins and the exact empty-sweep proof. MFInstSeg
+  dev slanted-step instance recall 271/683 → 302/683 (0.3968 → 0.4422),
+  face recall 542/1447 → 604/1447 (0.3746 → 0.4174); both precisions remain 1.0000.
+
 - **Shallow oblique through steps.** Require principal supports to have zero transverse
   normal components within angular precision, so shallow slanted walls retain their
   oblique role. MFInstSeg dev slanted-step instance recall 137/683 → 271/683

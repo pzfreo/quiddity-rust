@@ -8,9 +8,8 @@ use serde::Serialize;
 use super::Context;
 use super::body::BodyKey;
 use super::evidence::{self, EvidenceError, Occurrence};
-use super::graph::face_vertices;
 use super::placed::{Grid, Placed};
-use super::planes::{axis_aligned_axis, coordinates, linear_quad, normalized, unit_plane_normal};
+use super::planes::{axis_aligned_axis, coordinates, normalized, unit_plane_normal};
 use super::policy::length_tol;
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{
@@ -163,6 +162,18 @@ fn principal_plane(part: &Part, face: usize) -> Option<(usize, f64)> {
         .then_some(plane)
 }
 
+/// The rectangular outer wall boundary is independent of holes drilled through the wall.
+/// Inner wires are still checked by the convex-neighbour and exact swept-volume proofs.
+fn linear_outer_quad(part: &Part, face: usize) -> bool {
+    matches!(part.faces[face].surface, Surface::Plane { .. })
+        && part.outer_edges(face).len() == 4
+        && part
+            .outer_edges(face)
+            .iter()
+            .all(|&edge| matches!(part.edges[edge].curve, Curve::Line { .. }))
+        && outer_vertices(part, face).len() == 4
+}
+
 /// The record for one principal wall and its oblique neighbour, or `None` (`_one_pair`).
 fn one_pair(
     ctx: &Context<'_>,
@@ -182,7 +193,7 @@ fn one_pair(
     {
         return None;
     }
-    if !linear_quad(part, principal) || !linear_quad(part, oblique) {
+    if !linear_outer_quad(part, principal) || !linear_outer_quad(part, oblique) {
         return None;
     }
     let principal_normal = unit_plane_normal(part, principal)?;
@@ -230,7 +241,7 @@ fn one_pair(
     }
     // The oblique wall is the far side of the sweep: each seam end on the principal wall and
     // again at one common positive depth.
-    let oblique_vertices = face_vertices(part, oblique);
+    let oblique_vertices = outer_vertices(part, oblique);
     let mut depths: Vec<f64> = oblique_vertices
         .iter()
         .map(|v| py::round_to(dot(sub(*v, start), principal_normal), 6))
@@ -416,6 +427,86 @@ mod tests {
                 py::round_to3(40.0 * (1.0 + slope * slope).sqrt())
             );
         }
+    }
+
+    #[test]
+    fn drilled_floor_keeps_the_same_oblique_step() {
+        let stock = slanted_corner(0.05);
+        let expected = discover(&Context::new(&stock));
+        let low = [
+            [1.0, 0.0, 10.0],
+            [2.0, 0.0, 10.0],
+            [2.0, 0.0, 11.0],
+            [1.0, 0.0, 11.0],
+        ];
+        let high = low.map(|p| [p[0], 10.0, p[2]]);
+        let tunnel = ruled_prism(&low, &high).expect("square drill");
+        let mut faces = stock.faces.clone();
+        let mut edges = stock.edges.clone();
+        let edge_offset = edges.len();
+        let vertex_offset = edges
+            .iter()
+            .flat_map(|e| [e.vertices.0, e.vertices.1])
+            .max()
+            .unwrap()
+            + 1;
+        for mut edge in tunnel.edges.clone() {
+            edge.vertices = (
+                edge.vertices.0 + vertex_offset,
+                edge.vertices.1 + vertex_offset,
+            );
+            edges.push(edge);
+        }
+        for (index, mut face) in tunnel.faces.into_iter().enumerate() {
+            for lp in &mut face.loops {
+                for (edge, _) in &mut lp.edges {
+                    *edge += edge_offset;
+                }
+            }
+            if index < 2 {
+                let normal = if index == 0 { -1.0 } else { 1.0 };
+                let coordinate = if index == 0 { 0.0 } else { 10.0 };
+                let owner = (0..stock.faces.len())
+                    .find(|&f| {
+                        (stock.face_bounds(f).min[1] - coordinate).abs() <= COORD_FLOOR
+                            && stock
+                                .face_normal(f, 0.0, 0.0)
+                                .is_some_and(|n| n[1] == normal)
+                    })
+                    .unwrap();
+                let mut hole = face.loops.remove(0);
+                hole.edges.reverse();
+                for (_, forward) in &mut hole.edges {
+                    *forward = !*forward;
+                }
+                faces[owner].loops.push(hole);
+            } else {
+                face.reversed = !face.reversed;
+                for lp in &mut face.loops {
+                    lp.edges.reverse();
+                    for (_, forward) in &mut lp.edges {
+                        *forward = !*forward;
+                    }
+                }
+                faces.push(face);
+            }
+        }
+        let solid = crate::kernel::brep::Solid {
+            faces: (0..faces.len()).collect(),
+        };
+        let drilled = Part::new(faces, edges, vec![solid]);
+        assert!(
+            drilled.solid_is_geometrically_valid(0),
+            "bad faces {:?}",
+            drilled.bad_faces(0)
+        );
+        let found = discover(&Context::new(&drilled));
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].defining, expected[0].defining);
+        // Body mass changes, while the step's measured shape does not.
+        let mut record = found[0].record.clone();
+        record.body_key = expected[0].record.body_key.clone();
+        assert_eq!(record, expected[0].record);
     }
 
     #[test]
