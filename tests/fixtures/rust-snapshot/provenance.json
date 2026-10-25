@@ -2989,7 +2989,7 @@
     "tests/fixtures/late_turn.step": "eb9978a30c4992104d802b0bba5c8ba46a48f53e088b845306a58a4c21818bb6",
     "tests/fixtures/manifest.json": "799fdc976a30ecf142a6ae7c159d6135e82a9ef24962bed7348fe66d6d2518ae",
     "tests/fixtures/memo_part.step": "79c16d80205e285529b86c5cc2d5ed3088c127ebb776330d470ce48a3aa2f303",
-    "tests/fixtures/mfinstseg_baseline.json": "4f909935b062d45da4e06c2c93b061623afeda99a3b800b0d6f9baa0825e47b6",
+    "tests/fixtures/mfinstseg_baseline.json": "35183f1e11eee96e4da0e65f10f3d6b43a6f6a70aa6f7d09e38f727909c13bce",
     "tests/fixtures/mfinstseg_mapping.json": "752cba940682be01a0e882ab38c34607bf00e1f99b36fe2e398c716b5ffca465",
     "tests/fixtures/mixed.step": "d565c1b5feeec36d996fcd8f3915e5cdae55c3d70651dc9d77cb1ecaa09cf536",
     "tests/fixtures/modelled_threads/diamond_knurl.step.gz": "7099e102266bcf2927a788c5f2f3ca9cd610059327e271114cff56f68466c6c7",
