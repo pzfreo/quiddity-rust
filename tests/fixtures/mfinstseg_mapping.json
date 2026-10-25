@@ -50,9 +50,11 @@
     {
       "id": 5,
       "name": "triangular_through_slot",
-      "families": [],
-      "not_covered": "V-section through channel; Rust slots require opposed parallel walls.",
-      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/triangular_through_slot.py"
+      "families": [
+        "v_channels"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/triangular_through_slot.py",
+      "rationale": "Two rectangular planar walls meet concavely at a straight trough edge; their opposite lips lie in one open plane, and both run ends open to exterior planar faces. The v_channels family proves this V-section through-channel geometry, without selecting by labels or preferring a section angle. A wall pair contained in a proved closed passage is excluded as part of that complete section."
     },
     {
       "id": 6,

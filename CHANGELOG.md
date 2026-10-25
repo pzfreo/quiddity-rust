@@ -6,6 +6,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **V-section through channels.** Publish `v_channels` for two complete rectangular
+  planar walls meeting concavely, with coplanar open lips and two open run ends, on a
+  strictly valid solid. Wall pairs contained in a proved closed passage belong to that
+  passage, rather than a separate channel; passage records are unchanged. Map
+  MFInstSeg `triangular_through_slot` to this family. On 2,000 dev models, instance
+  recall/precision rise from 0/0 to 0.3836/0.9180 (56/146 TP); face recall/precision
+  rise from 0/0 to 0.3463/0.9508 (116/335 TP). No other class loses TP or gains failures.
+
 - **Circular through-channel scoring.** MFInstSeg mapping schema 2 permits selectors over
   published record fields, with geometric evidence for each selector. Map
   `circular_through_slot` to existing `section_recesses` classified as `channel` and

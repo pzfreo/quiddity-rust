@@ -573,6 +573,7 @@ fn carry(
         slots,
         pockets,
         channels,
+        v_channels,
         slot_patterns,
         pocket_patterns,
         repeating_radial_profiles,
@@ -700,6 +701,16 @@ fn carry(
         slots: each!("slots", slots, slot),
         pockets: each!("pockets", pockets, pocket),
         channels: each!("channels", channels, channel),
+        v_channels: each!(
+            "v_channels",
+            v_channels,
+            |out: &mut Out, mut r: crate::features::v_channels::VChannel| {
+                r.axis = out.direction(r.axis);
+                r.opening = out.direction(r.opening);
+                r.at = out.point(r.at);
+                r
+            }
+        ),
         slot_patterns: each!("slot_patterns", slot_patterns, |out, r| slot_pattern(
             out, r, &source
         )),

@@ -160,3 +160,21 @@ never select predictions. The circular-through-slot mapping selects the existing
 `section_recesses` classification `feature_kind: channel`, `section_shape: circular`:
 these are open cylindrical troughs with both run ends proved open. This changes evaluation
 correspondence only, not the recognition schema or the geometry engine.
+
+
+## V-section through channels
+
+The optional `v_channels` family contains `VChannel` records, omitted when empty.
+It keeps recognition schema 6 and does not change any other family's records.
+`axis` is the unit run vector (its sign is a presentation gauge), `opening` is the outward
+unit normal to the lip plane, and `at` is the trough edge's midpoint in file coordinates.
+`length`, `width`, and `depth` are millimetres; `included_angle_degrees` is the angle
+between the two sides, without any preferred angle or dimensional ratio.
+
+The defining faces are two complete rectangular planes meeting concavely at the trough.
+Their opposite lips must be coplanar and their ends aligned. Each lip and each end must
+meet an outward-facing exterior plane convexly. The apex must lie between the lips when
+projected onto the mouth; interrupted walls, missing ownership, and competing wall claims
+are refused. All defining and consulted faces require one strictly valid solid. A pair of
+walls already contained in a proved closed section passage is part of that complete
+passage, not a separate open channel. This exclusion leaves passage recognition intact.

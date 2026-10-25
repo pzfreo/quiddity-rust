@@ -18,6 +18,7 @@ pub mod chamfers;
 pub mod channels;
 pub mod circular_blind_steps;
 pub mod circular_face_patterns;
+pub mod v_channels;
 internal_entry! { pub mod context; }
 pub mod annular_grooves;
 pub mod countersinks;
@@ -154,6 +155,8 @@ pub struct Features {
     pub slots: Vec<slots::Slot>,
     pub pockets: Vec<pockets::Pocket>,
     pub channels: Vec<channels::Channel>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub v_channels: Vec<v_channels::VChannel>,
     pub slot_patterns: Vec<recess_patterns::SlotPattern>,
     pub pocket_patterns: Vec<recess_patterns::PocketPattern>,
     pub repeating_radial_profiles: Vec<repeating_profiles::RepeatingRadialProfile>,
@@ -601,6 +604,14 @@ pub(crate) fn inventory_in(
         slots,
         pocket_patterns: Vec::new(),
         pockets,
+        v_channels: {
+            let found = v_channels::discover(ctx, &passages);
+            if found.is_empty() {
+                Vec::new()
+            } else {
+                kept(&mut defining, "v_channels", found)
+            }
+        },
         channels: kept(
             &mut defining,
             "channels",

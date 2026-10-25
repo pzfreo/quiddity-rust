@@ -606,6 +606,20 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
         ],
     },
     FamilyFingerprint {
+        family: "v_channels",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("opening", Placement),
+            ("at", Placement),
+            ("length", Size),
+            ("width", Size),
+            ("depth", Size),
+            ("included_angle_degrees", Size),
+        ],
+    },
+    FamilyFingerprint {
         family: "channels",
         members: None,
         variants: false,
