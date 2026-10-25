@@ -6,6 +6,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Subdivided oblique-step boundaries.** Merge only collinear outer-edge vertices and
+  complete straight seam intervals; retain gaps, bends and non-quadrilateral outlines
+  as refusals. MFInstSeg dev slanted-step instance recall 302/683 → 318/683
+  (0.4422 → 0.4656), face recall 604/1447 → 636/1447 (0.4174 → 0.4395);
+  both precisions remain 1.0000.
+
 - **Circular steps opening on shoulders.** Accept a local convex opening only with
   outward perpendicular terminals, incident orthogonal corner supports and an empty
   terminal sweep. Ambiguous axial ends remain refused. MFInstSeg dev circular-step

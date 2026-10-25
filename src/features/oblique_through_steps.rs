@@ -13,7 +13,7 @@ use super::planes::{axis_aligned_axis, coordinates, normalized, unit_plane_norma
 use super::policy::length_tol;
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{
-    Bounds, COORD_FLOOR, Curve, SMOOTH_ARC_GAP, Surface, V3, add, dot, norm, scale, sub,
+    Bounds, COORD_FLOOR, Curve, SMOOTH_ARC_GAP, Surface, V3, add, cross, dot, norm, scale, sub,
 };
 use crate::kernel::py;
 
@@ -164,14 +164,91 @@ fn principal_plane(part: &Part, face: usize) -> Option<(usize, f64)> {
 
 /// The rectangular outer wall boundary is independent of holes drilled through the wall.
 /// Inner wires are still checked by the convex-neighbour and exact swept-volume proofs.
-fn linear_outer_quad(part: &Part, face: usize) -> bool {
-    matches!(part.faces[face].surface, Surface::Plane { .. })
-        && part.outer_edges(face).len() == 4
-        && part
+fn linear_outer_quad(part: &Part, face: usize) -> Option<Vec<V3>> {
+    if !matches!(part.faces[face].surface, Surface::Plane { .. })
+        || !part
             .outer_edges(face)
             .iter()
             .all(|&edge| matches!(part.edges[edge].curve, Curve::Line { .. }))
-        && outer_vertices(part, face).len() == 4
+    {
+        return None;
+    }
+    let vertices = outer_vertices(part, face);
+    let n = vertices.len();
+    if n < 4 {
+        return None;
+    }
+    if n == 4 {
+        return Some(vertices);
+    }
+    let corners: Vec<_> = (0..n)
+        .filter_map(|i| {
+            let (a, p, b) = (
+                vertices[(i + n - 1) % n],
+                vertices[i],
+                vertices[(i + 1) % n],
+            );
+            let chord = sub(b, a);
+            let on_segment = dot(sub(p, a), sub(b, p)) >= 0.0
+                && norm(cross(sub(p, a), chord)) <= COORD_FLOOR * norm(chord);
+            (!on_segment).then_some(p)
+        })
+        .collect();
+    (corners.len() == 4).then_some(corners)
+}
+
+/// One complete straight seam may be subdivided into several B-rep edges.
+fn seam_endpoints(part: &Part, a: usize, b: usize) -> Option<(V3, V3)> {
+    let edges = part.shared_edges(a, b);
+    if edges.is_empty()
+        || edges
+            .iter()
+            .any(|&e| !matches!(part.edges[e].curve, Curve::Line { .. }))
+    {
+        return None;
+    }
+    let points: Vec<_> = edges
+        .iter()
+        .flat_map(|&e| part.edges[e].vertex_points())
+        .collect();
+    let first = *points.first()?;
+    let start = *points
+        .iter()
+        .max_by(|a, b| py::order(norm(sub(**a, first)), norm(sub(**b, first))))?;
+    let end = *points
+        .iter()
+        .max_by(|a, b| py::order(norm(sub(**a, start)), norm(sub(**b, start))))?;
+    let (start, end) = if py::tuple_order(&start, &end).is_gt() {
+        (end, start)
+    } else {
+        (start, end)
+    };
+    let length = norm(sub(end, start));
+    let run = normalized(sub(end, start))?;
+    if points
+        .iter()
+        .any(|&p| norm(cross(sub(p, start), run)) > COORD_FLOOR)
+    {
+        return None;
+    }
+    let mut intervals: Vec<_> = edges
+        .iter()
+        .map(|&e| {
+            let edge = &part.edges[e];
+            let a = dot(sub(edge.start, start), run);
+            let b = dot(sub(edge.end, start), run);
+            (a.min(b), a.max(b))
+        })
+        .collect();
+    intervals.sort_by(|a, b| py::order(a.0, b.0));
+    let mut covered = 0.0_f64;
+    for (low, high) in intervals {
+        if low > covered + COORD_FLOOR {
+            return None;
+        }
+        covered = covered.max(high);
+    }
+    (length > COORD_FLOOR && (covered - length).abs() <= COORD_FLOOR).then_some((start, end))
 }
 
 /// The record for one principal wall and its oblique neighbour, or `None` (`_one_pair`).
@@ -193,25 +270,14 @@ fn one_pair(
     {
         return None;
     }
-    if !linear_outer_quad(part, principal) || !linear_outer_quad(part, oblique) {
-        return None;
-    }
+    let principal_vertices = linear_outer_quad(part, principal)?;
+    let oblique_vertices = linear_outer_quad(part, oblique)?;
     let principal_normal = unit_plane_normal(part, principal)?;
     let oblique_normal = unit_plane_normal(part, oblique)?;
     if dot(principal_normal, oblique_normal).abs() > SMOOTH_ARC_GAP {
         return None;
     }
-    let shared = part.shared_edges(principal, oblique);
-    let [seam] = shared[..] else { return None };
-    if !matches!(part.edges[seam].curve, Curve::Line { .. }) {
-        return None;
-    }
-    let mut ends = part.edges[seam].vertex_points();
-    if ends.len() != 2 {
-        return None;
-    }
-    ends.sort_by(|a, b| py::tuple_order(a, b));
-    let (start, end) = (ends[0], ends[1]);
+    let (start, end) = seam_endpoints(part, principal, oblique)?;
     let run_length = norm(sub(end, start));
     if run_length <= COORD_FLOOR {
         return None;
@@ -241,7 +307,6 @@ fn one_pair(
     }
     // The oblique wall is the far side of the sweep: each seam end on the principal wall and
     // again at one common positive depth.
-    let oblique_vertices = outer_vertices(part, oblique);
     let mut depths: Vec<f64> = oblique_vertices
         .iter()
         .map(|v| py::round_to(dot(sub(*v, start), principal_normal), 6))
@@ -272,7 +337,6 @@ fn one_pair(
             return None;
         }
     }
-    let principal_vertices = outer_vertices(part, principal);
     if principal_vertices.len() != 4 {
         return None;
     }
@@ -507,6 +571,70 @@ mod tests {
         let mut record = found[0].record.clone();
         record.body_key = expected[0].record.body_key.clone();
         assert_eq!(record, expected[0].record);
+    }
+
+    #[test]
+    fn subdividing_straight_wall_edges_keeps_the_same_step() {
+        let stock = slanted_corner(0.05);
+        let expected = discover(&Context::new(&stock));
+        let [principal, oblique] = expected[0].defining[..] else {
+            panic!("two walls")
+        };
+        let seam = stock.shared_edges(principal, oblique)[0];
+        let boundary = stock
+            .face_edges(principal)
+            .into_iter()
+            .find(|&e| e != seam)
+            .unwrap();
+        let mut faces = stock.faces.clone();
+        let mut edges = stock.edges.clone();
+        let vertex_offset = edges
+            .iter()
+            .flat_map(|e| [e.vertices.0, e.vertices.1])
+            .max()
+            .unwrap()
+            + 1;
+        for (split, index) in [seam, boundary].into_iter().enumerate() {
+            let vertex = vertex_offset + split;
+            let mut first = edges[index].clone();
+            let mut second = first.clone();
+            let midpoint = scale(add(first.start, first.end), 0.5);
+            first.end = midpoint;
+            first.vertices.1 = vertex;
+            first.samples = vec![first.start, first.end];
+            second.start = midpoint;
+            second.vertices.0 = vertex;
+            second.samples = vec![second.start, second.end];
+            let next = edges.len();
+            edges[index] = first;
+            edges.push(second);
+            for face in &mut faces {
+                for lp in &mut face.loops {
+                    lp.edges = lp
+                        .edges
+                        .iter()
+                        .flat_map(|&(e, forward)| {
+                            if e != index {
+                                vec![(e, forward)]
+                            } else if forward {
+                                vec![(index, true), (next, true)]
+                            } else {
+                                vec![(next, false), (index, false)]
+                            }
+                        })
+                        .collect();
+                }
+            }
+        }
+        let solid = crate::kernel::brep::Solid {
+            faces: (0..faces.len()).collect(),
+        };
+        let split = Part::new(faces, edges, vec![solid]);
+        assert!(split.solid_is_geometrically_valid(0));
+        let found = discover(&Context::new(&split));
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].defining, expected[0].defining);
+        assert_eq!(found[0].record, expected[0].record);
     }
 
     #[test]
