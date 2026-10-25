@@ -221,13 +221,16 @@
         "blends": [
           {
             "field": "/side",
-            "op": "equals",
-            "value": "convex",
-            "evidence": "The published convex material side proves an external rolling-ball round. The blend family already proves a complete rolling path between smooth supports, including radii below the legacy fillet floor; no radius threshold is inferred from labels."
+            "op": "one_of",
+            "evidence": "The published convex or concave material side proves respectively an external or internal edge round along a complete rolling-ball path between smooth supports. MFInstSeg round includes both external and internal fillets. Ambiguous or unproved sides are excluded; labels never choose a record at scoring time.",
+            "values": [
+              "convex",
+              "concave"
+            ]
           }
         ]
       },
-      "rationale": "Convex complete rolling-ball blends and legacy fillets describe external rounds; deduplicate identical defining-face sets across both families. Fillet recognition and its existing radius and material-side rules are unchanged."
+      "rationale": "MFInstSeg round covers both external rounds and internal fillets. The blends recogniser proves complete rolling paths with smooth supports and a uniform convex or concave material side. Select these published sides and deduplicate against legacy fillets; #89 still restricts the fillets family to convex faces. No fillet radius or material-side rule changes."
     },
     {
       "id": 24,

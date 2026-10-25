@@ -160,8 +160,10 @@ piece is retained in the defining claim and strict ownership proof.
 ## Evaluation mappings
 
 The round scoring correspondence also includes complete rolling-ball `blends` selected
-by the published material `side = convex`. Their smooth supports and complete path are
-already proved; this includes external rounds below the legacy fillet radius floor.
+by the published material side (`convex` or `concave`). MFInstSeg round includes both
+external rounds and internal fillets, as confirmed by its labelled concave blend faces.
+Their smooth supports and complete path are already proved; this also includes external
+rounds below the legacy fillet radius floor.
 The fillet recogniser's radius and convexity rules are unchanged. Defining-face sets
 shared by a fillet and a blend still count as one prediction.
 

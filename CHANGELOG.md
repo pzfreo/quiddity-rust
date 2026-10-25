@@ -6,6 +6,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Internal-round scoring correspondence.** MFInstSeg `round` labels include internal
+  fillets: all 158 existing concave blend defining faces on dev are round-labelled.
+  Extend the published `blends.side` selector to convex or concave, retaining the
+  existing proof and leaving #89's convex-only `fillets` rule unchanged. Relative to
+  convex-blend scoring, round instance recall/precision improve from 0.6373/0.9543 to
+  0.9017/0.9638 (376 to 532 TP), and face recall/precision from 0.5617/0.9975 to
+  0.7858/0.9982 (396 to 554 TP). No class loses TP or gains recognition failures.
+
 - **Convex blend scoring.** Map the round class to already-proved `blends` with
   published `side = convex`, deduplicating their defining-face sets against `fillets`.
   No fillet radius floor or material-side rule changes. On 2,000 dev models, round
