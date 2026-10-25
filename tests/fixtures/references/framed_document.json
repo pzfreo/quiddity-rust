@@ -308,8 +308,8 @@
     "check": "caller_space",
     "family": "circular_blind_steps",
     "verdict": "equivalent",
-    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
-    "max_differing": 1
+    "reason": "Absence ratchet: geometric comparison canonicalises the unordered arc endpoint pair. The centre, radius, length, directed blind-to-opening centreline and both endpoint coordinates must agree; endpoint-order differences no longer permit a differing record.",
+    "max_differing": 0
   },
   {
     "file": "mfcadpp/10063.step",
@@ -324,8 +324,8 @@
     "check": "caller_space",
     "family": "oblique_through_steps",
     "verdict": "equivalent",
-    "reason": "Equivalent: the same oblique step: run is negated and the wall outline (along run from the wall's start) is listed from the other end, its sense (and so the end it is placed at) chosen by a recogniser rule that reads coordinates, which the default applies in the part's frame and caller space in the file's (framed_records keeps the frame's choice so that the document does not depend on placement).",
-    "max_differing": 1
+    "reason": "Absence ratchet: geometric comparison reconstructs all wall corners in file coordinates and compares their polygon up to cyclic start and reversed walk, with the run treated as an unoriented line. Dimensions, depth/across directions and every corner coordinate must agree.",
+    "max_differing": 0
   },
   {
     "file": "mfcadpp/1007.step",
@@ -468,8 +468,8 @@
     "check": "caller_space",
     "family": "circular_blind_steps",
     "verdict": "equivalent",
-    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
-    "max_differing": 1
+    "reason": "Absence ratchet: geometric comparison canonicalises the unordered arc endpoint pair. The centre, radius, length, directed blind-to-opening centreline and both endpoint coordinates must agree; endpoint-order differences no longer permit a differing record.",
+    "max_differing": 0
   },
   {
     "file": "mfcadpp/10212.step",
@@ -484,8 +484,8 @@
     "check": "caller_space",
     "family": "circular_blind_steps",
     "verdict": "equivalent",
-    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
-    "max_differing": 1
+    "reason": "Absence ratchet: geometric comparison canonicalises the unordered arc endpoint pair. The centre, radius, length, directed blind-to-opening centreline and both endpoint coordinates must agree; endpoint-order differences no longer permit a differing record.",
+    "max_differing": 0
   },
   {
     "file": "mfcadpp/10224.step",
@@ -596,16 +596,16 @@
     "check": "caller_space",
     "family": "circular_blind_steps",
     "verdict": "equivalent",
-    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
-    "max_differing": 1
+    "reason": "Absence ratchet: geometric comparison canonicalises the unordered arc endpoint pair. The centre, radius, length, directed blind-to-opening centreline and both endpoint coordinates must agree; endpoint-order differences no longer permit a differing record.",
+    "max_differing": 0
   },
   {
     "file": "mfcadpp_holdout/181.step",
     "check": "caller_space",
     "family": "circular_blind_steps",
     "verdict": "equivalent",
-    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
-    "max_differing": 1
+    "reason": "Absence ratchet: geometric comparison canonicalises the unordered arc endpoint pair. The centre, radius, length, directed blind-to-opening centreline and both endpoint coordinates must agree; endpoint-order differences no longer permit a differing record.",
+    "max_differing": 0
   },
   {
     "file": "mfcadpp_holdout/181.step",
@@ -636,8 +636,8 @@
     "check": "caller_space",
     "family": "circular_blind_steps",
     "verdict": "equivalent",
-    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
-    "max_differing": 1
+    "reason": "Absence ratchet: geometric comparison canonicalises the unordered arc endpoint pair. The centre, radius, length, directed blind-to-opening centreline and both endpoint coordinates must agree; endpoint-order differences no longer permit a differing record.",
+    "max_differing": 0
   },
   {
     "file": "mfcadpp_holdout/205.step",
@@ -700,16 +700,16 @@
     "check": "caller_space",
     "family": "circular_blind_steps",
     "verdict": "equivalent",
-    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
-    "max_differing": 1
+    "reason": "Absence ratchet: geometric comparison canonicalises the unordered arc endpoint pair. The centre, radius, length, directed blind-to-opening centreline and both endpoint coordinates must agree; endpoint-order differences no longer permit a differing record.",
+    "max_differing": 0
   },
   {
     "file": "mfcadpp_holdout/363.step",
     "check": "caller_space",
     "family": "circular_blind_steps",
     "verdict": "equivalent",
-    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
-    "max_differing": 1
+    "reason": "Absence ratchet: geometric comparison canonicalises the unordered arc endpoint pair. The centre, radius, length, directed blind-to-opening centreline and both endpoint coordinates must agree; endpoint-order differences no longer permit a differing record.",
+    "max_differing": 0
   },
   {
     "file": "mfcadpp_holdout/363.step",
@@ -764,8 +764,8 @@
     "check": "caller_space",
     "family": "circular_blind_steps",
     "verdict": "equivalent",
-    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
-    "max_differing": 1
+    "reason": "Absence ratchet: geometric comparison canonicalises the unordered arc endpoint pair. The centre, radius, length, directed blind-to-opening centreline and both endpoint coordinates must agree; endpoint-order differences no longer permit a differing record.",
+    "max_differing": 0
   },
   {
     "file": "mfcadpp_holdout/471.step",
@@ -780,8 +780,8 @@
     "check": "caller_space",
     "family": "circular_blind_steps",
     "verdict": "equivalent",
-    "reason": "Equivalent: the section's two arc endpoints are listed in the other order (the order follows the transverse axes' sense, the frame's here); centre, radius and centreline agree.",
-    "max_differing": 1
+    "reason": "Absence ratchet: geometric comparison canonicalises the unordered arc endpoint pair. The centre, radius, length, directed blind-to-opening centreline and both endpoint coordinates must agree; endpoint-order differences no longer permit a differing record.",
+    "max_differing": 0
   },
   {
     "file": "mfcadpp_holdout/498.step",
@@ -1004,8 +1004,8 @@
     "check": "generic_framed",
     "family": "oblique_through_steps",
     "verdict": "equivalent",
-    "reason": "The run's sense is chosen by its coordinates in the frame, and one of them is zero up to round-off (mfcadpp/10155: run (0, 0.3147, -0.9492) in the frame; nist_ctc_04: (0, 0.3206, -0.9472)), so the placement's round-off decides it; the same line (and wall outline, listed from the other end).",
-    "max_differing": 1
+    "reason": "Absence ratchet: geometric comparison reconstructs all wall corners in file coordinates and compares their polygon up to cyclic start and reversed walk, with the run treated as an unoriented line. Dimensions, depth/across directions and every corner coordinate must agree.",
+    "max_differing": 0
   },
   {
     "file": "nist/nist_ctc_04_asme1_rd.stp",

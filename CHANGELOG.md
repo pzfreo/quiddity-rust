@@ -56,6 +56,39 @@ in [docs/alpha1.md](docs/alpha1.md).
   (137 to 593 TPs), and circular-end-pocket from 0.2782/0.0985 to 0.7910/0.2799
   (185 to 526 TPs), with unchanged prediction counts and no model/class TP losses.
 
+- **Subdivided oblique-step boundaries.** Merge only collinear outer-edge vertices and
+  complete straight seam intervals; retain gaps, bends and non-quadrilateral outlines
+  as refusals. MFInstSeg dev slanted-step instance recall 302/683 → 318/683
+  (0.4422 → 0.4656), face recall 604/1447 → 636/1447 (0.4174 → 0.4395);
+  both precisions remain 1.0000.
+
+- **Circular steps opening on shoulders.** Accept a local convex opening only with
+  outward perpendicular terminals, incident orthogonal corner supports and an empty
+  terminal sweep. Ambiguous axial ends remain refused. MFInstSeg dev circular-step
+  instance recall 499/666 → 530/666 (0.7492 → 0.7958), face recall
+  1000/1377 → 1062/1377 (0.7262 → 0.7712); both precisions remain 1.0000.
+
+- **Angled-step blind-cap evidence.** Concave triangular caps perpendicular to the run
+  define the cut; convex stock terminals remain context. MFInstSeg dev triangular-step
+  instance recall 426/643 → 458/643 (0.6625 → 0.7123), precision 0.8894 → 0.9562;
+  face recall 458/1345 → 915/1345 (0.3405 → 0.6803), precision 0.9562 → 0.9744.
+
+- **Paired ramps in short stock.** Establish the valley axis from its seam and convex
+  opening / concave blind terminal, independently of the stock aspect ratio. An alternate
+  full-run concave sidewall path closes a pocket and remains refused. MFInstSeg dev
+  two-sided-step instance recall 339/650 → 519/650 (0.5215 → 0.7985), face recall
+  1020/2065 → 1560/2065 (0.4939 → 0.7554); both precisions remain 1.0000.
+
+- **Drilled oblique-step walls.** Check the rectangular outer boundaries independently
+  of inner drill loops, retaining convex joins and the exact empty-sweep proof. MFInstSeg
+  dev slanted-step instance recall 271/683 → 302/683 (0.3968 → 0.4422),
+  face recall 542/1447 → 604/1447 (0.3746 → 0.4174); both precisions remain 1.0000.
+
+- **Shallow oblique through steps.** Require principal supports to have zero transverse
+  normal components within angular precision, so shallow slanted walls retain their
+  oblique role. MFInstSeg dev slanted-step instance recall 137/683 → 271/683
+  (0.2006 → 0.3968), face recall 274/1447 → 542/1447 (0.1894 → 0.3746);
+  instance and face precision remain 1.0000.
 - **Lip-bevelled blind-slot scoring.** Existing `section_recesses` can prove a
   rectangular U sweep whose mouth has one flared planar bevel. Map only its complete
   straight five-vertex profile, one planar blind cap, one open run end, and a run

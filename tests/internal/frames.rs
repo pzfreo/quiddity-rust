@@ -649,11 +649,17 @@ fn split_channel_surfaces_do_not_outvote_file_axes() {
     assert!(recognised.features.fillets.is_empty());
     // The former fillet was an inward-facing (concave) R1 cylinder, not an external round.
     assert_eq!(part.frame_points_outward(28), Some(false));
+    // Face 16 is the angled cut's concave blind cap, perpendicular to the slant run.
+    assert_eq!(part.arc(32, 16), Some(quiddity::kernel::brep::Arc::Concave));
+    let slant = quiddity::features::bevel::classify_bevel(&part, 32).unwrap();
+    let cap = quiddity::features::planes::axis_aligned_axis(&part, 16).unwrap();
+    assert_eq!(cap.0, slant.edge_axis);
+    assert_eq!(part.faces[16].solid, part.faces[32].solid);
     for (family, faces) in [
         ("rectangular_blind_slots", vec![18, 19, 20, 29]),
         ("section_recesses", vec![18, 19, 20, 29]),
         ("interior_voids", vec![13, 14]),
-        ("angled_steps", vec![32]),
+        ("angled_steps", vec![32, 16]),
     ] {
         assert!(
             recognised.features.defining[family].contains(&faces),

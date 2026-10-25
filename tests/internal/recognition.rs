@@ -397,6 +397,63 @@ fn agree(a: &Value, b: &Value, grid: &mut usize) -> bool {
     }
 }
 
+/// The circular arc endpoints and a polygon's cyclic start/walk are representation choices.
+/// Compare every coordinate and all other fields under the existing numerical policy.
+fn agree_record(family: &str, a: &Value, b: &Value, grid: &mut usize) -> bool {
+    let field = match family {
+        "circular_blind_steps" => "section",
+        "oblique_through_steps" => "wall_outline",
+        _ => return agree(a, b, grid),
+    };
+    let Some(points) = b.get(field).and_then(Value::as_array) else {
+        return agree(a, b, grid);
+    };
+    let mut candidates = Vec::new();
+    if family == "circular_blind_steps" && points.len() == 3 {
+        candidates.push(points.clone());
+        candidates.push(vec![
+            points[2].clone(),
+            points[1].clone(),
+            points[0].clone(),
+        ]);
+    } else if family == "oblique_through_steps" && points.len() == 4 {
+        for reversed in [false, true] {
+            let path: Vec<_> = if reversed {
+                points.iter().rev().cloned().collect()
+            } else {
+                points.clone()
+            };
+            for start in 0..4 {
+                candidates.push((0..4).map(|i| path[(start + i) % 4].clone()).collect());
+            }
+        }
+    } else {
+        return agree(a, b, grid);
+    }
+    for points in candidates {
+        let mut candidate = b.clone();
+        candidate[field] = Value::Array(points);
+        for reversed_run in [false, true] {
+            if reversed_run {
+                if family != "oblique_through_steps" {
+                    break;
+                }
+                if let Some(run) = candidate.get_mut("run").and_then(Value::as_array_mut) {
+                    for component in run {
+                        *component = serde_json::json!(-component.as_f64().unwrap());
+                    }
+                }
+            }
+            let mut count = *grid;
+            if agree(a, &candidate, &mut count) {
+                *grid = count;
+                return true;
+            }
+        }
+    }
+    false
+}
+
 /// The leaves of *a* and *b* that do not [`agree`], as `path: a | b`.
 fn disagreeing(a: &Value, b: &Value, path: &str, out: &mut Vec<String>) {
     match (a, b) {
@@ -467,7 +524,7 @@ fn differences(expected: &[Compared], got: &[Compared], grid: &mut usize) -> Vec
             };
             let i = left.remove(k);
             let (a, b) = (&expected[i], &got[j]);
-            if !agree(&a.parameters, &b.parameters, grid) {
+            if !agree_record(family, &a.parameters, &b.parameters, grid) {
                 notes.push(format!(
                     "{:?}: {}",
                     a.faces,
@@ -1522,4 +1579,69 @@ fn a_two_face_countersink_is_attached_to_its_bore() {
         ),
         (6., 14., 90.)
     );
+}
+
+#[test]
+fn step_representation_symmetries_keep_geometry_and_terminal_roles() {
+    let circular = serde_json::json!({"axis":"z", "radius":4.0, "length":10.0,
+        "centreline":[[0.0,0.0,0.0],[0.0,0.0,10.0]],
+        "section":[[-4.0,0.0],[0.0,0.0],[0.0,4.0]]});
+    let oblique = serde_json::json!({"run":[1.0,0.0,0.0], "length":10.0, "at":[5.0,0.0,0.0],
+        "depth_direction":[0.0,0.0,1.0], "depth":2.0, "across_direction":[0.0,1.0,0.0],
+        "wall_outline":[[0.0,0.0],[10.0,0.0],[10.0,3.0],[0.0,4.0]]});
+    for (family, base) in [
+        ("circular_blind_steps", circular),
+        ("oblique_through_steps", oblique),
+    ] {
+        let mut equivalent = base.clone();
+        if family == "circular_blind_steps" {
+            equivalent["section"].as_array_mut().unwrap().swap(0, 2);
+        } else {
+            equivalent["run"] = serde_json::json!([-1.0, 0.0, 0.0]);
+            equivalent["wall_outline"] =
+                serde_json::json!([[10.0, 0.0], [0.0, 0.0], [0.0, 3.0], [10.0, 4.0]]);
+            equivalent["wall_outline"]
+                .as_array_mut()
+                .unwrap()
+                .rotate_left(1);
+        }
+        let expected = published_geometry::canonical(&base, family);
+        assert!(agree_record(
+            family,
+            &expected,
+            &published_geometry::canonical(&equivalent, family),
+            &mut 0
+        ));
+        let mut wrong_point = equivalent.clone();
+        let field = if family == "circular_blind_steps" {
+            "section"
+        } else {
+            "wall_outline"
+        };
+        let coordinate = wrong_point[field][0][0].as_f64().unwrap();
+        wrong_point[field][0][0] = serde_json::json!(coordinate + 2.0 * GRID);
+        assert!(!agree_record(
+            family,
+            &expected,
+            &published_geometry::canonical(&wrong_point, family),
+            &mut 0
+        ));
+        if family == "oblique_through_steps" {
+            let mut crossed = expected.clone();
+            crossed["wall_outline"].as_array_mut().unwrap().swap(1, 2);
+            assert!(!agree_record(family, &expected, &crossed, &mut 0));
+        }
+        let mut wrong_role = equivalent;
+        if family == "circular_blind_steps" {
+            wrong_role["centreline"].as_array_mut().unwrap().reverse();
+        } else {
+            wrong_role["depth_direction"] = serde_json::json!([0.0, 0.0, -1.0]);
+        }
+        assert!(!agree_record(
+            family,
+            &expected,
+            &published_geometry::canonical(&wrong_role, family),
+            &mut 0
+        ));
+    }
 }

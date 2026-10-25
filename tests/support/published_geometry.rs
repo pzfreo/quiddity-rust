@@ -249,6 +249,40 @@ pub fn canonical(v: &Value, family: &str) -> Value {
             pair.reverse();
         }
     }
+    if family == "oblique_through_steps" {
+        let run = vector(&raw["run"]).unwrap();
+        let across = vector(&raw["across_direction"]).unwrap();
+        let start = add(
+            point(&raw["at"]),
+            run,
+            -0.5 * raw["length"].as_f64().unwrap(),
+        );
+        let corners: Vec<_> = raw["wall_outline"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|p| {
+                json!(add(
+                    add(start, run, p[0].as_f64().unwrap()),
+                    across,
+                    p[1].as_f64().unwrap()
+                ))
+            })
+            .collect();
+        r.insert("wall_outline".into(), json!(corners));
+        r.insert("run".into(), json!(positive(run).0));
+    }
+    if family == "circular_blind_steps"
+        && let Some(section) = r.get_mut("section").and_then(Value::as_array_mut)
+        && section.len() == 3
+    {
+        // The arc endpoints are unordered geometry. Preserve the centre and the directed
+        // blind-to-opening centreline while comparing both endpoint coordinates exactly.
+        let mut ends = [section[0].clone(), section[2].clone()];
+        order(&mut ends);
+        section[0] = ends[0].clone();
+        section[2] = ends[1].clone();
+    }
     if let Some(d) = axis {
         r.insert("axis".into(), json!(positive(d).0));
     }
@@ -256,4 +290,47 @@ pub fn canonical(v: &Value, family: &str) -> Value {
         r.insert("other_axis".into(), json!(positive(d).0));
     }
     Value::Object(r)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn circular() -> Value {
+        json!({"axis":"z", "radius":4.0, "length":10.0,
+            "centreline":[[0.0,0.0,0.0],[0.0,0.0,10.0]],
+            "section":[[-4.0,0.0],[0.0,0.0],[0.0,4.0]]})
+    }
+
+    #[test]
+    fn circular_endpoint_permutation_preserves_the_cut() {
+        let base = circular();
+        let mut reversed = base.clone();
+        reversed["section"].as_array_mut().unwrap().swap(0, 2);
+        assert_eq!(
+            canonical(&base, "circular_blind_steps"),
+            canonical(&reversed, "circular_blind_steps")
+        );
+    }
+
+    #[test]
+    fn circular_geometry_and_blind_open_roles_remain_observable() {
+        let base = circular();
+        let expected = canonical(&base, "circular_blind_steps");
+        for (field, value) in [
+            ("radius", json!(5.0)),
+            ("length", json!(11.0)),
+            ("section", json!([[-3.0, 0.0], [0.0, 0.0], [0.0, 4.0]])),
+            ("section", json!([[-4.0, 0.0], [1.0, 0.0], [0.0, 4.0]])),
+            ("centreline", json!([[0.0, 0.0, 10.0], [0.0, 0.0, 0.0]])),
+        ] {
+            let mut changed = base.clone();
+            changed[field] = value;
+            assert_ne!(
+                canonical(&changed, "circular_blind_steps"),
+                expected,
+                "{field}"
+            );
+        }
+    }
 }
