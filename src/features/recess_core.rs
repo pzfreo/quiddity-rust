@@ -567,7 +567,8 @@ pub fn pocket_proposals(
             p.replaced(record)
         })
         .collect();
-    Ok(attach_complete_pocket_regions(&scan, proposals))
+    let proposals = attach_complete_pocket_regions(&scan, proposals);
+    Ok(attach_intact_floor_walls(&scan, proposals))
 }
 }
 
@@ -733,6 +734,107 @@ fn attach_complete_pocket_regions(
                         p.planar.insert(node);
                     }
                 }
+            }
+            p
+        })
+        .collect()
+}
+
+/// An intact rectangular floor can retain the pocket boundary after another cut opens its
+/// mouth wire. All four straight floor edges must meet concave planar walls, including the
+/// opposed seed and both inward-facing end planes at the measured run limits. A floor serving
+/// competing seeds does not choose between them.
+fn attach_intact_floor_walls(
+    scan: &Scan<'_, '_>,
+    proposals: Vec<Proposal<Pocket>>,
+) -> Vec<Proposal<Pocket>> {
+    let part = scan.ctx.part;
+    let g = &scan.graph;
+    let proofs: Vec<Option<(usize, BTreeSet<usize>)>> = proposals
+        .iter()
+        .map(|p| {
+            let [floor] = p.floors.iter().copied().collect::<Vec<_>>()[..] else {
+                return None;
+            };
+            if p.record.edge_anchored || !p.caps.is_empty() || p.planar.len() != 2 {
+                return None;
+            }
+            let [boundary] = &part.faces[floor].loops[..] else {
+                return None;
+            };
+            if boundary.edges.len() != 4
+                || boundary.edges.iter().any(|&(edge, _)| {
+                    !matches!(
+                        part.edges[edge].curve,
+                        crate::kernel::geom::Curve::Line { .. }
+                    )
+                })
+            {
+                return None;
+            }
+            let depth = p.record.depth_axis();
+            let long = p.record.long_axis();
+            let axis_tol = super::policy::AXIS_ZERO_COS;
+            let floor_at = if p.record.open_sign == 1 {
+                p.record.d_lo()
+            } else {
+                p.record.d_hi()
+            };
+            let floor_span = g.span(floor, depth);
+            if (floor_span.0 - floor_at).abs() > COORD_FLOOR
+                || (floor_span.1 - floor_at).abs() > COORD_FLOOR
+                || graph::normal(part, floor)?[depth] * f64::from(p.record.open_sign)
+                    < 1. - axis_tol
+            {
+                return None;
+            }
+            let wire: Vec<usize> = boundary.edges.iter().map(|&(e, _)| e).collect();
+            let walls = wire_seed(part, floor, &wire);
+            if walls.len() != 4 || !p.planar.is_subset(&walls) {
+                return None;
+            }
+            for &wall in &walls {
+                if !g.is_planar(wall) || g.arc(floor, wall) != Some(Arc::Concave) {
+                    return None;
+                }
+                let normal = graph::normal(part, wall)?;
+                let (low, high) = g.span(wall, depth);
+                if normal[depth].abs() > axis_tol
+                    || high - low <= COORD_FLOOR
+                    || low < p.record.d_lo() - COORD_FLOOR
+                    || high > p.record.d_hi() + COORD_FLOOR
+                {
+                    return None;
+                }
+                if !p.planar.contains(&wall) {
+                    let (lo, hi) = g.span(wall, long);
+                    if normal[long].abs() < 1. - axis_tol
+                        || !((lo - p.record.lo()).abs() <= COORD_FLOOR && normal[long] > 0.
+                            || (hi - p.record.hi()).abs() <= COORD_FLOOR && normal[long] < 0.)
+                    {
+                        return None;
+                    }
+                }
+            }
+            let members: Vec<usize> = walls.iter().copied().chain([floor]).collect();
+            (common_valid_solid(part, &members) == Some(scan.solid)).then_some((floor, walls))
+        })
+        .collect();
+    proposals
+        .into_iter()
+        .zip(&proofs)
+        .map(|(mut p, proof)| {
+            if let Some((floor, walls)) = proof
+                && proofs
+                    .iter()
+                    .flatten()
+                    .filter(|(other, _)| other == floor)
+                    .count()
+                    == 1
+            {
+                p.planar.extend(walls);
+                p.constituent.extend(walls);
+                p.constituent.insert(*floor);
             }
             p
         })
@@ -954,6 +1056,28 @@ mod pocket_boundary_tests {
                     );
                 }
             }
+        }
+    }
+
+    #[test]
+    fn an_intact_floor_completes_an_intersected_mouth_but_not_competing_seeds() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/interrupted_pocket_mouth.step");
+        let part = read_step_file(&path).unwrap();
+        let ctx = Context::new(&part);
+        let found = super::super::pockets::discover_verified(&ctx).unwrap();
+        let [pocket] = &found[..] else {
+            panic!("{found:?}")
+        };
+        assert_eq!(pocket.defining, [9, 10, 11, 14]);
+        assert_eq!(pocket.context, [15]);
+        let scan = Scan::new(&ctx, 0);
+        let mut seed = pocket_proposals(&ctx, 0, true).unwrap().remove(0);
+        seed.planar = BTreeSet::from([9, 11]);
+        seed.constituent.clear();
+        for found in attach_intact_floor_walls(&scan, vec![seed.clone(), seed]) {
+            assert_eq!(found.defining(), BTreeSet::from([9, 11]));
+            assert!(found.constituent.is_empty());
         }
     }
 

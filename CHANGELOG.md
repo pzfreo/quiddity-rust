@@ -6,6 +6,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Complete pocket boundaries past intersecting mouths.** A uniquely owned intact rectangular
+  floor can prove both observed end walls after a crossing cut opens the mouth wire. Existing
+  cavity-emptiness and role proofs remain required. The 2,000-model dev set gains one more
+  rectangular-pocket TP without extra predictions: instance recall/precision
+  0.8438/0.1934 to 0.8452/0.1937 (594 to 595 TPs).
+
 - **Recover rectangular pockets from intact floors.** A closed straight-edged floor with a
   concave wall on every edge now supports four-sided sections too, retaining all cavity,
   floor and opening volume proofs. The 2,000-model dev set gains one rectangular-pocket TP:

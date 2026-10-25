@@ -5,7 +5,8 @@
 //! The seed defines a pocket from opposed walls, a corner notch's floor and both walls, or
 //! obround cap clusters. A uniquely owned complete cavity adds its observed planar end walls
 //! or the sides joining both cap clusters. The floor and remaining cavity faces are consulted
-//! context; ambiguous cavity ownership never expands a claim.
+//! context. An intact rectangular floor can also prove the end walls when an intersecting cut
+//! destroys the mouth wire; competing cavity or floor ownership never expands a claim.
 
 use std::collections::BTreeSet;
 
