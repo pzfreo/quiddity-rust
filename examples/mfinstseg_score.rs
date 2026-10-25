@@ -5,6 +5,8 @@
 //! Use sorted STEP stems[::5] for the coverage_sweep selection (12,499 / 62,495 models).
 //! Ground-truth or configuration errors fail the run. Read/panic failures with available
 //! labels are explicitly reported and count as misses; zero denominators score zero.
+//! With `MFINSTSEG_PER_MODEL=PATH`, also writes each model's nonzero per-class counts to PATH,
+//! so two runs can be compared model by model.
 // Internal diagnostic: use the exact engine implementation without exporting caller-space APIs.
 #[path = "../src/engine.rs"]
 mod engine;
@@ -73,6 +75,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut refusals = Vec::new();
     let mut label_warnings = Vec::new();
     let mut instance_scored_models = 0;
+    let mut per_model = Vec::new();
     for (i, result) in results {
         match result {
             Err(e) => errors.push(serde_json::json!({"id":ids[i],"error":e})),
@@ -88,6 +91,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 for (total, s) in scores.iter_mut().zip(&model.scores) {
                     total.add(s);
                 }
+                let nonzero: Vec<_> = classes
+                    .iter()
+                    .zip(&model.scores)
+                    .filter(|(_, s)| s.faces.predicted + s.faces.labelled > 0)
+                    .map(|(c, s)| serde_json::json!({"class":c.name,"faces":s.faces,"instances":s.instances}))
+                    .collect();
+                per_model
+                    .push(serde_json::json!({"id":model.id,"error":model.error,"classes":nonzero}));
                 if let Some(e) = model.error {
                     failures.push(serde_json::json!({"id":model.id,"error":e}));
                 }
@@ -100,6 +111,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let rows: Vec<_> = classes.iter().zip(&scores).map(|(c,s)| serde_json::json!({"id":c.id,"name":c.name,"covered":!c.families.is_empty(),"counts":s,"face_precision":s.faces.precision(),"face_recall":s.faces.recall(),"instance_precision":s.instances.as_ref().map(|s|s.precision()),"instance_recall":s.instances.as_ref().map(|s|s.recall())})).collect();
     let report = serde_json::json!({"schema":2,"models":ids.len(),"accounting":accounting,"model_accounting":model_accounting,"classes":rows,"recognition_failures":failures,"section_recess_refusals":refusals,"label_errors":errors,"label_warnings":label_warnings,"instance_scored_models":instance_scored_models,"face_scored_models":ids.len()-errors.len(),"mapping":serde_json::from_str::<serde_json::Value>(include_str!("../tests/fixtures/mfinstseg_mapping.json"))?});
     std::fs::write(&args[3], serde_json::to_string_pretty(&report)? + "\n")?;
+    if let Some(path) = std::env::var_os("MFINSTSEG_PER_MODEL") {
+        std::fs::write(path, serde_json::to_string(&per_model)? + "\n")?;
+    }
     if !errors.is_empty() {
         return Err(format!("{} label errors; accuracy report incomplete", errors.len()).into());
     }
