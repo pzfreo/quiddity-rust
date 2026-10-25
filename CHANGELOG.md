@@ -24,7 +24,8 @@ in [docs/alpha1.md](docs/alpha1.md).
   face recall 458/1345 → 915/1345 (0.3405 → 0.6803), precision 0.9562 → 0.9744.
 
 - **Paired ramps in short stock.** Establish the valley axis from its seam and convex
-  opening / concave blind terminal, independently of the stock aspect ratio. MFInstSeg dev
+  opening / concave blind terminal, independently of the stock aspect ratio. An alternate
+  full-run concave sidewall path closes a pocket and remains refused. MFInstSeg dev
   two-sided-step instance recall 339/650 → 519/650 (0.5215 → 0.7985), face recall
   1020/2065 → 1560/2065 (0.4939 → 0.7554); both precisions remain 1.0000.
 
