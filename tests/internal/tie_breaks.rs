@@ -426,7 +426,9 @@ fn bevel_uses_its_cutting_plane_to_resolve_equal_support_distances_under_motion(
     let part = read_step_file_placed(&path, &IDENTITY).unwrap();
     let found = features::angled_steps::discover(&Context::new(&part));
     assert_eq!(found.len(), 3);
-    let real = found.iter().find(|o| o.defining == [13]).unwrap();
+    // The bevel (13) and its concave blind cap (17), which defines the cut since the
+    // angled-step cap rule.
+    let real = found.iter().find(|o| o.defining == [13, 17]).unwrap();
     // Independent OpenCascade plane equation: x=6.095095 at y=29.381039 is on the
     // bevel itself; the removed corner is the opposite x support, 10.137419.
     assert_eq!(
