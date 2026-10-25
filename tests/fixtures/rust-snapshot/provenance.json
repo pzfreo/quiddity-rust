@@ -101,6 +101,7 @@
     "corpus/nist/nist_ftc_09_asme1_rd.stp": "e29c09bd2d454601ff1a0d77c4c4ffaf2ed78eee71031ce49f7b7bb5a6d1d4e8",
     "corpus/nist/nist_ftc_10_asme1_rb.stp": "2bd726f9fe86aeb96ab517ce876e5696e7951310df5c4fbca36276d65879067b",
     "corpus/ttt_inputs/sm-hanger.step": "8247dc2eb7ed6f423fba35b177cc1abeb6358922dab54a486050bfa0ba857f6b",
+    "tests/fixtures/annular_face_groove.step": "51c9794d044590e49f11e8611e20a9b213108d04f70994a4bcd24e627ea3e9f0",
     "tests/fixtures/ap242/README.md": "83e9c3800bf811b2fdeda15c528bb03217e9795b9ca846ab338d703277aafe1d",
     "tests/fixtures/ap242/assembly/README.md": "24fc352662f1ccb4b021f42453fd9611de2318528b35bf9cc74c5fa3c69b6ca2",
     "tests/fixtures/ap242/assembly/assembly.step": "ca5711668102f0e8bb9920469a46008e8a51d60e0bea7eb89a03089b0e464291",
@@ -2941,7 +2942,6 @@
     "tests/fixtures/filleted_stepped_shaft.step": "f076385408f7f77a51d84764896b79879e3447709666f6d8825d8a0c810e58fc",
     "tests/fixtures/full_torus.step": "a8951abcef33aec6f0410a5feda41db23784dcb01fa8244959d367606b4e5206",
     "tests/fixtures/golden_angled_blind_step.step": "30828e6f64ef488306aaa9aca164c2bfe52b1916bd8d81d25d94e01e30dfca8b",
-    "tests/fixtures/golden_annular_face_groove.step": "51c9794d044590e49f11e8611e20a9b213108d04f70994a4bcd24e627ea3e9f0",
     "tests/fixtures/golden_blind_pockets_and_pocket_patterns.step": "01822f0663a5ddf689f2215b91c4ba24b79558ce857ad32642894565b43fe1d8",
     "tests/fixtures/golden_bolt_circle_and_rectangular_grid.step": "0099dd4bd54e0023fbb4f38ff58ad569e018ea3b526ab3878b622b0bd4519298",
     "tests/fixtures/golden_chamfers_fillets_and_flats.step": "bd461bc2f1b1f214fce39ff296f38640c3a9bc500ab5d7df1e611eeb10a49ffa",
@@ -2964,7 +2964,6 @@
     "tests/fixtures/golden_rectangular_through_step.step": "ca858b57f0624833d7735b546358cbc9206bbd8a874e05ea23f756b53298f6f4",
     "tests/fixtures/golden_repeating_radial_profile.step": "f8bb459d17c6daeefa13e4c5a5269dbfa14aaf3d5fc99a26b9a8f469cfc09424",
     "tests/fixtures/golden_round_bottom_blind_slot.step": "a5b351b655eef862656138947e13a5b635619e588e7b38c20a963a5d06d9bcf7",
-    "tests/fixtures/golden_semicircular_blind_slot.step": "28bc0ba86c8c6a0718f7bf6d94ed6eed6a9dc62d52cd823ec5f6cf0aad1c8498",
     "tests/fixtures/golden_simple_through_hole.step": "478471dc57efaaa393d018d69094f40239c1df7d16cacddc4138baa5b3bc641a",
     "tests/fixtures/golden_slanted_counterbore.step": "416b6771805aa66b69f88e3adb0aa5928a1e54de178d64f23f78c95d485f720a",
     "tests/fixtures/golden_slanted_steps.step": "20ae733103e8267c4bd6a70f678c7a4a692dfc2be8c1e66de289666c47559524",
@@ -2976,7 +2975,6 @@
     "tests/fixtures/golden_traversal_order.step": "17f6fd012b0e7d9df7d2c17c65f0ffaf62c6be649199d189747b28b260e6a0c2",
     "tests/fixtures/golden_triangular_and_hex_pockets.step": "f27aa6fddb2ff1cf1322b78f3f59aeed4225e42ef3643379d33c071cfa6ad586",
     "tests/fixtures/golden_turned_steps_and_grooves.step": "ef8b87840b03131c721a1d8f0a47fb9b03cf6f834b092101596b635ff7570a35",
-    "tests/fixtures/golden_v_channel.step": "0a0a6c99a17b6084a4247e90c70e16e6757d12fd19d885261d0ac6262e03924a",
     "tests/fixtures/held_side_knot.step": "108af28d08e6974d599932131f73705f88c49a29f102da600990370976bf0c29",
     "tests/fixtures/hemisphere_one_edge.step": "3c9c0db73bd7dd6b788f6809189317ecb83f39cd0a533b8db3f1c78096ea622d",
     "tests/fixtures/hlr.json.gz": "259ee2a81be31d0367185c2d6a145cba64fe755c2268cf2f71bd45fc04391b54",
@@ -3082,6 +3080,7 @@
     "tests/fixtures/rounded_box_r1.step": "04d1e139052d2f7730a3757880faaf51590d8c34049f4679edf4a0a365ec5de0",
     "tests/fixtures/section.json.gz": "ae1dd7afea8259dea5f7afb7444216ab5b368c2b94e101bce0ff4f001d9a0c50",
     "tests/fixtures/section_recess_publication_baseline.json": "2c2a45a4f4c940469405d87a6a6b526c53f4fc0b91d93a0b7186cd3f84eeceb3",
+    "tests/fixtures/semicircular_blind_slot.step": "28bc0ba86c8c6a0718f7bf6d94ed6eed6a9dc62d52cd823ec5f6cf0aad1c8498",
     "tests/fixtures/slanted_bead.step": "ab80079c9ab9634f539437d4fe28454a9f70e757877713d659c80d6595ac6337",
     "tests/fixtures/split_coplanar_support.step": "084beaffe0fadc052dd7644d1556e2557a69616887adfede148a87c5a63aab32",
     "tests/fixtures/stack.step": "1da640ef610f52637a8b898c744b44ac84b6d1051960f81437bc06a3448eaf38",
@@ -3108,6 +3107,7 @@
     "tests/fixtures/two_solids.step": "6517033d96780ae13db686352fc4f5e505737dc837f0411970e5cd935ef7ae29",
     "tests/fixtures/two_solids_reversed.step": "2621b8f6fe05bb0c2fe6b8d0f03af22a3fc55ffa11f336821330bf6e465812a1",
     "tests/fixtures/unequal_radii.step": "b12f071210e9bf5d7e7d573071eb1ef4aee2c615cfe5e655bd43ffd74ceb3cf8",
+    "tests/fixtures/v_channel.step": "0a0a6c99a17b6084a4247e90c70e16e6757d12fd19d885261d0ac6262e03924a",
     "tests/fixtures/whistle_frame_reference.step.gz": "dffb437b2618ddac7f9f5578c16b015624b5c02193c399165117397f90c40909"
   },
   "schema": 1,
@@ -5813,5 +5813,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "961b8ec7a6f6f446ecd70c2c361c286172ada5a4"
+  "source_commit": "56a6c39cf59d0db267e5e79d1d3e2b8ab5759692"
 }
