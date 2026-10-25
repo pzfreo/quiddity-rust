@@ -6,6 +6,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Conservative stock-wall support (for #100).** Plate edges also check parallel
+  walls outside their slab over the same run, so a step shoulder beside a thin
+  plate strip remains unexplained. Interior stock walls must be perpendicular to
+  the plate and have complete, perpendicular original-stock boundary edges along
+  their run and height; parallel cut ends and walls borrowing two stock end caps
+  abstain. Walls entirely on an outward envelope plane retain their independent
+  supporting-plane evidence and convex stock contacts.
+
 - **Face accounting and record coverage (for #100).** Recognised convex corner
   treatments can supply replaced box corners; certified enclosed spline trims on
   native surfaces no longer veto stock evidence. New `plate_edge` and `stock_wall`

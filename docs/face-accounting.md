@@ -115,14 +115,31 @@ This rejects inward walls and returns into rectangular through-notches. Oblique
 walls conservatively abstain, including V-notch flanks. The perimeter is local to
 the plate's own face groups, rather than the complete part envelope, so a plate
 between wider attached blocks can still explain its exposed straight edges.
+The slab-local test is supplemented by the same solid's other principal walls:
+none with a positive overlap along this wall's run may lie farther outward,
+even outside the slab. A thin strip beside an unrecognised step otherwise has a
+locally supporting edge which is actually a recessed shoulder. Only overlap of
+positive length counts; attached blocks beyond the ends of a waist do not veto
+its perimeter.
 
 ### `stock_wall`
 
-A native principal planar wall must meet an original box-evidence face across a
-convex straight edge and another original stock face or recognised plate face
-across a distinct convex straight edge. The anchor cannot be a plate defining
-face. The wall must extend outside an associated recognised plate's slab; a notch
-or waist cut through a plate alone cannot borrow that plate's stock evidence.
+A native principal planar wall must extend outside a recognised plate's slab;
+a notch or waist cut through a plate alone cannot borrow that plate's stock
+evidence. If its **entire native plane** is on the solid's outward envelope
+boundary, that supporting plane supplies independent stock-skin evidence. This
+route still requires two distinct convex straight-edge contacts: one original
+box-evidence face excluding plate defining faces, and another original stock or
+plate face. Extrema touched only at a vertex or an inward plane do not qualify.
+
+An **interior** wall needs stronger proof: it must be perpendicular to the plate
+axis. A parallel cut end face cannot borrow an unrelated plate's evidence.
+Two original box-evidence faces, excluding
+plate defining faces, must meet the wall across convex straight boundary edges.
+One support is perpendicular to the plate axis, with its edge covering the wall's
+entire run; the other is perpendicular to the run, with its edge covering the
+wall's entire axial height. Thus two opposite stock end caps, partial contacts,
+and a stock face plus a plate face cannot certify an arbitrary feature wall.
 Any concave boundary join vetoes the wall: stock anchors alone cannot erase a
 cut floor/riser. Both supporting faces must be direct neighbours; neither blend hops nor point
 contacts qualify. Only the original box rules seed this pass: new plate edges and

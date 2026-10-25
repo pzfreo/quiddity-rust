@@ -121,7 +121,7 @@ pub(crate) fn evidence(part: &Part, features: &Features) -> BTreeMap<usize, Body
             }
             if plate_edge(part, f, &plates, tol) {
                 out.insert(f, BodyReason::PlateEdge);
-            } else if stock_wall(part, f, &stock, &plates, tol) {
+            } else if stock_wall(part, f, &stock, &plates, bounds, tol) {
                 out.insert(f, BodyReason::StockWall);
             }
         }
@@ -386,6 +386,7 @@ fn plate_edge(part: &Part, face: usize, plates: &[PlatePerimeter], tol: f64) -> 
     }
     let b = part.face_bounds(face);
     plates.iter().any(|p| {
+        let run = (0..3).find(|&k| k != axis && k != p.axis).unwrap();
         p.walls.contains(&face) && (b.min[p.axis] - p.lo).abs() <= tol && (b.max[p.axis] - p.hi).abs() <= tol &&
             // A supporting perimeter wall, never a return into an edge notch.
             // Include taller walls meeting both ends when establishing support.
@@ -394,6 +395,15 @@ fn plate_edge(part: &Part, face: usize, plates: &[PlatePerimeter], tol: f64) -> 
                 let gb = part.face_bounds(g);
                 let at = if normal[axis] > 0. { gb.max[axis] } else { gb.min[axis] };
                 normal[axis] * (at - b.min[axis]) <= tol
+            }) &&
+            // A plate recogniser can find a thin strip beside a step. Its own
+            // perimeter alone is then insufficient: a parallel wall elsewhere
+            // on the same run exposes the strip's edge as a recessed shoulder.
+            part.solids[part.faces[face].solid.unwrap()].faces.iter().all(|&g| {
+                if principal_plane(part, g).is_none_or(|(k, _)| k != axis) { return true; }
+                let gb = part.face_bounds(g);
+                gb.max[run].min(b.max[run]) - gb.min[run].max(b.min[run]) <= tol ||
+                    normal[axis] * (gb.min[axis] - b.min[axis]) <= tol
             })
     })
 }
@@ -403,42 +413,82 @@ fn stock_wall(
     face: usize,
     stock: &BTreeMap<usize, BodyReason>,
     plates: &[PlatePerimeter],
+    envelope: Bounds,
     tol: f64,
 ) -> bool {
-    if principal_plane(part, face).is_none()
-        || part
-            .neighbours(face)
-            .iter()
-            .any(|&g| part.arc(face, g) == Some(Arc::Concave))
+    if plates.is_empty() {
+        return false;
+    }
+    let Some((axis, normal)) = principal_plane(part, face) else {
+        return false;
+    };
+    if part
+        .neighbours(face)
+        .iter()
+        .any(|&g| part.arc(face, g) == Some(Arc::Concave))
     {
         return false;
     }
     let b = part.face_bounds(face);
-    // Stock walls belong to a thicker block attached to a plate. A cut through
-    // the plate alone cannot borrow the plate's own box-side evidence.
-    if !plates
-        .iter()
-        .any(|p| b.min[p.axis] < p.lo - tol || b.max[p.axis] > p.hi + tol)
-    {
-        return false;
-    }
     let plate_faces: BTreeSet<_> = plates.iter().flat_map(|p| &p.faces).copied().collect();
     let neighbours = part.neighbours(face);
-    let anchors: Vec<_> = neighbours
-        .iter()
-        .copied()
-        .filter(|g| {
-            stock.contains_key(g)
-                && !plate_faces.contains(g)
-                && part.arc(face, *g) == Some(Arc::Convex)
+    let at = if normal[axis] > 0. {
+        envelope.max[axis]
+    } else {
+        envelope.min[axis]
+    };
+    let on_envelope = (b.min[axis] - at).abs() <= tol && (b.max[axis] - at).abs() <= tol;
+    plates.iter().any(|p| {
+        if !(b.min[p.axis] < p.lo - tol || b.max[p.axis] > p.hi + tol) {
+            return false;
+        }
+        // The entire native face on an outward envelope plane supplies an
+        // independent supporting-plane proof. Interior feature walls have no
+        // such proof, regardless of how many convex stock contacts they have.
+        let contact = |g| {
+            part.arc(face, g) == Some(Arc::Convex)
+                && part
+                    .shared_edges(face, g)
+                    .iter()
+                    .any(|&e| matches!(part.edges[e].curve, Curve::Line { .. }))
+        };
+        if on_envelope
+            && neighbours.iter().any(|&g| {
+                stock.contains_key(&g)
+                    && !plate_faces.contains(&g)
+                    && contact(g)
+                    && neighbours.iter().any(|&h| {
+                        h != g && (stock.contains_key(&h) || plate_faces.contains(&h)) && contact(h)
+                    })
+            })
+        {
+            return true;
+        }
+        // An interior wall needs stronger evidence than convex stock contacts.
+        // Parallel cut ends cannot qualify, even beside a recognised plate.
+        if axis == p.axis {
+            return false;
+        }
+        let run = (0..3).find(|&k| k != axis && k != p.axis).unwrap();
+        // Require two perpendicular, complete stock boundary edges: one along
+        // the wall's run, the other across its height. Two opposite stock end
+        // caps can bound an arbitrary through-cut wall and prove nothing here.
+        [p.axis, run].iter().all(|&support_axis| {
+            let span = if support_axis == p.axis { run } else { p.axis };
+            neighbours.iter().any(|&g| {
+                stock.contains_key(&g)
+                    && !plate_faces.contains(&g)
+                    && principal_plane(part, g).is_some_and(|(k, _)| k == support_axis)
+                    && part.arc(face, g) == Some(Arc::Convex)
+                    && part.shared_edges(face, g).iter().any(|&e| {
+                        let edge = &part.edges[e];
+                        matches!(edge.curve, Curve::Line { .. })
+                            && (edge.start[span].min(edge.end[span]) - b.min[span]).abs() <= tol
+                            && (edge.start[span].max(edge.end[span]) - b.max[span]).abs() <= tol
+                    })
+            })
         })
-        .collect();
-    anchors.iter().any(|&g| neighbours.iter().any(|&h| {
-        h != g && (stock.contains_key(&h) || plate_faces.contains(&h)) && part.arc(face, h) == Some(Arc::Convex) &&
-            // Separate straight boundary edges, not a point contact or a blend hop.
-            part.shared_edges(face, g).iter().any(|&e| matches!(part.edges[e].curve, Curve::Line { .. })) &&
-            part.shared_edges(face, h).iter().any(|&e| matches!(part.edges[e].curve, Curve::Line { .. }))
-    }))
+    })
 }
 
 #[cfg(test)]
@@ -447,6 +497,15 @@ mod tests {
 
     fn evidence(part: &Part) -> BTreeMap<usize, BodyReason> {
         super::evidence(part, &Features::default())
+    }
+    fn stock_wall(
+        part: &Part,
+        face: usize,
+        stock: &BTreeMap<usize, BodyReason>,
+        plates: &[PlatePerimeter],
+        tol: f64,
+    ) -> bool {
+        super::stock_wall(part, face, stock, plates, part.solid_bounds(0), tol)
     }
     use crate::frames;
     use crate::kernel::step::Placement;
@@ -631,6 +690,65 @@ mod tests {
     }
 
     #[test]
+    fn plate_edge_rejects_a_step_shoulder_beside_a_thin_strip() {
+        let part = profile(&[
+            [0., 0.],
+            [10., 0.],
+            [10., 2.],
+            [2., 2.],
+            [2., 6.],
+            [20., 6.],
+            [20., 10.],
+            [0., 10.],
+        ]);
+        let features = slab(&part, 2, 0., 2.);
+        let plates = plate_perimeters(&part, &features, 0, 1e-6);
+        let shoulder = (0..part.faces.len())
+            .find(|&f| {
+                let b = part.face_bounds(f);
+                principal_plane(&part, f).is_some_and(|(k, _)| k == 0)
+                    && (b.min[0] - 10.).abs() < 1e-9
+            })
+            .unwrap();
+        assert!(plates[0].walls.contains(&shoulder));
+        assert!(
+            part.neighbours(shoulder)
+                .iter()
+                .all(|&g| part.arc(shoulder, g) == Some(Arc::Convex))
+        );
+        assert!(!plate_edge(&part, shoulder, &plates, 1e-6));
+    }
+
+    #[test]
+    fn stock_wall_envelope_skin_can_use_two_stock_end_caps() {
+        let part = profile(&[
+            [0., 0.],
+            [20., 0.],
+            [20., 6.],
+            [15., 6.],
+            [15., 2.],
+            [5., 2.],
+            [5., 6.],
+            [0., 6.],
+        ]);
+        let features = slab(&part, 2, 0., 2.);
+        let plates = plate_perimeters(&part, &features, 0, 1e-6);
+        let stock: BTreeMap<_, _> = evidence(&part)
+            .into_iter()
+            .filter(|&(f, _)| principal_plane(&part, f).is_some_and(|(k, _)| k == 1))
+            .collect();
+        let outside = (0..part.faces.len())
+            .find(|&f| {
+                principal_plane(&part, f).is_some_and(|(k, n)| k == 0 && n[0] < 0.)
+                    && part.face_bounds(f).min[0].abs() < 1e-9
+            })
+            .unwrap();
+        assert_eq!(stock.len(), 2);
+        assert!(stock_wall(&part, outside, &stock, &plates, 1e-6));
+        assert!(!stock_wall(&part, outside, &BTreeMap::new(), &plates, 1e-6));
+    }
+
+    #[test]
     fn stock_wall_requires_thick_block_anchors_not_a_cut_through_plate() {
         let part = profile_with_arcs(
             &[
@@ -659,10 +777,62 @@ mod tests {
             })
             .collect();
         assert_eq!(walls.len(), 2);
-        for f in walls {
+        for &f in &walls {
             assert!(stock_wall(&part, f, &stock, &plates, 1e-6));
             assert!(!stock_wall(&part, f, &BTreeMap::new(), &plates, 1e-6));
         }
+        // A second, perpendicular slab does not turn a parallel cut end face
+        // into a wall. It can have convex stock contacts on three sides.
+        let unrelated = slab(&part, 0, 0., 5.);
+        let unrelated_plates = plate_perimeters(&part, &unrelated, 0, 1e-6);
+        for &f in &walls {
+            assert!(!stock_wall(&part, f, &stock, &unrelated_plates, 1e-6));
+        }
+
+        // A slanted through-step's principal wall can borrow the two stock end
+        // caps. Neither cap establishes a stock edge along the wall's run.
+        let step = profile_with_arcs(
+            &[
+                [0., 0.],
+                [5., 1.],
+                [5., 3.],
+                [6., 4.],
+                [14., 4.],
+                [15., 3.],
+                [15., 0.],
+                [20., 0.],
+                [20., 6.],
+                [0., 6.],
+            ],
+            &[(2, [6., 3.]), (4, [14., 3.])],
+        );
+        let features = slab(&step, 2, 4., 6.);
+        let plates = plate_perimeters(&step, &features, 0, 1e-6);
+        let wall = (0..step.faces.len())
+            .find(|&f| {
+                let b = step.face_bounds(f);
+                principal_plane(&step, f).is_some_and(|(k, _)| k == 0)
+                    && (b.min[0] - 5.).abs() < 1e-9
+            })
+            .unwrap();
+        assert!(
+            step.neighbours(wall)
+                .iter()
+                .all(|&g| step.arc(wall, g) != Some(Arc::Concave))
+        );
+        let step_stock = evidence(&step);
+        let stock_caps: Vec<_> = step
+            .neighbours(wall)
+            .into_iter()
+            .filter(|g| step_stock.contains_key(g) && step.arc(wall, *g) == Some(Arc::Convex))
+            .collect();
+        assert_eq!(stock_caps.len(), 2);
+        assert!(
+            stock_caps
+                .iter()
+                .all(|&g| principal_plane(&step, g).unwrap().0 == 1)
+        );
+        assert!(!stock_wall(&step, wall, &step_stock, &plates, 1e-6));
         let sharp = profile(&[
             [0., 0.],
             [5., 0.],
