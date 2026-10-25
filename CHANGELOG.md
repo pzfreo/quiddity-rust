@@ -27,6 +27,35 @@ in [docs/alpha1.md](docs/alpha1.md).
   The issue omitted four V-notch flanks and incorrectly assumed cap 104 was already
   claimed by `polygonal_bosses`; those stay unexplained. Four rectangular-notch
   side walls retain their existing step-level claims. No notch or boss cap is body.
+- **Prove rectangular pocket boundaries before class scoring.** Publish `rectangular_boundary`
+  only for an intact straight rectangular floor with four full-height inward planar walls,
+  uniquely owned cavity evidence and no extra treatment faces. Circular-end pockets and blind
+  corner steps exclude that proved closed rectangle; unclassified boundaries remain ambiguous.
+  Against mapping round 2 alone on 2,000 dev models, rectangular-pocket instance recall/precision
+  improve 0.1946/0.1539 to 0.8452/0.6678, circular-end 0.2782/0.1382 to 0.7910/0.6138, and
+  blind-step 0.7850/0.3919 to 0.7850/0.6141. Their face recall/precision improve respectively
+  0.4477/0.7492 to 0.7030/0.8216, 0.4358/0.4696 to 0.6392/0.7689, and
+  0.7567/0.4762 to 0.7567/0.6869; no class loses true positives.
+  Pocket fingerprints gain the invariant `rectangular_boundary` trait within format v3.
+
+- **Complete pocket boundaries past intersecting mouths.** A uniquely owned intact rectangular
+  floor can prove both observed end walls after a crossing cut opens the mouth wire. Existing
+  cavity-emptiness and role proofs remain required. The 2,000-model dev set gains one more
+  rectangular-pocket TP without extra predictions: instance recall/precision
+  0.8438/0.1934 to 0.8452/0.1937 (594 to 595 TPs).
+
+- **Recover rectangular pockets from intact floors.** A closed straight-edged floor with a
+  concave wall on every edge now supports four-sided sections too, retaining all cavity,
+  floor and opening volume proofs. The 2,000-model dev set gains one rectangular-pocket TP:
+  instance recall/precision 0.8423/0.1932 to 0.8438/0.1934 (593 to 594 TPs).
+
+- **Complete pocket wall evidence.** A uniquely owned cavity now retains its observed planar
+  end walls or the sides smoothly joining both obround caps as defining faces; floors remain
+  context and ambiguous ownership keeps the seed unchanged. On the 2,000-model MFInstSeg dev
+  set, rectangular-pocket instance recall/precision rise from 0.1946/0.0446 to 0.8423/0.1932
+  (137 to 593 TPs), and circular-end-pocket from 0.2782/0.0985 to 0.7910/0.2799
+  (185 to 526 TPs), with unchanged prediction counts and no model/class TP losses.
+
 - **Lip-bevelled blind-slot scoring.** Existing `section_recesses` can prove a
   rectangular U sweep whose mouth has one flared planar bevel. Map only its complete
   straight five-vertex profile, one planar blind cap, one open run end, and a run

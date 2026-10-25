@@ -260,6 +260,12 @@
             "op": "equals",
             "value": false,
             "evidence": "A proved corner notch at two stock edges is not a closed circular-end pocket. A null end radius alone cannot classify an altered profile, so those ambiguous records retain the existing correspondence."
+          },
+          {
+            "field": "/rectangular_boundary",
+            "op": "equals",
+            "value": false,
+            "evidence": "A published rectangular_boundary=true proves one intact four-line planar floor with four full-height inward planar walls concave to its edges, on a uniquely owned cavity. This is a closed rectangular boundary, so it cannot be a circular-end pocket or an edge-anchored corner step. False leaves modified or unproved boundaries under the existing correspondence; a null end radius alone is not a rectangle proof."
           }
         ]
       }
@@ -339,6 +345,12 @@
             "op": "equals",
             "value": null,
             "evidence": "A proved half-cylindrical pocket end is not a rectangular corner step. The remaining profiles retain their existing coarse correspondence because edge_anchored=false alone cannot classify intersected or treated corners."
+          },
+          {
+            "field": "/rectangular_boundary",
+            "op": "equals",
+            "value": false,
+            "evidence": "A published rectangular_boundary=true proves one intact four-line planar floor with four full-height inward planar walls concave to its edges, on a uniquely owned cavity. This is a closed rectangular boundary, so it cannot be a circular-end pocket or an edge-anchored corner step. False leaves modified or unproved boundaries under the existing correspondence; a null end radius alone is not a rectangle proof."
           }
         ]
       }
