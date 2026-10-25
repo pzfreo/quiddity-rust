@@ -159,6 +159,16 @@ piece is retained in the defining claim and strict ownership proof.
 
 ## Evaluation mappings
 
+`lip_bevelled_blind_slot` selects an existing complete `edge_open_recess` geometry:
+exactly two parallel straight sides, a flat floor and one planar lip bevel flaring
+outward into the open mouth. Its five profile vertices and normal planar run-end
+surfaces must prove exactly one capped and one open end. The run must be strictly longer
+than both nominal width and depth beyond coordinate/interval rounding uncertainty;
+ambiguous run/depth roles remain excluded. `coordinate_decimals` and `interval_decimals`
+are the published profile-point and run-station precision (4 and 3). The existing
+section-recess recogniser proves the swept region and solid. The mapping preserves
+its defining faces, including the bevel, and does not add consulted cap faces.
+
 `compatible_polygon` is a conservative scoring predicate over the published section
 coordinates. `shape` is `triangle`, `rectangle`, or `regular_hexagon`; `decimals` must
 be the field's publication precision (4 for section-passage boundary points, 3 for

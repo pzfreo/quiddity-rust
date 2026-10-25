@@ -47,6 +47,10 @@ pub enum Predicate {
         shape: CanonicalPolygon,
         decimals: u32,
     },
+    LipBevelledBlindSlot {
+        coordinate_decimals: u32,
+        interval_decimals: u32,
+    },
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
@@ -134,6 +138,108 @@ fn canonical_polygon(value: &serde_json::Value, decimals: u32) -> Option<Canonic
     None
 }
 
+/// A proved open section with one flared lip bevel, two parallel sides and a flat floor.
+/// Its run must have a unique slot role: strictly longer than both width and depth.
+fn lip_bevelled_blind_slot(
+    value: &serde_json::Value,
+    coordinate_decimals: u32,
+    interval_decimals: u32,
+) -> bool {
+    assert!(coordinate_decimals <= 12 && interval_decimals <= 12);
+    let ends: Option<Vec<&str>> = ["low", "high"]
+        .iter()
+        .map(|end| {
+            let end = &value["ends"][end];
+            let gradient = end["surface"]["gradient"].as_array()?;
+            if end["surface"]["type"] != "plane"
+                || gradient.len() != 2
+                || gradient.iter().any(|v| v.as_f64() != Some(0.0))
+            {
+                return None;
+            }
+            end["condition"].as_str()
+        })
+        .collect();
+    if !matches!(
+        ends.as_deref(),
+        Some(["open", "capped"] | ["capped", "open"])
+    ) || value["profile"]["closure"] != "open"
+    {
+        return false;
+    }
+    let Some(boundary) = value["profile"]["boundary"].as_array() else {
+        return false;
+    };
+    if boundary.len() != 5 || boundary.iter().any(|v| v["bulge"].as_f64() != Some(0.0)) {
+        return false;
+    }
+    let points: Option<Vec<[f64; 2]>> = boundary
+        .iter()
+        .map(|v| Some([v["point"][0].as_f64()?, v["point"][1].as_f64()?]))
+        .collect();
+    let Some(points) = points else {
+        return false;
+    };
+    let delta: [f64; 2] = std::array::from_fn(|i| points[4][i] - points[0][i]);
+    let span = delta[0].hypot(delta[1]);
+    let q = 0.5 * 10_f64.powi(-(coordinate_decimals as i32));
+    if span <= 8.0 * q {
+        return false;
+    }
+    let width_direction = delta.map(|v| v / span);
+    let depth_direction = [-width_direction[1], width_direction[0]];
+    let radius = points
+        .iter()
+        .map(|p| (p[0] - points[0][0]).hypot(p[1] - points[0][1]))
+        .fold(0.0, f64::max);
+    // Endpoint rounding affects both the projected points and their opening-line basis.
+    let tolerance = 8.0 * q * (1.0 + radius / span);
+    let mut coordinates: Vec<[f64; 2]> = points
+        .iter()
+        .map(|p| {
+            [width_direction, depth_direction]
+                .map(|d| (p[0] - points[0][0]) * d[0] + (p[1] - points[0][1]) * d[1])
+        })
+        .collect();
+    if coordinates.iter().map(|p| p[1]).sum::<f64>() < 0.0 {
+        coordinates.iter_mut().for_each(|p| p[1] = -p[1]);
+    }
+    let Some(low) = value["run_interval"][0].as_f64() else {
+        return false;
+    };
+    let Some(high) = value["run_interval"][1].as_f64() else {
+        return false;
+    };
+    let length = high - low;
+    let role_tolerance = tolerance + 10_f64.powi(-(interval_decimals as i32));
+    let matches = |p: &[[f64; 2]]| {
+        let [a, bevel, side, floor, opposite] = p else {
+            return false;
+        };
+        let near = |a: f64, b: f64| (a - b).abs() <= tolerance;
+        let depth = side[1];
+        let width = floor[0] - side[0];
+        bevel[0] > a[0] + tolerance
+            && bevel[1] > tolerance
+            && bevel[1] < depth - tolerance
+            && near(bevel[0], side[0])
+            && near(side[1], floor[1])
+            && near(floor[0], opposite[0])
+            && near(opposite[1], 0.0)
+            && width > tolerance
+            && length > width + role_tolerance
+            && length > depth + role_tolerance
+    };
+    matches(&coordinates)
+        || matches(
+            &coordinates
+                .iter()
+                .rev()
+                .map(|p| [span - p[0], p[1]])
+                .collect::<Vec<_>>(),
+        )
+}
+
 impl Selector {
     fn matches(&self, record: &serde_json::Value) -> bool {
         let value = record
@@ -152,6 +258,10 @@ impl Selector {
             Predicate::CompatiblePolygon { shape, decimals } => {
                 canonical_polygon(value, *decimals).is_none_or(|found| found == *shape)
             }
+            Predicate::LipBevelledBlindSlot {
+                coordinate_decimals,
+                interval_decimals,
+            } => lip_bevelled_blind_slot(value, *coordinate_decimals, *interval_decimals),
         }
     }
 }
@@ -194,6 +304,13 @@ pub fn mapping() -> Vec<Class> {
                 }
                 if let Predicate::CompatiblePolygon { decimals, .. } = &selector.predicate {
                     assert!(*decimals <= 12);
+                }
+                if let Predicate::LipBevelledBlindSlot {
+                    coordinate_decimals,
+                    interval_decimals,
+                } = &selector.predicate
+                {
+                    assert!(*coordinate_decimals <= 12 && *interval_decimals <= 12);
                 }
             }
             selectors.iter().for_each(validate);
@@ -658,6 +775,69 @@ pub fn evaluate(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn bevelled_slot_geometry(points: Vec<[f64; 2]>, length: f64) -> serde_json::Value {
+        serde_json::json!({
+            "profile": {"closure":"open", "boundary":points.into_iter().map(|p|
+                serde_json::json!({"point":p,"bulge":0.0})).collect::<Vec<_>>()},
+            "ends":{
+                "low":{"condition":"capped","surface":{"type":"plane","gradient":[0.,0.]}},
+                "high":{"condition":"open","surface":{"type":"plane","gradient":[0.,0.]}}
+            },
+            "run_interval":[0.,length]
+        })
+    }
+
+    #[test]
+    fn lip_bevelled_slot_requires_a_unique_long_run_after_section_motion() {
+        let points = [[0., 0.], [1., 1.], [1., 4.], [6., 4.], [6., 0.]];
+        for scale in [0.1, 1., 100.] {
+            for angle in [0_f64, 0.72, 2.34] {
+                for reverse in [false, true] {
+                    let mut moved: Vec<[f64; 2]> = points
+                        .iter()
+                        .map(|p| {
+                            let p = [
+                                12.3 + scale * (angle.cos() * p[0] - angle.sin() * p[1]),
+                                -2.1 + scale * (angle.sin() * p[0] + angle.cos() * p[1]),
+                            ];
+                            p.map(|x| (x * 1e4).round() / 1e4)
+                        })
+                        .collect();
+                    if reverse {
+                        moved.reverse();
+                    }
+                    let mut geometry = bevelled_slot_geometry(moved, 20. * scale);
+                    assert!(lip_bevelled_blind_slot(&geometry, 4, 3));
+                    geometry["run_interval"] = serde_json::json!([0., 5. * scale]);
+                    assert!(!lip_bevelled_blind_slot(&geometry, 4, 3));
+                    geometry["run_interval"] = serde_json::json!([0., 4. * scale]);
+                    assert!(!lip_bevelled_blind_slot(&geometry, 4, 3));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn lip_bevelled_slot_refuses_other_ends_curves_and_nonrectangular_sides() {
+        let points = vec![[0., 0.], [1., 1.], [1., 4.], [6., 4.], [6., 0.]];
+        let original = bevelled_slot_geometry(points, 20.);
+        for (path, replacement) in [
+            ("/ends/low/condition", serde_json::json!("open")),
+            ("/ends/high/condition", serde_json::json!("capped")),
+            ("/ends/low/surface/gradient", serde_json::json!([0.1, 0.])),
+            ("/profile/closure", serde_json::json!("closed")),
+            ("/profile/boundary/0/bulge", serde_json::json!(0.2)),
+            ("/profile/boundary/1/point", serde_json::json!([-1., 1.])),
+            ("/profile/boundary/1/point", serde_json::json!([1., 4.])),
+            ("/profile/boundary/2/point", serde_json::json!([1.2, 4.])),
+            ("/profile/boundary/3/point", serde_json::json!([6., 4.2])),
+        ] {
+            let mut geometry = original.clone();
+            *geometry.pointer_mut(path).unwrap() = replacement;
+            assert!(!lip_bevelled_blind_slot(&geometry, 4, 3), "{path}");
+        }
+    }
 
     #[test]
     fn canonical_polygons_survive_pose_scale_winding_and_publication_rounding() {

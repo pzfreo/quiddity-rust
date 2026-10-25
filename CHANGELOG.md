@@ -6,6 +6,16 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Lip-bevelled blind-slot scoring.** Existing `section_recesses` can prove a
+  rectangular U sweep whose mouth has one flared planar bevel. Map only its complete
+  straight five-vertex profile, one planar blind cap, one open run end, and a run
+  strictly longer than both nominal section dimensions beyond publication uncertainty.
+  On 2,000 dev models, rectangular_blind_slot instance recall/precision improve from
+  0.4758/0.9833 to 0.4919/0.9839 (59 to 61 TP). Face recall/precision change from
+  0.4618/0.9833 to 0.4736/0.9758 (236 to 242 TP): the existing defining bevel faces
+  remain predictions, while cap context is not promoted. Both extra instance
+  predictions are correct. No class loses TP; no engine rule or failure count changes.
+
 - **Conservative geometric subtype scoring.** Compare published straight section
   coordinates at their declared precision against complete triangles, rectangles and
   regular hexagons; exclude only a proved alternative canonical profile. Retain treated,

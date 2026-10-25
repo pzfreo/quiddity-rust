@@ -268,8 +268,27 @@
       "id": 17,
       "name": "rectangular_blind_slot",
       "families": [
-        "rectangular_blind_slots"
-      ]
+        "rectangular_blind_slots",
+        "section_recesses"
+      ],
+      "selectors": {
+        "section_recesses": [
+          {
+            "field": "/classification/feature_kind",
+            "op": "equals",
+            "value": "edge_open_recess",
+            "evidence": "An already-proved open section with one capped run end and one open run end is a blind edge-open recess."
+          },
+          {
+            "field": "/geometry",
+            "op": "lip_bevelled_blind_slot",
+            "coordinate_decimals": 4,
+            "interval_decimals": 3,
+            "evidence": "Five straight published profile vertices prove exactly two parallel sides, one flat floor and a flared lip bevel at one mouth edge. Both run end planes are normal to the run; exactly one is capped. The run must be strictly longer than both nominal width and depth, beyond publication uncertainty, so ambiguous slot roles stay excluded. Profile coordinates publish 4 decimals and run stations 3. The existing section-recess proof supplies complete sweep, support, mouth, cap and valid-solid evidence. Its defining bevel face remains part of scoring; labels do not remove it."
+          }
+        ]
+      },
+      "rationale": "Legacy rectangular_blind_slots plus already-proved lip-bevelled rectangular U sweeps with one planar blind cap and uniquely longer run. Keep their existing defining faces, including the bevel; do not expand cap context into predictions or weaken ambiguous-role refusals."
     },
     {
       "id": 18,
