@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "sources": [
     "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Utils/parameters.py",
     "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/main.py",
@@ -7,7 +7,7 @@
     "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/feature_creation.py",
     "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/extract_label_from_MFCADPP.py"
   ],
-  "semantics": "Coarse family correspondence, not a learned semantic classifier. Each class is scored independently against ALL predictions from its mapped families, without consulting ground truth to select predictions. Shared-family classes therefore share predictions and may have low precision. Only defining faces count; bottom labels and constituent faces do not expand predictions. Identical face sets across mapped families are one prediction. Stock is not covered: polygonal_stock describes a body, not residual unmachined faces.",
+  "semantics": "Family correspondence with optional per-family selectors over published geometric record fields, independently of labels. All selectors on a family must match; unselected families retain every record. Only defining faces count; bottom labels and constituent faces do not expand predictions. Identical face sets across mapped families are one prediction. Stock is not covered: polygonal_stock describes a body, not residual unmachined faces.",
   "classes": [
     {
       "id": 0,
@@ -50,9 +50,11 @@
     {
       "id": 5,
       "name": "triangular_through_slot",
-      "families": [],
-      "not_covered": "V-section through channel; Rust slots require opposed parallel walls.",
-      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/triangular_through_slot.py"
+      "families": [
+        "v_channels"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/triangular_through_slot.py",
+      "rationale": "Two rectangular planar walls meet concavely at a straight trough edge; their opposite lips lie in one open plane, and both run ends open to exterior planar faces. The v_channels family proves this V-section through-channel geometry, without selecting by labels or preferring a section angle. A wall pair contained in a proved closed passage is excluded as part of that complete section."
     },
     {
       "id": 6,
@@ -66,9 +68,27 @@
     {
       "id": 7,
       "name": "circular_through_slot",
-      "families": [],
-      "not_covered": "Circular-section open through channel; Rust channels require a rectangular floor and walls.",
-      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/circular_through_slot.py"
+      "families": [
+        "section_recesses"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/circular_through_slot.py",
+      "selectors": {
+        "section_recesses": [
+          {
+            "field": "/classification/feature_kind",
+            "op": "equals",
+            "value": "channel",
+            "evidence": "A proved open section swept between two open run ends is a through channel."
+          },
+          {
+            "field": "/classification/section_shape",
+            "op": "equals",
+            "value": "circular",
+            "evidence": "The published circular open profile is the concave cylindrical trough; cylindrical_seats proves the original support, open mouth and both open ends by coverage and volume probes."
+          }
+        ]
+      },
+      "rationale": "The existing section_recesses family already publishes proved circular open channels, including the semicircular trough of circular_through_slot. Select its published channel and circular classification, without changing recognition or using labels."
     },
     {
       "id": 8,
@@ -96,9 +116,11 @@
     {
       "id": 11,
       "name": "Oring",
-      "families": [],
-      "not_covered": "Annular blind recess cut in a planar stock face; Rust grooves describe turned external shaft bands.",
-      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/o_ring.py"
+      "families": [
+        "annular_grooves"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/o_ring.py",
+      "rationale": "A blind annular face recess: a planar annular floor region joins a complete outer concave cylinder and inner convex cylinder, both ending at the same open plane. The annular_grooves family proves every floor piece and both cylindrical walls on one valid solid; split rims must be complete circular cycles. Existing grooves are external shaft bands and do not describe this geometry. No nominal O-ring size or function is inferred."
     },
     {
       "id": 12,
@@ -147,10 +169,10 @@
       "id": 18,
       "name": "v_circular_end_blind_slot",
       "families": [
-        "round_bottom_blind_slots"
+        "semicircular_blind_slots"
       ],
       "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/v_circular_end_blind_slot.py",
-      "rationale": "Open U-section with a semicircular bottom; mapped to the round-bottom slot family even where its stricter flat-bottom/quarter-cylinder implementation cannot recognise it."
+      "rationale": "A complete semicylindrical floor tangent to two rectangular vertical sides, swept from an open run end to a planar blind cap. The semicircular_blind_slots family proves that geometry and its open lateral mouth on one strictly valid solid. The older round_bottom_blind_slots family describes two quarter-cylinder corners with a flat floor, which is the h_circular_end_blind_slot geometry, not this class."
     },
     {
       "id": 19,
