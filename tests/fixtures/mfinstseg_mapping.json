@@ -13,8 +13,10 @@
       "id": 0,
       "name": "chamfer",
       "families": [
-        "chamfers"
-      ]
+        "chamfers",
+        "oriented_chamfers"
+      ],
+      "rationale": "The internal scorer keeps principal chamfers and oriented_chamfers separately, while recognition schema 6 publishes both as chamfers. oriented_chamfers proves a complete planar replacement bevel between two supports, including material-side and virtual-corner evidence; the same defining-face set is deduplicated across families."
     },
     {
       "id": 1,

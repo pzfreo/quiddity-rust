@@ -6,6 +6,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Complete chamfer scoring correspondence.** Map internal `oriented_chamfers` as
+  well as `chamfers`, matching their existing merged recognition-schema-6 publication;
+  identical defining-face sets remain deduplicated. On 2,000 dev models, chamfer
+  instance recall/precision improve from 0.4033/0.6967 to 0.5223/0.7343 (271 to 351 TP),
+  and face recall/precision from 0.3862/0.7943 to 0.4975/0.8326 (309 to 398 TP).
+  Recognition, other class scores and failure counts are unchanged.
+
 - **Validation worker limits.** Snapshot and MFInstSeg baseline tools honour exported
   Cargo/test worker limits, and the baseline scorer honours `MFI_WORKERS`; defaults and
   all regression refusals are unchanged. Recognition scores are unchanged.

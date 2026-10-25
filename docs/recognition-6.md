@@ -159,6 +159,12 @@ piece is retained in the defining claim and strict ownership proof.
 
 ## Evaluation mappings
 
+The MFInstSeg scorer evaluates the internal caller-space inventory. Its chamfer class
+therefore names both `chamfers` and `oriented_chamfers`, which this document already
+publishes together as `chamfers`. This correspondence changes scoring only: a complete
+oriented bevel is already proved by its recogniser and its defining face remains the
+claim. Identical face sets across either source count once.
+
 `tests/fixtures/mfinstseg_mapping.json` schema 2 permits per-family `selectors`. Each
 selector names a JSON-pointer `field` in the published record, its comparison, and its
 geometric `evidence`. All predicates on a family must match before its defining-face set
