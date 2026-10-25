@@ -131,3 +131,121 @@ that preserve face identity. Grid pitches and centre come from those same raw
 centres. File-axis pattern geometry is also remeasured, so a copy that happens to
 land on file axes does not retain a rounding-induced skew. Feature IDs, proofs,
 inventory, schema 6, fingerprint version 3 and the crate version are unchanged.
+
+
+## Annular face grooves
+
+The optional `annular_grooves` family contains `AnnularGroove` records and is omitted when
+empty. This additive family keeps `quiddity-rust/recognition/6`; existing families retain
+all their records. It describes a blind annular face recess of rectangular radial section,
+such as a face-seal housing. It makes no nominal O-ring size or intended-function claim.
+
+Each record publishes `axis` (a unit vector from the floor towards the mouth),
+`floor_center` (a point in file coordinates), `inner_radius`, `outer_radius`, and `depth`
+(in millimetres). All floor pieces and both cylindrical walls are defining faces; planar faces
+at the two mouth rims are consulted evidence. All must belong to one strictly valid solid.
+The two complete circular floor boundaries must be concentric, their cylindrical walls
+coaxial, the floor junctions concave, and the mouth junctions convex. Both walls must end
+at the same open plane. Interrupted walls, treated rims, unequal depths, invalid ownership,
+and competing defining claims are refused. External turned bands remain `grooves`.
+
+
+The annular floor may be partitioned into native planar faces joined smoothly on the same
+plane. Internal edges cancel, leaving exactly two nonbranching closed boundary cycles.
+A rim may contain several circular edges, but their centres/radii must agree and their
+actual angular intervals must cover a complete turn. Counting overlapping arc lengths
+as a full rim is refused. The cylindrical walls must still each be complete; every floor
+piece is retained in the defining claim and strict ownership proof.
+
+## Evaluation mappings
+
+`lip_bevelled_blind_slot` selects an existing complete `edge_open_recess` geometry:
+exactly two parallel straight sides, a flat floor and one planar lip bevel flaring
+outward into the open mouth. Its five profile vertices and normal planar run-end
+surfaces must prove exactly one capped and one open end. The run must be strictly longer
+than both nominal width and depth beyond coordinate/interval rounding uncertainty;
+ambiguous run/depth roles remain excluded. `coordinate_decimals` and `interval_decimals`
+are the published profile-point and run-station precision (4 and 3). The existing
+section-recess recogniser proves the swept region and solid. The mapping preserves
+its defining faces, including the bevel, and does not add consulted cap faces.
+
+`compatible_polygon` is a conservative scoring predicate over the published section
+coordinates. `shape` is `triangle`, `rectangle`, or `regular_hexagon`; `decimals` must
+be the field's publication precision (4 for section-passage boundary points, 3 for
+prismatic-pocket corners). A rectangle has four right angles; a regular hexagon has
+six equal edges and sixty-degree exterior turns. The polygon must be straight and
+strictly convex at that coordinate resolution. Dot/cross and edge-length tolerances
+come from half-grid coordinate rounding, not a model or dataset scale. Either winding
+and arbitrary section orientation are supported.
+
+A complete alternative canonical shape is excluded. Curved profiles, clipped corners,
+intersections, irregular polygons and unresolved edges remain ambiguous and retain the
+old correspondence; raw wall/vertex counts do not identify their original cut shape.
+Likewise an unknown hole end is retained for blind-hole scoring, while a proved through
+end is excluded. Pocket flags exclude only a proved incompatible corner or curved-end
+subtype. A missing flag does not prove the opposite subtype. These predicates never
+read labels, model identity, topology or recognition internals beyond published records.
+
+The round scoring correspondence also includes complete rolling-ball `blends` selected
+by the published material side (`convex` or `concave`). MFInstSeg round includes both
+external rounds and internal fillets, as confirmed by its labelled concave blend faces.
+Their smooth supports and complete path are already proved; this also includes external
+rounds below the legacy fillet radius floor.
+The fillet recogniser's radius and convexity rules are unchanged. Defining-face sets
+shared by a fillet and a blend still count as one prediction.
+
+The MFInstSeg scorer evaluates the internal caller-space inventory. Its chamfer class
+therefore names both `chamfers` and `oriented_chamfers`, which this document already
+publishes together as `chamfers`. This correspondence changes scoring only: a complete
+oriented bevel is already proved by its recogniser and its defining face remains the
+claim. Identical face sets across either source count once.
+
+`tests/fixtures/mfinstseg_mapping.json` schema 2 permits per-family `selectors`. Each
+selector names a JSON-pointer `field` in the published record, its comparison, and its
+geometric `evidence`. All predicates on a family must match before its defining-face set
+is passed to the scorer. Record indices stay paired with their defining faces, and labels
+never select predictions. The circular-through-slot mapping selects the existing
+`section_recesses` classification `feature_kind: channel`, `section_shape: circular`:
+these are open cylindrical troughs with both run ends proved open. This changes evaluation
+correspondence only, not the recognition schema or the geometry engine.
+
+
+## V-section through channels
+
+The optional `v_channels` family contains `VChannel` records, omitted when empty.
+It keeps recognition schema 6 and does not change any other family's records.
+`axis` is the unit run vector (its sign is a presentation gauge), `opening` is the outward
+unit normal to the lip plane, and `at` is the trough edge's midpoint in file coordinates.
+`length`, `width`, and `depth` are millimetres; `included_angle_degrees` is the angle
+between the two sides, without any preferred angle or dimensional ratio.
+
+The defining faces are two complete rectangular planes meeting concavely at the trough.
+Their opposite lips must be coplanar and their ends aligned. Each lip and each end must
+meet an outward-facing exterior plane convexly. The apex must lie between the lips when
+projected onto the mouth; interrupted walls, missing ownership, and competing wall claims
+are refused. All defining and consulted faces require one strictly valid solid. A pair of
+walls already contained in a proved closed section passage is part of that complete
+passage, not a separate open channel. This exclusion leaves passage recognition intact.
+
+
+## Semicircular-bottom blind slots
+
+The optional `semicircular_blind_slots` family contains `SemicircularBlindSlot` records,
+omitted when empty, within recognition schema 6. Its section has one semicircular bottom
+and two tangent straight sides. This differs from `round_bottom_blind_slots`, whose
+section has two quarter-cylinders and a flat floor; that existing family is unchanged.
+
+`axis` points from the open run end towards the blind cap; `opening` points out of the
+lateral mouth. Both are unit vectors in file coordinates. `at` is the section bounding
+box's centre halfway along the run. `length`, `radius`, and `straight_height` are
+millimetres: section width is twice the radius and depth is radius plus straight height.
+The cylinder, both straight sides, and the planar blind cap are defining faces. The
+convex planar faces at the run mouth and lateral opening are consulted evidence.
+
+The complete cylinder boundary must have two semicircular rims and two straight run
+edges; the rectangular sides must be tangent to it and rise equally towards the lateral
+mouth. The blind cap has exactly that U profile and meets all three swept surfaces
+concavely. Both mouth boundaries meet outward-facing planar context convexly. Every
+source face must belong to one strictly valid solid. Interrupted or treated boundaries,
+missing caps/ownership, and competing defining claims are refused. The cylinder axis
+and unique cap establish run/depth roles without a dimensional preference.

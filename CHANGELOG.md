@@ -24,6 +24,104 @@ in [docs/alpha1.md](docs/alpha1.md).
   (137 to 593 TPs), and circular-end-pocket from 0.2782/0.0985 to 0.7910/0.2799
   (185 to 526 TPs), with unchanged prediction counts and no model/class TP losses.
 
+- **Lip-bevelled blind-slot scoring.** Existing `section_recesses` can prove a
+  rectangular U sweep whose mouth has one flared planar bevel. Map only its complete
+  straight five-vertex profile, one planar blind cap, one open run end, and a run
+  strictly longer than both nominal section dimensions beyond publication uncertainty.
+  On 2,000 dev models, rectangular_blind_slot instance recall/precision improve from
+  0.4758/0.9833 to 0.4919/0.9839 (59 to 61 TP). Face recall/precision change from
+  0.4618/0.9833 to 0.4736/0.9758 (236 to 242 TP): the existing defining bevel faces
+  remain predictions, while cap context is not promoted. Both extra instance
+  predictions are correct. No class loses TP; no engine rule or failure count changes.
+
+- **Conservative geometric subtype scoring.** Compare published straight section
+  coordinates at their declared precision against complete triangles, rectangles and
+  regular hexagons; exclude only a proved alternative canonical profile. Retain treated,
+  intersected or unresolved profiles under the old correspondence. Blind-hole scoring
+  excludes proved through ends but retains unknown ends. Pocket scoring excludes proved
+  incompatible corner-notch or half-cylindrical-end subtypes without treating an absent
+  flag as proof of another type. On 2,000 dev models, every class/model retains all face
+  and instance TP and recognition failures remain zero. Per-class recall/precision:
+
+  | Class | Instance recall/precision, before → after | Face recall/precision, before → after |
+  |---|---|---|
+  | triangular_passage | 0.8028/0.3478 → 0.8028/0.8937 | 0.7938/0.2492 → 0.7938/0.8461 |
+  | rectangular_passage | 0.6547/0.2878 → 0.6547/0.8953 | 0.6473/0.2740 → 0.6473/0.8720 |
+  | 6sides_passage | 0.7682/0.3437 → 0.7682/0.9152 | 0.7526/0.4900 → 0.7526/0.9398 |
+  | blind_hole | 0.9789/0.3450 → 0.9789/0.5074 | 0.5018/0.3510 → 0.5018/0.5129 |
+  | triangular_pocket | 0.8903/0.4635 → 0.8903/0.9262 | 0.6627/0.3098 → 0.6627/0.8776 |
+  | rectangular_pocket | 0.1946/0.0446 → 0.1946/0.1539 | 0.4477/0.1577 → 0.4477/0.7492 |
+  | 6sides_pocket | 0.8484/0.4559 → 0.8484/0.9443 | 0.7312/0.6107 → 0.7312/0.9494 |
+  | circular_end_pocket | 0.2782/0.0985 → 0.2782/0.1382 | 0.4358/0.3092 → 0.4358/0.4696 |
+  | rectangular_blind_step | 0.7850/0.2778 → 0.7850/0.3919 | 0.7567/0.3305 → 0.7567/0.4762 |
+
+  Through-hole correspondence remains coarse: one flat-bottom record still contains a
+  through-labelled face. No engine rule changes and no label selects a prediction.
+
+- **Internal-round scoring correspondence.** MFInstSeg `round` labels include internal
+  fillets: all 158 existing concave blend defining faces on dev are round-labelled.
+  Extend the published `blends.side` selector to convex or concave, retaining the
+  existing proof and leaving #89's convex-only `fillets` rule unchanged. Relative to
+  convex-blend scoring, round instance recall/precision improve from 0.6373/0.9543 to
+  0.9017/0.9638 (376 to 532 TP), and face recall/precision from 0.5617/0.9975 to
+  0.7858/0.9982 (396 to 554 TP). No class loses TP or gains recognition failures.
+
+- **Convex blend scoring.** Map the round class to already-proved `blends` with
+  published `side = convex`, deduplicating their defining-face sets against `fillets`.
+  No fillet radius floor or material-side rule changes. On 2,000 dev models, round
+  instance recall/precision improve from 0.2831/0.9176 to 0.6373/0.9543 (167 to 376 TP),
+  and face recall/precision from 0.2567/0.9945 to 0.5617/0.9975 (181 to 396 TP).
+  No class loses TP and no new recognition failures occur.
+
+- **Complete chamfer scoring correspondence.** Map internal `oriented_chamfers` as
+  well as `chamfers`, matching their existing merged recognition-schema-6 publication;
+  identical defining-face sets remain deduplicated. On 2,000 dev models, chamfer
+  instance recall/precision improve from 0.4033/0.6967 to 0.5223/0.7343 (271 to 351 TP),
+  and face recall/precision from 0.3862/0.7943 to 0.4975/0.8326 (309 to 398 TP).
+  Recognition, other class scores and failure counts are unchanged.
+
+- **Validation worker limits.** Snapshot and MFInstSeg baseline tools honour exported
+  Cargo/test worker limits, and the baseline scorer honours `MFI_WORKERS`; defaults and
+  all regression refusals are unchanged. Recognition scores are unchanged.
+
+- **Annular floor/rim partitions.** Smooth coplanar floor pieces and split circular
+  edges retain one annular groove when their two closed boundary cycles cover full,
+  concentric circles; overlapping arc length alone is not proof. All floor pieces
+  define the feature, and strict solid/mouth evidence remains required. On 2,000 dev
+  models, Oring instance recall/precision improve from 0.8624/1.0000 to 0.8640/1.0000
+  (520 to 521 TP); face recall/precision improve from 0.8301/1.0000 to 0.8317/1.0000
+  (1,563 to 1,566 TP). No other class loses TP or gains failures.
+
+- **Semicircular-bottom blind slots.** Publish `semicircular_blind_slots` for a complete
+  half-cylinder tangent to two rectangular sides, with one planar blind cap and proved
+  open run/lateral mouths on a strictly valid solid. Map MFInstSeg
+  `v_circular_end_blind_slot` to this geometry instead of the quarter-cylinder/flat-floor
+  family used for its horizontal counterpart. On 2,000 dev models, instance
+  recall/precision rise from 0/0 to 0.7971/0.9821 (110/138 TP); face recall/precision
+  rise from 0/0 to 0.7885/0.9821 (440/558 TP). No other class loses TP or gains failures.
+
+- **V-section through channels.** Publish `v_channels` for two complete rectangular
+  planar walls meeting concavely, with coplanar open lips and two open run ends, on a
+  strictly valid solid. Wall pairs contained in a proved closed passage belong to that
+  passage, rather than a separate channel; passage records are unchanged. Map
+  MFInstSeg `triangular_through_slot` to this family. On 2,000 dev models, instance
+  recall/precision rise from 0/0 to 0.3836/0.9180 (56/146 TP); face recall/precision
+  rise from 0/0 to 0.3463/0.9508 (116/335 TP). No other class loses TP or gains failures.
+
+- **Circular through-channel scoring.** MFInstSeg mapping schema 2 permits selectors over
+  published record fields, with geometric evidence for each selector. Map
+  `circular_through_slot` to existing `section_recesses` classified as `channel` and
+  `circular`; recognition is unchanged. On 2,000 dev models, instance recall/precision
+  rise from 0/0 to 0.5488/0.9474 (90/164 TP); face recall/precision rise from 0/0 to
+  0.4577/0.9583 (92/201 TP). No other class loses TP and there are no new failures.
+
+- **Annular face grooves.** Recognise a planar annular floor between complete coaxial
+  cylindrical walls terminating at one open plane, with strict valid-solid evidence.
+  Publish `annular_grooves` in recognition schema 6 and map MFInstSeg Oring to its floor and two
+  defining cylindrical walls. On the 2,000-model dev set, Oring instance recall/precision rise from
+  0/0 to 0.8624/1.0000 (520/603 TP); face recall/precision rise from 0/0 to
+  0.8301/1.0000 (1,563/1,883 TP). Other classes and recognition failures are unchanged.
+
 ## 0.2.0-alpha.2 (2026-10-24)
 
 Upgrading from 0.2.0-alpha.1:

@@ -12,6 +12,272 @@ pub struct Class {
     pub id: usize,
     pub name: String,
     pub families: Vec<String>,
+    /// Per-family predicates over published record fields, independent of labels.
+    #[serde(default)]
+    pub selectors: BTreeMap<String, Vec<Selector>>,
+}
+
+/// A JSON pointer into a published record, with the geometric justification in the mapping.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Selector {
+    pub field: String,
+    pub evidence: String,
+    #[serde(flatten)]
+    pub predicate: Predicate,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(tag = "op", rename_all = "snake_case", deny_unknown_fields)]
+pub enum Predicate {
+    Equals {
+        value: serde_json::Value,
+    },
+    OneOf {
+        values: Vec<serde_json::Value>,
+    },
+    Length {
+        value: usize,
+    },
+    NonNull,
+    All {
+        selector: Box<Selector>,
+    },
+    /// Exclude only another proved canonical profile; altered profiles stay ambiguous.
+    CompatiblePolygon {
+        shape: CanonicalPolygon,
+        decimals: u32,
+    },
+    LipBevelledBlindSlot {
+        coordinate_decimals: u32,
+        interval_decimals: u32,
+    },
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CanonicalPolygon {
+    Triangle,
+    Rectangle,
+    RegularHexagon,
+}
+
+/// Classify only complete canonical polygons at their published coordinate precision.
+/// A treatment, intersection, arc or unresolved edge leaves the old correspondence intact.
+fn canonical_polygon(value: &serde_json::Value, decimals: u32) -> Option<CanonicalPolygon> {
+    assert!(decimals <= 12, "published coordinate precision");
+    let vertices = value.as_array().expect("published polygon vertices");
+    let n = vertices.len();
+    if ![3, 4, 6].contains(&n) {
+        return None;
+    }
+    let points: Option<Vec<[f64; 2]>> = vertices
+        .iter()
+        .map(|v| {
+            let point = if v.is_object() {
+                if v["bulge"].as_f64()? != 0.0 {
+                    return None;
+                }
+                &v["point"]
+            } else {
+                v
+            };
+            let p = point.as_array()?;
+            (p.len() == 2).then_some([p[0].as_f64()?, p[1].as_f64()?])
+        })
+        .collect();
+    let points = points?;
+    let edges: Vec<[f64; 2]> = (0..n)
+        .map(|i| std::array::from_fn(|j| points[(i + 1) % n][j] - points[i][j]))
+        .collect();
+    let lengths: Vec<f64> = edges.iter().map(|v| v[0].hypot(v[1])).collect();
+    // Each coordinate is rounded to this half-grid. Difference-vector error is at most
+    // one grid per component; dot/cross bounds follow from those endpoint errors.
+    let q = 0.5 * 10_f64.powi(-(decimals as i32));
+    if lengths.iter().any(|&length| length <= 4.0 * q) {
+        return None;
+    }
+    let bounds: Vec<f64> = (0..n)
+        .map(|i| {
+            let (a, b) = (edges[i], edges[(i + 1) % n]);
+            2.0 * q * (a[0].abs() + a[1].abs() + b[0].abs() + b[1].abs()) + 8.0 * q * q
+        })
+        .collect();
+    let crosses: Vec<f64> = (0..n)
+        .map(|i| {
+            let (a, b) = (edges[i], edges[(i + 1) % n]);
+            a[0] * b[1] - a[1] * b[0]
+        })
+        .collect();
+    if !crosses.iter().zip(&bounds).all(|(c, b)| *c > *b)
+        && !crosses.iter().zip(&bounds).all(|(c, b)| *c < -*b)
+    {
+        return None;
+    }
+    if n == 3 {
+        return Some(CanonicalPolygon::Triangle);
+    }
+    let dots: Vec<f64> = (0..n)
+        .map(|i| {
+            let (a, b) = (edges[i], edges[(i + 1) % n]);
+            a[0] * b[0] + a[1] * b[1]
+        })
+        .collect();
+    if n == 4 && dots.iter().zip(&bounds).all(|(d, b)| d.abs() <= *b) {
+        return Some(CanonicalPolygon::Rectangle);
+    }
+    if n == 6 {
+        let min = lengths.iter().copied().fold(f64::INFINITY, f64::min);
+        let max = lengths.iter().copied().fold(0.0, f64::max);
+        let equal_edges = max - min <= 4.0 * 2_f64.sqrt() * q;
+        let sixty_degree_turns = (0..n)
+            .all(|i| (dots[i] - 0.5 * lengths[i] * lengths[(i + 1) % n]).abs() <= 2.0 * bounds[i]);
+        if equal_edges && sixty_degree_turns {
+            return Some(CanonicalPolygon::RegularHexagon);
+        }
+    }
+    None
+}
+
+/// A proved open section with one flared lip bevel, two parallel sides and a flat floor.
+/// Its run must have a unique slot role: strictly longer than both width and depth.
+fn lip_bevelled_blind_slot(
+    value: &serde_json::Value,
+    coordinate_decimals: u32,
+    interval_decimals: u32,
+) -> bool {
+    assert!(coordinate_decimals <= 12 && interval_decimals <= 12);
+    let ends: Option<Vec<&str>> = ["low", "high"]
+        .iter()
+        .map(|end| {
+            let end = &value["ends"][end];
+            let gradient = end["surface"]["gradient"].as_array()?;
+            if end["surface"]["type"] != "plane"
+                || gradient.len() != 2
+                || gradient.iter().any(|v| v.as_f64() != Some(0.0))
+            {
+                return None;
+            }
+            end["condition"].as_str()
+        })
+        .collect();
+    if !matches!(
+        ends.as_deref(),
+        Some(["open", "capped"] | ["capped", "open"])
+    ) || value["profile"]["closure"] != "open"
+    {
+        return false;
+    }
+    let Some(boundary) = value["profile"]["boundary"].as_array() else {
+        return false;
+    };
+    if boundary.len() != 5 || boundary.iter().any(|v| v["bulge"].as_f64() != Some(0.0)) {
+        return false;
+    }
+    let points: Option<Vec<[f64; 2]>> = boundary
+        .iter()
+        .map(|v| Some([v["point"][0].as_f64()?, v["point"][1].as_f64()?]))
+        .collect();
+    let Some(points) = points else {
+        return false;
+    };
+    let delta: [f64; 2] = std::array::from_fn(|i| points[4][i] - points[0][i]);
+    let span = delta[0].hypot(delta[1]);
+    let q = 0.5 * 10_f64.powi(-(coordinate_decimals as i32));
+    if span <= 8.0 * q {
+        return false;
+    }
+    let width_direction = delta.map(|v| v / span);
+    let depth_direction = [-width_direction[1], width_direction[0]];
+    let radius = points
+        .iter()
+        .map(|p| (p[0] - points[0][0]).hypot(p[1] - points[0][1]))
+        .fold(0.0, f64::max);
+    // Endpoint rounding affects both the projected points and their opening-line basis.
+    let tolerance = 8.0 * q * (1.0 + radius / span);
+    let mut coordinates: Vec<[f64; 2]> = points
+        .iter()
+        .map(|p| {
+            [width_direction, depth_direction]
+                .map(|d| (p[0] - points[0][0]) * d[0] + (p[1] - points[0][1]) * d[1])
+        })
+        .collect();
+    if coordinates.iter().map(|p| p[1]).sum::<f64>() < 0.0 {
+        coordinates.iter_mut().for_each(|p| p[1] = -p[1]);
+    }
+    let Some(low) = value["run_interval"][0].as_f64() else {
+        return false;
+    };
+    let Some(high) = value["run_interval"][1].as_f64() else {
+        return false;
+    };
+    let length = high - low;
+    let role_tolerance = tolerance + 10_f64.powi(-(interval_decimals as i32));
+    let matches = |p: &[[f64; 2]]| {
+        let [a, bevel, side, floor, opposite] = p else {
+            return false;
+        };
+        let near = |a: f64, b: f64| (a - b).abs() <= tolerance;
+        let depth = side[1];
+        let width = floor[0] - side[0];
+        bevel[0] > a[0] + tolerance
+            && bevel[1] > tolerance
+            && bevel[1] < depth - tolerance
+            && near(bevel[0], side[0])
+            && near(side[1], floor[1])
+            && near(floor[0], opposite[0])
+            && near(opposite[1], 0.0)
+            && width > tolerance
+            && length > width + role_tolerance
+            && length > depth + role_tolerance
+    };
+    matches(&coordinates)
+        || matches(
+            &coordinates
+                .iter()
+                .rev()
+                .map(|p| [span - p[0], p[1]])
+                .collect::<Vec<_>>(),
+        )
+}
+
+impl Selector {
+    fn matches(&self, record: &serde_json::Value) -> bool {
+        let value = record
+            .pointer(&self.field)
+            .expect("mapping field is published");
+        match &self.predicate {
+            Predicate::Equals { value: expected } => value == expected,
+            Predicate::OneOf { values } => values.contains(value),
+            Predicate::Length { value: n } => value.as_array().expect("array field").len() == *n,
+            Predicate::NonNull => !value.is_null(),
+            Predicate::All { selector } => value
+                .as_array()
+                .expect("array field")
+                .iter()
+                .all(|element| selector.matches(element)),
+            Predicate::CompatiblePolygon { shape, decimals } => {
+                canonical_polygon(value, *decimals).is_none_or(|found| found == *shape)
+            }
+            Predicate::LipBevelledBlindSlot {
+                coordinate_decimals,
+                interval_decimals,
+            } => lip_bevelled_blind_slot(value, *coordinate_decimals, *interval_decimals),
+        }
+    }
+}
+
+/// The same serialized fields readers receive; no topology, labels or model identity here.
+fn family_records(features: &quiddity::features::Features, family: &str) -> serde_json::Value {
+    match family {
+        "holes" => serde_json::to_value(&features.holes),
+        "blends" => serde_json::to_value(&features.blends),
+        "section_recesses" => serde_json::to_value(&features.section_recesses),
+        "section_passages" => serde_json::to_value(&features.section_passages),
+        "prismatic_pockets" => serde_json::to_value(&features.prismatic_pockets),
+        "pockets" => serde_json::to_value(&features.pockets),
+        _ => panic!("selectors unsupported for family {family}"),
+    }
+    .expect("published records serialize")
 }
 
 pub fn mapping() -> Vec<Class> {
@@ -24,6 +290,31 @@ pub fn mapping() -> Vec<Class> {
     assert_eq!(mapping.classes.len(), 25);
     for (i, c) in mapping.classes.iter().enumerate() {
         assert_eq!(c.id, i);
+        for (family, selectors) in &c.selectors {
+            assert!(
+                c.families.contains(family),
+                "selector family must be mapped"
+            );
+            assert!(!selectors.is_empty());
+            fn validate(selector: &Selector) {
+                assert!(!selector.evidence.trim().is_empty());
+                assert!(selector.field.starts_with('/'));
+                if let Predicate::All { selector } = &selector.predicate {
+                    validate(selector);
+                }
+                if let Predicate::CompatiblePolygon { decimals, .. } = &selector.predicate {
+                    assert!(*decimals <= 12);
+                }
+                if let Predicate::LipBevelledBlindSlot {
+                    coordinate_decimals,
+                    interval_decimals,
+                } = &selector.predicate
+                {
+                    assert!(*coordinate_decimals <= 12 && *interval_decimals <= 12);
+                }
+            }
+            selectors.iter().for_each(validate);
+        }
     }
     mapping.classes
 }
@@ -341,7 +632,7 @@ pub fn matched(predicted: &[Faces], labelled: &[Faces]) -> u64 {
 
 pub fn score(
     truth: &Truth,
-    defining: &quiddity::features::Defining,
+    features: &quiddity::features::Features,
     classes: &[Class],
 ) -> Vec<Score> {
     classes
@@ -357,7 +648,31 @@ pub fn score(
             let instances: BTreeSet<Faces> = class
                 .families
                 .iter()
-                .flat_map(|f| defining.get(f.as_str()).into_iter().flatten())
+                .flat_map(|family| {
+                    let selectors = class.selectors.get(family);
+                    let records = selectors.map(|_| family_records(features, family));
+                    let defining = features.defining.get(family.as_str());
+                    if let Some(records) = &records {
+                        assert_eq!(
+                            records.as_array().unwrap().len(),
+                            defining.map_or(0, Vec::len),
+                            "records and defining faces must have the same indices"
+                        );
+                    }
+                    defining
+                        .into_iter()
+                        .flatten()
+                        .enumerate()
+                        .filter_map(move |(i, faces)| {
+                            selectors
+                                .is_none_or(|selectors| {
+                                    selectors.iter().all(|selector| {
+                                        selector.matches(&records.as_ref().unwrap()[i])
+                                    })
+                                })
+                                .then_some(faces)
+                        })
+                })
                 .map(|fs| fs.iter().copied().collect())
                 .collect();
             let predicted: Faces = instances.iter().flatten().copied().collect();
@@ -439,7 +754,7 @@ pub fn evaluate(
     // Without labels no accuracy denominator is possible: propagate, never silently skip.
     let truth =
         truth.ok_or_else(|| format!("{id}: {}", error.as_deref().unwrap_or("missing labels")))?;
-    let empty = BTreeMap::new();
+    let empty = quiddity::features::Features::default();
     Ok(ModelScore {
         id: id.into(),
         // Failed recognition is fully unexplained, never silently absent from totals.
@@ -448,11 +763,7 @@ pub fn evaluate(
             stock_unexplained: truth.seg.iter().filter(|&&c| c == 24).count() as u64,
             ..Accounting::default()
         }),
-        scores: score(
-            &truth,
-            features.as_ref().map_or(&empty, |f| &f.defining),
-            classes,
-        ),
+        scores: score(&truth, features.as_ref().unwrap_or(&empty), classes),
         error,
         section_recess_refusal: features
             .and_then(|f| f.section_recess_refusal.map(|e| e.to_string())),
@@ -464,6 +775,209 @@ pub fn evaluate(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn bevelled_slot_geometry(points: Vec<[f64; 2]>, length: f64) -> serde_json::Value {
+        serde_json::json!({
+            "profile": {"closure":"open", "boundary":points.into_iter().map(|p|
+                serde_json::json!({"point":p,"bulge":0.0})).collect::<Vec<_>>()},
+            "ends":{
+                "low":{"condition":"capped","surface":{"type":"plane","gradient":[0.,0.]}},
+                "high":{"condition":"open","surface":{"type":"plane","gradient":[0.,0.]}}
+            },
+            "run_interval":[0.,length]
+        })
+    }
+
+    #[test]
+    fn lip_bevelled_slot_requires_a_unique_long_run_after_section_motion() {
+        let points = [[0., 0.], [1., 1.], [1., 4.], [6., 4.], [6., 0.]];
+        for scale in [0.1, 1., 100.] {
+            for angle in [0_f64, 0.72, 2.34] {
+                for reverse in [false, true] {
+                    let mut moved: Vec<[f64; 2]> = points
+                        .iter()
+                        .map(|p| {
+                            let p = [
+                                12.3 + scale * (angle.cos() * p[0] - angle.sin() * p[1]),
+                                -2.1 + scale * (angle.sin() * p[0] + angle.cos() * p[1]),
+                            ];
+                            p.map(|x| (x * 1e4).round() / 1e4)
+                        })
+                        .collect();
+                    if reverse {
+                        moved.reverse();
+                    }
+                    let mut geometry = bevelled_slot_geometry(moved, 20. * scale);
+                    assert!(lip_bevelled_blind_slot(&geometry, 4, 3));
+                    geometry["run_interval"] = serde_json::json!([0., 5. * scale]);
+                    assert!(!lip_bevelled_blind_slot(&geometry, 4, 3));
+                    geometry["run_interval"] = serde_json::json!([0., 4. * scale]);
+                    assert!(!lip_bevelled_blind_slot(&geometry, 4, 3));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn lip_bevelled_slot_refuses_other_ends_curves_and_nonrectangular_sides() {
+        let points = vec![[0., 0.], [1., 1.], [1., 4.], [6., 4.], [6., 0.]];
+        let original = bevelled_slot_geometry(points, 20.);
+        for (path, replacement) in [
+            ("/ends/low/condition", serde_json::json!("open")),
+            ("/ends/high/condition", serde_json::json!("capped")),
+            ("/ends/low/surface/gradient", serde_json::json!([0.1, 0.])),
+            ("/profile/closure", serde_json::json!("closed")),
+            ("/profile/boundary/0/bulge", serde_json::json!(0.2)),
+            ("/profile/boundary/1/point", serde_json::json!([-1., 1.])),
+            ("/profile/boundary/1/point", serde_json::json!([1., 4.])),
+            ("/profile/boundary/2/point", serde_json::json!([1.2, 4.])),
+            ("/profile/boundary/3/point", serde_json::json!([6., 4.2])),
+        ] {
+            let mut geometry = original.clone();
+            *geometry.pointer_mut(path).unwrap() = replacement;
+            assert!(!lip_bevelled_blind_slot(&geometry, 4, 3), "{path}");
+        }
+    }
+
+    #[test]
+    fn canonical_polygons_survive_pose_scale_winding_and_publication_rounding() {
+        let triangle = vec![[0., 0.], [3., 0.], [1., 2.]];
+        let rectangle = vec![[0., 0.], [3., 0.], [3., 2.], [0., 2.]];
+        let hexagon: Vec<[f64; 2]> = (0..6)
+            .map(|i| {
+                let angle = i as f64 * std::f64::consts::TAU / 6.;
+                [angle.cos(), angle.sin()]
+            })
+            .collect();
+        for (shape, points) in [
+            (CanonicalPolygon::Triangle, triangle),
+            (CanonicalPolygon::Rectangle, rectangle),
+            (CanonicalPolygon::RegularHexagon, hexagon),
+        ] {
+            for decimals in [3, 4] {
+                let grid = 10_f64.powi(decimals as i32);
+                for scale in [0.1, 1., 200.] {
+                    for angle in [0_f64, 0.72, 2.34] {
+                        for winding in [false, true] {
+                            let mut moved: Vec<[f64; 2]> = points
+                                .iter()
+                                .map(|p| {
+                                    let p = [
+                                        123.456 + scale * (angle.cos() * p[0] - angle.sin() * p[1]),
+                                        -32.1 + scale * (angle.sin() * p[0] + angle.cos() * p[1]),
+                                    ];
+                                    p.map(|x| (x * grid).round() / grid)
+                                })
+                                .collect();
+                            if winding {
+                                moved.reverse();
+                            }
+                            assert_eq!(
+                                canonical_polygon(&serde_json::json!(moved), decimals),
+                                Some(shape),
+                                "{shape:?} at precision {decimals}, scale {scale}, angle {angle}"
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn altered_profiles_and_unresolved_edges_stay_ambiguous() {
+        for points in [
+            // A rectangle with a clipped corner.
+            vec![[0., 0.], [4., 0.], [4., 3.], [3., 4.], [0., 4.]],
+            // An extra collinear triangle vertex cannot prove a rectangle.
+            vec![[0., 0.], [4., 0.], [3., 1.], [0., 4.]],
+            // The concave section of two intersecting rectangular cuts.
+            vec![[0., 0.], [4., 0.], [4., 2.], [2., 2.], [2., 4.], [0., 4.]],
+            // A convex, irregular six-sided section is not a regular hexagon.
+            vec![[0., 0.], [3., 0.], [4., 1.], [3., 3.], [0., 3.], [-1., 1.]],
+            // A collapsed or nearly collinear edge cannot decide a subtype.
+            vec![[0., 0.], [1., 0.], [1., 0.]],
+            vec![[0., 0.], [4., 0.], [2., 0.0001]],
+        ] {
+            assert_eq!(canonical_polygon(&serde_json::json!(points), 4), None);
+        }
+        let curved = serde_json::json!([
+            {"point":[0.,0.],"bulge":1.},
+            {"point":[2.,0.],"bulge":0.},
+            {"point":[0.,2.],"bulge":0.}
+        ]);
+        assert_eq!(canonical_polygon(&curved, 4), None);
+    }
+
+    #[test]
+    fn compatible_polygon_excludes_only_a_different_complete_profile() {
+        let selector: Selector = serde_json::from_value(serde_json::json!({
+            "field":"/section", "op":"compatible_polygon", "shape":"triangle", "decimals":3,
+            "evidence":"Exclude another complete canonical profile; altered profiles are ambiguous."
+        }))
+        .unwrap();
+        assert!(selector.matches(&serde_json::json!({"section":[[0.,0.],[3.,0.],[1.,2.]]})));
+        assert!(
+            !selector.matches(&serde_json::json!({"section":[[0.,0.],[3.,0.],[3.,2.],[0.,2.]]}))
+        );
+        assert!(
+            selector.matches(&serde_json::json!({"section":[[0.,0.],[4.,0.],[3.,1.],[0.,4.]]}))
+        );
+    }
+
+    #[test]
+    fn selectors_use_only_published_properties_and_preserve_record_indices() {
+        let selector: Selector = serde_json::from_value(serde_json::json!({
+            "field":"/classification/feature_kind", "op":"equals", "value":"channel",
+            "evidence":"An open profile with both run ends open is a channel."
+        }))
+        .unwrap();
+        assert!(
+            selector.matches(&serde_json::json!({"classification":{"feature_kind":"channel"}}))
+        );
+        assert!(
+            !selector.matches(&serde_json::json!({"classification":{"feature_kind":"passage"}}))
+        );
+        let mut features = quiddity::features::Features::default();
+        use quiddity::features::holes::{Bottom, HoleRecord};
+        features.holes = [Bottom::Flat, Bottom::Through]
+            .into_iter()
+            .map(|bottom| HoleRecord {
+                axis: [0., 0., 1.],
+                location: [0., 0., 0.].into(),
+                diameter: 2.,
+                depth: 3.,
+                bottom,
+                cbore: None,
+                spotface: None,
+                csink: None,
+            })
+            .collect();
+        features.defining.insert("holes", vec![vec![0], vec![1]]);
+        let class = Class {
+            id: 0,
+            name: "test".into(),
+            families: vec!["holes".into()],
+            selectors: BTreeMap::from([(
+                "holes".into(),
+                vec![serde_json::from_value(serde_json::json!({
+                "field":"/bottom", "op":"equals", "value":"through", "evidence":"Two open ends."
+            })).unwrap()],
+            )]),
+        };
+        // Swapping truth labels changes the score, never the selected prediction or its index.
+        for seg in [vec![0, 1], vec![1, 0]] {
+            let truth = Truth {
+                seg,
+                instances: None,
+                warnings: Vec::new(),
+            };
+            let scores = score(&truth, &features, std::slice::from_ref(&class));
+            assert_eq!(scores[0].faces.predicted, 1);
+            assert_eq!(scores[0].faces.true_positive, u64::from(truth.seg[1] == 0));
+        }
+    }
+
     #[test]
     fn accounting_measures_all_feature_labels_and_only_explicit_stock() {
         use quiddity::recognition::{BodyReason, FaceAccounting};
@@ -520,6 +1034,7 @@ mod tests {
             id: 0,
             name: "test".into(),
             families: vec!["holes".into()],
+            selectors: BTreeMap::new(),
         }];
         let truth = Truth {
             seg: vec![0],
@@ -527,7 +1042,14 @@ mod tests {
             warnings: Vec::new(),
         };
         let defining = BTreeMap::from([("holes", vec![vec![]])]);
-        let s = score(&truth, &defining, &classes);
+        let s = score(
+            &truth,
+            &quiddity::features::Features {
+                defining,
+                ..Default::default()
+            },
+            &classes,
+        );
         assert_eq!(
             s[0].instances,
             Some(Counts {
@@ -543,6 +1065,7 @@ mod tests {
             id: 0,
             name: "test".into(),
             families: vec!["holes".into(), "pockets".into()],
+            selectors: BTreeMap::new(),
         }];
         let truth = Truth {
             seg: vec![0, 1, 0],
@@ -550,7 +1073,14 @@ mod tests {
             warnings: Vec::new(),
         };
         let defining = BTreeMap::from([("holes", vec![vec![0, 1]]), ("pockets", vec![vec![0, 1]])]);
-        let s = score(&truth, &defining, &classes);
+        let s = score(
+            &truth,
+            &quiddity::features::Features {
+                defining,
+                ..Default::default()
+            },
+            &classes,
+        );
         assert_eq!(
             s[0].faces,
             Counts {

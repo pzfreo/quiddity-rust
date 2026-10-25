@@ -1,8 +1,8 @@
 {
   "schema": 2,
-  "reason": "Initial Rust-first baseline from independent MFInstSeg labels; no recognition changes. Coarse family correspondence follows AAGNet generator geometry: analytic OpenCascade U-channel and aligned/rotated enclosed rectangular cuts establish classes 6 and 3. Only defining faces; identical face sets deduplicated, empty claims count as unmatched predictions; maximum one-to-one instance IoU >= 0.5; zero denominators score zero. Lowered 2026-10-21 with maintainer approval: #57's ambiguous-role refusal (ADR 0011) withdraws one legacy Pocket record on 20221121_154648_9433 (faces [1,3,4,5], zero-based); the section-recess pocket on [1..5] remains. Shared-family classes rectangular_pocket, circular_end_pocket and rectangular_blind_step lose that one prediction; rectangular_pocket loses 4 face and 1 instance true positives (143->139, 9->8).",
+  "reason": "Initial Rust-first baseline from independent MFInstSeg labels; no recognition changes. Coarse family correspondence follows AAGNet generator geometry: analytic OpenCascade U-channel and aligned/rotated enclosed rectangular cuts establish classes 6 and 3. Only defining faces; identical face sets deduplicated, empty claims count as unmatched predictions; maximum one-to-one instance IoU >= 0.5; zero denominators score zero. Lowered 2026-10-21 with maintainer approval: #57's ambiguous-role refusal (ADR 0011) withdraws one legacy Pocket record on 20221121_154648_9433 (faces [1,3,4,5], zero-based); the section-recess pocket on [1..5] remains. Shared-family classes rectangular_pocket, circular_end_pocket and rectangular_blind_step lose that one prediction; rectangular_pocket loses 4 face and 1 instance true positives (143->139, 9->8).\n\n2026-10-25 approved mapping update: mapping schema 2 selects existing section_recesses with published channel/circular classification for circular_through_slot; Oring, triangular_through_slot, and v_circular_end_blind_slot map to the new geometry-proved annular_grooves, v_channels, and semicircular_blind_slots families. The proposed coarse hole/passage/pocket subtype split was rejected for losing dev true positives; those original correspondences remain. Input hashes, sample IDs, class supports, IoU matching, zero-denominator conventions and all score/accounting refusals are unchanged. Recomputed fixed-200 effects: triangular_through_slot: instances TP 0->5, predicted 0->5 (support 11), faces TP 0->10, predicted 0->10 (support 24); circular_through_slot: instances TP 0->7, predicted 0->7 (support 11), faces TP 0->7, predicted 0->7 (support 11); Oring: instances TP 0->71, predicted 0->71 (support 76), faces TP 0->213, predicted 0->213 (support 236); v_circular_end_blind_slot: instances TP 0->11, predicted 10->11 (support 14), faces TP 0->44, predicted 40->44 (support 57). The round class retains 23 instance and 25 face TP while predictions fall 46->25; the exact stream-start scorer already yields 25 predictions, so this is a pre-existing main improvement, not a change to fillet recognition here. Every other class score is unchanged from the recorded baseline; only the four mapped target classes differ from the stream start. The strict recall, precision and accounting ratchet passed.\n\n2026-10-25 approved round-2 mapping update: complete the internal chamfer correspondence with oriented_chamfers, already merged into published chamfers. MFInstSeg round includes external and internal edge rounds; select complete blends with published convex or concave side while preserving #89 and all fillet radius rules. For section passages and prismatic pockets, exclude only another complete canonical triangle, rectangle or regular hexagon at the published coordinate precision; altered or unresolved sections retain the original coarse correspondence. Retain unknown hole ends while excluding proved through bores from blind-hole scoring. Pocket flags exclude only proved incompatible corner-notch or half-cylindrical-end subtypes. Select existing lip-bevelled blind U sweeps only with a planar blind cap, open run end and uniquely longer run. Their defining bevel faces remain predictions; cap context is not expanded. No engine, label-derived selector, dataset/input hash, sample ID, support, IoU rule, zero-denominator convention or refusal changes. Recomputed fixed-200 per-class effects: chamfer: instances TP 34->43, predicted 50->59 (support 65), faces TP 39->48, predicted 50->59 (support 71); triangular_passage: instances TP 57->57, predicted 148->62 (support 69), faces TP 177->177, predicted 653->208 (support 224); rectangular_passage: instances TP 49->49, predicted 153->56 (support 67), faces TP 220->220, predicted 673->244 (support 304); 6sides_passage: instances TP 42->42, predicted 148->45 (support 54), faces TP 272->272, predicted 653->289 (support 373); blind_hole: instances TP 68->68, predicted 218->147 (support 68), faces TP 73->73, predicted 231->157 (support 142); triangular_pocket: instances TP 38->38, predicted 108->44 (support 43), faces TP 114->114, predicted 518->144 (support 173); rectangular_pocket: instances TP 8->8, predicted 299->84 (support 62), faces TP 139->139, predicted 1002->194 (support 331); 6sides_pocket: instances TP 62->62, predicted 108->62 (support 69), faces TP 372->372, predicted 518->375 (support 478); circular_end_pocket: instances TP 21->21, predicted 191->131 (support 66), faces TP 155->155, predicted 484->304 (support 337); rectangular_blind_slot: instances TP 7->7, predicted 7->7 (support 17), faces TP 28->28, predicted 28->28 (support 70); rectangular_blind_step: instances TP 56->56, predicted 191->136 (support 66), faces TP 168->168, predicted 484->333 (support 203); round: instances TP 23->59, predicted 25->61 (support 64), faces TP 25->61, predicted 25->61 (support 73). All other scores and every model accounting are unchanged. Every strict class recall/precision and accounting ratchet check passed without lowering a floor or relaxing a check.",
   "selection": "200 evenly spaced indices i*62495//200 in lexical STEP-stem order, i=0..199; IDs and input hashes fixed below.",
-  "mapping_sha256": "752cba940682be01a0e882ab38c34607bf00e1f99b36fe2e398c716b5ffca465",
+  "mapping_sha256": "b999ed72dbd2e36f3a2168e84ac1edae70b660d850cb9d09d221836d52b4dac6",
   "models": [
     {
       "id": "20221121_154647_0",
@@ -50,12 +50,12 @@
           "stock_box_notched": 3,
           "stock_box_split": 1
         },
-        "feature": 9,
+        "feature": 10,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -63,14 +63,17 @@
       "step_sha256": "620f1126c27466192adbe1342a4bcff18fdd9bcad352a8102d062117a65fa21a",
       "labels_sha256": "00682e8b2cc9a3b2130219450ca02471651d6616a35925f349586ec827801dc0",
       "accounting": {
-        "body": 0,
-        "body_reasons": {},
+        "body": 5,
+        "body_reasons": {
+          "stock_box_notched": 3,
+          "stock_box_side": 2
+        },
         "feature": 40,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 0,
-        "stock_unexplained": 2,
-        "unexplained": 17
+        "stock_body": 5,
+        "stock_unexplained": 1,
+        "unexplained": 12
       }
     },
     {
@@ -84,12 +87,12 @@
           "stock_box_side": 1,
           "stock_box_split": 2
         },
-        "feature": 21,
+        "feature": 23,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 5,
-        "unexplained": 18
+        "unexplained": 16
       }
     },
     {
@@ -116,12 +119,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 11,
+        "feature": 9,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 8,
-        "unexplained": 16
+        "unexplained": 18
       }
     },
     {
@@ -169,12 +172,12 @@
           "stock_box_side": 2,
           "stock_box_split": 1
         },
-        "feature": 8,
+        "feature": 9,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -188,12 +191,12 @@
           "stock_box_side": 2,
           "stock_box_split": 1
         },
-        "feature": 9,
+        "feature": 11,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 5
       }
     },
     {
@@ -206,12 +209,12 @@
           "stock_box_notched": 2,
           "stock_box_side": 4
         },
-        "feature": 9,
+        "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 6,
         "stock_unexplained": 0,
-        "unexplained": 4
+        "unexplained": 0
       }
     },
     {
@@ -260,12 +263,12 @@
           "stock_box_side": 1,
           "stock_box_split": 1
         },
-        "feature": 23,
+        "feature": 24,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 8
+        "unexplained": 7
       }
     },
     {
@@ -293,12 +296,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 16,
+        "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 7,
-        "unexplained": 11
+        "unexplained": 10
       }
     },
     {
@@ -329,12 +332,12 @@
           "stock_box_side": 1,
           "stock_box_split": 1
         },
-        "feature": 9,
+        "feature": 10,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 1,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -348,12 +351,12 @@
           "stock_box_side": 4,
           "stock_box_split": 1
         },
-        "feature": 25,
+        "feature": 24,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 6,
         "stock_unexplained": 1,
-        "unexplained": 7
+        "unexplained": 8
       }
     },
     {
@@ -367,12 +370,12 @@
           "stock_box_side": 1,
           "stock_box_split": 1
         },
-        "feature": 25,
+        "feature": 26,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 6
+        "unexplained": 5
       }
     },
     {
@@ -401,12 +404,12 @@
           "stock_box_side": 1,
           "stock_box_split": 2
         },
-        "feature": 12,
+        "feature": 14,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 4,
-        "unexplained": 6
+        "unexplained": 4
       }
     },
     {
@@ -419,12 +422,12 @@
           "stock_box_notched": 1,
           "stock_box_side": 1
         },
-        "feature": 20,
+        "feature": 22,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 4,
-        "unexplained": 10
+        "unexplained": 8
       }
     },
     {
@@ -592,12 +595,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 23,
+        "feature": 24,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -626,12 +629,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 15,
+        "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 5,
-        "unexplained": 13
+        "unexplained": 11
       }
     },
     {
@@ -677,12 +680,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 13,
+        "feature": 12,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 10,
-        "unexplained": 22
+        "unexplained": 23
       }
     },
     {
@@ -712,12 +715,12 @@
           "stock_box_notched": 2,
           "stock_box_split": 2
         },
-        "feature": 11,
+        "feature": 15,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 13
+        "unexplained": 9
       }
     },
     {
@@ -729,12 +732,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 17,
+        "feature": 16,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 8
+        "unexplained": 9
       }
     },
     {
@@ -801,12 +804,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 2
         },
-        "feature": 13,
+        "feature": 11,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 1,
-        "unexplained": 10
+        "unexplained": 12
       }
     },
     {
@@ -819,12 +822,12 @@
           "stock_box_side": 1,
           "stock_box_split": 2
         },
-        "feature": 6,
+        "feature": 7,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -853,12 +856,12 @@
         "body_reasons": {
           "stock_box_notched": 2
         },
-        "feature": 13,
+        "feature": 15,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 4,
-        "unexplained": 10
+        "unexplained": 8
       }
     },
     {
@@ -906,12 +909,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 1
         },
-        "feature": 5,
+        "feature": 6,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -979,12 +982,12 @@
           "stock_box_notched": 1,
           "stock_box_split": 1
         },
-        "feature": 31,
+        "feature": 32,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 3,
-        "unexplained": 13
+        "unexplained": 12
       }
     },
     {
@@ -1015,12 +1018,12 @@
           "stock_box_side": 3,
           "stock_box_split": 3
         },
-        "feature": 12,
+        "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 7,
         "stock_unexplained": 1,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -1033,12 +1036,12 @@
           "stock_box_notched": 4,
           "stock_box_split": 1
         },
-        "feature": 15,
+        "feature": 16,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 2,
-        "unexplained": 6
+        "unexplained": 5
       }
     },
     {
@@ -1051,12 +1054,12 @@
           "stock_box_notched": 2,
           "stock_box_side": 1
         },
-        "feature": 25,
+        "feature": 27,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 4,
-        "unexplained": 11
+        "unexplained": 9
       }
     },
     {
@@ -1087,12 +1090,12 @@
           "stock_box_notched": 1,
           "stock_box_side": 2
         },
-        "feature": 18,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 4,
-        "unexplained": 8
+        "unexplained": 7
       }
     },
     {
@@ -1210,12 +1213,12 @@
           "stock_box_side": 4,
           "stock_box_split": 1
         },
-        "feature": 17,
+        "feature": 18,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 6,
         "stock_unexplained": 1,
-        "unexplained": 3
+        "unexplained": 2
       }
     },
     {
@@ -1244,12 +1247,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 11,
+        "feature": 10,
         "feature_as_body": 0,
         "refused": 3,
         "stock_body": 1,
         "stock_unexplained": 2,
-        "unexplained": 4
+        "unexplained": 5
       }
     },
     {
@@ -1257,14 +1260,17 @@
       "step_sha256": "e06eaca73e5e31a0a13606245e4be0d19f935f39c3373e49c5d32d3bc26cd9dd",
       "labels_sha256": "67a40e1e0b622bc14401ff7bb4463e038d9f4ac5b272bcfbd20ef908578bebc1",
       "accounting": {
-        "body": 0,
-        "body_reasons": {},
-        "feature": 14,
+        "body": 3,
+        "body_reasons": {
+          "stock_box_notched": 2,
+          "stock_box_split": 1
+        },
+        "feature": 16,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 0,
-        "stock_unexplained": 7,
-        "unexplained": 13
+        "stock_body": 3,
+        "stock_unexplained": 5,
+        "unexplained": 8
       }
     },
     {
@@ -1274,12 +1280,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 12,
+        "feature": 11,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 6,
-        "unexplained": 11
+        "unexplained": 12
       }
     },
     {
@@ -1292,12 +1298,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 2
         },
-        "feature": 11,
+        "feature": 12,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 2,
-        "unexplained": 6
+        "unexplained": 5
       }
     },
     {
@@ -1398,12 +1404,12 @@
           "stock_box_notched": 2,
           "stock_box_side": 1
         },
-        "feature": 6,
+        "feature": 7,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 4,
-        "unexplained": 10
+        "unexplained": 9
       }
     },
     {
@@ -1415,12 +1421,12 @@
         "body_reasons": {
           "stock_box_notched": 4
         },
-        "feature": 7,
+        "feature": 8,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 8
+        "unexplained": 7
       }
     },
     {
@@ -1465,12 +1471,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 19,
+        "feature": 20,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 7,
-        "unexplained": 11
+        "unexplained": 10
       }
     },
     {
@@ -1498,12 +1504,12 @@
           "stock_box_notched": 1,
           "stock_box_split": 1
         },
-        "feature": 19,
+        "feature": 20,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 5,
-        "unexplained": 10
+        "unexplained": 9
       }
     },
     {
@@ -1515,12 +1521,12 @@
         "body_reasons": {
           "stock_box_side": 2
         },
-        "feature": 17,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 6,
-        "unexplained": 9
+        "unexplained": 7
       }
     },
     {
@@ -1564,14 +1570,16 @@
       "step_sha256": "a76b4812199d24a3d07777b337f277928e302c266ab3749ecaab6ad048d397a8",
       "labels_sha256": "1bebb36b9423e319149b170015b13cde9c86a7c5dbba5ff98eac09f197751ec8",
       "accounting": {
-        "body": 0,
-        "body_reasons": {},
+        "body": 4,
+        "body_reasons": {
+          "stock_box_notched": 4
+        },
         "feature": 11,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 0,
-        "stock_unexplained": 4,
-        "unexplained": 14
+        "stock_body": 4,
+        "stock_unexplained": 3,
+        "unexplained": 10
       }
     },
     {
@@ -1585,12 +1593,12 @@
           "stock_box_side": 4,
           "stock_box_split": 1
         },
-        "feature": 19,
+        "feature": 20,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 6,
         "stock_unexplained": 1,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -1602,12 +1610,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 14,
+        "feature": 16,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 5
       }
     },
     {
@@ -1621,12 +1629,12 @@
           "stock_box_side": 1,
           "stock_box_split": 1
         },
-        "feature": 29,
+        "feature": 30,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 2,
-        "unexplained": 4
+        "unexplained": 3
       }
     },
     {
@@ -1780,12 +1788,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 23,
+        "feature": 24,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 4,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -1884,12 +1892,12 @@
           "stock_box_notched": 2,
           "stock_box_side": 2
         },
-        "feature": 14,
+        "feature": 15,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -1902,12 +1910,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 1
         },
-        "feature": 9,
+        "feature": 10,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 4
+        "unexplained": 3
       }
     },
     {
@@ -1921,12 +1929,12 @@
           "stock_box_side": 1,
           "stock_box_split": 2
         },
-        "feature": 14,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 5,
-        "unexplained": 11
+        "unexplained": 6
       }
     },
     {
@@ -1955,12 +1963,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 12,
+        "feature": 11,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 8
       }
     },
     {
@@ -2058,12 +2066,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 29,
+        "feature": 28,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 8
       }
     },
     {
@@ -2094,12 +2102,12 @@
           "stock_box_notched": 2,
           "stock_box_side": 4
         },
-        "feature": 6,
+        "feature": 8,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 6,
         "stock_unexplained": 0,
-        "unexplained": 3
+        "unexplained": 1
       }
     },
     {
@@ -2109,12 +2117,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 37,
+        "feature": 38,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 6,
-        "unexplained": 10
+        "unexplained": 9
       }
     },
     {
@@ -2178,12 +2186,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 22,
+        "feature": 23,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 7,
-        "unexplained": 11
+        "unexplained": 10
       }
     },
     {
@@ -2230,12 +2238,12 @@
         "body_reasons": {
           "stock_box_notched": 2
         },
-        "feature": 18,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 4,
-        "unexplained": 8
+        "unexplained": 7
       }
     },
     {
@@ -2284,12 +2292,12 @@
           "stock_box_side": 4,
           "stock_box_split": 1
         },
-        "feature": 12,
+        "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 6,
         "stock_unexplained": 1,
-        "unexplained": 3
+        "unexplained": 2
       }
     },
     {
@@ -2370,12 +2378,12 @@
         "body_reasons": {
           "stock_box_side": 3
         },
-        "feature": 5,
+        "feature": 6,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 4,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -2405,12 +2413,12 @@
         "body_reasons": {
           "stock_box_side": 2
         },
-        "feature": 14,
+        "feature": 16,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 5,
-        "unexplained": 7
+        "unexplained": 5
       }
     },
     {
@@ -2563,12 +2571,12 @@
           "stock_box_side": 2,
           "stock_box_split": 3
         },
-        "feature": 15,
+        "feature": 16,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 6,
         "stock_unexplained": 1,
-        "unexplained": 4
+        "unexplained": 3
       }
     },
     {
@@ -2614,12 +2622,12 @@
         "body_reasons": {
           "stock_box_notched": 2
         },
-        "feature": 13,
+        "feature": 12,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 4,
-        "unexplained": 5
+        "unexplained": 6
       }
     },
     {
@@ -2648,12 +2656,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 22,
+        "feature": 24,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 4,
-        "unexplained": 10
+        "unexplained": 8
       }
     },
     {
@@ -2738,12 +2746,12 @@
           "stock_box_side": 2,
           "stock_box_split": 2
         },
-        "feature": 16,
+        "feature": 18,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 7,
         "stock_unexplained": 0,
-        "unexplained": 3
+        "unexplained": 1
       }
     },
     {
@@ -2755,12 +2763,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 30,
+        "feature": 31,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 6,
-        "unexplained": 12
+        "unexplained": 11
       }
     },
     {
@@ -2770,12 +2778,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 17,
+        "feature": 16,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 6,
-        "unexplained": 11
+        "unexplained": 12
       }
     },
     {
@@ -2789,12 +2797,12 @@
           "stock_box_side": 4,
           "stock_box_split": 1
         },
-        "feature": 11,
+        "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 6,
         "stock_unexplained": 1,
-        "unexplained": 11
+        "unexplained": 9
       }
     },
     {
@@ -2807,12 +2815,12 @@
           "stock_box_notched": 1,
           "stock_box_split": 1
         },
-        "feature": 11,
+        "feature": 12,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 5,
-        "unexplained": 6
+        "unexplained": 5
       }
     },
     {
@@ -2860,12 +2868,12 @@
           "stock_box_notched": 1,
           "stock_box_side": 1
         },
-        "feature": 24,
+        "feature": 25,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 4,
-        "unexplained": 10
+        "unexplained": 9
       }
     },
     {
@@ -2879,12 +2887,12 @@
           "stock_box_side": 1,
           "stock_box_split": 3
         },
-        "feature": 30,
+        "feature": 28,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 4,
-        "unexplained": 17
+        "unexplained": 19
       }
     },
     {
@@ -2949,12 +2957,12 @@
         "body_reasons": {
           "stock_box_side": 3
         },
-        "feature": 23,
+        "feature": 24,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 2,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -2968,12 +2976,12 @@
           "stock_box_side": 1,
           "stock_box_split": 1
         },
-        "feature": 11,
+        "feature": 12,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 2,
-        "unexplained": 3
+        "unexplained": 2
       }
     },
     {
@@ -3003,12 +3011,12 @@
         "body_reasons": {
           "stock_box_side": 6
         },
-        "feature": 15,
+        "feature": 16,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 6,
         "stock_unexplained": 1,
-        "unexplained": 4
+        "unexplained": 3
       }
     },
     {
@@ -3020,12 +3028,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 19,
+        "feature": 22,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 6,
-        "unexplained": 21
+        "unexplained": 18
       }
     },
     {
@@ -3035,12 +3043,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 21,
+        "feature": 22,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 4,
-        "unexplained": 8
+        "unexplained": 7
       }
     },
     {
@@ -3102,12 +3110,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 35,
+        "feature": 36,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 5,
-        "unexplained": 17
+        "unexplained": 16
       }
     },
     {
@@ -3120,12 +3128,12 @@
           "stock_box_notched": 2,
           "stock_box_split": 1
         },
-        "feature": 14,
+        "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 4,
-        "unexplained": 10
+        "unexplained": 7
       }
     },
     {
@@ -3187,12 +3195,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 2
         },
-        "feature": 14,
+        "feature": 16,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 1,
-        "unexplained": 5
+        "unexplained": 3
       }
     },
     {
@@ -3204,12 +3212,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 35,
+        "feature": 34,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 5,
-        "unexplained": 10
+        "unexplained": 11
       }
     },
     {
@@ -3294,12 +3302,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 2
         },
-        "feature": 14,
+        "feature": 16,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 1,
-        "unexplained": 7
+        "unexplained": 5
       }
     },
     {
@@ -3311,12 +3319,12 @@
         "body_reasons": {
           "stock_box_notched": 2
         },
-        "feature": 13,
+        "feature": 12,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 4,
-        "unexplained": 13
+        "unexplained": 14
       }
     },
     {
@@ -3364,12 +3372,12 @@
           "stock_box_side": 1,
           "stock_box_split": 1
         },
-        "feature": 25,
+        "feature": 26,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 8
+        "unexplained": 7
       }
     },
     {
@@ -3469,12 +3477,12 @@
         "body_reasons": {
           "stock_box_notched": 4
         },
-        "feature": 19,
+        "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 8
+        "unexplained": 10
       }
     },
     {
@@ -3487,12 +3495,12 @@
           "stock_box_notched": 2,
           "stock_box_side": 4
         },
-        "feature": 16,
+        "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 6,
         "stock_unexplained": 1,
-        "unexplained": 9
+        "unexplained": 8
       }
     }
   ],
@@ -3500,13 +3508,13 @@
     {
       "faces": {
         "labelled": 71,
-        "predicted": 50,
-        "true_positive": 39
+        "predicted": 59,
+        "true_positive": 48
       },
       "instances": {
         "labelled": 65,
-        "predicted": 50,
-        "true_positive": 34
+        "predicted": 59,
+        "true_positive": 43
       }
     },
     {
@@ -3524,49 +3532,49 @@
     {
       "faces": {
         "labelled": 224,
-        "predicted": 653,
+        "predicted": 208,
         "true_positive": 177
       },
       "instances": {
         "labelled": 69,
-        "predicted": 148,
+        "predicted": 62,
         "true_positive": 57
       }
     },
     {
       "faces": {
         "labelled": 304,
-        "predicted": 673,
+        "predicted": 244,
         "true_positive": 220
       },
       "instances": {
         "labelled": 67,
-        "predicted": 153,
+        "predicted": 56,
         "true_positive": 49
       }
     },
     {
       "faces": {
         "labelled": 373,
-        "predicted": 653,
+        "predicted": 289,
         "true_positive": 272
       },
       "instances": {
         "labelled": 54,
-        "predicted": 148,
+        "predicted": 45,
         "true_positive": 42
       }
     },
     {
       "faces": {
         "labelled": 24,
-        "predicted": 0,
-        "true_positive": 0
+        "predicted": 10,
+        "true_positive": 10
       },
       "instances": {
         "labelled": 11,
-        "predicted": 0,
-        "true_positive": 0
+        "predicted": 5,
+        "true_positive": 5
       }
     },
     {
@@ -3584,13 +3592,13 @@
     {
       "faces": {
         "labelled": 11,
-        "predicted": 0,
-        "true_positive": 0
+        "predicted": 7,
+        "true_positive": 7
       },
       "instances": {
         "labelled": 11,
-        "predicted": 0,
-        "true_positive": 0
+        "predicted": 7,
+        "true_positive": 7
       }
     },
     {
@@ -3632,72 +3640,72 @@
     {
       "faces": {
         "labelled": 236,
-        "predicted": 0,
-        "true_positive": 0
+        "predicted": 213,
+        "true_positive": 213
       },
       "instances": {
         "labelled": 76,
-        "predicted": 0,
-        "true_positive": 0
+        "predicted": 71,
+        "true_positive": 71
       }
     },
     {
       "faces": {
         "labelled": 142,
-        "predicted": 231,
+        "predicted": 157,
         "true_positive": 73
       },
       "instances": {
         "labelled": 68,
-        "predicted": 218,
+        "predicted": 147,
         "true_positive": 68
       }
     },
     {
       "faces": {
         "labelled": 173,
-        "predicted": 518,
+        "predicted": 144,
         "true_positive": 114
       },
       "instances": {
         "labelled": 43,
-        "predicted": 108,
+        "predicted": 44,
         "true_positive": 38
       }
     },
     {
       "faces": {
         "labelled": 331,
-        "predicted": 1002,
+        "predicted": 194,
         "true_positive": 139
       },
       "instances": {
         "labelled": 62,
-        "predicted": 299,
+        "predicted": 84,
         "true_positive": 8
       }
     },
     {
       "faces": {
         "labelled": 478,
-        "predicted": 518,
+        "predicted": 375,
         "true_positive": 372
       },
       "instances": {
         "labelled": 69,
-        "predicted": 108,
+        "predicted": 62,
         "true_positive": 62
       }
     },
     {
       "faces": {
         "labelled": 337,
-        "predicted": 484,
+        "predicted": 304,
         "true_positive": 155
       },
       "instances": {
         "labelled": 66,
-        "predicted": 191,
+        "predicted": 131,
         "true_positive": 21
       }
     },
@@ -3716,13 +3724,13 @@
     {
       "faces": {
         "labelled": 57,
-        "predicted": 40,
-        "true_positive": 0
+        "predicted": 44,
+        "true_positive": 44
       },
       "instances": {
         "labelled": 14,
-        "predicted": 10,
-        "true_positive": 0
+        "predicted": 11,
+        "true_positive": 11
       }
     },
     {
@@ -3764,25 +3772,25 @@
     {
       "faces": {
         "labelled": 203,
-        "predicted": 484,
+        "predicted": 333,
         "true_positive": 168
       },
       "instances": {
         "labelled": 66,
-        "predicted": 191,
+        "predicted": 136,
         "true_positive": 56
       }
     },
     {
       "faces": {
         "labelled": 73,
-        "predicted": 46,
-        "true_positive": 25
+        "predicted": 61,
+        "true_positive": 61
       },
       "instances": {
         "labelled": 64,
-        "predicted": 46,
-        "true_positive": 23
+        "predicted": 61,
+        "true_positive": 59
       }
     },
     {
@@ -3800,17 +3808,17 @@
   ],
   "accounting_reason": "Initial complete face-accounting baseline on the unchanged fixed 200 IDs and hashes. Strict stock_box_side geometry; labels 0\u201323 may never be body, and label-24 unexplained faces are ratcheted per model. Existing feature scores retained unchanged; the separately approved PR #63 correction is merged without changing recognition.",
   "accounting": {
-    "body": 664,
+    "body": 676,
     "body_reasons": {
-      "stock_box_notched": 384,
-      "stock_box_side": 222,
-      "stock_box_split": 58
+      "stock_box_notched": 393,
+      "stock_box_side": 224,
+      "stock_box_split": 59
     },
-    "feature": 3175,
+    "feature": 3249,
     "feature_as_body": 0,
     "refused": 3,
-    "stock_body": 664,
-    "stock_unexplained": 558,
-    "unexplained": 1487
+    "stock_body": 676,
+    "stock_unexplained": 554,
+    "unexplained": 1401
   }
 }
