@@ -6,6 +6,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Shallow oblique through steps.** Require principal supports to have zero transverse
+  normal components within angular precision, so shallow slanted walls retain their
+  oblique role. MFInstSeg dev slanted-step instance recall 137/683 → 271/683
+  (0.2006 → 0.3968), face recall 274/1447 → 542/1447 (0.1894 → 0.3746);
+  instance and face precision remain 1.0000.
+
 ## 0.2.0-alpha.2 (2026-10-24)
 
 Upgrading from 0.2.0-alpha.1:

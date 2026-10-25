@@ -152,6 +152,17 @@ fn terminal(part: &Part, principal: usize, oblique: usize, endpoint: V3, solid: 
     })
 }
 
+/// A principal support must have no transverse normal component. The shared coarse plane
+/// classifier also admits shallow ramps, which must remain oblique walls here.
+fn principal_plane(part: &Part, face: usize) -> Option<(usize, f64)> {
+    let plane = axis_aligned_axis(part, face)?;
+    let normal = unit_plane_normal(part, face)?;
+    (0..3)
+        .filter(|&axis| axis != plane.0)
+        .all(|axis| normal[axis].abs() <= SMOOTH_ARC_GAP)
+        .then_some(plane)
+}
+
 /// The record for one principal wall and its oblique neighbour, or `None` (`_one_pair`).
 fn one_pair(
     ctx: &Context<'_>,
@@ -165,9 +176,9 @@ fn one_pair(
     if part.arc(principal, oblique) != Some(Arc::Concave) {
         return None;
     }
-    let (axis, coordinate) = axis_aligned_axis(part, principal)?;
+    let (axis, coordinate) = principal_plane(part, principal)?;
     if !matches!(part.faces[oblique].surface, Surface::Plane { .. })
-        || axis_aligned_axis(part, oblique).is_some()
+        || principal_plane(part, oblique).is_some()
     {
         return None;
     }
@@ -335,7 +346,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ObliqueThroughStep>> {
         let mut faces = solid.faces.clone();
         faces.sort_unstable();
         for principal in faces {
-            if axis_aligned_axis(part, principal).is_none() {
+            if principal_plane(part, principal).is_none() {
                 continue;
             }
             for oblique in part.neighbours(principal) {
@@ -368,4 +379,48 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<ObliqueThroughStep>> {
     out.sort_by(|a, b| py::tuple_order(&a.record.sort_key(), &b.record.sort_key()));
     out
 }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::features::support_patches::ruled_prism;
+
+    /// A rectangular stock with its upper-left corner cut away. The vertical wall moves
+    /// laterally along the run, while the floor remains a principal plane.
+    fn slanted_corner(slope: f64) -> Part {
+        let section = |z: f64| {
+            let wall = 5.0 + slope * z;
+            vec![
+                [0.0, 0.0, z],
+                [20.0, 0.0, z],
+                [20.0, 30.0, z],
+                [wall, 30.0, z],
+                [wall, 10.0, z],
+                [0.0, 10.0, z],
+            ]
+        };
+        ruled_prism(&section(0.0), &section(40.0)).expect("valid corner cut")
+    }
+
+    #[test]
+    fn shallow_slanted_walls_are_not_principal_supports() {
+        for slope in [0.001, 0.05, 0.2] {
+            let part = slanted_corner(slope);
+            let found = discover(&Context::new(&part));
+            assert_eq!(found.len(), 1, "slope {slope}");
+            assert_eq!(found[0].defining.len(), 2);
+            assert_eq!(found[0].record.depth, 20.0);
+            assert_eq!(
+                found[0].record.length,
+                py::round_to3(40.0 * (1.0 + slope * slope).sqrt())
+            );
+        }
+    }
+
+    #[test]
+    fn rectangular_corner_is_not_an_oblique_step() {
+        let part = slanted_corner(0.0);
+        assert!(discover(&Context::new(&part)).is_empty());
+    }
 }
