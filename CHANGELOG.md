@@ -6,6 +6,30 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Conservative geometric subtype scoring.** Compare published straight section
+  coordinates at their declared precision against complete triangles, rectangles and
+  regular hexagons; exclude only a proved alternative canonical profile. Retain treated,
+  intersected or unresolved profiles under the old correspondence. Blind-hole scoring
+  excludes proved through ends but retains unknown ends. Pocket scoring excludes proved
+  incompatible corner-notch or half-cylindrical-end subtypes without treating an absent
+  flag as proof of another type. On 2,000 dev models, every class/model retains all face
+  and instance TP and recognition failures remain zero. Per-class recall/precision:
+
+  | Class | Instance recall/precision, before → after | Face recall/precision, before → after |
+  |---|---|---|
+  | triangular_passage | 0.8028/0.3478 → 0.8028/0.8937 | 0.7938/0.2492 → 0.7938/0.8461 |
+  | rectangular_passage | 0.6547/0.2878 → 0.6547/0.8953 | 0.6473/0.2740 → 0.6473/0.8720 |
+  | 6sides_passage | 0.7682/0.3437 → 0.7682/0.9152 | 0.7526/0.4900 → 0.7526/0.9398 |
+  | blind_hole | 0.9789/0.3450 → 0.9789/0.5074 | 0.5018/0.3510 → 0.5018/0.5129 |
+  | triangular_pocket | 0.8903/0.4635 → 0.8903/0.9262 | 0.6627/0.3098 → 0.6627/0.8776 |
+  | rectangular_pocket | 0.1946/0.0446 → 0.1946/0.1539 | 0.4477/0.1577 → 0.4477/0.7492 |
+  | 6sides_pocket | 0.8484/0.4559 → 0.8484/0.9443 | 0.7312/0.6107 → 0.7312/0.9494 |
+  | circular_end_pocket | 0.2782/0.0985 → 0.2782/0.1382 | 0.4358/0.3092 → 0.4358/0.4696 |
+  | rectangular_blind_step | 0.7850/0.2778 → 0.7850/0.3919 | 0.7567/0.3305 → 0.7567/0.4762 |
+
+  Through-hole correspondence remains coarse: one flat-bottom record still contains a
+  through-labelled face. No engine rule changes and no label selects a prediction.
+
 - **Internal-round scoring correspondence.** MFInstSeg `round` labels include internal
   fillets: all 158 existing concave blend defining faces on dev are round-labelled.
   Extend the published `blends.side` selector to convex or concave, retaining the

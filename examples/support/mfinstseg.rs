@@ -29,11 +29,109 @@ pub struct Selector {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(tag = "op", rename_all = "snake_case", deny_unknown_fields)]
 pub enum Predicate {
-    Equals { value: serde_json::Value },
-    OneOf { values: Vec<serde_json::Value> },
-    Length { value: usize },
+    Equals {
+        value: serde_json::Value,
+    },
+    OneOf {
+        values: Vec<serde_json::Value>,
+    },
+    Length {
+        value: usize,
+    },
     NonNull,
-    All { selector: Box<Selector> },
+    All {
+        selector: Box<Selector>,
+    },
+    /// Exclude only another proved canonical profile; altered profiles stay ambiguous.
+    CompatiblePolygon {
+        shape: CanonicalPolygon,
+        decimals: u32,
+    },
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CanonicalPolygon {
+    Triangle,
+    Rectangle,
+    RegularHexagon,
+}
+
+/// Classify only complete canonical polygons at their published coordinate precision.
+/// A treatment, intersection, arc or unresolved edge leaves the old correspondence intact.
+fn canonical_polygon(value: &serde_json::Value, decimals: u32) -> Option<CanonicalPolygon> {
+    assert!(decimals <= 12, "published coordinate precision");
+    let vertices = value.as_array().expect("published polygon vertices");
+    let n = vertices.len();
+    if ![3, 4, 6].contains(&n) {
+        return None;
+    }
+    let points: Option<Vec<[f64; 2]>> = vertices
+        .iter()
+        .map(|v| {
+            let point = if v.is_object() {
+                if v["bulge"].as_f64()? != 0.0 {
+                    return None;
+                }
+                &v["point"]
+            } else {
+                v
+            };
+            let p = point.as_array()?;
+            (p.len() == 2).then_some([p[0].as_f64()?, p[1].as_f64()?])
+        })
+        .collect();
+    let points = points?;
+    let edges: Vec<[f64; 2]> = (0..n)
+        .map(|i| std::array::from_fn(|j| points[(i + 1) % n][j] - points[i][j]))
+        .collect();
+    let lengths: Vec<f64> = edges.iter().map(|v| v[0].hypot(v[1])).collect();
+    // Each coordinate is rounded to this half-grid. Difference-vector error is at most
+    // one grid per component; dot/cross bounds follow from those endpoint errors.
+    let q = 0.5 * 10_f64.powi(-(decimals as i32));
+    if lengths.iter().any(|&length| length <= 4.0 * q) {
+        return None;
+    }
+    let bounds: Vec<f64> = (0..n)
+        .map(|i| {
+            let (a, b) = (edges[i], edges[(i + 1) % n]);
+            2.0 * q * (a[0].abs() + a[1].abs() + b[0].abs() + b[1].abs()) + 8.0 * q * q
+        })
+        .collect();
+    let crosses: Vec<f64> = (0..n)
+        .map(|i| {
+            let (a, b) = (edges[i], edges[(i + 1) % n]);
+            a[0] * b[1] - a[1] * b[0]
+        })
+        .collect();
+    if !crosses.iter().zip(&bounds).all(|(c, b)| *c > *b)
+        && !crosses.iter().zip(&bounds).all(|(c, b)| *c < -*b)
+    {
+        return None;
+    }
+    if n == 3 {
+        return Some(CanonicalPolygon::Triangle);
+    }
+    let dots: Vec<f64> = (0..n)
+        .map(|i| {
+            let (a, b) = (edges[i], edges[(i + 1) % n]);
+            a[0] * b[0] + a[1] * b[1]
+        })
+        .collect();
+    if n == 4 && dots.iter().zip(&bounds).all(|(d, b)| d.abs() <= *b) {
+        return Some(CanonicalPolygon::Rectangle);
+    }
+    if n == 6 {
+        let min = lengths.iter().copied().fold(f64::INFINITY, f64::min);
+        let max = lengths.iter().copied().fold(0.0, f64::max);
+        let equal_edges = max - min <= 4.0 * 2_f64.sqrt() * q;
+        let sixty_degree_turns = (0..n)
+            .all(|i| (dots[i] - 0.5 * lengths[i] * lengths[(i + 1) % n]).abs() <= 2.0 * bounds[i]);
+        if equal_edges && sixty_degree_turns {
+            return Some(CanonicalPolygon::RegularHexagon);
+        }
+    }
+    None
 }
 
 impl Selector {
@@ -51,6 +149,9 @@ impl Selector {
                 .expect("array field")
                 .iter()
                 .all(|element| selector.matches(element)),
+            Predicate::CompatiblePolygon { shape, decimals } => {
+                canonical_polygon(value, *decimals).is_none_or(|found| found == *shape)
+            }
         }
     }
 }
@@ -90,6 +191,9 @@ pub fn mapping() -> Vec<Class> {
                 assert!(selector.field.starts_with('/'));
                 if let Predicate::All { selector } = &selector.predicate {
                     validate(selector);
+                }
+                if let Predicate::CompatiblePolygon { decimals, .. } = &selector.predicate {
+                    assert!(*decimals <= 12);
                 }
             }
             selectors.iter().for_each(validate);
@@ -554,6 +658,93 @@ pub fn evaluate(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn canonical_polygons_survive_pose_scale_winding_and_publication_rounding() {
+        let triangle = vec![[0., 0.], [3., 0.], [1., 2.]];
+        let rectangle = vec![[0., 0.], [3., 0.], [3., 2.], [0., 2.]];
+        let hexagon: Vec<[f64; 2]> = (0..6)
+            .map(|i| {
+                let angle = i as f64 * std::f64::consts::TAU / 6.;
+                [angle.cos(), angle.sin()]
+            })
+            .collect();
+        for (shape, points) in [
+            (CanonicalPolygon::Triangle, triangle),
+            (CanonicalPolygon::Rectangle, rectangle),
+            (CanonicalPolygon::RegularHexagon, hexagon),
+        ] {
+            for decimals in [3, 4] {
+                let grid = 10_f64.powi(decimals as i32);
+                for scale in [0.1, 1., 200.] {
+                    for angle in [0_f64, 0.72, 2.34] {
+                        for winding in [false, true] {
+                            let mut moved: Vec<[f64; 2]> = points
+                                .iter()
+                                .map(|p| {
+                                    let p = [
+                                        123.456 + scale * (angle.cos() * p[0] - angle.sin() * p[1]),
+                                        -32.1 + scale * (angle.sin() * p[0] + angle.cos() * p[1]),
+                                    ];
+                                    p.map(|x| (x * grid).round() / grid)
+                                })
+                                .collect();
+                            if winding {
+                                moved.reverse();
+                            }
+                            assert_eq!(
+                                canonical_polygon(&serde_json::json!(moved), decimals),
+                                Some(shape),
+                                "{shape:?} at precision {decimals}, scale {scale}, angle {angle}"
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn altered_profiles_and_unresolved_edges_stay_ambiguous() {
+        for points in [
+            // A rectangle with a clipped corner.
+            vec![[0., 0.], [4., 0.], [4., 3.], [3., 4.], [0., 4.]],
+            // An extra collinear triangle vertex cannot prove a rectangle.
+            vec![[0., 0.], [4., 0.], [3., 1.], [0., 4.]],
+            // The concave section of two intersecting rectangular cuts.
+            vec![[0., 0.], [4., 0.], [4., 2.], [2., 2.], [2., 4.], [0., 4.]],
+            // A convex, irregular six-sided section is not a regular hexagon.
+            vec![[0., 0.], [3., 0.], [4., 1.], [3., 3.], [0., 3.], [-1., 1.]],
+            // A collapsed or nearly collinear edge cannot decide a subtype.
+            vec![[0., 0.], [1., 0.], [1., 0.]],
+            vec![[0., 0.], [4., 0.], [2., 0.0001]],
+        ] {
+            assert_eq!(canonical_polygon(&serde_json::json!(points), 4), None);
+        }
+        let curved = serde_json::json!([
+            {"point":[0.,0.],"bulge":1.},
+            {"point":[2.,0.],"bulge":0.},
+            {"point":[0.,2.],"bulge":0.}
+        ]);
+        assert_eq!(canonical_polygon(&curved, 4), None);
+    }
+
+    #[test]
+    fn compatible_polygon_excludes_only_a_different_complete_profile() {
+        let selector: Selector = serde_json::from_value(serde_json::json!({
+            "field":"/section", "op":"compatible_polygon", "shape":"triangle", "decimals":3,
+            "evidence":"Exclude another complete canonical profile; altered profiles are ambiguous."
+        }))
+        .unwrap();
+        assert!(selector.matches(&serde_json::json!({"section":[[0.,0.],[3.,0.],[1.,2.]]})));
+        assert!(
+            !selector.matches(&serde_json::json!({"section":[[0.,0.],[3.,0.],[3.,2.],[0.,2.]]}))
+        );
+        assert!(
+            selector.matches(&serde_json::json!({"section":[[0.,0.],[4.,0.],[3.,1.],[0.,4.]]}))
+        );
+    }
+
     #[test]
     fn selectors_use_only_published_properties_and_preserve_record_indices() {
         let selector: Selector = serde_json::from_value(serde_json::json!({

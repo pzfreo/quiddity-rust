@@ -159,6 +159,23 @@ piece is retained in the defining claim and strict ownership proof.
 
 ## Evaluation mappings
 
+`compatible_polygon` is a conservative scoring predicate over the published section
+coordinates. `shape` is `triangle`, `rectangle`, or `regular_hexagon`; `decimals` must
+be the field's publication precision (4 for section-passage boundary points, 3 for
+prismatic-pocket corners). A rectangle has four right angles; a regular hexagon has
+six equal edges and sixty-degree exterior turns. The polygon must be straight and
+strictly convex at that coordinate resolution. Dot/cross and edge-length tolerances
+come from half-grid coordinate rounding, not a model or dataset scale. Either winding
+and arbitrary section orientation are supported.
+
+A complete alternative canonical shape is excluded. Curved profiles, clipped corners,
+intersections, irregular polygons and unresolved edges remain ambiguous and retain the
+old correspondence; raw wall/vertex counts do not identify their original cut shape.
+Likewise an unknown hole end is retained for blind-hole scoring, while a proved through
+end is excluded. Pocket flags exclude only a proved incompatible corner or curved-end
+subtype. A missing flag does not prove the opposite subtype. These predicates never
+read labels, model identity, topology or recognition internals beyond published records.
+
 The round scoring correspondence also includes complete rolling-ball `blends` selected
 by the published material side (`convex` or `concave`). MFInstSeg round includes both
 external rounds and internal fillets, as confirmed by its labelled concave blend faces.

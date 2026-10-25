@@ -30,7 +30,18 @@
       "name": "triangular_passage",
       "families": [
         "section_passages"
-      ]
+      ],
+      "selectors": {
+        "section_passages": [
+          {
+            "field": "/section/boundary",
+            "op": "compatible_polygon",
+            "shape": "triangle",
+            "decimals": 4,
+            "evidence": "The published straight section coordinates are rounded to 4 decimals. A complete triangle, rectangle (four right angles), or regular hexagon (equal edges and sixty-degree exterior turns) decides the canonical profile independently of labels. Exclude only another such complete profile; retain altered, intersected, curved and unresolved profiles under the existing coarse correspondence. Raw edge count alone is insufficient after treatments or intersections."
+          }
+        ]
+      }
     },
     {
       "id": 3,
@@ -40,14 +51,36 @@
         "oriented_slots"
       ],
       "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/rectangular_passage.py",
-      "rationale": "An enclosed rectangular through cut. Rust publishes principal rectangles as section_passages and non-principal rectangles as oriented_slots; independent OpenCascade aligned and rotated box-minus-prism constructions verify both representations."
+      "rationale": "An enclosed rectangular through cut. Rust publishes principal rectangles as section_passages and non-principal rectangles as oriented_slots; independent OpenCascade aligned and rotated box-minus-prism constructions verify both representations.",
+      "selectors": {
+        "section_passages": [
+          {
+            "field": "/section/boundary",
+            "op": "compatible_polygon",
+            "shape": "rectangle",
+            "decimals": 4,
+            "evidence": "The published straight section coordinates are rounded to 4 decimals. A complete triangle, rectangle (four right angles), or regular hexagon (equal edges and sixty-degree exterior turns) decides the canonical profile independently of labels. Exclude only another such complete profile; retain altered, intersected, curved and unresolved profiles under the existing coarse correspondence. Raw edge count alone is insufficient after treatments or intersections."
+          }
+        ]
+      }
     },
     {
       "id": 4,
       "name": "6sides_passage",
       "families": [
         "section_passages"
-      ]
+      ],
+      "selectors": {
+        "section_passages": [
+          {
+            "field": "/section/boundary",
+            "op": "compatible_polygon",
+            "shape": "regular_hexagon",
+            "decimals": 4,
+            "evidence": "The published straight section coordinates are rounded to 4 decimals. A complete triangle, rectangle (four right angles), or regular hexagon (equal edges and sixty-degree exterior turns) decides the canonical profile independently of labels. Exclude only another such complete profile; retain altered, intersected, curved and unresolved profiles under the existing coarse correspondence. Raw edge count alone is insufficient after treatments or intersections."
+          }
+        ]
+      }
     },
     {
       "id": 5,
@@ -129,14 +162,39 @@
       "name": "blind_hole",
       "families": [
         "holes"
-      ]
+      ],
+      "selectors": {
+        "holes": [
+          {
+            "field": "/bottom",
+            "op": "one_of",
+            "values": [
+              "flat",
+              "drill_point",
+              "unknown"
+            ],
+            "evidence": "A proved through bore has two open ends and cannot be a blind hole. A flat or drill-point end closes a blind bore. Unknown ends remain ambiguous under the existing coarse correspondence; this selector does not assert a blind termination for them."
+          }
+        ]
+      }
     },
     {
       "id": 13,
       "name": "triangular_pocket",
       "families": [
         "prismatic_pockets"
-      ]
+      ],
+      "selectors": {
+        "prismatic_pockets": [
+          {
+            "field": "/section",
+            "op": "compatible_polygon",
+            "shape": "triangle",
+            "decimals": 3,
+            "evidence": "The published straight section coordinates are rounded to 3 decimals. A complete triangle, rectangle (four right angles), or regular hexagon (equal edges and sixty-degree exterior turns) decides the canonical profile independently of labels. Exclude only another such complete profile; retain altered, intersected, curved and unresolved profiles under the existing coarse correspondence. Raw edge count alone is insufficient after treatments or intersections."
+          }
+        ]
+      }
     },
     {
       "id": 14,
@@ -144,21 +202,67 @@
       "families": [
         "pockets",
         "prismatic_pockets"
-      ]
+      ],
+      "selectors": {
+        "prismatic_pockets": [
+          {
+            "field": "/section",
+            "op": "compatible_polygon",
+            "shape": "rectangle",
+            "decimals": 3,
+            "evidence": "The published straight section coordinates are rounded to 3 decimals. A complete triangle, rectangle (four right angles), or regular hexagon (equal edges and sixty-degree exterior turns) decides the canonical profile independently of labels. Exclude only another such complete profile; retain altered, intersected, curved and unresolved profiles under the existing coarse correspondence. Raw edge count alone is insufficient after treatments or intersections."
+          }
+        ],
+        "pockets": [
+          {
+            "field": "/edge_anchored",
+            "op": "equals",
+            "value": false,
+            "evidence": "The published true edge_anchored subtype proves a corner notch at two stock edges, rather than a closed rectangular pocket."
+          },
+          {
+            "field": "/end_radius",
+            "op": "equals",
+            "value": null,
+            "evidence": "A published non-null end radius proves half-cylindrical pocket ends, rather than a rectangular pocket. Retain the remaining old correspondence, including unclassified modified profiles."
+          }
+        ]
+      }
     },
     {
       "id": 15,
       "name": "6sides_pocket",
       "families": [
         "prismatic_pockets"
-      ]
+      ],
+      "selectors": {
+        "prismatic_pockets": [
+          {
+            "field": "/section",
+            "op": "compatible_polygon",
+            "shape": "regular_hexagon",
+            "decimals": 3,
+            "evidence": "The published straight section coordinates are rounded to 3 decimals. A complete triangle, rectangle (four right angles), or regular hexagon (equal edges and sixty-degree exterior turns) decides the canonical profile independently of labels. Exclude only another such complete profile; retain altered, intersected, curved and unresolved profiles under the existing coarse correspondence. Raw edge count alone is insufficient after treatments or intersections."
+          }
+        ]
+      }
     },
     {
       "id": 16,
       "name": "circular_end_pocket",
       "families": [
         "pockets"
-      ]
+      ],
+      "selectors": {
+        "pockets": [
+          {
+            "field": "/edge_anchored",
+            "op": "equals",
+            "value": false,
+            "evidence": "A proved corner notch at two stock edges is not a closed circular-end pocket. A null end radius alone cannot classify an altered profile, so those ambiguous records retain the existing correspondence."
+          }
+        ]
+      }
     },
     {
       "id": 17,
@@ -208,7 +312,17 @@
         "pockets"
       ],
       "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/rectangular_blind_step.py",
-      "rationale": "Rectangular sketch anchored to two stock edges, cut blind: a corner notch (pockets edge_anchored)."
+      "rationale": "Rectangular sketch anchored to two stock edges, cut blind: a corner notch (pockets edge_anchored).",
+      "selectors": {
+        "pockets": [
+          {
+            "field": "/end_radius",
+            "op": "equals",
+            "value": null,
+            "evidence": "A proved half-cylindrical pocket end is not a rectangular corner step. The remaining profiles retain their existing coarse correspondence because edge_anchored=false alone cannot classify intersected or treated corners."
+          }
+        ]
+      }
     },
     {
       "id": 23,
