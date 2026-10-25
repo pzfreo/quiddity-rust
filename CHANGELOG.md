@@ -6,6 +6,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Angled-step blind-cap evidence.** Concave triangular caps perpendicular to the run
+  define the cut; convex stock terminals remain context. MFInstSeg dev triangular-step
+  instance recall 426/643 → 458/643 (0.6625 → 0.7123), precision 0.8894 → 0.9562;
+  face recall 458/1345 → 915/1345 (0.3405 → 0.6803), precision 0.9562 → 0.9744.
+
 - **Paired ramps in short stock.** Establish the valley axis from its seam and convex
   opening / concave blind terminal, independently of the stock aspect ratio. MFInstSeg dev
   two-sided-step instance recall 339/650 → 519/650 (0.5215 → 0.7985), face recall

@@ -5,10 +5,10 @@ use serde::Serialize;
 
 use super::Context;
 use super::bevel::{classify_bevel, material_beyond_corner, proved_bevel_planes};
-use super::evidence::{self, EvidenceError, Occurrence};
+use super::evidence::{self, EvidenceError, Occurrence, common_valid_solid};
 use super::placed::{Grid, Placed};
 use super::planes::axis_aligned_axis;
-use crate::kernel::brep::Part;
+use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{self, Curve, V3};
 use crate::kernel::py;
 
@@ -100,6 +100,20 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<AngledStep>> {
             continue;
         };
         let corner = [0, 1, 2].map(|i| if i == axis { centre[i] } else { planes[&i] });
+        let mut defining = vec![face];
+        let mut context = Vec::new();
+        for terminal in closing {
+            // A perpendicular triangular flat joined concavely to the slant is the
+            // blind cut's cap. Convex stock terminals only establish its opening.
+            if part.arc(face, terminal) == Some(Arc::Concave)
+                && axis_aligned_axis(part, terminal).is_some_and(|p| p.0 == axis)
+                && common_valid_solid(part, &[face, terminal]).is_some()
+            {
+                defining.push(terminal);
+            } else {
+                context.push(terminal);
+            }
+        }
         out.push(Occurrence {
             record: AngledStep {
                 axis: ['x', 'y', 'z'][axis],
@@ -110,8 +124,8 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<AngledStep>> {
                 at: Placed::new(at, Grid::Decimals(3)),
                 corner: Some(Placed::new(corner, Grid::Decimals(3))),
             },
-            defining: vec![face],
-            context: closing,
+            defining,
+            context,
         });
     }
     out.sort_by(|a, b| {
@@ -122,4 +136,24 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<AngledStep>> {
     });
     out
 }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn concave_blind_cap_defines_the_angled_cut() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/golden_angled_blind_step.step");
+        let part = crate::read_step_file(&path).unwrap();
+        let found = discover(&Context::new(&part));
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].defining, vec![2, 3]);
+        assert_eq!(part.arc(2, 3), Some(Arc::Concave));
+        assert!(
+            !found[0].defining.contains(&0),
+            "convex stock face is context"
+        );
+    }
 }
