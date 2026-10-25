@@ -412,6 +412,18 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
         ],
     },
     FamilyFingerprint {
+        family: "annular_grooves",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("floor_center", Placement),
+            ("inner_radius", Size),
+            ("outer_radius", Size),
+            ("depth", Size),
+        ],
+    },
+    FamilyFingerprint {
         family: "grooves",
         members: None,
         variants: false,
@@ -434,6 +446,19 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("u", Placement),
             ("v", Placement),
             ("body_key", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "semicircular_blind_slots",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("opening", Placement),
+            ("at", Placement),
+            ("length", Size),
+            ("radius", Size),
+            ("straight_height", Size),
         ],
     },
     FamilyFingerprint {
@@ -591,6 +616,20 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("d_hi", Placement),
             ("open_sign", Placement),
             ("body_key", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "v_channels",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("opening", Placement),
+            ("at", Placement),
+            ("length", Size),
+            ("width", Size),
+            ("depth", Size),
+            ("included_angle_degrees", Size),
         ],
     },
     FamilyFingerprint {

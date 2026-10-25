@@ -6,6 +6,48 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Validation worker limits.** Snapshot and MFInstSeg baseline tools honour exported
+  Cargo/test worker limits, and the baseline scorer honours `MFI_WORKERS`; defaults and
+  all regression refusals are unchanged. Recognition scores are unchanged.
+
+- **Annular floor/rim partitions.** Smooth coplanar floor pieces and split circular
+  edges retain one annular groove when their two closed boundary cycles cover full,
+  concentric circles; overlapping arc length alone is not proof. All floor pieces
+  define the feature, and strict solid/mouth evidence remains required. On 2,000 dev
+  models, Oring instance recall/precision improve from 0.8624/1.0000 to 0.8640/1.0000
+  (520 to 521 TP); face recall/precision improve from 0.8301/1.0000 to 0.8317/1.0000
+  (1,563 to 1,566 TP). No other class loses TP or gains failures.
+
+- **Semicircular-bottom blind slots.** Publish `semicircular_blind_slots` for a complete
+  half-cylinder tangent to two rectangular sides, with one planar blind cap and proved
+  open run/lateral mouths on a strictly valid solid. Map MFInstSeg
+  `v_circular_end_blind_slot` to this geometry instead of the quarter-cylinder/flat-floor
+  family used for its horizontal counterpart. On 2,000 dev models, instance
+  recall/precision rise from 0/0 to 0.7971/0.9821 (110/138 TP); face recall/precision
+  rise from 0/0 to 0.7885/0.9821 (440/558 TP). No other class loses TP or gains failures.
+
+- **V-section through channels.** Publish `v_channels` for two complete rectangular
+  planar walls meeting concavely, with coplanar open lips and two open run ends, on a
+  strictly valid solid. Wall pairs contained in a proved closed passage belong to that
+  passage, rather than a separate channel; passage records are unchanged. Map
+  MFInstSeg `triangular_through_slot` to this family. On 2,000 dev models, instance
+  recall/precision rise from 0/0 to 0.3836/0.9180 (56/146 TP); face recall/precision
+  rise from 0/0 to 0.3463/0.9508 (116/335 TP). No other class loses TP or gains failures.
+
+- **Circular through-channel scoring.** MFInstSeg mapping schema 2 permits selectors over
+  published record fields, with geometric evidence for each selector. Map
+  `circular_through_slot` to existing `section_recesses` classified as `channel` and
+  `circular`; recognition is unchanged. On 2,000 dev models, instance recall/precision
+  rise from 0/0 to 0.5488/0.9474 (90/164 TP); face recall/precision rise from 0/0 to
+  0.4577/0.9583 (92/201 TP). No other class loses TP and there are no new failures.
+
+- **Annular face grooves.** Recognise a planar annular floor between complete coaxial
+  cylindrical walls terminating at one open plane, with strict valid-solid evidence.
+  Publish `annular_grooves` in recognition schema 6 and map MFInstSeg Oring to its floor and two
+  defining cylindrical walls. On the 2,000-model dev set, Oring instance recall/precision rise from
+  0/0 to 0.8624/1.0000 (520/603 TP); face recall/precision rise from 0/0 to
+  0.8301/1.0000 (1,563/1,883 TP). Other classes and recognition failures are unchanged.
+
 ## 0.2.0-alpha.2 (2026-10-24)
 
 Upgrading from 0.2.0-alpha.1:
