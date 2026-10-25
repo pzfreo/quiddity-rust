@@ -6,6 +6,10 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Validation worker limits.** Snapshot and MFInstSeg baseline tools honour exported
+  Cargo/test worker limits, and the baseline scorer honours `MFI_WORKERS`; defaults and
+  all regression refusals are unchanged. Recognition scores are unchanged.
+
 - **Annular floor/rim partitions.** Smooth coplanar floor pieces and split circular
   edges retain one annular groove when their two closed boundary cycles cover full,
   concentric circles; overlapping arc length alone is not proof. All floor pieces
