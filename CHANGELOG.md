@@ -6,6 +6,17 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Prove rectangular pocket boundaries before class scoring.** Publish `rectangular_boundary`
+  only for an intact straight rectangular floor with four full-height inward planar walls,
+  uniquely owned cavity evidence and no extra treatment faces. Circular-end pockets and blind
+  corner steps exclude that proved closed rectangle; unclassified boundaries remain ambiguous.
+  Against mapping round 2 alone on 2,000 dev models, rectangular-pocket instance recall/precision
+  improve 0.1946/0.1539 to 0.8452/0.6678, circular-end 0.2782/0.1382 to 0.7910/0.6138, and
+  blind-step 0.7850/0.3919 to 0.7850/0.6141. Their face recall/precision improve respectively
+  0.4477/0.7492 to 0.7030/0.8216, 0.4358/0.4696 to 0.6392/0.7689, and
+  0.7567/0.4762 to 0.7567/0.6869; no class loses true positives.
+  Pocket fingerprints gain the invariant `rectangular_boundary` trait within format v3.
+
 - **Complete pocket boundaries past intersecting mouths.** A uniquely owned intact rectangular
   floor can prove both observed end walls after a crossing cut opens the mouth wire. Existing
   cavity-emptiness and role proofs remain required. The 2,000-model dev set gains one more

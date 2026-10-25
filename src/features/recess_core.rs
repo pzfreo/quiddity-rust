@@ -437,6 +437,7 @@ impl<'c, 'a> Scan<'c, 'a> {
                         d_hi: d_hi.into(),
                         open_sign,
                         edge_anchored: false,
+                        rectangular_boundary: false,
                         body_key: Some(Vec::new().into()),
                         end_radius: None,
                         corner_radius: None,
@@ -568,8 +569,103 @@ pub fn pocket_proposals(
         })
         .collect();
     let proposals = attach_complete_pocket_regions(&scan, proposals);
-    Ok(attach_intact_floor_walls(&scan, proposals))
+    Ok(attach_intact_floor_walls(&scan, proposals)
+        .into_iter()
+        .map(|mut p| {
+            p.record.rectangular_boundary = rectangular_boundary(&scan, &p);
+            p
+        })
+        .collect())
 }
+}
+
+/// Positive boundary classification, independently of the seed's unproved radii. One intact
+/// four-line floor must join exactly the four defining planar walls concavely. Each wall must
+/// cover the whole depth and face inward at a floor limit; treatments or extra cavity faces
+/// leave the classification unproved. This adds no faces and changes no recognition decision.
+fn rectangular_boundary(scan: &Scan<'_, '_>, p: &Proposal<Pocket>) -> bool {
+    if p.record.edge_anchored
+        || p.record.end_radius.is_some()
+        || !p.caps.is_empty()
+        || p.planar.len() != 4
+        || p.floors.len() != 1
+        || p.constituent != p.planar.union(&p.floors).copied().collect()
+    {
+        return false;
+    }
+    let floor = *p.floors.first().unwrap();
+    let part = scan.ctx.part;
+    let g = &scan.graph;
+    let [boundary] = &part.faces[floor].loops[..] else {
+        return false;
+    };
+    if boundary.edges.len() != 4
+        || boundary.edges.iter().any(|&(edge, _)| {
+            !matches!(
+                part.edges[edge].curve,
+                crate::kernel::geom::Curve::Line { .. }
+            )
+        })
+    {
+        return false;
+    }
+    let wire: Vec<_> = boundary.edges.iter().map(|&(edge, _)| edge).collect();
+    if wire_seed(part, floor, &wire) != p.planar {
+        return false;
+    }
+    let depth = p.record.depth_axis();
+    let tolerance = super::policy::AXIS_ZERO_COS;
+    let floor_at = if p.record.open_sign == 1 {
+        p.record.d_lo()
+    } else {
+        p.record.d_hi()
+    };
+    let floor_span = g.span(floor, depth);
+    if !g.is_planar(floor)
+        || graph::normal(part, floor)
+            .is_none_or(|n| n[depth] * f64::from(p.record.open_sign) < 1. - tolerance)
+        || (floor_span.0 - floor_at).abs() > COORD_FLOOR
+        || (floor_span.1 - floor_at).abs() > COORD_FLOOR
+    {
+        return false;
+    }
+    let mut sides = BTreeSet::new();
+    for &wall in &p.planar {
+        let Some(normal) = graph::normal(part, wall).filter(|_| g.is_planar(wall)) else {
+            return false;
+        };
+        let span = g.span(wall, depth);
+        if g.arc(floor, wall) != Some(Arc::Concave)
+            || (span.0 - p.record.d_lo()).abs() > COORD_FLOOR
+            || (span.1 - p.record.d_hi()).abs() > COORD_FLOOR
+        {
+            return false;
+        }
+        let side = [p.record.width_axis(), p.record.long_axis()]
+            .into_iter()
+            .find_map(|axis| {
+                let at = g.span(wall, axis);
+                let limits = g.span(floor, axis);
+                if normal[axis] >= 1. - tolerance
+                    && (at.0 - limits.0).abs() <= COORD_FLOOR
+                    && (at.1 - limits.0).abs() <= COORD_FLOOR
+                {
+                    Some((axis, false))
+                } else if normal[axis] <= -1. + tolerance
+                    && (at.0 - limits.1).abs() <= COORD_FLOOR
+                    && (at.1 - limits.1).abs() <= COORD_FLOOR
+                {
+                    Some((axis, true))
+                } else {
+                    None
+                }
+            });
+        let Some(side) = side else {
+            return false;
+        };
+        sides.insert(side);
+    }
+    sides.len() == 4
 }
 
 /// One channel with its two side walls (low then high along the width axis) and its floor
@@ -948,6 +1044,7 @@ fn corner_notch_proposals(faces: &[Face], pbb: &Bounds) -> Vec<Proposal<Pocket>>
                     -1
                 },
                 edge_anchored: true,
+                rectangular_boundary: false,
                 body_key: Some(Vec::new().into()),
                 end_radius: None,
                 corner_radius: None,
@@ -1019,7 +1116,10 @@ mod pocket_boundary_tests {
 
     #[test]
     fn complete_rectangular_and_stubby_obround_pockets_claim_all_walls_under_axis_motion() {
-        for name in ["7f97f8ab4443654f.step.gz", "d11127fa3f888a5a.step.gz"] {
+        for (name, rectangular) in [
+            ("7f97f8ab4443654f.step.gz", true),
+            ("d11127fa3f888a5a.step.gz", false),
+        ] {
             for axes in [
                 [0, 1, 2],
                 [0, 2, 1],
@@ -1049,6 +1149,7 @@ mod pocket_boundary_tests {
                     };
                     assert_eq!(pocket.defining, [6, 7, 8, 9], "{name}: {placement:?}");
                     assert_eq!(pocket.context, [10], "only the floor is consulted");
+                    assert_eq!(pocket.record.rectangular_boundary, rectangular);
                     let depth = pocket.record.depth_axis();
                     assert!(
                         graph::normal(&part, 10).unwrap()[depth].abs()
@@ -1071,6 +1172,10 @@ mod pocket_boundary_tests {
         };
         assert_eq!(pocket.defining, [9, 10, 11, 14]);
         assert_eq!(pocket.context, [15]);
+        assert!(
+            !pocket.record.rectangular_boundary,
+            "the crossing shortens an end wall"
+        );
         let scan = Scan::new(&ctx, 0);
         let mut seed = pocket_proposals(&ctx, 0, true).unwrap().remove(0);
         seed.planar = BTreeSet::from([9, 11]);
@@ -1094,6 +1199,7 @@ mod pocket_boundary_tests {
                 BTreeSet::new()
             };
             seed.constituent.clear();
+            assert!(!rectangular_boundary(&scan, &seed));
             let defining = seed.defining();
             assert_eq!(defining.len(), 2);
             for found in attach_complete_pocket_regions(&scan, vec![seed.clone(), seed]) {

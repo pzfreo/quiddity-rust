@@ -74,6 +74,11 @@ pub struct Pocket {
     pub d_hi: Placed<f64>,
     pub open_sign: i32,
     pub edge_anchored: bool,
+    /// A complete straight rectangular floor and four full-height inward planar walls
+    /// prove a closed rectangular boundary. False leaves the boundary unclassified;
+    /// absence of a proved end radius alone never establishes this property.
+    #[serde(default)]
+    pub rectangular_boundary: bool,
     pub body_key: Option<BodyKey>,
     pub end_radius: Option<f64>,
     pub corner_radius: Option<f64>,
