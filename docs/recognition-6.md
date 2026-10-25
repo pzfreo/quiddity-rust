@@ -148,3 +148,15 @@ The two complete circular floor boundaries must be concentric, their cylindrical
 coaxial, the floor junctions concave, and the mouth junctions convex. Both walls must end
 at the same open plane. Interrupted walls, treated rims, unequal depths, invalid ownership,
 and competing defining claims are refused. External turned bands remain `grooves`.
+
+
+## Evaluation mappings
+
+`tests/fixtures/mfinstseg_mapping.json` schema 2 permits per-family `selectors`. Each
+selector names a JSON-pointer `field` in the published record, its comparison, and its
+geometric `evidence`. All predicates on a family must match before its defining-face set
+is passed to the scorer. Record indices stay paired with their defining faces, and labels
+never select predictions. The circular-through-slot mapping selects the existing
+`section_recesses` classification `feature_kind: channel`, `section_shape: circular`:
+these are open cylindrical troughs with both run ends proved open. This changes evaluation
+correspondence only, not the recognition schema or the geometry engine.

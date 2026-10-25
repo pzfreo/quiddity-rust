@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "sources": [
     "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Utils/parameters.py",
     "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/main.py",
@@ -7,7 +7,7 @@
     "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/feature_creation.py",
     "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/extract_label_from_MFCADPP.py"
   ],
-  "semantics": "Coarse family correspondence, not a learned semantic classifier. Each class is scored independently against ALL predictions from its mapped families, without consulting ground truth to select predictions. Shared-family classes therefore share predictions and may have low precision. Only defining faces count; bottom labels and constituent faces do not expand predictions. Identical face sets across mapped families are one prediction. Stock is not covered: polygonal_stock describes a body, not residual unmachined faces.",
+  "semantics": "Family correspondence with optional per-family selectors over published geometric record fields, independently of labels. All selectors on a family must match; unselected families retain every record. Only defining faces count; bottom labels and constituent faces do not expand predictions. Identical face sets across mapped families are one prediction. Stock is not covered: polygonal_stock describes a body, not residual unmachined faces.",
   "classes": [
     {
       "id": 0,
@@ -66,9 +66,27 @@
     {
       "id": 7,
       "name": "circular_through_slot",
-      "families": [],
-      "not_covered": "Circular-section open through channel; Rust channels require a rectangular floor and walls.",
-      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/circular_through_slot.py"
+      "families": [
+        "section_recesses"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/circular_through_slot.py",
+      "selectors": {
+        "section_recesses": [
+          {
+            "field": "/classification/feature_kind",
+            "op": "equals",
+            "value": "channel",
+            "evidence": "A proved open section swept between two open run ends is a through channel."
+          },
+          {
+            "field": "/classification/section_shape",
+            "op": "equals",
+            "value": "circular",
+            "evidence": "The published circular open profile is the concave cylindrical trough; cylindrical_seats proves the original support, open mouth and both open ends by coverage and volume probes."
+          }
+        ]
+      },
+      "rationale": "The existing section_recesses family already publishes proved circular open channels, including the semicircular trough of circular_through_slot. Select its published channel and circular classification, without changing recognition or using labels."
     },
     {
       "id": 8,

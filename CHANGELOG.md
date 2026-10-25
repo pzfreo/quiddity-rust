@@ -6,6 +6,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Circular through-channel scoring.** MFInstSeg mapping schema 2 permits selectors over
+  published record fields, with geometric evidence for each selector. Map
+  `circular_through_slot` to existing `section_recesses` classified as `channel` and
+  `circular`; recognition is unchanged. On 2,000 dev models, instance recall/precision
+  rise from 0/0 to 0.5488/0.9474 (90/164 TP); face recall/precision rise from 0/0 to
+  0.4577/0.9583 (92/201 TP). No other class loses TP and there are no new failures.
+
 - **Annular face grooves.** Recognise a planar annular floor between complete coaxial
   cylindrical walls terminating at one open plane, with strict valid-solid evidence.
   Publish `annular_grooves` in recognition schema 6 and map MFInstSeg Oring to its three
