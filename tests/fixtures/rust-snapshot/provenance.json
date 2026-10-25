@@ -2990,8 +2990,8 @@
     "tests/fixtures/late_turn.step": "eb9978a30c4992104d802b0bba5c8ba46a48f53e088b845306a58a4c21818bb6",
     "tests/fixtures/manifest.json": "799fdc976a30ecf142a6ae7c159d6135e82a9ef24962bed7348fe66d6d2518ae",
     "tests/fixtures/memo_part.step": "79c16d80205e285529b86c5cc2d5ed3088c127ebb776330d470ce48a3aa2f303",
-    "tests/fixtures/mfinstseg_baseline.json": "ce6aa5975670d14062b5137dded723e0828d29dde712d9875b2d955da289fbf9",
-    "tests/fixtures/mfinstseg_mapping.json": "4d227330e0800e3778948bc74f5f55592ca7469808ec4b01b3ca570a0825e51d",
+    "tests/fixtures/mfinstseg_baseline.json": "1f84eb3db34cc0f22885688c6cc145d2d0e72405b20c44e0abf42c9334e48d8b",
+    "tests/fixtures/mfinstseg_mapping.json": "b999ed72dbd2e36f3a2168e84ac1edae70b660d850cb9d09d221836d52b4dac6",
     "tests/fixtures/mixed.step": "d565c1b5feeec36d996fcd8f3915e5cdae55c3d70651dc9d77cb1ecaa09cf536",
     "tests/fixtures/modelled_threads/diamond_knurl.step.gz": "7099e102266bcf2927a788c5f2f3ca9cd610059327e271114cff56f68466c6c7",
     "tests/fixtures/modelled_threads/helical_groove.step.gz": "fefb6cd102f2dfbd7a6cfb21505d9ac12905e5c3dc70981f47ae70b5ff090497",
@@ -3022,7 +3022,6 @@
     "tests/fixtures/references/body_measurements.json.gz": "4e29f03e5e6b76964d80b6a78a4fb75499d191cdc46f891469b9951e96c46f7b",
     "tests/fixtures/references/classify.json": "c18f99bdc2838c953f7b4468a75749b733a742f36509e669319efc7414416309",
     "tests/fixtures/references/correspondence.json": "d9b0fa19648ca077a55c6f87b78b1f15eb7d893ccfdfe70f9ca5fd9c8534dea4",
-    "tests/fixtures/references/ctc01-main-fingerprints.json.gz": "8cbe3eaabfbcd912f3b30edafcc14b409a35432b6593b98c2d2b76bcedba0a38",
     "tests/fixtures/references/cylindrical_proof_motion.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
     "tests/fixtures/references/cylindrical_volume_evidence.json": "7c66b1a8bc77cc058931258ece5502c96935d51dd5dd611fad14b8b1f43523fa",
     "tests/fixtures/references/drawings.json": "4823ca75c41b8aa204a972138460db40f0fb51fc3b89bfdbacfaa7d1b49b0b77",
@@ -3158,7 +3157,7 @@
     "calls/recognise_through_steps.json.gz": "ab6a0b5b06756fa3435099be76e5ab432b867be4d4a1b42c49047ff83b086cca",
     "calls/recognise_turned_steps.json.gz": "37d10e8c5e2ce5dcf6c5bd2fdc7444e86494bb44768e9d32d9a1abfd3f2fbd90",
     "channel_geometry.json.gz": "bd25ff87def7f73b4f119d26614600b141ee4350f45c77cef55aae7ea787e85f",
-    "corpus.json.gz": "7cebaf1fa98a8ba7da59d63d3ecb8e817f0df4a594c0f2a029938b0e66ca854c",
+    "corpus.json.gz": "a6d7da845c96506cd5f9b3eeb0efe77405c79e8719352f6da96823ce965c53f7",
     "coverage.json.gz": "c835b80d39757ae5ef556953e11a2d7e8bbde3148a233f2af51ae92e1d23a971",
     "cylindrical_proofs/corpus/cadgenbench/flanged_spool_132.step.json.gz": "b93acca566253df99ab62bb5ac97424226850b3ee3963c8d1025939a7339d823",
     "cylindrical_proofs/corpus/cadgenbench/threaded_connector_109.step.json.gz": "eea12e52bf91a9c762e7cadc1b12994398bf8f3836ab11ab8b58a2bf4c5d9a4e",
@@ -5268,7 +5267,7 @@
     "reconcile.json.gz": "f6b15cd3cf737d3da6fbfa47d9ba893f1a463a3af9fa90d80bc8e46b6e029f8f",
     "reconcile_scenarios.json.gz": "f3d2867544d794d5e6b57d6ddc991fe4d3d41ac36ed436abebef44bfb402d51d",
     "retry.json.gz": "a59e4d32892a173cf2611832db0b38ce1e292c815dcc7e802e18e330236666e7",
-    "retry_publication.json.gz": "14b28c65684796e5552f78edcb92f024e907216689d1a77065ac75f7c52c932f",
+    "retry_publication.json.gz": "94aa0c6ede5bcf73ecdf5630a2dd5b230a47e5f8b325a78d8b6c91203737cf0e",
     "section_helpers/corpus/cadgenbench/flanged_spool_132.step.json.gz": "601f9876e0623dd177f84c3c12a7035e176c57eacfbb84b17aad229ca67f563c",
     "section_helpers/corpus/cadgenbench/threaded_connector_109.step.json.gz": "58439d8af9d951b4f36831475442d0b5c87b17963ee7b529b2d7fec219409226",
     "section_helpers/corpus/cadgenbench_inputs/cgb202.step.gz.json.gz": "3d47ebda673705645b91d76c44294946179adbc24a4a754c5e8b2e4f6609810f",
@@ -5814,5 +5813,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "166b01985def8754993316499539d0a1447a33d0"
+  "source_commit": "da737177762d15831fba223514b2615d4e1dd75c"
 }
