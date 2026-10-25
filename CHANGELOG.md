@@ -6,6 +6,20 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Face accounting and record coverage (for #100).** Recognised convex corner
+  treatments can supply replaced box corners; certified enclosed spline trims on
+  native surfaces no longer veto stock evidence. New `plate_edge` and `stock_wall`
+  reasons require plate perimeter/support and direct convex stock anchors, reject
+  concave cut boundaries, and keep plate-only notches unexplained. Drill-point
+  holes claim their terminal cones; rounded rectangular slots claim both proved
+  end walls after reconciliation, preserving feature selection and the inventory
+  floor. Schema remains recognition `/6`, fingerprints `/3`; affected feature
+  fingerprints change faces, centroid and adjacency, with correspondence retained.
+  CTC-01 has 90 feature, 20 body and 7 unexplained faces (formerly 86/0/31).
+  The issue omitted four V-notch flanks and incorrectly assumed cap 104 was already
+  claimed by `polygonal_bosses`; those stay unexplained. Four rectangular-notch
+  side walls retain their existing step-level claims. No notch or boss cap is body.
+
 ## 0.2.0-alpha.2 (2026-10-24)
 
 Upgrading from 0.2.0-alpha.1:

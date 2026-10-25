@@ -83,7 +83,7 @@ def main() -> None:
         raise SystemExit("commit source/input changes before regenerating the Rust snapshot")
     source = git("rev-parse", "HEAD")
     before_inputs = inputs()
-    env = dict(os.environ, CARGO_BUILD_JOBS="6", RUST_TEST_THREADS="6", QUIDDITY_CORPUS_REQUIRED="1")
+    env = dict(os.environ, CARGO_BUILD_JOBS=os.environ.get("CARGO_BUILD_JOBS", "2"), RUST_TEST_THREADS=os.environ.get("RUST_TEST_THREADS", "2"), QUIDDITY_CORPUS_REQUIRED="1")
     with tempfile.TemporaryDirectory(prefix="quiddity-rust-snapshot-") as temporary:
         generated = Path(temporary)
         for key in ("QUIDDITY_SNAPSHOT_DIR", "QUIDDITY_SNAPSHOT_REGENERATE", "QUIDDITY_SNAPSHOT_VERIFY_DIR"):

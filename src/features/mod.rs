@@ -225,6 +225,11 @@ pub fn recognise(part: &Part) -> Features {
 /// `recognise` over one completed run.
 fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
     let projection = section_recess_family::section_recess_projection_in(ctx, &inventory);
+    let hole_constituents: BTreeMap<_, _> = inventory.physical.defining["holes"]
+        .iter()
+        .cloned()
+        .zip(inventory.constituent["holes"].iter().cloned())
+        .collect();
     let mut features = inventory.accepted();
     let (section_recesses, refusals, patterns, refusal) = match projection {
         Ok(p) => (p.section_recesses, p.refusals, p.patterns, None),
@@ -252,6 +257,24 @@ fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
     features.section_recess_refusals = refusals;
     features.section_recess_patterns = patterns;
     features.section_recess_refusal = refusal;
+    // Complete published face claims only after every recognition, reconciliation
+    // and projection decision. Constituent geometry must not alter family selection.
+    for (record, faces) in features
+        .holes
+        .iter()
+        .zip(features.defining.get_mut("holes").unwrap())
+    {
+        if let Some(constituent) = hole_constituents.get(faces) {
+            holes::claim_drill_point(ctx.part, record, faces, constituent);
+        }
+    }
+    for (record, faces) in features
+        .slots
+        .iter()
+        .zip(features.defining.get_mut("slots").unwrap())
+    {
+        slots::claim_rectangular_end_walls(ctx.part, record, faces);
+    }
     features
 }
 

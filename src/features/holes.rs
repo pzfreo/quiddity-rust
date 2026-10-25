@@ -702,3 +702,53 @@ pub fn discover(
     out
 }
 }
+
+/// Extend a completed inventory's record claim with its already-consulted drill
+/// point, after reconciliation. Mouth seats remain context, not tip faces.
+pub(crate) fn claim_drill_point(
+    part: &Part,
+    record: &HoleRecord,
+    faces: &mut Vec<usize>,
+    constituent: &[usize],
+) {
+    if record.bottom != Bottom::DrillPoint {
+        return;
+    }
+    let axis = record.axis;
+    let tol = 1e-7 * record.diameter.max(record.depth).max(1.);
+    let end = faces
+        .iter()
+        .flat_map(|&f| part.face_edges(f))
+        .flat_map(|e| [part.edges[e].start, part.edges[e].end])
+        .map(|p| geom::dot(p, axis))
+        .fold(f64::NEG_INFINITY, f64::max);
+    let tips: Vec<_> = constituent
+        .iter()
+        .copied()
+        .filter(|&f| {
+            let Some(apex) = part.faces[f].surface.cone_apex() else {
+                return false;
+            };
+            let delta = geom::sub(apex, *record.location.raw());
+            if geom::norm(geom::cross(delta, axis)) > tol || geom::dot(apex, axis) <= end + tol {
+                return false;
+            }
+            faces.iter().any(|&g| {
+                let shared = part.shared_edges(f, g);
+                !shared.is_empty()
+                    && shared.iter().all(|&e| {
+                        [
+                            part.edges[e].start,
+                            part.edges[e].midpoint(),
+                            part.edges[e].end,
+                        ]
+                        .iter()
+                        .all(|&p| (geom::dot(p, axis) - end).abs() <= tol)
+                    })
+            })
+        })
+        .collect();
+    faces.extend(tips);
+    faces.sort_unstable();
+    faces.dedup();
+}
