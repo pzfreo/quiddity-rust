@@ -18,7 +18,9 @@ pub mod chamfers;
 pub mod channels;
 pub mod circular_blind_steps;
 pub mod circular_face_patterns;
+pub mod v_channels;
 internal_entry! { pub mod context; }
+pub mod annular_grooves;
 pub mod countersinks;
 pub mod cylinders;
 pub mod cylindrical_channels;
@@ -83,6 +85,7 @@ pub mod section_recess_discovery;
 pub mod section_recess_family;
 pub mod section_recess_geometry;
 pub mod sections;
+pub mod semicircular_blind_slots;
 pub mod sheet_metal;
 pub mod slots;
 pub mod solid_properties;
@@ -139,8 +142,13 @@ pub struct Features {
     pub through_steps: Vec<through_steps::ThroughStep>,
     pub turned_steps: Vec<turned_steps::TurnedStep>,
     pub grooves: Vec<grooves::Groove>,
+    /// Annular face recesses, omitted when absent for existing readers.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub annular_grooves: Vec<annular_grooves::AnnularGroove>,
     pub plates: Vec<plates::Plate>,
     pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub semicircular_blind_slots: Vec<semicircular_blind_slots::SemicircularBlindSlot>,
     pub rectangular_blind_slots: Vec<rectangular_blind_slots::RectangularBlindSlot>,
     pub double_d_bores: Vec<profiled_bores::DoubleDBore>,
     pub edge_open_circular_pockets: Vec<edge_open_circular::EdgeOpenCircularPocket>,
@@ -150,6 +158,8 @@ pub struct Features {
     pub slots: Vec<slots::Slot>,
     pub pockets: Vec<pockets::Pocket>,
     pub channels: Vec<channels::Channel>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub v_channels: Vec<v_channels::VChannel>,
     pub slot_patterns: Vec<recess_patterns::SlotPattern>,
     pub pocket_patterns: Vec<recess_patterns::PocketPattern>,
     pub repeating_radial_profiles: Vec<repeating_profiles::RepeatingRadialProfile>,
@@ -572,6 +582,14 @@ pub(crate) fn inventory_in(
             turned_steps::sorted_occurrences(turned_steps::discover(ctx)),
         ),
         grooves: kept(&mut defining, "grooves", grooves::discover(ctx)),
+        annular_grooves: {
+            let found = annular_grooves::discover(ctx);
+            if found.is_empty() {
+                Vec::new()
+            } else {
+                kept(&mut defining, "annular_grooves", found)
+            }
+        },
         plates: kept(
             &mut defining,
             "plates",
@@ -582,6 +600,14 @@ pub(crate) fn inventory_in(
             "round_bottom_blind_slots",
             round_bottom_slots::discover(ctx),
         ),
+        semicircular_blind_slots: {
+            let found = semicircular_blind_slots::discover(ctx);
+            if found.is_empty() {
+                Vec::new()
+            } else {
+                kept(&mut defining, "semicircular_blind_slots", found)
+            }
+        },
         rectangular_blind_slots: kept(
             &mut defining,
             "rectangular_blind_slots",
@@ -612,6 +638,14 @@ pub(crate) fn inventory_in(
         slots,
         pocket_patterns: Vec::new(),
         pockets,
+        v_channels: {
+            let found = v_channels::discover(ctx, &passages);
+            if found.is_empty() {
+                Vec::new()
+            } else {
+                kept(&mut defining, "v_channels", found)
+            }
+        },
         channels: kept(
             &mut defining,
             "channels",

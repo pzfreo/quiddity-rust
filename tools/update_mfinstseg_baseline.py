@@ -33,9 +33,8 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
         ids, out = Path(tmp) / 'ids.txt', Path(tmp) / 'scores.json'
         ids.write_text('\n'.join(m['id'] for m in baseline['models']) + '\n')
-        workers = os.environ.get('CARGO_BUILD_JOBS', '2')
-        env = dict(os.environ, CARGO_BUILD_JOBS=workers, RUST_TEST_THREADS=os.environ.get('RUST_TEST_THREADS', '2'))
-        subprocess.run(['cargo', 'run', '--release', '--example', 'mfinstseg_score', '--', str(root), str(ids), str(out), workers], cwd=repo, env=env, check=True)
+        env = dict(os.environ, CARGO_BUILD_JOBS=os.environ.get('CARGO_BUILD_JOBS', '6'), RUST_TEST_THREADS=os.environ.get('RUST_TEST_THREADS', '6'))
+        subprocess.run(['cargo', 'run', '--release', '--example', 'mfinstseg_score', '--', str(root), str(ids), str(out), os.environ.get('MFI_WORKERS', '6')], cwd=repo, env=env, check=True)
         report = json.loads(out.read_text())
     assert not report['label_errors'] and not report['label_warnings'] and not report['recognition_failures'] and not report['section_recess_refusals']
     scores = [c['counts'] for c in report['classes']]

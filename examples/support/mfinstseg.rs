@@ -12,6 +12,60 @@ pub struct Class {
     pub id: usize,
     pub name: String,
     pub families: Vec<String>,
+    /// Per-family predicates over published record fields, independent of labels.
+    #[serde(default)]
+    pub selectors: BTreeMap<String, Vec<Selector>>,
+}
+
+/// A JSON pointer into a published record, with the geometric justification in the mapping.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Selector {
+    pub field: String,
+    pub evidence: String,
+    #[serde(flatten)]
+    pub predicate: Predicate,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(tag = "op", rename_all = "snake_case", deny_unknown_fields)]
+pub enum Predicate {
+    Equals { value: serde_json::Value },
+    OneOf { values: Vec<serde_json::Value> },
+    Length { value: usize },
+    NonNull,
+    All { selector: Box<Selector> },
+}
+
+impl Selector {
+    fn matches(&self, record: &serde_json::Value) -> bool {
+        let value = record
+            .pointer(&self.field)
+            .expect("mapping field is published");
+        match &self.predicate {
+            Predicate::Equals { value: expected } => value == expected,
+            Predicate::OneOf { values } => values.contains(value),
+            Predicate::Length { value: n } => value.as_array().expect("array field").len() == *n,
+            Predicate::NonNull => !value.is_null(),
+            Predicate::All { selector } => value
+                .as_array()
+                .expect("array field")
+                .iter()
+                .all(|element| selector.matches(element)),
+        }
+    }
+}
+
+/// The same serialized fields readers receive; no topology, labels or model identity here.
+fn family_records(features: &quiddity::features::Features, family: &str) -> serde_json::Value {
+    match family {
+        "holes" => serde_json::to_value(&features.holes),
+        "section_recesses" => serde_json::to_value(&features.section_recesses),
+        "section_passages" => serde_json::to_value(&features.section_passages),
+        "prismatic_pockets" => serde_json::to_value(&features.prismatic_pockets),
+        "pockets" => serde_json::to_value(&features.pockets),
+        _ => panic!("selectors unsupported for family {family}"),
+    }
+    .expect("published records serialize")
 }
 
 pub fn mapping() -> Vec<Class> {
@@ -24,6 +78,21 @@ pub fn mapping() -> Vec<Class> {
     assert_eq!(mapping.classes.len(), 25);
     for (i, c) in mapping.classes.iter().enumerate() {
         assert_eq!(c.id, i);
+        for (family, selectors) in &c.selectors {
+            assert!(
+                c.families.contains(family),
+                "selector family must be mapped"
+            );
+            assert!(!selectors.is_empty());
+            fn validate(selector: &Selector) {
+                assert!(!selector.evidence.trim().is_empty());
+                assert!(selector.field.starts_with('/'));
+                if let Predicate::All { selector } = &selector.predicate {
+                    validate(selector);
+                }
+            }
+            selectors.iter().for_each(validate);
+        }
     }
     mapping.classes
 }
@@ -341,7 +410,7 @@ pub fn matched(predicted: &[Faces], labelled: &[Faces]) -> u64 {
 
 pub fn score(
     truth: &Truth,
-    defining: &quiddity::features::Defining,
+    features: &quiddity::features::Features,
     classes: &[Class],
 ) -> Vec<Score> {
     classes
@@ -357,7 +426,31 @@ pub fn score(
             let instances: BTreeSet<Faces> = class
                 .families
                 .iter()
-                .flat_map(|f| defining.get(f.as_str()).into_iter().flatten())
+                .flat_map(|family| {
+                    let selectors = class.selectors.get(family);
+                    let records = selectors.map(|_| family_records(features, family));
+                    let defining = features.defining.get(family.as_str());
+                    if let Some(records) = &records {
+                        assert_eq!(
+                            records.as_array().unwrap().len(),
+                            defining.map_or(0, Vec::len),
+                            "records and defining faces must have the same indices"
+                        );
+                    }
+                    defining
+                        .into_iter()
+                        .flatten()
+                        .enumerate()
+                        .filter_map(move |(i, faces)| {
+                            selectors
+                                .is_none_or(|selectors| {
+                                    selectors.iter().all(|selector| {
+                                        selector.matches(&records.as_ref().unwrap()[i])
+                                    })
+                                })
+                                .then_some(faces)
+                        })
+                })
                 .map(|fs| fs.iter().copied().collect())
                 .collect();
             let predicted: Faces = instances.iter().flatten().copied().collect();
@@ -439,7 +532,7 @@ pub fn evaluate(
     // Without labels no accuracy denominator is possible: propagate, never silently skip.
     let truth =
         truth.ok_or_else(|| format!("{id}: {}", error.as_deref().unwrap_or("missing labels")))?;
-    let empty = BTreeMap::new();
+    let empty = quiddity::features::Features::default();
     Ok(ModelScore {
         id: id.into(),
         // Failed recognition is fully unexplained, never silently absent from totals.
@@ -448,11 +541,7 @@ pub fn evaluate(
             stock_unexplained: truth.seg.iter().filter(|&&c| c == 24).count() as u64,
             ..Accounting::default()
         }),
-        scores: score(
-            &truth,
-            features.as_ref().map_or(&empty, |f| &f.defining),
-            classes,
-        ),
+        scores: score(&truth, features.as_ref().unwrap_or(&empty), classes),
         error,
         section_recess_refusal: features
             .and_then(|f| f.section_recess_refusal.map(|e| e.to_string())),
@@ -464,6 +553,59 @@ pub fn evaluate(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn selectors_use_only_published_properties_and_preserve_record_indices() {
+        let selector: Selector = serde_json::from_value(serde_json::json!({
+            "field":"/classification/feature_kind", "op":"equals", "value":"channel",
+            "evidence":"An open profile with both run ends open is a channel."
+        }))
+        .unwrap();
+        assert!(
+            selector.matches(&serde_json::json!({"classification":{"feature_kind":"channel"}}))
+        );
+        assert!(
+            !selector.matches(&serde_json::json!({"classification":{"feature_kind":"passage"}}))
+        );
+        let mut features = quiddity::features::Features::default();
+        use quiddity::features::holes::{Bottom, HoleRecord};
+        features.holes = [Bottom::Flat, Bottom::Through]
+            .into_iter()
+            .map(|bottom| HoleRecord {
+                axis: [0., 0., 1.],
+                location: [0., 0., 0.].into(),
+                diameter: 2.,
+                depth: 3.,
+                bottom,
+                cbore: None,
+                spotface: None,
+                csink: None,
+            })
+            .collect();
+        features.defining.insert("holes", vec![vec![0], vec![1]]);
+        let class = Class {
+            id: 0,
+            name: "test".into(),
+            families: vec!["holes".into()],
+            selectors: BTreeMap::from([(
+                "holes".into(),
+                vec![serde_json::from_value(serde_json::json!({
+                "field":"/bottom", "op":"equals", "value":"through", "evidence":"Two open ends."
+            })).unwrap()],
+            )]),
+        };
+        // Swapping truth labels changes the score, never the selected prediction or its index.
+        for seg in [vec![0, 1], vec![1, 0]] {
+            let truth = Truth {
+                seg,
+                instances: None,
+                warnings: Vec::new(),
+            };
+            let scores = score(&truth, &features, std::slice::from_ref(&class));
+            assert_eq!(scores[0].faces.predicted, 1);
+            assert_eq!(scores[0].faces.true_positive, u64::from(truth.seg[1] == 0));
+        }
+    }
+
     #[test]
     fn accounting_measures_all_feature_labels_and_only_explicit_stock() {
         use quiddity::recognition::{BodyReason, FaceAccounting};
@@ -520,6 +662,7 @@ mod tests {
             id: 0,
             name: "test".into(),
             families: vec!["holes".into()],
+            selectors: BTreeMap::new(),
         }];
         let truth = Truth {
             seg: vec![0],
@@ -527,7 +670,14 @@ mod tests {
             warnings: Vec::new(),
         };
         let defining = BTreeMap::from([("holes", vec![vec![]])]);
-        let s = score(&truth, &defining, &classes);
+        let s = score(
+            &truth,
+            &quiddity::features::Features {
+                defining,
+                ..Default::default()
+            },
+            &classes,
+        );
         assert_eq!(
             s[0].instances,
             Some(Counts {
@@ -543,6 +693,7 @@ mod tests {
             id: 0,
             name: "test".into(),
             families: vec!["holes".into(), "pockets".into()],
+            selectors: BTreeMap::new(),
         }];
         let truth = Truth {
             seg: vec![0, 1, 0],
@@ -550,7 +701,14 @@ mod tests {
             warnings: Vec::new(),
         };
         let defining = BTreeMap::from([("holes", vec![vec![0, 1]]), ("pockets", vec![vec![0, 1]])]);
-        let s = score(&truth, &defining, &classes);
+        let s = score(
+            &truth,
+            &quiddity::features::Features {
+                defining,
+                ..Default::default()
+            },
+            &classes,
+        );
         assert_eq!(
             s[0].faces,
             Counts {
