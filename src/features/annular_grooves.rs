@@ -486,11 +486,9 @@ mod tests {
             assert_eq!(o.record.inner_radius, 5.);
             assert_eq!(o.record.outer_radius, 8.);
             assert!((o.record.depth - 4.).abs() < 1e-9);
-            for i in 0..3 {
-                assert!((o.record.axis[i] - motion[i][2]).abs() < 1e-9);
-                assert!(
-                    (o.record.floor_center[i] - (6. * motion[i][2] + motion[i][3])).abs() < 1e-9
-                );
+            for (i, row) in motion.iter().enumerate() {
+                assert!((o.record.axis[i] - row[2]).abs() < 1e-9);
+                assert!((o.record.floor_center[i] - (6. * row[2] + row[3])).abs() < 1e-9);
             }
             let recognition = crate::correspondence::recognise(&part);
             let doc = crate::recognition::document(&recognition, part.faces.len());
