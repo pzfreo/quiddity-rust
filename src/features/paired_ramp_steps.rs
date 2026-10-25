@@ -176,17 +176,9 @@ fn candidate(
         return None;
     }
     let bounds = part.solid_bounds(solid);
-    let extents = [0, 1, 2].map(|i| bounds.max[i] - bounds.min[i]);
     let tolerance = policy::length_tol(bounds.max_extent(), 1e-9);
-    if extents[axis]
-        < cross
-            .iter()
-            .map(|&i| extents[i])
-            .fold(f64::INFINITY, f64::min)
-            - tolerance
-    {
-        return None;
-    }
+    // The convex opening and concave internal terminal establish a blind valley along
+    // this axis; its role does not depend on the unrelated stock dimensions.
     let coordinate = |f: usize| {
         let b = part.face_bounds(f);
         mid((b.min[axis], b.max[axis]))
@@ -269,4 +261,60 @@ fn candidate(
         defining: vec![left, right, inside],
         context: vec![],
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::features::support_patches::polygon_part;
+
+    /// A V cut open at y=0 and closed at y=5, in stock whose length along y varies.
+    fn valley(stock_length: f64) -> Part {
+        let points = [
+            [0.0, 0.0, 0.0],
+            [20.0, 0.0, 0.0],
+            [20.0, 0.0, 40.0],
+            [10.0, 0.0, 20.0],
+            [0.0, 0.0, 40.0],
+            [0.0, 5.0, 0.0],
+            [20.0, 5.0, 0.0],
+            [20.0, 5.0, 40.0],
+            [10.0, 5.0, 20.0],
+            [0.0, 5.0, 40.0],
+            [0.0, stock_length, 0.0],
+            [20.0, stock_length, 0.0],
+            [20.0, stock_length, 40.0],
+            [0.0, stock_length, 40.0],
+        ];
+        let faces = [
+            vec![0, 1, 2, 3, 4],
+            vec![4, 3, 8, 9],
+            vec![3, 2, 7, 8],
+            vec![9, 8, 7],
+            vec![9, 7, 12, 13],
+            vec![10, 13, 12, 11],
+            vec![0, 4, 9, 13, 10],
+            vec![1, 11, 12, 7, 2],
+            vec![0, 10, 11, 1],
+        ];
+        polygon_part(&points, &faces, true).unwrap()
+    }
+
+    #[test]
+    fn stock_aspect_ratio_does_not_change_a_proved_valley() {
+        let read = |length| {
+            let part = valley(length);
+            assert!(part.solid_is_valid(0));
+            let found = discover(&Context::new(&part));
+            assert_eq!(found.len(), 1, "stock length {length}");
+            assert_eq!(found[0].defining, vec![1, 2, 3]);
+            found[0].record.clone()
+        };
+        let short = read(10.0);
+        assert_eq!(short, read(60.0));
+        assert_eq!(short.axis, 'y');
+        assert_eq!(short.length, 5.0);
+        assert_eq!(short.half_width, 10.0);
+        assert_eq!(short.opening_direction, [0.0, -1.0, 0.0]);
+    }
 }

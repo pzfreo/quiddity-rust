@@ -6,6 +6,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Paired ramps in short stock.** Establish the valley axis from its seam and convex
+  opening / concave blind terminal, independently of the stock aspect ratio. MFInstSeg dev
+  two-sided-step instance recall 339/650 → 519/650 (0.5215 → 0.7985), face recall
+  1020/2065 → 1560/2065 (0.4939 → 0.7554); both precisions remain 1.0000.
+
 - **Drilled oblique-step walls.** Check the rectangular outer boundaries independently
   of inner drill loops, retaining convex joins and the exact empty-sweep proof. MFInstSeg
   dev slanted-step instance recall 271/683 → 302/683 (0.3968 → 0.4422),
