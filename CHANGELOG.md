@@ -6,6 +6,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Complete pocket wall evidence.** A uniquely owned cavity now retains its observed planar
+  end walls or the sides smoothly joining both obround caps as defining faces; floors remain
+  context and ambiguous ownership keeps the seed unchanged. On the 2,000-model MFInstSeg dev
+  set, rectangular-pocket instance recall/precision rise from 0.1946/0.0446 to 0.8423/0.1932
+  (137 to 593 TPs), and circular-end-pocket from 0.2782/0.0985 to 0.7910/0.2799
+  (185 to 526 TPs), with unchanged prediction counts and no model/class TP losses.
+
 ## 0.2.0-alpha.2 (2026-10-24)
 
 Upgrading from 0.2.0-alpha.1:
