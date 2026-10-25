@@ -96,9 +96,11 @@
     {
       "id": 11,
       "name": "Oring",
-      "families": [],
-      "not_covered": "Annular blind recess cut in a planar stock face; Rust grooves describe turned external shaft bands.",
-      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/o_ring.py"
+      "families": [
+        "annular_grooves"
+      ],
+      "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/o_ring.py",
+      "rationale": "A blind annular face recess: a planar annular floor joins a complete outer concave cylinder and inner convex cylinder, both ending at the same open plane. The annular_grooves family proves those three defining faces on one valid solid. Existing grooves are external shaft bands and do not describe this geometry. No nominal O-ring size or function is inferred."
     },
     {
       "id": 12,

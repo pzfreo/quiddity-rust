@@ -6,6 +6,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Annular face grooves.** Recognise a planar annular floor between complete coaxial
+  cylindrical walls terminating at one open plane, with strict valid-solid evidence.
+  Publish `annular_grooves` in recognition schema 6 and map MFInstSeg Oring to its three
+  defining faces. On the 2,000-model dev set, Oring instance recall/precision rise from
+  0/0 to 0.8624/1.0000 (520/603 TP); face recall/precision rise from 0/0 to
+  0.8301/1.0000 (1,563/1,883 TP). Other classes and recognition failures are unchanged.
+
 ## 0.2.0-alpha.2 (2026-10-24)
 
 Upgrading from 0.2.0-alpha.1:

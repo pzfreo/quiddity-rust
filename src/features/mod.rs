@@ -19,6 +19,7 @@ pub mod channels;
 pub mod circular_blind_steps;
 pub mod circular_face_patterns;
 internal_entry! { pub mod context; }
+pub mod annular_grooves;
 pub mod countersinks;
 pub mod cylinders;
 pub mod cylindrical_channels;
@@ -139,6 +140,9 @@ pub struct Features {
     pub through_steps: Vec<through_steps::ThroughStep>,
     pub turned_steps: Vec<turned_steps::TurnedStep>,
     pub grooves: Vec<grooves::Groove>,
+    /// Annular face recesses, omitted when absent for existing readers.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub annular_grooves: Vec<annular_grooves::AnnularGroove>,
     pub plates: Vec<plates::Plate>,
     pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
     pub rectangular_blind_slots: Vec<rectangular_blind_slots::RectangularBlindSlot>,
@@ -549,6 +553,14 @@ pub(crate) fn inventory_in(
             turned_steps::sorted_occurrences(turned_steps::discover(ctx)),
         ),
         grooves: kept(&mut defining, "grooves", grooves::discover(ctx)),
+        annular_grooves: {
+            let found = annular_grooves::discover(ctx);
+            if found.is_empty() {
+                Vec::new()
+            } else {
+                kept(&mut defining, "annular_grooves", found)
+            }
+        },
         plates: kept(
             &mut defining,
             "plates",

@@ -69,7 +69,7 @@ fn every_family_has_a_record_type() {
     let table: Vec<&str> = RECORD_TYPES
         .iter()
         .map(|(f, _)| *f)
-        .filter(|f| *f != "modelled_threads")
+        .filter(|f| !["modelled_threads", "annular_grooves"].contains(f))
         .collect();
     assert_eq!(
         table, keys,

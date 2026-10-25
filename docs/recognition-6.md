@@ -131,3 +131,20 @@ that preserve face identity. Grid pitches and centre come from those same raw
 centres. File-axis pattern geometry is also remeasured, so a copy that happens to
 land on file axes does not retain a rounding-induced skew. Feature IDs, proofs,
 inventory, schema 6, fingerprint version 3 and the crate version are unchanged.
+
+
+## Annular face grooves
+
+The optional `annular_grooves` family contains `AnnularGroove` records and is omitted when
+empty. This additive family keeps `quiddity-rust/recognition/6`; existing families retain
+all their records. It describes a blind annular face recess of rectangular radial section,
+such as a face-seal housing. It makes no nominal O-ring size or intended-function claim.
+
+Each record publishes `axis` (a unit vector from the floor towards the mouth),
+`floor_center` (a point in file coordinates), `inner_radius`, `outer_radius`, and `depth`
+(in millimetres). The floor and both cylindrical walls are defining faces; planar faces
+at the two mouth rims are consulted evidence. All must belong to one strictly valid solid.
+The two complete circular floor boundaries must be concentric, their cylindrical walls
+coaxial, the floor junctions concave, and the mouth junctions convex. Both walls must end
+at the same open plane. Interrupted walls, treated rims, unequal depths, invalid ownership,
+and competing defining claims are refused. External turned bands remain `grooves`.
