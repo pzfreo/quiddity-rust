@@ -39,6 +39,61 @@ in [docs/alpha1.md](docs/alpha1.md).
   oblique role. MFInstSeg dev slanted-step instance recall 137/683 → 271/683
   (0.2006 → 0.3968), face recall 274/1447 → 542/1447 (0.1894 → 0.3746);
   instance and face precision remain 1.0000.
+- **Lip-bevelled blind-slot scoring.** Existing `section_recesses` can prove a
+  rectangular U sweep whose mouth has one flared planar bevel. Map only its complete
+  straight five-vertex profile, one planar blind cap, one open run end, and a run
+  strictly longer than both nominal section dimensions beyond publication uncertainty.
+  On 2,000 dev models, rectangular_blind_slot instance recall/precision improve from
+  0.4758/0.9833 to 0.4919/0.9839 (59 to 61 TP). Face recall/precision change from
+  0.4618/0.9833 to 0.4736/0.9758 (236 to 242 TP): the existing defining bevel faces
+  remain predictions, while cap context is not promoted. Both extra instance
+  predictions are correct. No class loses TP; no engine rule or failure count changes.
+
+- **Conservative geometric subtype scoring.** Compare published straight section
+  coordinates at their declared precision against complete triangles, rectangles and
+  regular hexagons; exclude only a proved alternative canonical profile. Retain treated,
+  intersected or unresolved profiles under the old correspondence. Blind-hole scoring
+  excludes proved through ends but retains unknown ends. Pocket scoring excludes proved
+  incompatible corner-notch or half-cylindrical-end subtypes without treating an absent
+  flag as proof of another type. On 2,000 dev models, every class/model retains all face
+  and instance TP and recognition failures remain zero. Per-class recall/precision:
+
+  | Class | Instance recall/precision, before → after | Face recall/precision, before → after |
+  |---|---|---|
+  | triangular_passage | 0.8028/0.3478 → 0.8028/0.8937 | 0.7938/0.2492 → 0.7938/0.8461 |
+  | rectangular_passage | 0.6547/0.2878 → 0.6547/0.8953 | 0.6473/0.2740 → 0.6473/0.8720 |
+  | 6sides_passage | 0.7682/0.3437 → 0.7682/0.9152 | 0.7526/0.4900 → 0.7526/0.9398 |
+  | blind_hole | 0.9789/0.3450 → 0.9789/0.5074 | 0.5018/0.3510 → 0.5018/0.5129 |
+  | triangular_pocket | 0.8903/0.4635 → 0.8903/0.9262 | 0.6627/0.3098 → 0.6627/0.8776 |
+  | rectangular_pocket | 0.1946/0.0446 → 0.1946/0.1539 | 0.4477/0.1577 → 0.4477/0.7492 |
+  | 6sides_pocket | 0.8484/0.4559 → 0.8484/0.9443 | 0.7312/0.6107 → 0.7312/0.9494 |
+  | circular_end_pocket | 0.2782/0.0985 → 0.2782/0.1382 | 0.4358/0.3092 → 0.4358/0.4696 |
+  | rectangular_blind_step | 0.7850/0.2778 → 0.7850/0.3919 | 0.7567/0.3305 → 0.7567/0.4762 |
+
+  Through-hole correspondence remains coarse: one flat-bottom record still contains a
+  through-labelled face. No engine rule changes and no label selects a prediction.
+
+- **Internal-round scoring correspondence.** MFInstSeg `round` labels include internal
+  fillets: all 158 existing concave blend defining faces on dev are round-labelled.
+  Extend the published `blends.side` selector to convex or concave, retaining the
+  existing proof and leaving #89's convex-only `fillets` rule unchanged. Relative to
+  convex-blend scoring, round instance recall/precision improve from 0.6373/0.9543 to
+  0.9017/0.9638 (376 to 532 TP), and face recall/precision from 0.5617/0.9975 to
+  0.7858/0.9982 (396 to 554 TP). No class loses TP or gains recognition failures.
+
+- **Convex blend scoring.** Map the round class to already-proved `blends` with
+  published `side = convex`, deduplicating their defining-face sets against `fillets`.
+  No fillet radius floor or material-side rule changes. On 2,000 dev models, round
+  instance recall/precision improve from 0.2831/0.9176 to 0.6373/0.9543 (167 to 376 TP),
+  and face recall/precision from 0.2567/0.9945 to 0.5617/0.9975 (181 to 396 TP).
+  No class loses TP and no new recognition failures occur.
+
+- **Complete chamfer scoring correspondence.** Map internal `oriented_chamfers` as
+  well as `chamfers`, matching their existing merged recognition-schema-6 publication;
+  identical defining-face sets remain deduplicated. On 2,000 dev models, chamfer
+  instance recall/precision improve from 0.4033/0.6967 to 0.5223/0.7343 (271 to 351 TP),
+  and face recall/precision from 0.3862/0.7943 to 0.4975/0.8326 (309 to 398 TP).
+  Recognition, other class scores and failure counts are unchanged.
 
 - **Validation worker limits.** Snapshot and MFInstSeg baseline tools honour exported
   Cargo/test worker limits, and the baseline scorer honours `MFI_WORKERS`; defaults and
