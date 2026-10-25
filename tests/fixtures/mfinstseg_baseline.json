@@ -87,12 +87,12 @@
           "stock_box_side": 1,
           "stock_box_split": 2
         },
-        "feature": 23,
+        "feature": 24,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 5,
-        "unexplained": 16
+        "unexplained": 15
       }
     },
     {
@@ -191,12 +191,12 @@
           "stock_box_side": 2,
           "stock_box_split": 1
         },
-        "feature": 11,
+        "feature": 12,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -227,12 +227,12 @@
           "stock_box_notched": 1,
           "stock_box_split": 1
         },
-        "feature": 27,
+        "feature": 28,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 5,
-        "unexplained": 9
+        "unexplained": 8
       }
     },
     {
@@ -263,12 +263,12 @@
           "stock_box_side": 1,
           "stock_box_split": 1
         },
-        "feature": 24,
+        "feature": 25,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -580,12 +580,12 @@
           "stock_box_notched": 4,
           "stock_box_side": 1
         },
-        "feature": 29,
+        "feature": 32,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 1,
-        "unexplained": 5
+        "unexplained": 2
       }
     },
     {
@@ -629,12 +629,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 17,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 5,
-        "unexplained": 11
+        "unexplained": 9
       }
     },
     {
@@ -665,12 +665,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 1
         },
-        "feature": 14,
+        "feature": 15,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -697,12 +697,12 @@
         "body_reasons": {
           "stock_box_notched": 2
         },
-        "feature": 18,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 4,
-        "unexplained": 6
+        "unexplained": 5
       }
     },
     {
@@ -768,12 +768,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 16,
+        "feature": 20,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 11
+        "unexplained": 7
       }
     },
     {
@@ -822,12 +822,12 @@
           "stock_box_side": 1,
           "stock_box_split": 2
         },
-        "feature": 7,
+        "feature": 8,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 6
+        "unexplained": 5
       }
     },
     {
@@ -873,12 +873,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 17,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 5,
-        "unexplained": 9
+        "unexplained": 7
       }
     },
     {
@@ -1036,12 +1036,12 @@
           "stock_box_notched": 4,
           "stock_box_split": 1
         },
-        "feature": 16,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 2,
-        "unexplained": 5
+        "unexplained": 2
       }
     },
     {
@@ -1054,12 +1054,12 @@
           "stock_box_notched": 2,
           "stock_box_side": 1
         },
-        "feature": 27,
+        "feature": 30,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 4,
-        "unexplained": 9
+        "unexplained": 6
       }
     },
     {
@@ -1072,12 +1072,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 1
         },
-        "feature": 16,
+        "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 1,
-        "unexplained": 3
+        "unexplained": 2
       }
     },
     {
@@ -1107,12 +1107,12 @@
         "body_reasons": {
           "stock_box_notched": 4
         },
-        "feature": 18,
+        "feature": 21,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 6
+        "unexplained": 3
       }
     },
     {
@@ -1230,12 +1230,12 @@
         "body_reasons": {
           "stock_box_notched": 2
         },
-        "feature": 29,
+        "feature": 30,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 4,
-        "unexplained": 8
+        "unexplained": 7
       }
     },
     {
@@ -1265,12 +1265,12 @@
           "stock_box_notched": 2,
           "stock_box_split": 1
         },
-        "feature": 16,
+        "feature": 18,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 5,
-        "unexplained": 8
+        "unexplained": 6
       }
     },
     {
@@ -1280,12 +1280,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 11,
+        "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 6,
-        "unexplained": 12
+        "unexplained": 10
       }
     },
     {
@@ -1369,12 +1369,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 25,
+        "feature": 27,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 5,
-        "unexplained": 11
+        "unexplained": 9
       }
     },
     {
@@ -1386,12 +1386,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 27,
+        "feature": 28,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 5,
-        "unexplained": 11
+        "unexplained": 10
       }
     },
     {
@@ -1471,12 +1471,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 20,
+        "feature": 21,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 7,
-        "unexplained": 10
+        "unexplained": 9
       }
     },
     {
@@ -1504,12 +1504,12 @@
           "stock_box_notched": 1,
           "stock_box_split": 1
         },
-        "feature": 20,
+        "feature": 23,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 5,
-        "unexplained": 9
+        "unexplained": 6
       }
     },
     {
@@ -1574,12 +1574,12 @@
         "body_reasons": {
           "stock_box_notched": 4
         },
-        "feature": 11,
+        "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 10
+        "unexplained": 8
       }
     },
     {
@@ -1702,12 +1702,12 @@
           "stock_box_side": 1,
           "stock_box_split": 2
         },
-        "feature": 7,
+        "feature": 8,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 6,
         "stock_unexplained": 1,
-        "unexplained": 9
+        "unexplained": 8
       }
     },
     {
@@ -1929,12 +1929,12 @@
           "stock_box_side": 1,
           "stock_box_split": 2
         },
-        "feature": 19,
+        "feature": 20,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 5,
-        "unexplained": 6
+        "unexplained": 5
       }
     },
     {
@@ -1946,12 +1946,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 27,
+        "feature": 28,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 4,
-        "unexplained": 17
+        "unexplained": 16
       }
     },
     {
@@ -1963,12 +1963,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 11,
+        "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 8
+        "unexplained": 6
       }
     },
     {
@@ -2066,12 +2066,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 28,
+        "feature": 29,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 8
+        "unexplained": 7
       }
     },
     {
@@ -2221,12 +2221,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 9,
+        "feature": 10,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 3,
-        "unexplained": 6
+        "unexplained": 5
       }
     },
     {
@@ -2238,12 +2238,12 @@
         "body_reasons": {
           "stock_box_notched": 2
         },
-        "feature": 19,
+        "feature": 20,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 4,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -2448,12 +2448,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 1
         },
-        "feature": 8,
+        "feature": 9,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 6
+        "unexplained": 5
       }
     },
     {
@@ -2500,12 +2500,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 2
         },
-        "feature": 9,
+        "feature": 11,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 1,
-        "unexplained": 10
+        "unexplained": 8
       }
     },
     {
@@ -2656,12 +2656,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 24,
+        "feature": 25,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 4,
-        "unexplained": 8
+        "unexplained": 7
       }
     },
     {
@@ -2778,12 +2778,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 16,
+        "feature": 18,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 6,
-        "unexplained": 12
+        "unexplained": 10
       }
     },
     {
@@ -2833,12 +2833,12 @@
           "stock_box_notched": 1,
           "stock_box_side": 2
         },
-        "feature": 7,
+        "feature": 8,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -2887,12 +2887,12 @@
           "stock_box_side": 1,
           "stock_box_split": 3
         },
-        "feature": 28,
+        "feature": 29,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 4,
-        "unexplained": 19
+        "unexplained": 18
       }
     },
     {
@@ -2906,12 +2906,12 @@
           "stock_box_side": 2,
           "stock_box_split": 1
         },
-        "feature": 20,
+        "feature": 22,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 9
+        "unexplained": 7
       }
     },
     {
@@ -2940,12 +2940,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 22,
+        "feature": 23,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 5,
-        "unexplained": 16
+        "unexplained": 15
       }
     },
     {
@@ -3061,12 +3061,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 1
         },
-        "feature": 11,
+        "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 14
+        "unexplained": 12
       }
     },
     {
@@ -3078,12 +3078,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 18,
+        "feature": 21,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 9
+        "unexplained": 6
       }
     },
     {
@@ -3095,12 +3095,12 @@
         "body_reasons": {
           "stock_box_notched": 4
         },
-        "feature": 16,
+        "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -3128,12 +3128,12 @@
           "stock_box_notched": 2,
           "stock_box_split": 1
         },
-        "feature": 17,
+        "feature": 18,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 4,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -3212,12 +3212,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 34,
+        "feature": 36,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 5,
-        "unexplained": 11
+        "unexplained": 9
       }
     },
     {
@@ -3248,12 +3248,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 1
         },
-        "feature": 14,
+        "feature": 15,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -3302,12 +3302,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 2
         },
-        "feature": 16,
+        "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 1,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -3353,12 +3353,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 17,
+        "feature": 18,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -3372,12 +3372,12 @@
           "stock_box_side": 1,
           "stock_box_split": 1
         },
-        "feature": 26,
+        "feature": 27,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -3443,12 +3443,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 14,
+        "feature": 15,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 15
+        "unexplained": 14
       }
     },
     {
@@ -3477,12 +3477,12 @@
         "body_reasons": {
           "stock_box_notched": 4
         },
-        "feature": 17,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 10
+        "unexplained": 8
       }
     },
     {
@@ -3616,25 +3616,25 @@
     {
       "faces": {
         "labelled": 212,
-        "predicted": 114,
-        "true_positive": 114
+        "predicted": 159,
+        "true_positive": 159
       },
       "instances": {
         "labelled": 67,
-        "predicted": 38,
-        "true_positive": 38
+        "predicted": 53,
+        "true_positive": 53
       }
     },
     {
       "faces": {
         "labelled": 113,
-        "predicted": 22,
-        "true_positive": 22
+        "predicted": 40,
+        "true_positive": 40
       },
       "instances": {
         "labelled": 54,
-        "predicted": 11,
-        "true_positive": 11
+        "predicted": 20,
+        "true_positive": 20
       }
     },
     {
@@ -3748,25 +3748,25 @@
     {
       "faces": {
         "labelled": 145,
-        "predicted": 51,
-        "true_positive": 51
+        "predicted": 102,
+        "true_positive": 102
       },
       "instances": {
         "labelled": 68,
         "predicted": 51,
-        "true_positive": 47
+        "true_positive": 51
       }
     },
     {
       "faces": {
         "labelled": 130,
-        "predicted": 80,
-        "true_positive": 80
+        "predicted": 92,
+        "true_positive": 92
       },
       "instances": {
         "labelled": 62,
-        "predicted": 40,
-        "true_positive": 40
+        "predicted": 46,
+        "true_positive": 46
       }
     },
     {
@@ -3814,11 +3814,11 @@
       "stock_box_side": 224,
       "stock_box_split": 59
     },
-    "feature": 3249,
+    "feature": 3326,
     "feature_as_body": 0,
     "refused": 3,
     "stock_body": 676,
     "stock_unexplained": 554,
-    "unexplained": 1401
+    "unexplained": 1324
   }
 }
