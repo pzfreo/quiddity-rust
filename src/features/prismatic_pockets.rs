@@ -6,7 +6,7 @@
 //! two recoveries for a ring a partial treatment broke: from one exterior mouth (an inner wire
 //! of a principal plane meeting the cavity convexly), the cavity region reached by concave or
 //! smooth turns, with one floor level and a wall cycle behind the treatment; and from an intact
-//! non-rectangular floor whose straight-edged boundary meets one concave wall per edge, all
+//! polygonal floor whose straight-edged boundary meets one concave wall per edge, all
 //! rising to one side. Both recoveries prove the section empty from mouth to floor, nothing at
 //! the mouth, and material behind the floor, by swept-section volume probes. A wall set already
 //! reported is not reported again.
@@ -271,9 +271,10 @@ fn recovered_order(a: &Recovered, b: &Recovered) -> Ordering {
         .then_with(|| py::order(a.high, b.high))
 }
 
-/// Pockets whose intact non-rectangular floor outlives a broken mouth-side ring
-/// (`_floor_seeded_regions`). A four-sided floor is left to the rectangular families: once its
-/// ring is broken it cannot tell a pocket from a blind-slot run.
+/// Pockets whose intact polygonal floor outlives a broken mouth-side ring
+/// (`_floor_seeded_regions`). Every boundary edge must meet an observed concave wall running
+/// along the floor normal; the swept section and both end slabs still prove the closed floor,
+/// empty cavity and open mouth, including for a four-sided section.
 fn floor_seeded_regions(ctx: &Context<'_>) -> Vec<Recovered> {
     let part = ctx.part;
     let mut recovered = Vec::new();
@@ -288,7 +289,7 @@ fn floor_seeded_regions(ctx: &Context<'_>) -> Vec<Recovered> {
             continue;
         };
         let wire: Vec<usize> = only.edges.iter().map(|&(e, _)| e).collect();
-        let Some(section) = floor_section(part, &wire, axis).filter(|s| s.len() != 4) else {
+        let Some(section) = floor_section(part, &wire, axis) else {
             continue;
         };
         let walls: Vec<usize> = wire_seed(part, floor, &wire).into_iter().collect();
@@ -599,6 +600,30 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<PrismaticPocket>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn an_intact_rectangular_floor_survives_an_intersected_mouth() {
+        // Independent box-minus-boxes construction: stock 40 x 35 x 20, a 20 x 12
+        // pocket from z=10, and an edge-open cut from z=15 shortening its x=8 end wall.
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/interrupted_pocket_mouth.step");
+        for axes in [[0, 1, 2], [1, 2, 0], [2, 0, 1]] {
+            let mut placement = [[0.; 4]; 3];
+            for i in 0..3 {
+                placement[axes[i]][i] = 1.;
+                placement[i][3] = [123.456, -78.9, 41.3][i];
+            }
+            let part = crate::kernel::step::read_step_file_placed(&path, &placement).unwrap();
+            let found = discover_verified(&Context::new(&part)).unwrap();
+            let [pocket] = &found[..] else {
+                panic!("{found:?}")
+            };
+            assert_eq!(pocket.record.sides, 4);
+            assert_eq!(pocket.record.depth, 10.);
+            assert_eq!(pocket.defining, [9, 10, 11, 14]);
+            assert_eq!(pocket.context, [15]);
+        }
+    }
 
     #[test]
     fn a_probe_prism_no_longer_than_its_insets_is_refused() {

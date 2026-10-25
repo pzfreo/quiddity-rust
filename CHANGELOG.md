@@ -6,6 +6,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Recover rectangular pockets from intact floors.** A closed straight-edged floor with a
+  concave wall on every edge now supports four-sided sections too, retaining all cavity,
+  floor and opening volume proofs. The 2,000-model dev set gains one rectangular-pocket TP:
+  instance recall/precision 0.8423/0.1932 to 0.8438/0.1934 (593 to 594 TPs).
+
 - **Complete pocket wall evidence.** A uniquely owned cavity now retains its observed planar
   end walls or the sides smoothly joining both obround caps as defining faces; floors remain
   context and ambiguous ownership keeps the seed unchanged. On the 2,000-model MFInstSeg dev
