@@ -2990,7 +2990,7 @@
     "tests/fixtures/late_turn.step": "eb9978a30c4992104d802b0bba5c8ba46a48f53e088b845306a58a4c21818bb6",
     "tests/fixtures/manifest.json": "799fdc976a30ecf142a6ae7c159d6135e82a9ef24962bed7348fe66d6d2518ae",
     "tests/fixtures/memo_part.step": "79c16d80205e285529b86c5cc2d5ed3088c127ebb776330d470ce48a3aa2f303",
-    "tests/fixtures/mfinstseg_baseline.json": "1f84eb3db34cc0f22885688c6cc145d2d0e72405b20c44e0abf42c9334e48d8b",
+    "tests/fixtures/mfinstseg_baseline.json": "2b43a97fd0fa1282739c85818e89717743ece3bf2bf69ea54a7a39dff9a633be",
     "tests/fixtures/mfinstseg_mapping.json": "b999ed72dbd2e36f3a2168e84ac1edae70b660d850cb9d09d221836d52b4dac6",
     "tests/fixtures/mixed.step": "d565c1b5feeec36d996fcd8f3915e5cdae55c3d70651dc9d77cb1ecaa09cf536",
     "tests/fixtures/modelled_threads/diamond_knurl.step.gz": "7099e102266bcf2927a788c5f2f3ca9cd610059327e271114cff56f68466c6c7",
@@ -3032,7 +3032,7 @@
     "tests/fixtures/references/face_moments.json": "25df3e453274523b7f690a9886299f689e9d0242aba90c498210569f6b5f4d9a",
     "tests/fixtures/references/face_sources.json": "c645e79fcca0e7ee94aba6fac129188b8b9eabe4e27d761fa0d8c1dd985bc6dd",
     "tests/fixtures/references/frame_equivariance.json": "f9f609ab454e765acc4bcbf9b497361ed1f59820074c18e235a1456ba662e49b",
-    "tests/fixtures/references/framed_document.json": "0608c1b072186c12026b3114d5c8facaa77d65ab01ebbaba8c6521c3c0226260",
+    "tests/fixtures/references/framed_document.json": "d31dacb3d89147d7452bc20595e7200f511f349567def8f1b5a86e6451721539",
     "tests/fixtures/references/invariance.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
     "tests/fixtures/references/occt_corpus.json": "d9de41b694e690c20691fec1f599fa6334869ffc3506e0ce1acf40221df86c9a",
     "tests/fixtures/references/outer_profile_motion.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
@@ -3157,7 +3157,7 @@
     "calls/recognise_through_steps.json.gz": "ab6a0b5b06756fa3435099be76e5ab432b867be4d4a1b42c49047ff83b086cca",
     "calls/recognise_turned_steps.json.gz": "37d10e8c5e2ce5dcf6c5bd2fdc7444e86494bb44768e9d32d9a1abfd3f2fbd90",
     "channel_geometry.json.gz": "bd25ff87def7f73b4f119d26614600b141ee4350f45c77cef55aae7ea787e85f",
-    "corpus.json.gz": "a6d7da845c96506cd5f9b3eeb0efe77405c79e8719352f6da96823ce965c53f7",
+    "corpus.json.gz": "4191a4fd4acd9981255584f35349848ba65bbfeb529bd5afe7d328004b8baf32",
     "coverage.json.gz": "c835b80d39757ae5ef556953e11a2d7e8bbde3148a233f2af51ae92e1d23a971",
     "cylindrical_proofs/corpus/cadgenbench/flanged_spool_132.step.json.gz": "b93acca566253df99ab62bb5ac97424226850b3ee3963c8d1025939a7339d823",
     "cylindrical_proofs/corpus/cadgenbench/threaded_connector_109.step.json.gz": "eea12e52bf91a9c762e7cadc1b12994398bf8f3836ab11ab8b58a2bf4c5d9a4e",
@@ -5263,8 +5263,8 @@
     "recess_geometry/test/parts/fb678c49d85e66e7.step.gz.json.gz": "14b891c6f02cfbee7d14a380aa306482e624c888b83b6518492f3014f25b86c9",
     "recess_geometry/test/parts/fc9df6ddac71ebfb.step.gz.json.gz": "d4f46f9e6b2e7d4a91e4beb51f52109203c316cff89437e6b35855d70a473c50",
     "recess_geometry/test/parts/ff1649b74b275e95.step.gz.json.gz": "b3463f9c4a49083d4fa3ddafbb224032e0e5f934eba1ad393c04c2ca80796497",
-    "recognition_evidence.json.gz": "827918cf631dae55a0d72be2615eb4261702571ec5108abdbd5159441db3e6b9",
-    "reconcile.json.gz": "f6b15cd3cf737d3da6fbfa47d9ba893f1a463a3af9fa90d80bc8e46b6e029f8f",
+    "recognition_evidence.json.gz": "95207f5372dea62b1247fd3a0b22be640dfa982a652271203366ec53b4c764c3",
+    "reconcile.json.gz": "df3229ce523570b78c289ba233940acc7c439c53a25501f846a99906e4d6be09",
     "reconcile_scenarios.json.gz": "f3d2867544d794d5e6b57d6ddc991fe4d3d41ac36ed436abebef44bfb402d51d",
     "retry.json.gz": "a59e4d32892a173cf2611832db0b38ce1e292c815dcc7e802e18e330236666e7",
     "retry_publication.json.gz": "94aa0c6ede5bcf73ecdf5630a2dd5b230a47e5f8b325a78d8b6c91203737cf0e",
@@ -5813,5 +5813,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "da737177762d15831fba223514b2615d4e1dd75c"
+  "source_commit": "976da8e1de735222a827e77d238d8c7288a019e8"
 }
