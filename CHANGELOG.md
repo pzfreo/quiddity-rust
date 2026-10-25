@@ -6,6 +6,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Circular steps opening on shoulders.** Accept a local convex opening only with
+  outward perpendicular terminals, incident orthogonal corner supports and an empty
+  terminal sweep. Ambiguous axial ends remain refused. MFInstSeg dev circular-step
+  instance recall 499/666 → 530/666 (0.7492 → 0.7958), face recall
+  1000/1377 → 1062/1377 (0.7262 → 0.7712); both precisions remain 1.0000.
+
 - **Angled-step blind-cap evidence.** Concave triangular caps perpendicular to the run
   define the cut; convex stock terminals remain context. MFInstSeg dev triangular-step
   instance recall 426/643 → 458/643 (0.6625 → 0.7123), precision 0.8894 → 0.9562;
