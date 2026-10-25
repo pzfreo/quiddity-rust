@@ -85,6 +85,7 @@ pub mod section_recess_discovery;
 pub mod section_recess_family;
 pub mod section_recess_geometry;
 pub mod sections;
+pub mod semicircular_blind_slots;
 pub mod sheet_metal;
 pub mod slots;
 pub mod solid_properties;
@@ -146,6 +147,8 @@ pub struct Features {
     pub annular_grooves: Vec<annular_grooves::AnnularGroove>,
     pub plates: Vec<plates::Plate>,
     pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub semicircular_blind_slots: Vec<semicircular_blind_slots::SemicircularBlindSlot>,
     pub rectangular_blind_slots: Vec<rectangular_blind_slots::RectangularBlindSlot>,
     pub double_d_bores: Vec<profiled_bores::DoubleDBore>,
     pub edge_open_circular_pockets: Vec<edge_open_circular::EdgeOpenCircularPocket>,
@@ -574,6 +577,14 @@ pub(crate) fn inventory_in(
             "round_bottom_blind_slots",
             round_bottom_slots::discover(ctx),
         ),
+        semicircular_blind_slots: {
+            let found = semicircular_blind_slots::discover(ctx);
+            if found.is_empty() {
+                Vec::new()
+            } else {
+                kept(&mut defining, "semicircular_blind_slots", found)
+            }
+        },
         rectangular_blind_slots: kept(
             &mut defining,
             "rectangular_blind_slots",

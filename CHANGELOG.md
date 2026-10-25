@@ -6,6 +6,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Semicircular-bottom blind slots.** Publish `semicircular_blind_slots` for a complete
+  half-cylinder tangent to two rectangular sides, with one planar blind cap and proved
+  open run/lateral mouths on a strictly valid solid. Map MFInstSeg
+  `v_circular_end_blind_slot` to this geometry instead of the quarter-cylinder/flat-floor
+  family used for its horizontal counterpart. On 2,000 dev models, instance
+  recall/precision rise from 0/0 to 0.7971/0.9821 (110/138 TP); face recall/precision
+  rise from 0/0 to 0.7885/0.9821 (440/558 TP). No other class loses TP or gains failures.
+
 - **V-section through channels.** Publish `v_channels` for two complete rectangular
   planar walls meeting concavely, with coplanar open lips and two open run ends, on a
   strictly valid solid. Wall pairs contained in a proved closed passage belong to that

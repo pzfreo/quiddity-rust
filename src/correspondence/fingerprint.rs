@@ -449,6 +449,19 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
         ],
     },
     FamilyFingerprint {
+        family: "semicircular_blind_slots",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("opening", Placement),
+            ("at", Placement),
+            ("length", Size),
+            ("radius", Size),
+            ("straight_height", Size),
+        ],
+    },
+    FamilyFingerprint {
         family: "round_bottom_blind_slots",
         members: None,
         variants: false,

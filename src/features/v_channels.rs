@@ -23,10 +23,10 @@ pub struct VChannel {
     pub included_angle_degrees: f64,
 }
 
-struct Wall {
-    lip: usize,
-    ends: [usize; 2],
-    offset: V3,
+pub(super) struct Wall {
+    pub(super) lip: usize,
+    pub(super) ends: [usize; 2],
+    pub(super) offset: V3,
 }
 
 fn has_vertex(part: &Part, edge: usize, vertex: usize) -> bool {
@@ -36,7 +36,13 @@ fn has_vertex(part: &Part, edge: usize, vertex: usize) -> bool {
 
 /// Read a genuine rectangular wall, preserving the trough edge's endpoint roles. Vertex
 /// identities establish adjacency; equal distances cannot substitute another wall's claim.
-fn wall(part: &Part, face: usize, trough: usize, axis: V3, tolerance: f64) -> Option<Wall> {
+pub(super) fn wall(
+    part: &Part,
+    face: usize,
+    trough: usize,
+    axis: V3,
+    tolerance: f64,
+) -> Option<Wall> {
     let f = &part.faces[face];
     if !matches!(f.surface, Surface::Plane { .. })
         || f.loops.len() != 1
@@ -98,7 +104,7 @@ fn wall(part: &Part, face: usize, trough: usize, axis: V3, tolerance: f64) -> Op
     })
 }
 
-fn exterior(part: &Part, wall: usize, edge: usize, direction: V3) -> Option<usize> {
+pub(super) fn exterior(part: &Part, wall: usize, edge: usize, direction: V3) -> Option<usize> {
     let [a, b] = part.edge_faces()[edge][..] else {
         return None;
     };

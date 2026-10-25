@@ -564,6 +564,7 @@ fn carry(
         annular_grooves,
         plates,
         round_bottom_blind_slots,
+        semicircular_blind_slots,
         rectangular_blind_slots,
         double_d_bores,
         edge_open_circular_pockets,
@@ -679,6 +680,17 @@ fn carry(
             "round_bottom_blind_slots",
             round_bottom_blind_slots,
             round_bottom_blind_slot
+        ),
+        semicircular_blind_slots: each!(
+            "semicircular_blind_slots",
+            semicircular_blind_slots,
+            |out: &mut Out,
+             mut r: crate::features::semicircular_blind_slots::SemicircularBlindSlot| {
+                r.axis = out.direction(r.axis);
+                r.opening = out.direction(r.opening);
+                r.at = out.point(r.at);
+                r
+            }
         ),
         rectangular_blind_slots: each!(
             "rectangular_blind_slots",

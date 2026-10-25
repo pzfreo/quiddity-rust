@@ -178,3 +178,26 @@ projected onto the mouth; interrupted walls, missing ownership, and competing wa
 are refused. All defining and consulted faces require one strictly valid solid. A pair of
 walls already contained in a proved closed section passage is part of that complete
 passage, not a separate open channel. This exclusion leaves passage recognition intact.
+
+
+## Semicircular-bottom blind slots
+
+The optional `semicircular_blind_slots` family contains `SemicircularBlindSlot` records,
+omitted when empty, within recognition schema 6. Its section has one semicircular bottom
+and two tangent straight sides. This differs from `round_bottom_blind_slots`, whose
+section has two quarter-cylinders and a flat floor; that existing family is unchanged.
+
+`axis` points from the open run end towards the blind cap; `opening` points out of the
+lateral mouth. Both are unit vectors in file coordinates. `at` is the section bounding
+box's centre halfway along the run. `length`, `radius`, and `straight_height` are
+millimetres: section width is twice the radius and depth is radius plus straight height.
+The cylinder, both straight sides, and the planar blind cap are defining faces. The
+convex planar faces at the run mouth and lateral opening are consulted evidence.
+
+The complete cylinder boundary must have two semicircular rims and two straight run
+edges; the rectangular sides must be tangent to it and rise equally towards the lateral
+mouth. The blind cap has exactly that U profile and meets all three swept surfaces
+concavely. Both mouth boundaries meet outward-facing planar context convexly. Every
+source face must belong to one strictly valid solid. Interrupted or treated boundaries,
+missing caps/ownership, and competing defining claims are refused. The cylinder axis
+and unique cap establish run/depth roles without a dimensional preference.

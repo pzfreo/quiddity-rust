@@ -169,10 +169,10 @@
       "id": 18,
       "name": "v_circular_end_blind_slot",
       "families": [
-        "round_bottom_blind_slots"
+        "semicircular_blind_slots"
       ],
       "geometry_source": "https://github.com/whjdark/AAGNet/blob/e0e36b7a12a7f01a29d7be36efc22730d293a1bd/dataset/Features/v_circular_end_blind_slot.py",
-      "rationale": "Open U-section with a semicircular bottom; mapped to the round-bottom slot family even where its stricter flat-bottom/quarter-cylinder implementation cannot recognise it."
+      "rationale": "A complete semicylindrical floor tangent to two rectangular vertical sides, swept from an open run end to a planar blind cap. The semicircular_blind_slots family proves that geometry and its open lateral mouth on one strictly valid solid. The older round_bottom_blind_slots family describes two quarter-cylinder corners with a flat floor, which is the h_circular_end_blind_slot geometry, not this class."
     },
     {
       "id": 19,
