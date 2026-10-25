@@ -6,6 +6,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Annular floor/rim partitions.** Smooth coplanar floor pieces and split circular
+  edges retain one annular groove when their two closed boundary cycles cover full,
+  concentric circles; overlapping arc length alone is not proof. All floor pieces
+  define the feature, and strict solid/mouth evidence remains required. On 2,000 dev
+  models, Oring instance recall/precision improve from 0.8624/1.0000 to 0.8640/1.0000
+  (520 to 521 TP); face recall/precision improve from 0.8301/1.0000 to 0.8317/1.0000
+  (1,563 to 1,566 TP). No other class loses TP or gains failures.
+
 - **Semicircular-bottom blind slots.** Publish `semicircular_blind_slots` for a complete
   half-cylinder tangent to two rectangular sides, with one planar blind cap and proved
   open run/lateral mouths on a strictly valid solid. Map MFInstSeg
@@ -31,8 +39,8 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 - **Annular face grooves.** Recognise a planar annular floor between complete coaxial
   cylindrical walls terminating at one open plane, with strict valid-solid evidence.
-  Publish `annular_grooves` in recognition schema 6 and map MFInstSeg Oring to its three
-  defining faces. On the 2,000-model dev set, Oring instance recall/precision rise from
+  Publish `annular_grooves` in recognition schema 6 and map MFInstSeg Oring to its floor and two
+  defining cylindrical walls. On the 2,000-model dev set, Oring instance recall/precision rise from
   0/0 to 0.8624/1.0000 (520/603 TP); face recall/precision rise from 0/0 to
   0.8301/1.0000 (1,563/1,883 TP). Other classes and recognition failures are unchanged.
 

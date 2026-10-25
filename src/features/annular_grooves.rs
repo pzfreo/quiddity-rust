@@ -1,17 +1,17 @@
 //! Blind annular face grooves: a planar annulus between two complete coaxial cylindrical
-//! walls, both rising to the same open plane. This is a face-seal recess, not a turned
-//! external groove or a nominal O-ring size. Interrupted walls and treated rims are refused.
-
-use std::collections::BTreeMap;
-
-use serde::Serialize;
+//! walls, both rising to the same open plane. Coplanar floor splits and circular edge splits
+//! preserve the feature. Interrupted walls and treated rims remain refused.
 
 use super::Context;
 use super::evidence::{self, EvidenceStatus, Occurrence};
 use super::graph::normal;
-use super::regions::length_tolerance;
+use super::regions::{edge_length, length_tolerance};
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{self, Curve, Surface, V3};
+use crate::kernel::sampling::edge_interval;
+use serde::Serialize;
+use std::collections::{BTreeMap, BTreeSet};
+use std::f64::consts::TAU;
 
 /// A rectangular-section annular recess, in millimetres. `axis` is the unit direction from
 /// `floor_center` towards the mouth; both cylinder walls have the same `depth`. No nominal
@@ -25,95 +25,251 @@ pub struct AnnularGroove {
     pub depth: f64,
 }
 
-#[derive(Clone, Copy)]
-struct Circle {
-    edge: usize,
+struct Ring {
+    edges: Vec<usize>,
     center: V3,
     radius: f64,
 }
 
-fn circle(part: &Part, edge: usize, axis: V3) -> Option<Circle> {
-    let e = &part.edges[edge];
-    let Curve::Circle { frame, radius } = e.curve else {
+/// Edge identity, not a nearest-point walk, proves disjoint closed boundary cycles. A
+/// branch, a touching pair of cycles, or more than one successor refuses.
+fn cycles(part: &Part, edges: &BTreeSet<usize>) -> Option<Vec<Vec<usize>>> {
+    let mut incident: BTreeMap<usize, Vec<usize>> = BTreeMap::new();
+    for &edge in edges {
+        let (a, b) = part.edges[edge].vertices;
+        incident.entry(a).or_default().push(edge);
+        incident.entry(b).or_default().push(edge);
+    }
+    if incident.values().any(|v| v.len() != 2) {
         return None;
-    };
-    (e.is_closed() && radius > 0.0 && geom::dot(frame.z, axis).abs() >= 1.0 - 1e-9).then_some(
-        Circle {
-            edge,
-            center: frame.origin,
-            radius,
-        },
-    )
+    }
+    let mut pending = edges.clone();
+    let mut found = Vec::new();
+    while let Some(edge) = pending.pop_first() {
+        let (start, mut at) = part.edges[edge].vertices;
+        let mut cycle = vec![edge];
+        while at != start {
+            let next: Vec<_> = incident[&at]
+                .iter()
+                .copied()
+                .filter(|e| pending.contains(e))
+                .collect();
+            let [next] = next[..] else { return None };
+            pending.remove(&next);
+            cycle.push(next);
+            let (a, b) = part.edges[next].vertices;
+            at = if a == at { b } else { a };
+        }
+        found.push(cycle);
+    }
+    Some(found)
 }
 
-/// A complete wall has exactly two circular rims and a straight seam used twice, in
-/// opposite senses. Nothing else may interrupt it. Its far rim meets an outward-facing
-/// planar mouth convexly; its floor rim meets the annulus concavely.
-fn wall(
-    part: &Part,
-    floor: usize,
-    rim: Circle,
-    axis: V3,
-    outer: bool,
-) -> Option<(usize, usize, f64)> {
-    let faces = &part.edge_faces()[rim.edge];
-    let [a, b] = faces[..] else { return None };
-    let face = if a == floor {
-        b
-    } else if b == floor {
-        a
-    } else {
+/// A whole circular rim, possibly split into arcs. Closed topology plus a one-turn arc sum
+/// proves the complete circumference; matching radii/centres alone would admit fragments.
+fn ring(part: &Part, edges: Vec<usize>, axis: V3) -> Option<Ring> {
+    let set: BTreeSet<_> = edges.iter().copied().collect();
+    if set.len() != edges.len() || cycles(part, &set)?.len() != 1 {
+        return None;
+    }
+    let first = *edges.first()?;
+    let Curve::Circle { frame, radius } = part.edges[first].curve else {
         return None;
     };
+    let tolerance = length_tolerance(&[radius]);
+    if radius <= tolerance {
+        return None;
+    }
+    for &edge in &edges {
+        let Curve::Circle {
+            frame: other,
+            radius: r,
+        } = part.edges[edge].curve
+        else {
+            return None;
+        };
+        if geom::dot(other.z, axis).abs() < 1. - 1e-9
+            || (r - radius).abs() > tolerance
+            || geom::dist(frame.origin, other.origin) > tolerance
+        {
+            return None;
+        }
+    }
+    let length: f64 = edges.iter().map(|&e| edge_length(part, e)).sum();
+    if (length - TAU * radius).abs() > length_tolerance(&[TAU * radius]) {
+        return None;
+    }
+    // Unsigned arc length alone could count the same semicircle twice. Require the
+    // union of the actual parameter intervals to cover the whole circle as well.
+    let angular_tolerance = length_tolerance(&[TAU * radius]) / radius;
+    let mut intervals = Vec::new();
+    for &edge in &edges {
+        let e = &part.edges[edge];
+        let Curve::Circle { frame: other, .. } = e.curve else {
+            unreachable!()
+        };
+        let (a, b) = edge_interval(&e.curve, e.start, e.end, e.same_sense, e.is_closed());
+        let orientation =
+            geom::dot(geom::cross(frame.x, frame.y), geom::cross(other.x, other.y)).signum();
+        let span = (b - a) * orientation;
+        let p = frame.to_local(e.start);
+        let start = p[1].atan2(p[0]);
+        let low = (start + span.min(0.)).rem_euclid(TAU);
+        let high = low + span.abs();
+        if span.abs() >= TAU - angular_tolerance {
+            intervals.push((0., TAU));
+        } else if high > TAU {
+            intervals.extend([(low, TAU), (0., high - TAU)]);
+        } else {
+            intervals.push((low, high));
+        }
+    }
+    intervals.sort_by(|a, b| a.0.total_cmp(&b.0));
+    let mut covered = 0.0_f64;
+    for (low, high) in intervals {
+        if low > covered + angular_tolerance {
+            return None;
+        }
+        covered = covered.max(high);
+    }
+    if covered < TAU - angular_tolerance {
+        return None;
+    }
+    Some(Ring {
+        edges,
+        center: frame.origin,
+        radius,
+    })
+}
+
+/// The connected floor plane, without a preferred coordinate axis.
+fn floor_region(part: &Part, seed: usize) -> Option<BTreeSet<usize>> {
+    let Surface::Plane { frame } = part.faces[seed].surface else {
+        return None;
+    };
+    let axis = normal(part, seed)?;
+    let tolerance = length_tolerance(&[part.face_bounds(seed).max_extent()]);
+    let mut found = BTreeSet::from([seed]);
+    let mut pending = vec![seed];
+    while let Some(face) = pending.pop() {
+        for next in part.neighbours(face) {
+            if found.contains(&next) {
+                continue;
+            }
+            let Surface::Plane { frame: other } = part.faces[next].surface else {
+                continue;
+            };
+            if geom::dot(normal(part, next)?, axis) < 1. - 1e-9
+                || geom::dot(geom::sub(other.origin, frame.origin), axis).abs() > tolerance
+                || part.arc(face, next) != Some(Arc::Smooth)
+            {
+                continue;
+            }
+            found.insert(next);
+            pending.push(next);
+        }
+    }
+    Some(found)
+}
+
+fn floor_rings(part: &Part, floor: &BTreeSet<usize>, axis: V3) -> Option<Vec<Ring>> {
+    let mut uses: BTreeMap<usize, Vec<bool>> = BTreeMap::new();
+    for &face in floor {
+        for lp in &part.faces[face].loops {
+            for &(edge, forward) in &lp.edges {
+                uses.entry(edge).or_default().push(forward);
+            }
+        }
+    }
+    let mut boundary = BTreeSet::new();
+    for (edge, directions) in uses {
+        match directions[..] {
+            [_] => {
+                boundary.insert(edge);
+            }
+            [a, b] if a != b => {}
+            _ => return None,
+        }
+    }
+    let cycles = cycles(part, &boundary)?;
+    if cycles.len() != 2 {
+        return None;
+    }
+    cycles
+        .into_iter()
+        .map(|edges| ring(part, edges, axis))
+        .collect()
+}
+
+/// One complete cylinder wall, with one straight seam used in opposite senses. Floor and
+/// mouth rims may consist of multiple arcs; no additional boundary is accepted.
+fn wall(
+    part: &Part,
+    floor: &BTreeSet<usize>,
+    rim: &Ring,
+    axis: V3,
+    outer: bool,
+) -> Option<(usize, Vec<usize>, f64)> {
+    let mut owner = None;
+    for &edge in &rim.edges {
+        let outside: Vec<_> = part.edge_faces()[edge]
+            .iter()
+            .copied()
+            .filter(|f| !floor.contains(f))
+            .collect();
+        let [face] = outside[..] else { return None };
+        if owner.is_some_and(|previous| previous != face) {
+            return None;
+        }
+        owner = Some(face);
+        for &f in &part.edge_faces()[edge] {
+            if floor.contains(&f) && part.arc(f, face) != Some(Arc::Concave) {
+                return None;
+            }
+        }
+    }
+    let face = owner?;
     let f = &part.faces[face];
     let Surface::Cylinder { frame, radius } = f.surface else {
         return None;
     };
     let tolerance = length_tolerance(&[radius, rim.radius]);
-    let offset = geom::sub(rim.center, frame.origin);
     if f.reversed != outer
-        || geom::dot(frame.z, axis).abs() < 1.0 - 1e-9
-        || geom::norm(geom::cross(offset, axis)) > tolerance
+        || geom::dot(frame.z, axis).abs() < 1. - 1e-9
+        || geom::norm(geom::cross(geom::sub(rim.center, frame.origin), axis)) > tolerance
         || (radius - rim.radius).abs() > tolerance
-        || part.arc(floor, face) != Some(Arc::Concave)
     {
         return None;
     }
     let [lp] = &f.loops[..] else { return None };
-    if lp.edges.len() != 4 {
-        return None;
-    }
     let mut uses: BTreeMap<usize, Vec<bool>> = BTreeMap::new();
     for &(edge, forward) in &lp.edges {
         uses.entry(edge).or_default().push(forward);
     }
-    if uses.len() != 3 || uses.get(&rim.edge)?.len() != 1 {
-        return None;
-    }
-    let mut other_rim = None;
-    let mut seam = false;
-    for (&edge, directions) in &uses {
-        if edge == rim.edge {
-            continue;
+    for edge in &rim.edges {
+        if uses.remove(edge)?.len() != 1 {
+            return None;
         }
-        match &part.edges[edge].curve {
-            Curve::Circle { .. } if directions.len() == 1 => {
-                other_rim = Some(circle(part, edge, axis)?);
-            }
+    }
+    let mut other_edges = Vec::new();
+    let mut seams = 0;
+    for (edge, directions) in uses {
+        match part.edges[edge].curve {
+            Curve::Circle { .. } if directions.len() == 1 => other_edges.push(edge),
             Curve::Line { dir, .. }
                 if directions.len() == 2
                     && directions[0] != directions[1]
-                    && geom::dot(geom::unit(*dir)?, axis).abs() >= 1.0 - 1e-9 =>
+                    && geom::dot(geom::unit(dir)?, axis).abs() > 1. - 1e-9 =>
             {
-                seam = true;
+                seams += 1
             }
             _ => return None,
         }
     }
-    if !seam {
+    if seams != 1 {
         return None;
     }
-    let other = other_rim?;
+    let other = ring(part, other_edges, axis)?;
     let delta = geom::sub(other.center, rim.center);
     let depth = geom::dot(delta, axis);
     if depth <= tolerance
@@ -122,56 +278,52 @@ fn wall(
     {
         return None;
     }
-    let [a, b] = part.edge_faces()[other.edge][..] else {
-        return None;
-    };
-    let mouth = if a == face {
-        b
-    } else if b == face {
-        a
-    } else {
-        return None;
-    };
-    if !matches!(part.faces[mouth].surface, Surface::Plane { .. })
-        || geom::dot(normal(part, mouth)?, axis) < 1.0 - 1e-9
-        || part.arc(face, mouth) != Some(Arc::Convex)
-    {
-        return None;
+    let mut context = Vec::new();
+    for edge in other.edges {
+        let [a, b] = part.edge_faces()[edge][..] else {
+            return None;
+        };
+        let mouth = if a == face {
+            b
+        } else if b == face {
+            a
+        } else {
+            return None;
+        };
+        if !matches!(part.faces[mouth].surface, Surface::Plane { .. })
+            || geom::dot(normal(part, mouth)?, axis) < 1. - 1e-9
+            || part.arc(face, mouth) != Some(Arc::Convex)
+        {
+            return None;
+        }
+        context.push(mouth);
     }
-    Some((face, mouth, depth))
+    Some((face, context, depth))
 }
 
-fn from_floor(part: &Part, floor: usize) -> Option<Occurrence<AnnularGroove>> {
-    if !matches!(part.faces[floor].surface, Surface::Plane { .. }) {
-        return None;
-    }
-    let [a, b] = &part.faces[floor].loops[..] else {
-        return None;
-    };
-    let ([(ea, _)], [(eb, _)]) = (&a.edges[..], &b.edges[..]) else {
-        return None;
-    };
-    let axis = normal(part, floor)?;
-    let (a, b) = (circle(part, *ea, axis)?, circle(part, *eb, axis)?);
-    let (inner, outer) = if a.radius < b.radius { (a, b) } else { (b, a) };
+fn from_floor(part: &Part, floor: &BTreeSet<usize>) -> Option<Occurrence<AnnularGroove>> {
+    let axis = normal(part, *floor.first()?)?;
+    let mut rings = floor_rings(part, floor, axis)?;
+    rings.sort_by(|a, b| a.radius.total_cmp(&b.radius));
+    let (inner, outer) = (&rings[0], &rings[1]);
     let tolerance = length_tolerance(&[outer.radius]);
     if outer.radius - inner.radius <= tolerance
         || geom::dist(inner.center, outer.center) > tolerance
     {
         return None;
     }
-    let (iw, im, depth) = wall(part, floor, inner, axis, false)?;
-    let (ow, om, other_depth) = wall(part, floor, outer, axis, true)?;
+    let (iw, mut context, depth) = wall(part, floor, inner, axis, false)?;
+    let (ow, mouth, other_depth) = wall(part, floor, outer, axis, true)?;
     if (depth - other_depth).abs() > length_tolerance(&[depth, other_depth]) {
         return None;
     }
-    let mut defining = vec![floor, iw, ow];
+    let mut defining: Vec<_> = floor.iter().copied().chain([iw, ow]).collect();
     defining.sort_unstable();
     defining.dedup();
-    let mut context = vec![im, om];
+    context.extend(mouth);
     context.sort_unstable();
     context.dedup();
-    if defining.len() != 3
+    if defining.len() != floor.len() + 2
         || context.iter().any(|f| defining.contains(f))
         || evidence::strict_status(part, &defining, &context) != EvidenceStatus::Verified
     {
@@ -191,13 +343,20 @@ fn from_floor(part: &Part, floor: usize) -> Option<Occurrence<AnnularGroove>> {
 }
 
 internal_entry! {
-/// Complete annular recesses on one strictly valid solid; competing defining claims are all
-/// refused. Floor traversal order is retained, as with the other intrinsic families.
+/// Complete annular recesses on one strictly valid solid; all defining claims competing for
+/// a source face are refused. The first floor-face traversal order is retained.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<AnnularGroove>> {
-    let found: Vec<_> = (0..ctx.part.faces.len()).filter_map(|f| from_floor(ctx.part, f)).collect();
-    let mut owners = BTreeMap::<usize, usize>::new();
-    for o in &found { for &face in &o.defining { *owners.entry(face).or_default() += 1; } }
-    found.into_iter().filter(|o| o.defining.iter().all(|f| owners[f] == 1)).collect()
+    let mut seen=BTreeSet::<usize>::new();let mut found=Vec::new();
+    for seed in 0..ctx.part.faces.len() {
+        if seen.contains(&seed) || !matches!(ctx.part.faces[seed].surface,Surface::Plane{..})
+            || !ctx.part.face_edges(seed).iter().any(|&e|matches!(ctx.part.edges[e].curve,Curve::Circle{..})) { continue }
+        let Some(floor)=floor_region(ctx.part,seed) else { continue };
+        seen.extend(floor.iter().copied());
+        if let Some(o)=from_floor(ctx.part,&floor) { found.push(o); }
+    }
+    let mut owners=BTreeMap::<usize,usize>::new();
+    for o in &found { for &face in &o.defining { *owners.entry(face).or_default()+=1; } }
+    found.into_iter().filter(|o|o.defining.iter().all(|f|owners[f]==1)).collect()
 }
 }
 
@@ -349,6 +508,114 @@ mod tests {
                 serde_json::from_value(records[0].parameters["floor_center"].clone()).unwrap();
             assert!(geom::dist(axis, o.record.axis) < 1e-9);
             assert!(geom::dist(center, o.record.floor_center) < 1e-9);
+        }
+    }
+
+    #[test]
+    fn a_double_covered_semicircle_is_not_a_complete_rim() {
+        let frame = Frame {
+            origin: [0.; 3],
+            x: [1., 0., 0.],
+            y: [0., 1., 0.],
+            z: [0., 0., 1.],
+        };
+        let curve = Curve::Circle { frame, radius: 8. };
+        let edge = |a, b, vertices, same_sense| Edge {
+            curve: curve.clone(),
+            start: a,
+            end: b,
+            vertices,
+            same_sense,
+            samples: Vec::new(),
+        };
+        for (sense, complete) in [(false, false), (true, true)] {
+            let part = Part::new(
+                Vec::new(),
+                vec![
+                    edge([8., 0., 0.], [-8., 0., 0.], (0, 1), true),
+                    edge([-8., 0., 0.], [8., 0., 0.], (1, 0), sense),
+                ],
+                Vec::new(),
+            );
+            assert_eq!(ring(&part, vec![0, 1], [0., 0., 1.]).is_some(), complete);
+        }
+    }
+
+    #[test]
+    fn split_floor_and_split_rim_preserve_the_whole_annular_feature() {
+        let base = seal_housing();
+        let mut faces = base.faces.clone();
+        let mut edges = base.edges.clone();
+        let Curve::Circle { frame, radius } = edges[3].curve else {
+            unreachable!()
+        };
+        let angle = (-0.75_f64).acos();
+        let arc = |lo: f64, hi: f64, vertices| Edge {
+            curve: Curve::Circle { frame, radius },
+            start: frame.to_world([radius * lo.cos(), radius * lo.sin(), 0.]),
+            end: frame.to_world([radius * hi.cos(), radius * hi.sin(), 0.]),
+            vertices,
+            same_sense: true,
+            samples: (0..=32)
+                .map(|i| {
+                    let a = lo + (hi - lo) * i as f64 / 32.;
+                    frame.to_world([radius * a.cos(), radius * a.sin(), 0.])
+                })
+                .collect(),
+        };
+        edges[3] = arc(0., angle, (3, 6));
+        let b = edges.len();
+        edges.push(arc(angle, TAU - angle, (6, 7)));
+        let c = edges.len();
+        edges.push(arc(TAU - angle, TAU, (7, 3)));
+        let (start, end) = (edges[3].end, edges[b].end);
+        let chord = edges.len();
+        edges.push(Edge {
+            curve: Curve::Line {
+                origin: start,
+                dir: geom::sub(end, start),
+            },
+            start,
+            end,
+            vertices: (6, 7),
+            same_sense: true,
+            samples: vec![start, end],
+        });
+        faces[2].loops[0].edges = vec![
+            (c, false),
+            (b, false),
+            (3, false),
+            (7, true),
+            (2, true),
+            (7, false),
+        ];
+        faces[3].loops[0].edges = vec![(3, true), (chord, true), (c, true)];
+        let mut patch = faces[3].clone();
+        patch.loops = vec![Loop {
+            edges: vec![(b, true), (chord, false)],
+            vertex: None,
+        }];
+        faces.push(patch);
+        let part = Part::new(
+            faces,
+            edges,
+            vec![Solid {
+                faces: (0..8).collect(),
+            }],
+        );
+        assert!(part.solid_is_geometrically_valid(0));
+        let (s, c) = 0.37_f64.sin_cos();
+        for motion in [
+            IDENTITY,
+            [[c, 0., s, 123.456], [0., 1., 0., -78.9], [-s, 0., c, 41.3]],
+        ] {
+            let moved = part.transformed(&motion).unwrap();
+            let found = discover(&Context::new(&moved));
+            assert_eq!(found.len(), 1);
+            assert_eq!(found[0].defining, [2, 3, 4, 7]);
+            assert!((found[0].record.depth - 4.).abs() < 1e-9);
+            assert_eq!(found[0].record.inner_radius, 5.);
+            assert_eq!(found[0].record.outer_radius, 8.);
         }
     }
 

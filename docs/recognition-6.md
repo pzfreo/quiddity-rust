@@ -142,13 +142,20 @@ such as a face-seal housing. It makes no nominal O-ring size or intended-functio
 
 Each record publishes `axis` (a unit vector from the floor towards the mouth),
 `floor_center` (a point in file coordinates), `inner_radius`, `outer_radius`, and `depth`
-(in millimetres). The floor and both cylindrical walls are defining faces; planar faces
+(in millimetres). All floor pieces and both cylindrical walls are defining faces; planar faces
 at the two mouth rims are consulted evidence. All must belong to one strictly valid solid.
 The two complete circular floor boundaries must be concentric, their cylindrical walls
 coaxial, the floor junctions concave, and the mouth junctions convex. Both walls must end
 at the same open plane. Interrupted walls, treated rims, unequal depths, invalid ownership,
 and competing defining claims are refused. External turned bands remain `grooves`.
 
+
+The annular floor may be partitioned into native planar faces joined smoothly on the same
+plane. Internal edges cancel, leaving exactly two nonbranching closed boundary cycles.
+A rim may contain several circular edges, but their centres/radii must agree and their
+actual angular intervals must cover a complete turn. Counting overlapping arc lengths
+as a full rim is refused. The cylindrical walls must still each be complete; every floor
+piece is retained in the defining claim and strict ownership proof.
 
 ## Evaluation mappings
 
