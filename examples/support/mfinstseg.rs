@@ -59,6 +59,7 @@ impl Selector {
 fn family_records(features: &quiddity::features::Features, family: &str) -> serde_json::Value {
     match family {
         "holes" => serde_json::to_value(&features.holes),
+        "blends" => serde_json::to_value(&features.blends),
         "section_recesses" => serde_json::to_value(&features.section_recesses),
         "section_passages" => serde_json::to_value(&features.section_passages),
         "prismatic_pockets" => serde_json::to_value(&features.prismatic_pockets),

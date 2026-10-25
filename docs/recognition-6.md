@@ -159,6 +159,12 @@ piece is retained in the defining claim and strict ownership proof.
 
 ## Evaluation mappings
 
+The round scoring correspondence also includes complete rolling-ball `blends` selected
+by the published material `side = convex`. Their smooth supports and complete path are
+already proved; this includes external rounds below the legacy fillet radius floor.
+The fillet recogniser's radius and convexity rules are unchanged. Defining-face sets
+shared by a fillet and a blend still count as one prediction.
+
 The MFInstSeg scorer evaluates the internal caller-space inventory. Its chamfer class
 therefore names both `chamfers` and `oriented_chamfers`, which this document already
 publishes together as `chamfers`. This correspondence changes scoring only: a complete

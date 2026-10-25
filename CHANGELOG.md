@@ -6,6 +6,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Convex blend scoring.** Map the round class to already-proved `blends` with
+  published `side = convex`, deduplicating their defining-face sets against `fillets`.
+  No fillet radius floor or material-side rule changes. On 2,000 dev models, round
+  instance recall/precision improve from 0.2831/0.9176 to 0.6373/0.9543 (167 to 376 TP),
+  and face recall/precision from 0.2567/0.9945 to 0.5617/0.9975 (181 to 396 TP).
+  No class loses TP and no new recognition failures occur.
+
 - **Complete chamfer scoring correspondence.** Map internal `oriented_chamfers` as
   well as `chamfers`, matching their existing merged recognition-schema-6 publication;
   identical defining-face sets remain deduplicated. On 2,000 dev models, chamfer

@@ -214,8 +214,20 @@
       "id": 23,
       "name": "round",
       "families": [
-        "fillets"
-      ]
+        "fillets",
+        "blends"
+      ],
+      "selectors": {
+        "blends": [
+          {
+            "field": "/side",
+            "op": "equals",
+            "value": "convex",
+            "evidence": "The published convex material side proves an external rolling-ball round. The blend family already proves a complete rolling path between smooth supports, including radii below the legacy fillet floor; no radius threshold is inferred from labels."
+          }
+        ]
+      },
+      "rationale": "Convex complete rolling-ball blends and legacy fillets describe external rounds; deduplicate identical defining-face sets across both families. Fillet recognition and its existing radius and material-side rules are unchanged."
     },
     {
       "id": 24,
