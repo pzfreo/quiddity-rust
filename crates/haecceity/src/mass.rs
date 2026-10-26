@@ -70,9 +70,19 @@ fn integrate<const N: usize>(cuts: &[f64], f: impl Fn(f64) -> [f64; N]) -> [f64;
     total
 }
 
+/// Most panels or periods an integral is cut into. An angular range is a few turns and a conic's
+/// a few radians; the longest is a straight run in a surface's parameters, one panel per unit
+/// (a cylinder's v is a length), so a million is a kilometre at a millimetre. Only nonsense
+/// geometry (a coordinate of 1e288 from a corrupt file) reaches it, and the integral is then
+/// left undetermined rather than allocated or silently coarsened (#52).
+const MAX_PANELS: usize = 1 << 20;
+
 /// The cuts from a to b: `panels` equal pieces, each further split at any of `breaks` (where
-/// the integrand's polynomial pieces meet) strictly inside it.
-fn cuts(a: f64, b: f64, panels: usize, breaks: &[f64]) -> Vec<f64> {
+/// the integrand's polynomial pieces meet) strictly inside it; `None` past [`MAX_PANELS`].
+fn cuts(a: f64, b: f64, panels: usize, breaks: &[f64]) -> Option<Vec<f64>> {
+    if panels > MAX_PANELS || !(a.is_finite() && b.is_finite()) {
+        return None;
+    }
     let panels = panels.max(1);
     let mut out: Vec<f64> = (0..=panels)
         .map(|k| a + (b - a) * k as f64 / panels as f64)
@@ -86,17 +96,17 @@ fn cuts(a: f64, b: f64, panels: usize, breaks: &[f64]) -> Vec<f64> {
         }
     });
     out.dedup();
-    out
+    Some(out)
 }
 
 /// How an integral along one surface parameter is cut: in one piece where the integrands are
 /// polynomial in it (planes, and the straight direction of cylinders and cones), at the knots
 /// of a B-spline surface (repeated each `span` round, where the surface closes in that
 /// parameter), else every radian.
-fn surface_cuts(surface: &Surface, span: f64, along_v: bool, a: f64, b: f64) -> Vec<f64> {
+fn surface_cuts(surface: &Surface, span: f64, along_v: bool, a: f64, b: f64) -> Option<Vec<f64>> {
     match surface {
-        Surface::Plane { .. } => vec![a, b],
-        Surface::Cylinder { .. } | Surface::Cone { .. } if along_v => vec![a, b],
+        Surface::Plane { .. } => Some(vec![a, b]),
+        Surface::Cylinder { .. } | Surface::Cone { .. } if along_v => Some(vec![a, b]),
         Surface::Freeform { surface, .. } => {
             let mut knots = if along_v {
                 breaks(&surface.knots_v, surface.degree_v)
@@ -107,6 +117,9 @@ fn surface_cuts(surface: &Surface, span: f64, along_v: bool, a: f64, b: f64) -> 
                 let lo = knots[0];
                 let turns = |x: f64| ((x - lo) / span).floor() as i64;
                 let (first, last) = (turns(a.min(b)), turns(a.max(b)));
+                if last.saturating_sub(first) > MAX_PANELS as i64 {
+                    return None;
+                }
                 let one = knots.clone();
                 knots = (first..=last)
                     .flat_map(|n| one.iter().map(move |k| k + n as f64 * span))
@@ -121,7 +134,7 @@ fn surface_cuts(surface: &Surface, span: f64, along_v: bool, a: f64, b: f64) -> 
 /// How an integral along an edge is cut: lines in one piece, conics every half radian, B-spline
 /// curves at their knots (and in a few pieces besides, for the surface's own variation) — and
 /// wherever the edge passes through a sphere's pole, where u jumps and the integrand with it.
-fn curve_cuts(surface: &Surface, curve: &Curve, t0: f64, t1: f64) -> Vec<f64> {
+fn curve_cuts(surface: &Surface, curve: &Curve, t0: f64, t1: f64) -> Option<Vec<f64>> {
     let mut breaks = match surface {
         // A pole is where the curve is extreme along the axis; a pass near it (within the
         // band boundary samples route along the pole) is cut there too, which is harmless.
@@ -684,13 +697,13 @@ impl Part {
         let u_ref = if along_v { 0.0 } else { reference };
         let term = |u: f64, v: f64, du: f64, dv: f64| {
             let (weight, y) = if along_v {
-                let cuts = surface_cuts(surface, spans.1, true, reference, v);
+                let cuts = surface_cuts(surface, spans.1, true, reference, v)?;
                 (-du, integrate(&cuts, |s| f(u, s)))
             } else {
-                let cuts = surface_cuts(surface, spans.0, false, reference, u);
+                let cuts = surface_cuts(surface, spans.0, false, reference, u)?;
                 (dv, integrate(&cuts, |s| f(s, v)))
             };
-            y.map(|y| weight * y)
+            Some(y.map(|y| weight * y))
         };
         let loops: Vec<usize> = (0..fc.loops.len())
             .filter(|&i| fc.loops[i].vertex.is_none())
@@ -736,7 +749,7 @@ impl Part {
         face: usize,
         i: usize,
         shift: (f64, f64),
-        term: &dyn Fn(f64, f64, f64, f64) -> [f64; N],
+        term: &dyn Fn(f64, f64, f64, f64) -> Option<[f64; N]>,
         floor: Option<f64>,
         u_ref: f64,
     ) -> Option<Panel<f64, N>> {
@@ -961,7 +974,7 @@ impl Part {
                     let ((u, v), (du, dv)) = node(walk, t)?;
                     walk.swept += weights.next().unwrap_or(0.0) * (u - u_ref) * dv;
                     met.push((t, (u, v)));
-                    Some(term(u, v, du, dv))
+                    term(u, v, du, dv)
                 })?;
                 let kink = met
                     .windows(2)
@@ -1001,7 +1014,7 @@ impl Part {
                 latest: None,
                 swept: 0.0,
             };
-            let mut cuts = curve_cuts(surface, &ed.curve, t0, t1);
+            let mut cuts = curve_cuts(surface, &ed.curve, t0, t1)?;
             // A foot point that turns a corner between a cut and the node beside it (the rule's
             // nodes stop short of a panel's ends) leaves the turn inside that panel, unseen by
             // its error estimate (2.3e-4 of cgb203 face 3, whose edge leaves the surface's side
@@ -1086,13 +1099,13 @@ impl Part {
             }
             let mut eval = |(): (), a: f64, b: f64| {
                 let panel = kronrod((), a, b, |(), s| {
-                    Some(term(from.0 + gu * s, from.1 + gv * s, gu, gv))
+                    term(from.0 + gu * s, from.1 + gv * s, gu, gv)
                 })?;
                 Some((panel, None))
             };
             let pieces = (gu.hypot(gv).ceil() as usize).max(1);
             let (sum, excess, size, ()) =
-                adaptive(&cuts(0.0, 1.0, pieces, &[]), (), floor, &mut eval)?;
+                adaptive(&cuts(0.0, 1.0, pieces, &[])?, (), floor, &mut eval)?;
             add((sum, excess, size, gv * (from.0 + 0.5 * gu - u_ref)));
         }
         Some(total)
@@ -1390,10 +1403,16 @@ mod tests {
     #[test]
     fn gauss_rule_is_exact_for_polynomials() {
         let pi = std::f64::consts::PI;
-        let [x7, s] = integrate(&cuts(0.0, pi, 3, &[1.0]), |x| [x.powi(7), x.sin()]);
+        let [x7, s] = integrate(&cuts(0.0, pi, 3, &[1.0]).unwrap(), |x| [x.powi(7), x.sin()]);
         assert!((x7 - pi.powi(8) / 8.0).abs() < 1e-11);
         assert!((s - 2.0).abs() < 1e-15);
-        assert_eq!(cuts(2.0, 0.0, 2, &[0.5, 3.0]), vec![2.0, 1.0, 0.5, 0.0]);
+        assert_eq!(
+            cuts(2.0, 0.0, 2, &[0.5, 3.0]),
+            Some(vec![2.0, 1.0, 0.5, 0.0])
+        );
+        // Past the bound the integral is refused, not coarsened (#52).
+        assert_eq!(cuts(0.0, 1e300, usize::MAX, &[]), None);
+        assert!(cuts(0.0, 1.0, MAX_PANELS, &[]).is_some());
     }
 
     #[test]

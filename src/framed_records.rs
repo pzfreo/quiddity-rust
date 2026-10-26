@@ -575,6 +575,7 @@ fn carry(
         pockets,
         channels,
         v_channels,
+        rectangular_through_notches,
         slot_patterns,
         pocket_patterns,
         repeating_radial_profiles,
@@ -717,6 +718,16 @@ fn carry(
             "v_channels",
             v_channels,
             |out: &mut Out, mut r: crate::features::v_channels::VChannel| {
+                r.axis = out.direction(r.axis);
+                r.opening = out.direction(r.opening);
+                r.at = out.point(r.at);
+                r
+            }
+        ),
+        rectangular_through_notches: each!(
+            "rectangular_through_notches",
+            rectangular_through_notches,
+            |out: &mut Out, mut r: crate::features::through_notches::RectangularThroughNotch| {
                 r.axis = out.direction(r.axis);
                 r.opening = out.direction(r.opening);
                 r.at = out.point(r.at);

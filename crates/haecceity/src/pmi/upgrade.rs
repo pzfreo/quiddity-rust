@@ -35,7 +35,9 @@ pub(super) fn repair(
         .collect();
     dimensions.extend(emitted_dimensions);
     for id in doc.ids().filter(|id| !excluded.contains(id)) {
-        let record = doc.get(id).expect("document id");
+        let Some(record) = doc.get(id) else {
+            continue;
+        };
         match record {
             RawEntity::Simple {
                 name, attributes, ..
@@ -97,7 +99,11 @@ pub(super) fn repair(
                 let named = leaves
                     .iter_mut()
                     .find(|p| p.name.eq_ignore_ascii_case("named_unit"))
-                    .expect("dimensions attribute has named_unit leaf");
+                    .ok_or_else(|| {
+                        WriteError::P21(p21::P21Error::Encode(format!(
+                            "#{id} has no named_unit leaf for its dimensions"
+                        )))
+                    })?;
                 named.attributes[0] = reference;
                 edit.replace(id, Complex::new(leaves)?);
                 repairs.push((id, UpgradeRepairKind::R2ConversionUnitDimensions));

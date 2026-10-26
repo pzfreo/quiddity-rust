@@ -195,10 +195,14 @@ fn within(a: V3, m: V3, b: V3, deflection: f64) -> bool {
 }
 
 /// The edge's samples thinned (Douglas–Peucker) to those the deflections need, appended.
+///
+/// The runs still to split are kept on a stack of their own rather than the thread's: a run can
+/// split one sample at a time, as deep as an edge has samples (#52).
 pub fn thin(samples: &[V3], deflection: f64, out: &mut Vec<V3>) {
-    fn split(s: &[V3], deflection: f64, out: &mut Vec<V3>) {
+    /// Where a run `s` splits, if it must: its farthest sample.
+    fn split_at(s: &[V3], deflection: f64) -> Option<usize> {
         if s.len() <= 2 {
-            return;
+            return None;
         }
         let (a, b) = (s[0], s[s.len() - 1]);
         let chord = geom::sub(b, a);
@@ -222,17 +226,31 @@ pub fn thin(samples: &[V3], deflection: f64, out: &mut Vec<V3>) {
             (Some(x), Some(y)) => geom::dot(x, y).clamp(-1.0, 1.0).acos(),
             _ => 0.0,
         };
-        if far > deflection || turned > ANGULAR_DEFLECTION {
-            split(&s[..=k], deflection, out);
-            out.push(s[k]);
-            split(&s[k..], deflection, out);
-        }
+        (far > deflection || turned > ANGULAR_DEFLECTION).then_some(k)
+    }
+    /// A run to split (its first and last sample), or a kept sample to append.
+    enum Step {
+        Split(usize, usize),
+        Keep(usize),
     }
     let Some(&first) = samples.first() else {
         return;
     };
     out.push(first);
-    split(samples, deflection, out);
+    // In order: the run before the split, the split sample, the run after it.
+    let mut stack = vec![Step::Split(0, samples.len() - 1)];
+    while let Some(step) = stack.pop() {
+        match step {
+            Step::Keep(k) => out.push(samples[k]),
+            Step::Split(lo, hi) => {
+                if let Some(k) = split_at(&samples[lo..=hi], deflection) {
+                    stack.push(Step::Split(lo + k, hi));
+                    stack.push(Step::Keep(lo + k));
+                    stack.push(Step::Split(lo, lo + k));
+                }
+            }
+        }
+    }
     if samples.len() > 1 {
         out.push(samples[samples.len() - 1]);
     }
@@ -307,7 +325,7 @@ fn widest(p: &[(V3, usize)]) -> usize {
     }
     (0..3)
         .max_by(|&i, &j| (b.max[i] - b.min[i]).total_cmp(&(b.max[j] - b.min[j])))
-        .unwrap()
+        .unwrap_or(0)
 }
 
 /// `_distance`: the larger of the two directed 99th-percentile nearest-neighbour distances

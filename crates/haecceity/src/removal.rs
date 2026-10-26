@@ -303,7 +303,7 @@ pub fn plan(
             } else {
                 refusal.blockers.push(Blocker {
                     id: k,
-                    entity: entity_name(doc.get(k).expect("a referrer is an instance")),
+                    entity: entity_name(instance(doc, k)),
                     family,
                     references,
                 });
@@ -323,14 +323,25 @@ pub fn plan(
     let mut rewritten = BTreeMap::new();
     let mut report = RemovalReport::default();
     for (&k, dropped) in &rewrites {
-        let container = p.container(k).expect("a rewrite is of a container");
-        let mut record = doc.get(k).expect("a blocker is an instance").clone();
+        // A rewrite is planned only for an instance whose container was found.
+        let Some(container) = p.container(k) else {
+            continue;
+        };
+        let mut record = instance(doc, k).clone();
         let entity = entity_name(&record);
+        #[allow(
+            clippy::unreachable,
+            reason = "find_container read the leaf and the list attribute from this record"
+        )]
         let attributes = match (&mut record, container.leaf) {
             (RawEntity::Simple { attributes, .. }, None) => attributes,
             (RawEntity::Complex { parts, .. }, Some(leaf)) => &mut parts[leaf].attributes,
             _ => unreachable!("a container's position matches its record"),
         };
+        #[allow(
+            clippy::unreachable,
+            reason = "find_container read the leaf and the list attribute from this record"
+        )]
         let Attribute::List(items) = &mut attributes[container.index] else {
             unreachable!("a container's attribute is a list")
         };
@@ -365,7 +376,7 @@ pub fn plan(
     // referenced.
     let mut targets = BTreeSet::new();
     for &r in &p.removed {
-        targets.extend(forward(doc.get(r).expect("removed instances exist")));
+        targets.extend(forward(instance(doc, r)));
     }
     for t in targets {
         if p.removed.contains(&t) || doc.get(t).is_none() {
@@ -380,19 +391,19 @@ pub fn plan(
         if !referenced {
             report
                 .left_unreferenced
-                .push((t, entity_name(doc.get(t).expect("checked"))));
+                .push((t, entity_name(instance(doc, t))));
         }
     }
     for &r in &p.removed {
         *report
             .removed_by_type
-            .entry(entity_name(doc.get(r).expect("removed instances exist")))
+            .entry(entity_name(instance(doc, r)))
             .or_insert(0) += 1;
     }
     let presentation_removed = p
         .removed
         .difference(&owned)
-        .map(|&r| (r, entity_name(doc.get(r).expect("removed instances exist"))))
+        .map(|&r| (r, entity_name(instance(doc, r))))
         .collect();
     Ok(RemovalPlan {
         removed: p.removed,
@@ -400,6 +411,18 @@ pub fn plan(
         presentation_removed,
         report,
     })
+}
+
+/// The record of an instance the planner knows is in `doc`: a seed (checked present), an
+/// instance rule 2 reached only through `doc.get`, a referrer from the document's own index, or
+/// an id the document lists.
+#[allow(
+    clippy::expect_used,
+    reason = "every caller passes an id the document holds (see above)"
+)]
+fn instance(doc: &Document, id: u64) -> &RawEntity {
+    doc.get(id)
+        .expect("the planner only names instances of the document")
 }
 
 /// A list container's or group's droppable aggregate.
@@ -433,7 +456,7 @@ impl Planner<'_> {
     /// Rule 2 to a fixpoint from the newly removed instances `work`.
     fn close(&mut self, mut work: Vec<u64>) {
         while let Some(x) = work.pop() {
-            let record = self.doc.get(x).expect("removed instances exist");
+            let record = instance(self.doc, x);
             let presented = self.presented(record);
             for t in forward(record) {
                 if self.removed.contains(&t)
@@ -769,7 +792,7 @@ fn infrastructure(doc: &Document) -> BTreeSet<u64> {
     let mut out = BTreeSet::new();
     let mut brep = Vec::new();
     for id in doc.ids() {
-        let e = doc.get(id).expect("listed");
+        let e = instance(doc, id);
         if INFRASTRUCTURE.iter().any(|root| is_a(e, root)) && !is_feature_shape(doc, e) {
             out.insert(id);
         }

@@ -173,7 +173,7 @@ pub fn write_step(
         repairs_written: part.input_repairs().to_vec(),
         ..WriteReport::default()
     };
-    let bytes = Writer::new(part, options.name).write(&mut report)?;
+    let bytes = Writer::new(part, options.name)?.write(&mut report)?;
     let bytes = match options.pmi {
         Some(p) => {
             let (bytes, carried) = carry_pmi(bytes, p)?;
@@ -403,8 +403,10 @@ fn compress_knots(expanded: &[f64]) -> (Vec<f64>, Vec<i64>) {
     let mut knots: Vec<f64> = Vec::new();
     let mut multiplicities: Vec<i64> = Vec::new();
     for &k in expanded {
-        if knots.last() == Some(&k) {
-            *multiplicities.last_mut().expect("a knot was pushed") += 1;
+        if let (Some(&last), Some(m)) = (knots.last(), multiplicities.last_mut())
+            && last == k
+        {
+            *m += 1;
         } else {
             knots.push(k);
             multiplicities.push(1);
@@ -781,7 +783,7 @@ fn place_frame(at: &crate::step::Placement, f: &Frame) -> Frame {
 }
 
 impl<'p> Writer<'p> {
-    fn new(part: &'p Part, name: &str) -> Self {
+    fn new(part: &'p Part, name: &str) -> Result<Self, WriteError> {
         // The file's own uncertainty where the part keeps one: readers that heal to it
         // (OpenCascade) then build the same shape.
         let uncertainty = part
@@ -791,8 +793,7 @@ impl<'p> Writer<'p> {
         let mut b = StepBuilder::new_with(&step_io::build::UnitsInput {
             length: LengthUnit::Millimetre,
             uncertainty,
-        })
-        .expect("millimetre units with a positive uncertainty");
+        })?;
         let header = b.header_mut();
         // Reproducible output: no time stamp.
         header.time_stamp = String::new();
@@ -808,7 +809,7 @@ impl<'p> Writer<'p> {
             part.face_instance(f)
                 .is_some_and(|(_, levels, _)| levels.iter().all(Option::is_some))
         });
-        Writer {
+        Ok(Writer {
             part,
             b,
             name: name.to_owned(),
@@ -816,16 +817,16 @@ impl<'p> Writer<'p> {
             native,
             file_parameters: vec![false; part.faces.len()],
             uncertainty,
-        }
+        })
     }
 
     /// The face as written: its native geometry, or where the part holds it.
     fn face(&self, f: usize) -> &'p Face {
         let part = self.part;
-        if self.native {
-            part.face_instance(f).expect("native mode").0
-        } else {
-            &part.faces[f]
+        // Native mode is chosen only when every face has its instance.
+        match part.face_instance(f).filter(|_| self.native) {
+            Some((face, ..)) => face,
+            None => &part.faces[f],
         }
     }
 
@@ -1118,6 +1119,10 @@ impl<'p> Writer<'p> {
                             m::RepresentationItemRef::BSplineCurveWithKnots(i)
                         }
                         m::CurveRef::Complex(i) => m::RepresentationItemRef::Complex(i),
+                        #[allow(
+                            clippy::unreachable,
+                            reason = "bspline_curve returns only a B-spline curve or its rational complex"
+                        )]
                         _ => unreachable!("bspline_curve makes a B-spline"),
                     }
                 }
@@ -1173,6 +1178,10 @@ impl<'p> Writer<'p> {
                         m::RepresentationItemRef::BSplineCurveWithKnots(i)
                     }
                     m::CurveRef::Complex(i) => m::RepresentationItemRef::Complex(i),
+                    #[allow(
+                        clippy::unreachable,
+                        reason = "bspline_curve returns only a B-spline curve or its rational complex"
+                    )]
                     _ => unreachable!("bspline_curve makes a B-spline"),
                 }
             }
@@ -1519,9 +1528,11 @@ impl<'p> Writer<'p> {
             for (l, lp) in face.loops.iter().enumerate() {
                 let reverse = reversed_bound.get(&(f, l)).copied().unwrap_or(false);
                 let bound = if lp.edges.is_empty() {
-                    let p = self.face(f).loops[l]
-                        .vertex
-                        .expect("refused without a vertex");
+                    let p = self.face(f).loops[l].vertex.ok_or_else(|| {
+                        WriteError::Unsupported(vec![format!(
+                            "face {f} bound {l} has neither edges nor a vertex"
+                        )])
+                    })?;
                     let a = self.b.author();
                     let pt = a.add_cartesian_point("", p.into())?;
                     let v = a.add_vertex_point("", m::PointRef::CartesianPoint(pt))?;

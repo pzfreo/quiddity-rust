@@ -96,15 +96,28 @@ fn golden_slots_and_levels_reconstruct_on_faces_and_move_rigidly() {
     let doc = document(&base);
     let slots: Vec<_> = doc.records.iter().filter(|r| r.family == "slots").collect();
     assert_eq!(slots.len(), 3);
+    // #91: the plate's own (file-axis) frame; each slot claims its two side and two end walls
+    // and measures its 24 mm run from its own published origin. The run is read from the
+    // section-proved walls, whose oblique fixture corners are exported to 1e-4 mm.
     let offset = 30. * 30_f64.to_radians().cos();
-    for (r, center) in slots.iter().zip([-offset, 0., offset]) {
-        near(number(&r.parameters["lo"]), center - 12., 1e-6);
-        near(number(&r.parameters["hi"]), center + 12., 1e-6);
+    let mut centres: Vec<f64> = slots
+        .iter()
+        .map(|r| {
+            let p = json!(r.parameters);
+            assert_eq!(r.faces.len(), 4);
+            near(number(&p["hi"]) - number(&p["lo"]), 24., 1e-4);
+            dot(origin(&p), vector(&p["long_axis"])) + (number(&p["lo"]) + number(&p["hi"])) / 2.
+        })
+        .collect();
+    centres.sort_by(f64::total_cmp);
+    for (centre, expected) in centres.iter().zip([-offset, 0., offset]) {
+        near(*centre, expected, 1e-4);
     }
     for r in &slots {
         let l = vector(&r.parameters["long_axis"]);
-        near(l[0].abs(), 30_f64.to_radians().cos(), 1e-10);
-        near(l[1].abs(), 0.5, 1e-10);
+        // The section-proved axis carries the corners' 1e-4 mm export (about 2e-7 here).
+        near(l[0].abs(), 30_f64.to_radians().cos(), 1e-6);
+        near(l[1].abs(), 0.5, 1e-6);
         slot_endpoints(&base, r);
     }
     for degrees in [0., 30., -30., 60., 1., 150.] {
@@ -132,8 +145,23 @@ fn golden_slots_and_levels_reconstruct_on_faces_and_move_rigidly() {
         if degrees == 0. {
             assert_eq!(direction, [-1., 0., 0.]);
         }
-        for i in 0..3 {
-            near(direction[i], expected_direction[i], 1e-12);
+        // #91: the plate's frame has an orthogonal gauge (the symmetric array's sense is not
+        // observable), so a moved copy may publish the opposite sense of the same line; the
+        // former slot frame happened to keep it.
+        near(dot(direction, expected_direction).abs(), 1., 1e-12);
+        // Whichever sense is published, the record agrees with itself: its members are listed
+        // at one pitch apart along that published direction.
+        let along: Vec<f64> = patterns[0].parameters["slots"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|m| {
+                dot(origin(m), direction)
+                    + number(&m["w_center"]) * dot(vector(&m["width_axis"]), direction)
+            })
+            .collect();
+        for pair in along.windows(2) {
+            near(pair[1] - pair[0], 30., 1e-3);
         }
         near(number(&patterns[0].parameters["pitch"]), 30., 1e-10);
         assert_eq!(patterns[0].parameters["slots"].as_array().unwrap().len(), 3);
@@ -145,8 +173,11 @@ fn golden_slots_and_levels_reconstruct_on_faces_and_move_rigidly() {
             if p.get("origin").is_some() {
                 let l = vector(&p["long_axis"]);
                 let actual = part.extent_along(&r.faces, l);
-                near(number(&p["lo"]), actual.0 - dot(origin(&p), l), 1e-6);
-                near(number(&p["hi"]), actual.1 - dot(origin(&p), l), 1e-6);
+                // #91: on the plate's own frame these are section-proved slots, whose run and
+                // axis come from section vertices published on a 1e-4 mm grid; measured along
+                // that axis on a moved copy they agree to 1.3e-4 mm, held here at 5e-4 mm.
+                near(number(&p["lo"]), actual.0 - dot(origin(&p), l), 5e-4);
+                near(number(&p["hi"]), actual.1 - dot(origin(&p), l), 5e-4);
             } else {
                 // This round deliberately preserves legacy file-axis extents,
                 // including copies whose slot axes land on the file axes.
@@ -181,7 +212,9 @@ fn golden_slots_and_levels_reconstruct_on_faces_and_move_rigidly() {
             .iter()
             .filter(|r| r.family == "step_levels")
             .collect();
-        assert_eq!(levels.len(), 6);
+        // #91: the six slot end walls were levels only in the former 30-degree frame; they
+        // are slot walls now, and the slots' own records reconstruct them above.
+        assert!(levels.is_empty(), "at {degrees}");
         for r in levels {
             let p = json!(r.parameters);
             let o = origin(&p);

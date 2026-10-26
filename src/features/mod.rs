@@ -18,6 +18,7 @@ pub mod chamfers;
 pub mod channels;
 pub mod circular_blind_steps;
 pub mod circular_face_patterns;
+pub mod through_notches;
 pub mod v_channels;
 internal_entry! { pub mod context; }
 pub mod annular_grooves;
@@ -160,6 +161,9 @@ pub struct Features {
     pub channels: Vec<channels::Channel>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub v_channels: Vec<v_channels::VChannel>,
+    /// Rectangular notches through a plate's edge, omitted when absent.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub rectangular_through_notches: Vec<through_notches::RectangularThroughNotch>,
     pub slot_patterns: Vec<recess_patterns::SlotPattern>,
     pub pocket_patterns: Vec<recess_patterns::PocketPattern>,
     pub repeating_radial_profiles: Vec<repeating_profiles::RepeatingRadialProfile>,
@@ -235,11 +239,15 @@ pub fn recognise(part: &Part) -> Features {
 /// `recognise` over one completed run.
 fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
     let projection = section_recess_family::section_recess_projection_in(ctx, &inventory);
-    let hole_constituents: BTreeMap<_, _> = inventory.physical.defining["holes"]
-        .iter()
-        .cloned()
-        .zip(inventory.constituent["holes"].iter().cloned())
-        .collect();
+    let constituents = |family: &str| -> BTreeMap<Vec<usize>, Vec<usize>> {
+        inventory.physical.defining[family]
+            .iter()
+            .cloned()
+            .zip(inventory.constituent[family].iter().cloned())
+            .collect()
+    };
+    let hole_constituents = constituents("holes");
+    let boss_constituents = constituents("polygonal_bosses");
     let mut features = inventory.accepted();
     let (section_recesses, refusals, patterns, refusal) = match projection {
         Ok(p) => (p.section_recesses, p.refusals, p.patterns, None),
@@ -284,6 +292,15 @@ fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
         .zip(features.defining.get_mut("slots").unwrap())
     {
         slots::claim_rectangular_end_walls(ctx.part, record, faces);
+    }
+    for (record, faces) in features
+        .polygonal_bosses
+        .iter()
+        .zip(features.defining.get_mut("polygonal_bosses").unwrap())
+    {
+        if let Some(constituent) = boss_constituents.get(faces) {
+            polygonal_bosses::claim_terminal_cap(ctx.part, record, faces, constituent);
+        }
     }
     features
 }
@@ -367,6 +384,23 @@ impl Inventory {
                     .get_mut(field)
                     .expect("every family has defining faces");
                 drop_rejected(defining, indices);
+            }
+            // A notch is cut through its plate: none survives the plate's rejection.
+            if let Some(plates) = rejected.get(&reconcile::Family::Plates)
+                && let Some(defining) = f.defining.get_mut("rectangular_through_notches")
+            {
+                let gone: BTreeSet<usize> = f
+                    .rectangular_through_notches
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, n)| plates.contains(&n.plate))
+                    .map(|(i, _)| i)
+                    .collect();
+                drop_rejected(&mut f.rectangular_through_notches, &gone);
+                drop_rejected(defining, &gone);
+                if let Some(statuses) = f.evidence_status.get_mut("rectangular_through_notches") {
+                    drop_rejected(statuses, &gone);
+                }
             }
             f.hole_patterns = hole_patterns::recognise_hole_patterns(&f.holes);
             f.gusset_rib_patterns = gussets::recognise_gusset_rib_patterns(&f.gusset_ribs);
@@ -523,6 +557,9 @@ pub(crate) fn inventory_in(
     let risers = kept(&mut defining, "risers", found_risers);
     let step_levels = kept(&mut defining, "step_levels", step_level_occurrences);
     let void_analysis = interior_voids::analyse(ctx);
+    let plate_occurrences = plates::discover(ctx, &Default::default());
+    let channel_occurrences = skip_unproved(part, channels::discover(ctx));
+    let notches = through_notches::discover(ctx, &plate_occurrences, &channel_occurrences);
     let physical = Features {
         run_mode: if evidence::local_degradation() {
             evidence::RunMode::LocallyDegraded
@@ -590,11 +627,7 @@ pub(crate) fn inventory_in(
                 kept(&mut defining, "annular_grooves", found)
             }
         },
-        plates: kept(
-            &mut defining,
-            "plates",
-            plates::discover(ctx, &Default::default()),
-        ),
+        plates: kept(&mut defining, "plates", plate_occurrences),
         round_bottom_blind_slots: kept(
             &mut defining,
             "round_bottom_blind_slots",
@@ -646,11 +679,12 @@ pub(crate) fn inventory_in(
                 kept(&mut defining, "v_channels", found)
             }
         },
-        channels: kept(
-            &mut defining,
-            "channels",
-            skip_unproved(part, channels::discover(ctx)),
-        ),
+        channels: kept(&mut defining, "channels", channel_occurrences),
+        rectangular_through_notches: if notches.is_empty() {
+            Vec::new()
+        } else {
+            kept(&mut defining, "rectangular_through_notches", notches)
+        },
         repeating_radial_profiles: kept(
             &mut defining,
             "repeating_radial_profiles",

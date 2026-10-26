@@ -61,7 +61,9 @@ pub fn sample_edge(curve: &Curve, start: V3, end: V3, same_sense: bool, closed: 
     }
     // Pin the ends to the vertices so loops close exactly.
     out[0] = start;
-    *out.last_mut().expect("at least two samples") = end;
+    if let Some(last) = out.last_mut() {
+        *last = end;
+    }
     out
 }
 
@@ -141,7 +143,7 @@ pub fn extreme_parameters(curve: &Curve, (a, b): (f64, f64), dirs: &[V3]) -> Vec
             let at = |i: usize| lo + (hi - lo) * i as f64 / n as f64;
             let best = (0..=n)
                 .max_by(|&i, &j| g(at(i)).total_cmp(&g(at(j))))
-                .unwrap();
+                .unwrap_or(0);
             if best == 0 || best == n {
                 continue;
             }
@@ -180,7 +182,8 @@ pub fn sampled_extremes(curve: &Curve, (a, b): (f64, f64), samples: &[V3], dirs:
             let g = |p: V3| sign * dot(p, d);
             let best = (0..n)
                 .max_by(|&i, &j| g(samples[i]).total_cmp(&g(samples[j])))
-                .expect("samples");
+                // No samples: no interior extreme.
+                .unwrap_or(0);
             if best == 0 || best + 1 == n {
                 continue;
             }

@@ -40,6 +40,10 @@ pub fn extrude_face(part: &Part, face: usize, offset: V3, sweep: V3) -> Option<P
             .map(|&e| copy_edge(&part.edges[e], top_by, 1, &vertex_ids)),
     );
     let riser = push_risers(part, &source, &vertex_ids, offset, sweep, &mut edges);
+    #[allow(
+        clippy::expect_used,
+        reason = "the caps and sides name only the face's own edges"
+    )]
     let bottom = |e: usize| source.iter().position(|&x| x == e).expect("face edge");
     let top = |e: usize| bottom(e) + source.len();
 
@@ -92,11 +96,19 @@ fn sweepable_vertices(part: &Part, source: &[usize], up: V3) -> Option<Vec<usize
 }
 
 /// *v*'s index among the swept vertices.
+#[allow(
+    clippy::expect_used,
+    reason = "sweepable_vertices admits only line and circle edges and collects both ends of each"
+)]
 fn vertex_index(vertex_ids: &[usize], v: usize) -> usize {
     vertex_ids.iter().position(|&x| x == v).expect("collected")
 }
 
 /// A copy of *edge* moved by *by*, its vertices those of end *level* (0 near, 1 far).
+#[allow(
+    clippy::unreachable,
+    reason = "sweepable_vertices admits only line and circle edges and collects both ends of each"
+)]
 fn copy_edge(edge: &Edge, by: V3, level: usize, vertex_ids: &[usize]) -> Edge {
     let n_vertices = vertex_ids.len();
     Edge {
@@ -154,7 +166,11 @@ fn push_risers(
             continue;
         }
         riser[i] = Some(edges.len());
-        let start = geom::add(p.expect("every vertex is an edge end"), offset);
+        // Every swept vertex is an end of an open edge, so it has its corner.
+        let Some(p) = p else {
+            continue;
+        };
+        let start = geom::add(*p, offset);
         let end = geom::add(start, sweep);
         let curve = Curve::Line {
             origin: start,
@@ -267,7 +283,8 @@ fn side_face(
             frame: *frame,
             radius: *radius,
         },
-        _ => unreachable!("refused above"),
+        // sweepable_vertices refuses every other curve.
+        _ => return None,
     };
     let (u, v) = surface.parameters(mid, None)?;
     let natural = surface.normal(u, v)?;

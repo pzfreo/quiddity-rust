@@ -5,6 +5,20 @@
 //!
 //! *Haecceity* is "thisness": the particular thing itself, as *quiddity* is "whatness". The
 //! kernel holds the exact geometry of this part; quiddity says what kind of features it has.
+//!
+//! A malformed or unsupported file is refused with a typed error, never a panic: library code
+//! may not `unwrap`, `expect`, `panic!` or reach `unreachable!` except at a site with a targeted
+//! `allow` stating the invariant that makes it unreachable. Tests may.
+
+#![cfg_attr(
+    not(test),
+    warn(
+        clippy::unwrap_used,
+        clippy::expect_used,
+        clippy::panic,
+        clippy::unreachable
+    )
+)]
 
 pub mod anchor;
 pub mod brep;

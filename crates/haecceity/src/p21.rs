@@ -1064,8 +1064,9 @@ pub fn encode_real(v: f64) -> Result<String, P21Error> {
     }
     // `{:e}` gives the shortest round-trip digits: "-1.2345e-7".
     let sci = format!("{v:e}");
-    let (mantissa, exp) = sci.split_once('e').expect("LowerExp has an exponent");
-    let exp: i32 = exp.parse().expect("LowerExp exponent is an integer");
+    let unformatted = || P21Error::Encode(format!("{v} has no exponent form {sci:?}"));
+    let (mantissa, exp) = sci.split_once('e').ok_or_else(unformatted)?;
+    let exp: i32 = exp.parse().map_err(|_| unformatted())?;
     let (sign, mantissa) = match mantissa.strip_prefix('-') {
         Some(m) => ("-", m),
         None => ("", mantissa),
@@ -1205,8 +1206,9 @@ fn decode_with(body: &str, any_page: bool) -> Result<String, P21Error> {
         }
         let values = (0..hex.len())
             .step_by(group)
-            .map(|k| u32::from_str_radix(&hex[k..k + group], 16).expect("hex digits"))
-            .collect();
+            .map(|k| u32::from_str_radix(&hex[k..k + group], 16))
+            .collect::<Result<_, _>>()
+            .map_err(|_| bad(&format!("malformed {what} run")))?;
         Ok((values, end + 4))
     };
     let unbroken: String = body.chars().filter(|c| !matches!(c, '\r' | '\n')).collect();
@@ -1223,7 +1225,8 @@ fn decode_with(body: &str, any_page: bool) -> Result<String, P21Error> {
                 .get(..2)
                 .filter(|h| h.bytes().all(|c| c.is_ascii_hexdigit()))
                 .ok_or_else(|| bad("malformed \\X\\ escape"))?;
-            out.push(char::from(u8::from_str_radix(h, 16).expect("hex digits")));
+            let byte = u8::from_str_radix(h, 16).map_err(|_| bad("malformed \\X\\ escape"))?;
+            out.push(char::from(byte));
             s = &rest[2..];
         } else if let Some(rest) = s.strip_prefix("\\X2\\") {
             let (units, used) = hex_run(rest, 4, "\\X2\\")?;

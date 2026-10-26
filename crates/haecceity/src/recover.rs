@@ -84,7 +84,11 @@ fn recover(part: &Part, face: usize) -> Option<Surface> {
     .filter(|(_, gap)| *gap <= tolerance)
     .map(|(s, _)| s)
     .collect();
-    (fits.len() == 1).then(|| fits.into_iter().next().unwrap())
+    let mut fits = fits.into_iter();
+    match (fits.next(), fits.next()) {
+        (Some(only), None) => Some(only),
+        _ => None,
+    }
 }
 
 /// `recovery_tolerance`: how far a recovered surface may stand from the face.
