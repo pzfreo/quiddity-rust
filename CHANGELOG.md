@@ -18,7 +18,9 @@ in [docs/alpha1.md](docs/alpha1.md).
   convex R23 blend (its walls' normals are 92.06 degrees apart) and the two oblique-plane
   step levels go; cgb217 turns to the 13.07-degree set of its cross bores and largest walls
   (93 votes, box 0.80 of the 45-degree set's), so none of its sixteen R1 rounds runs along
-  an axis and all are blends, with no tilted fillets. Schema stays recognition `/6`,
+  an axis and all are blends, with no tilted fillets; its cross bores now lie on frame axes,
+  so the `InteriorVoidRefusal` over faces [26, 28, 41] (an incomplete two-wall sampled
+  component in the 45-degree grid) is no longer emitted. Schema stays recognition `/6`,
   fingerprints `/3`; fingerprints of the re-recognised records on those parts change.
 
 - **Conservative stock-wall support (for #100).** Plate edges also check parallel

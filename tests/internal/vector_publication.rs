@@ -149,6 +149,20 @@ fn golden_slots_and_levels_reconstruct_on_faces_and_move_rigidly() {
         // observable), so a moved copy may publish the opposite sense of the same line; the
         // former slot frame happened to keep it.
         near(dot(direction, expected_direction).abs(), 1., 1e-12);
+        // Whichever sense is published, the record agrees with itself: its members are listed
+        // at one pitch apart along that published direction.
+        let along: Vec<f64> = patterns[0].parameters["slots"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|m| {
+                dot(origin(m), direction)
+                    + number(&m["w_center"]) * dot(vector(&m["width_axis"]), direction)
+            })
+            .collect();
+        for pair in along.windows(2) {
+            near(pair[1] - pair[0], 30., 1e-3);
+        }
         near(number(&patterns[0].parameters["pitch"]), 30., 1e-10);
         assert_eq!(patterns[0].parameters["slots"].as_array().unwrap().len(), 3);
         for member in patterns[0].parameters["slots"].as_array().unwrap() {
@@ -161,10 +175,9 @@ fn golden_slots_and_levels_reconstruct_on_faces_and_move_rigidly() {
                 let actual = part.extent_along(&r.faces, l);
                 // #91: on the plate's own frame these are section-proved slots, whose run and
                 // axis come from section vertices published on a 1e-4 mm grid; measured along
-                // that axis on a moved copy they agree to 1.3e-4 mm. Hold them to the same
-                // reconstruction bound as `slot_endpoints`.
-                near(number(&p["lo"]), actual.0 - dot(origin(&p), l), 0.0051);
-                near(number(&p["hi"]), actual.1 - dot(origin(&p), l), 0.0051);
+                // that axis on a moved copy they agree to 1.3e-4 mm, held here at 5e-4 mm.
+                near(number(&p["lo"]), actual.0 - dot(origin(&p), l), 5e-4);
+                near(number(&p["hi"]), actual.1 - dot(origin(&p), l), 5e-4);
             } else {
                 // This round deliberately preserves legacy file-axis extents,
                 // including copies whose slot axes land on the file axes.
