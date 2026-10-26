@@ -507,8 +507,58 @@ fn oracle_ledger_holds_its_ratchet() {
     }
     assert!(
         current == was,
-        "tests/oracle_ledger.json is out of date: rerun with HAECCEITY_LEDGER=write and commit it"
+        "tests/oracle_ledger.json is out of date:\n{}\nIt is written from the captures and the \
+         pinned verdicts and reasons in tests/fixtures/references/*.json, so rewording a reason \
+         there changes it too: rerun with HAECCEITY_LEDGER=write and commit it",
+        stale(&was, &current).join("\n")
     );
+}
+
+/// Where a committed ledger differs from the current one: per query, the fields changed, and
+/// the deferred cases added, gone or reworded.
+fn stale(was: &Value, now: &Value) -> Vec<String> {
+    let by_name = |v: &Value| -> BTreeMap<String, Value> {
+        arr(&v["queries"])
+            .iter()
+            .map(|q| (text(q, "query").to_string(), q.clone()))
+            .collect()
+    };
+    let (was, now) = (by_name(was), by_name(now));
+    let mut out = Vec::new();
+    for name in was.keys().chain(now.keys()).collect::<BTreeSet<_>>() {
+        let (Some(w), Some(n)) = (was.get(name), now.get(name)) else {
+            out.push(format!("  {name}: query added or removed"));
+            continue;
+        };
+        let keys: BTreeSet<&String> = w
+            .as_object()
+            .into_iter()
+            .chain(n.as_object())
+            .flat_map(|o| o.keys())
+            .collect();
+        for k in keys
+            .into_iter()
+            .filter(|&k| k != "deferred" && w[k] != n[k])
+        {
+            out.push(format!("  {name}: {k} {} -> {}", w[k], n[k]));
+        }
+        let cases = |q: &Value| -> BTreeMap<String, Value> {
+            arr(&q["deferred"])
+                .iter()
+                .map(|d| (text(d, "case").to_string(), d.clone()))
+                .collect()
+        };
+        let (wd, nd) = (cases(w), cases(n));
+        for case in wd.keys().chain(nd.keys()).collect::<BTreeSet<_>>() {
+            match (wd.get(case), nd.get(case)) {
+                (Some(a), Some(b)) if a == b => {}
+                (Some(_), Some(_)) => out.push(format!("  {name}: deferred {case:?} reworded")),
+                (None, _) => out.push(format!("  {name}: deferred {case:?} added")),
+                (_, None) => out.push(format!("  {name}: deferred {case:?} gone")),
+            }
+        }
+    }
+    out
 }
 
 /// The ratchet itself: a fall in an agreed count, and a deferral gone unresolved, both fail.
