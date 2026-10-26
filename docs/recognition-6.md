@@ -249,3 +249,54 @@ concavely. Both mouth boundaries meet outward-facing planar context convexly. Ev
 source face must belong to one strictly valid solid. Interrupted or treated boundaries,
 missing caps/ownership, and competing defining claims are refused. The cylinder axis
 and unique cap establish run/depth roles without a dimensional preference.
+
+A trough may instead be rounded: one concave cylinder along the run whose two straight edges
+each meet a flank tangentially, its two ends opening convexly onto exterior planes like the
+flanks'. The round is consulted, not defining; it keeps its own `blends` record, as a slot's
+corner rounds do. `trough_radius` is then present. `at` and `depth` refer to the flanks'
+intersection, the virtual sharp trough the round replaces, so a rounded and a sharp V of one
+section publish the same `depth`, `width` and angle. The round must be tangent on the lip side
+of that intersection for both flanks. A sharp trough omits `trough_radius`, so its record and
+fingerprint are unchanged. On NIST CTC-01 the two V notches through the plate edge (flanks
+11/13 and 15/17, R10 troughs 12 and 16) are such channels along the plate's thickness.
+
+## Rectangular through-notches
+
+The optional `rectangular_through_notches` family contains `RectangularThroughNotch`
+records, omitted when empty. It keeps recognition schema 6 and fingerprint format 3.
+A notch is a U cut through a recognised plate from its edge: a bottom wall and two parallel
+side walls facing each other, all planar and perpendicular to the plate axis. `axis` is the
+plate's thickness direction (its sign is a gauge), `opening` the bottom wall's outward normal,
+out through the mouth, and `at` the centre of the bottom wall, midway between the sides and
+through the thickness, in file coordinates. `width` separates the side walls, `depth` runs
+from the bottom wall to the mouth plane and `thickness` is the plate's; all are millimetres.
+`corner_radius` is the radius of the two concave corner rounds, or null for sharp corners.
+
+The defining faces are the bottom and both side walls. Each is one loop of four lines: two
+along the plate axis spanning exactly the plate's raw `lo…hi`, and two shared convexly with the
+plate's own faces at **both** slab ends, as edges of those faces' outer loops. The bottom meets
+each side either across a concave line or through one concave cylinder along the axis, tangent
+to both and spanning the slab; the two corners are both sharp or both rounded with one radius.
+Each side wall's other axial edge is the mouth: a convex edge with a planar wall facing the
+bottom's way, and both mouths lie in one plane beyond the bottom. Corner rounds keep their own
+`blends` records, as a rectangular slot's do; they, the mouth walls and the plate faces are
+consulted. Defining and consulted faces require one strictly valid solid.
+
+These conditions separate the notch from its neighbours without any dimension or ratio: a
+closed slot's walls have no mouth and lie on inner loops of the plate faces; an edge-open
+recess's walls stop at its floor rather than the far slab face; the waist between two thicker
+end blocks has side walls taller than the slab (they belong to the blocks, and face
+accounting gives them `stock_wall` evidence). A wall pair a full-span floored channel defines
+belongs to that channel, which is how a notch through a part's whole thickness is already
+published; a plate needs the body to extend beyond it along its axis. A face proposed by two
+notches defines neither, and a notch is dropped with its plate when reconciliation rejects the
+plate. On NIST CTC-01 the two 85 × 25 R10 notches in the +y plate edge are
+`rectangular_through_notches/0` (faces 31, 33, 35) and `/1` (37, 39, 41).
+
+## Polygonal boss caps
+
+A polygonal boss's record also claims its free-end cap, the face its proof already
+consulted, after reconciliation: a plane facing along the boss axis at the record's `base` or
+`top`, lying within the side ring's transverse extent. A support face or any wider face the
+ring ends on is not claimed. Feature selection and record fields are unchanged; the boss's
+fingerprint `faces`, area-weighted `position` and `neighbourhood` change within format 3.

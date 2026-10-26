@@ -631,6 +631,23 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("width", Size),
             ("depth", Size),
             ("included_angle_degrees", Size),
+            // Absent for a sharp trough, which adds nothing.
+            ("trough_radius", Size),
+        ],
+    },
+    FamilyFingerprint {
+        family: "rectangular_through_notches",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("opening", Placement),
+            ("at", Placement),
+            ("width", Size),
+            ("depth", Size),
+            ("thickness", Size),
+            // Null for sharp corners, which adds nothing.
+            ("corner_radius", Size),
         ],
     },
     FamilyFingerprint {

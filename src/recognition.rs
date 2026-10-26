@@ -188,6 +188,7 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("pockets", &["Pocket"]),
     ("channels", &["Channel"]),
     ("v_channels", &["VChannel"]),
+    ("rectangular_through_notches", &["RectangularThroughNotch"]),
     ("slot_patterns", &["SlotGrid", "SlotArray"]),
     ("pocket_patterns", &["PocketGrid", "PocketArray"]),
     ("repeating_radial_profiles", &["RepeatingRadialProfile"]),

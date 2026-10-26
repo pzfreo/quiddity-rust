@@ -168,6 +168,14 @@ raw walls/cylinders, not rounded sizes. A missing, ambiguous, inward-reversed or
 unconnected end abstains for both ends; the solid must be geometrically valid.
 The original feature selection is unchanged.
 
+A polygonal boss includes its consulted free-end cap when that plane faces along the
+boss axis at the boss's `base` or `top` and lies within the side ring's transverse
+extent ([recognition-6](recognition-6.md#polygonal-boss-caps)). On CTC-01 this is the
+hexagon top, face 104. V-notch flanks through a plate edge are V channels with a
+rounded trough, and rectangular through-notch walls are `rectangular_through_notches`
+records, so neither needs body evidence; plate-edge and stock-wall rules still abstain
+on them.
+
 Schema stays `quiddity-rust/recognition/6`; fingerprints stay
 `quiddity-rust/fingerprint/3`. Expanded face claims intentionally change affected
 feature fingerprint `faces`, area-weighted `position` and `neighbourhood` within

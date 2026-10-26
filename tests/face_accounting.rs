@@ -174,12 +174,15 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
     let doc = &output.document;
     assert_eq!(doc.schema_version, "quiddity-rust/recognition/6");
     use quiddity::recognition::BodyReason;
-    assert_eq!(check(doc), [90, 20, 0, 7, 27]);
+    assert_eq!(check(doc), [97, 20, 0, 0, 20]);
+    // Main had 90 feature faces; the V-notch flanks (11, 13, 15, 17), the through-notch
+    // bottoms (33, 39) and the hexagon boss top (104) are now claimed too.
     let feature_faces = [
-        0, 1, 2, 3, 5, 7, 8, 9, 12, 16, 19, 20, 21, 23, 25, 27, 28, 29, 31, 32, 34, 35, 37, 38, 40,
-        41, 43, 44, 45, 50, 51, 52, 53, 56, 57, 58, 59, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73,
-        74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96,
-        97, 98, 99, 100, 101, 102, 103, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
+        0, 1, 2, 3, 5, 7, 8, 9, 11, 12, 13, 15, 16, 17, 19, 20, 21, 23, 25, 27, 28, 29, 31, 32, 33,
+        34, 35, 37, 38, 39, 40, 41, 43, 44, 45, 50, 51, 52, 53, 56, 57, 58, 59, 63, 64, 65, 66, 67,
+        68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
+        91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110,
+        111, 112, 113, 114, 115, 116,
     ];
     let mut expected = vec![FaceAccounting::Unexplained; 117];
     for (reason, faces) in [
@@ -213,7 +216,7 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
         .enumerate()
         .filter_map(|(f, g)| matches!(g, FaceAccounting::Unexplained).then_some(f))
         .collect();
-    assert_eq!(unexplained, [11, 13, 15, 17, 33, 39, 104]);
+    assert!(unexplained.is_empty(), "{unexplained:?}");
     let part = quiddity::read_step_file(&path).unwrap();
     let near = |a: f64, b: f64| assert!((a - b).abs() < 1e-6, "{a} != {b}");
     // Verify issue face hypotheses on file-space geometry, not numbering alone.
@@ -277,40 +280,48 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
         near(b.max[2], 0.);
     }
     near(part.face_bounds(104).min[2], 50.);
-    assert_eq!(
-        doc.records
-            .iter()
-            .find(|r| r.id == "polygonal_bosses/0")
-            .unwrap()
-            .faces,
-        [105, 106, 107, 108, 109, 110]
-    );
-    // Preserve existing step-level feature evidence on four rectangular-notch
-    // side walls. Neither body rule may claim any of the six notch walls.
-    for (f, id) in [
-        (31, "step_levels/3"),
-        (35, "step_levels/4"),
-        (37, "step_levels/7"),
-        (41, "step_levels/8"),
+    // Each through-notch owns its bottom and both side walls; the existing step-level
+    // evidence on four side walls stays beside it, and the R10 corner rounds remain blends
+    // records, as a rectangular slot's corners do.
+    for (f, ids) in [
+        (31, &["rectangular_through_notches/0", "step_levels/3"][..]),
+        (33, &["rectangular_through_notches/0"][..]),
+        (35, &["rectangular_through_notches/0", "step_levels/4"][..]),
+        (37, &["rectangular_through_notches/1", "step_levels/7"][..]),
+        (39, &["rectangular_through_notches/1"][..]),
+        (41, &["rectangular_through_notches/1", "step_levels/8"][..]),
+        (11, &["v_channels/0"][..]),
+        (13, &["v_channels/0"][..]),
+        (15, &["v_channels/1"][..]),
+        (17, &["v_channels/1"][..]),
     ] {
         assert_eq!(
             doc.face_accounting.as_ref().unwrap()[f],
             FaceAccounting::Feature {
-                record_ids: vec![id.into()]
-            }
+                record_ids: ids.iter().map(|&id| id.into()).collect()
+            },
+            "face {f}"
         );
     }
     for (id, faces) in [
         ("holes/1", vec![50, 51, 56, 57]),
         ("holes/2", vec![52, 53, 58, 59]),
         ("slots/1", vec![82, 84, 86, 88]),
+        (
+            "polygonal_bosses/0",
+            vec![104, 105, 106, 107, 108, 109, 110],
+        ),
+        ("v_channels/0", vec![11, 13]),
+        ("v_channels/1", vec![15, 17]),
+        ("rectangular_through_notches/0", vec![31, 33, 35]),
+        ("rectangular_through_notches/1", vec![37, 39, 41]),
     ] {
         assert_eq!(
             doc.records.iter().find(|r| r.id == id).unwrap().faces,
             faces
         );
     }
-    // Independent origin/main ff1975e CLI output, on these exact compressed input
+    // Independent origin/main eb13004 CLI output, on these exact compressed input
     // bytes. Keep the complete old face graph so this exercises real alignment
     // and assignment across the changed claims, rather than self-correspondence.
     let mut old = String::new();
@@ -322,42 +333,59 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
     let old: Fingerprints = serde_json::from_str(&old).unwrap();
     let new = &output.recognition.fingerprints;
     assert_eq!(new.fingerprint_version, "quiddity-rust/fingerprint/3");
-    // The claims are platform independent: only these three features change faces.
+    let by_id = |id: &str| new.features.iter().find(|f| f.id == id);
+    // The claims are platform independent: only the boss changes faces (its top), and
+    // the two V channels and two notches are new; every other record keeps its id.
     let changed: Vec<_> = old
         .features
         .iter()
-        .zip(&new.features)
-        .filter(|(a, b)| a.faces != b.faces)
-        .map(|(a, _)| a.id.as_str())
+        .filter(|a| by_id(&a.id).is_none_or(|b| a.faces != b.faces))
+        .map(|a| a.id.as_str())
         .collect();
-    assert_eq!(changed, ["holes/1", "holes/2", "slots/1"]);
+    assert_eq!(changed, ["polygonal_bosses/0"]);
+    let added: Vec<_> = new
+        .features
+        .iter()
+        .filter(|b| !old.features.iter().any(|a| a.id == b.id))
+        .map(|b| b.id.as_str())
+        .collect();
+    assert_eq!(
+        added,
+        [
+            "rectangular_through_notches/0",
+            "rectangular_through_notches/1",
+            "v_channels/0",
+            "v_channels/1"
+        ]
+    );
     // Fingerprint floats differ in the last digits between builds and platforms, so
     // everything else is compared exactly and numbers to a relative 1e-9.
     let differing: Vec<_> = old
         .features
         .iter()
-        .zip(&new.features)
-        .filter(|(a, b)| !same(a, b))
-        .map(|(a, _)| a.id.as_str())
+        .filter(|a| !same(*a, by_id(&a.id).unwrap()))
+        .map(|a| a.id.as_str())
         .collect();
     assert_eq!(differing, changed);
     let old_claims: BTreeSet<_> = old.features.iter().flat_map(|f| &f.faces).collect();
-    assert_eq!(old_claims.len(), 86); // main: feature 86, body 0, unexplained 31
+    assert_eq!(old_claims.len(), 90); // main: feature 90, body 20, unexplained 7
     assert_eq!(old.faces.len(), new.faces.len());
     for (a, b) in old.faces.iter().zip(&new.faces) {
         assert!(same(a, b), "{a:?}\n{b:?}");
     }
-    assert_eq!(old.features.len(), new.features.len());
+    assert_eq!(old.features.len() + added.len(), new.features.len());
     let correspondence = correspondence::correspond(&old, new).unwrap();
-    for id in changed {
-        let entry = correspondence
-            .features
-            .iter()
-            .find(|f| f.old == id)
-            .unwrap();
-        assert_eq!(entry.new.as_deref(), Some(id), "{entry:?}");
+    for entry in &correspondence.features {
+        assert_eq!(entry.new.as_deref(), Some(entry.old.as_str()), "{entry:?}");
         assert!(entry.candidates.is_empty());
     }
+    let mut unmatched: Vec<_> = correspondence
+        .new_features
+        .iter()
+        .map(String::as_str)
+        .collect();
+    unmatched.sort_unstable();
+    assert_eq!(unmatched, added);
     let (sz, cz) = 17_f64.to_radians().sin_cos();
     let (sx, cx) = 23_f64.to_radians().sin_cos();
     let motion = [

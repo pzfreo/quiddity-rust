@@ -1,6 +1,7 @@
 //! Complete, open-ended V channels, proved from two rectangular planar walls meeting
-//! concavely along the trough. All four end edges and both lips must meet exterior planes
-//! convexly. No preferred section angle, scale or stock dimensions are assumed.
+//! concavely along the trough, either at a sharp edge or through one concave round tangent
+//! to both. All four end edges and both lips must meet exterior planes convexly, as must a
+//! round's two ends. No preferred section angle, scale or stock dimensions are assumed.
 use serde::Serialize;
 
 use super::Context;
@@ -10,8 +11,11 @@ use super::regions::length_tolerance;
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{self, Curve, Surface, V3};
 
-/// A V channel in millimetres. `at` is the midpoint of the trough edge; the sign of `axis`
-/// is a run gauge. `opening` points out of the mouth, perpendicular to its lip plane.
+/// A V channel in millimetres. `at` is the midpoint of the trough edge (of the flanks'
+/// intersection where the trough is rounded); the sign of `axis` is a run gauge. `opening`
+/// points out of the mouth, perpendicular to its lip plane. `depth` runs from that sharp or
+/// virtual trough to the lip plane. `trough_radius` is the radius of a concave round between
+/// the flanks, and absent for a sharp trough.
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct VChannel {
     pub axis: V3,
@@ -21,6 +25,8 @@ pub struct VChannel {
     pub width: f64,
     pub depth: f64,
     pub included_angle_degrees: f64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub trough_radius: Option<f64>,
 }
 
 pub(super) struct Wall {
@@ -148,25 +154,152 @@ fn from_edge(part: &Part, edge: usize) -> Option<Occurrence<VChannel>> {
         wall(part, a, edge, axis, tolerance)?,
         wall(part, b, edge, axis, tolerance)?,
     );
-    let width_vector = geom::sub(right.offset, left.offset);
-    let width = geom::norm(width_vector);
-    let width_axis = geom::unit(width_vector)?;
-    let mut opening = geom::unit(geom::cross(axis, width_axis))?;
-    if geom::dot(opening, left.offset) < 0. {
-        opening = geom::scale(opening, -1.)
-    }
-    let depth = geom::dot(opening, left.offset);
-    if depth <= tolerance
-        || (geom::dot(opening, right.offset) - depth).abs() > tolerance
-        || geom::dot(left.offset, width_axis) >= -tolerance
-        || geom::dot(right.offset, width_axis) <= tolerance
+    let at = geom::scale(geom::add(e.start, e.end), 0.5);
+    let (left_offset, right_offset) = (left.offset, right.offset);
+    channel(
+        part,
+        [(a, left, left_offset), (b, right, right_offset)],
+        axis,
+        at,
+        length,
+        tolerance,
+        Vec::new(),
+        None,
+    )
+}
+
+/// A rounded trough: one concave cylinder along the run whose two straight edges each meet a
+/// flank tangentially. The flanks are measured from their intersection, the virtual sharp
+/// trough the round replaces; both round ends must open onto exterior planes.
+fn from_round(part: &Part, face: usize) -> Option<Occurrence<VChannel>> {
+    let f = &part.faces[face];
+    let Surface::Cylinder { frame, radius } = f.surface else {
+        return None;
+    };
+    if f.loops.len() != 1
+        || f.loops[0].edges.len() != 4
+        || part.frame_points_outward(face) != Some(false)
     {
         return None;
     }
-    let mut context = vec![
+    let edges = part.face_edges(face);
+    let (lines, ends): (Vec<usize>, Vec<usize>) = edges
+        .into_iter()
+        .partition(|&e| matches!(part.edges[e].curve, Curve::Line { .. }));
+    let (&[la, lb], 2) = (&lines[..], ends.len()) else {
+        return None;
+    };
+    let flank = |edge: usize| -> Option<usize> {
+        let [x, y] = part.edge_faces()[edge][..] else {
+            return None;
+        };
+        let other = if x == face { y } else { x };
+        (other != face
+            && matches!(part.faces[other].surface, Surface::Plane { .. })
+            && part.arc(face, other) == Some(Arc::Smooth))
+        .then_some(other)
+    };
+    let (a, b) = (flank(la)?, flank(lb)?);
+    if a == b {
+        return None;
+    }
+    let (ea, eb) = (&part.edges[la], &part.edges[lb]);
+    let delta = geom::sub(ea.end, ea.start);
+    let length = geom::norm(delta);
+    let axis = geom::unit(delta)?;
+    let tolerance = length_tolerance(&[length, radius]);
+    if geom::norm(geom::cross(axis, frame.z)) > 1e-9
+        || (geom::dist(eb.start, eb.end) - length).abs() > tolerance
+    {
+        return None;
+    }
+    let (left, right) = (
+        wall(part, a, la, axis, tolerance)?,
+        wall(part, b, lb, axis, tolerance)?,
+    );
+    // Both flank lines in the section through `ea.start`, then their intersection.
+    let ta = ea.start;
+    let tb = geom::sub(
+        eb.start,
+        geom::scale(axis, geom::dot(geom::sub(eb.start, ta), axis)),
+    );
+    let (ua, ub) = (geom::unit(left.offset)?, geom::unit(right.offset)?);
+    let normal = geom::cross(ua, ub);
+    let denominator = geom::dot(normal, normal);
+    if denominator <= 1e-12 {
+        return None;
+    }
+    let between = geom::sub(tb, ta);
+    let s = geom::dot(geom::cross(between, ub), normal) / denominator;
+    let t = geom::dot(geom::cross(between, ua), normal) / denominator;
+    let apex = geom::add(ta, geom::scale(ua, s));
+    // The round replaces the sharp trough: each tangent line lies beyond the apex, toward
+    // its own lip, and both reach the same apex.
+    if s >= -tolerance
+        || t >= -tolerance
+        || geom::dist(apex, geom::add(tb, geom::scale(ub, t))) > tolerance
+    {
+        return None;
+    }
+    // Each flank's offset from the virtual trough to its lip.
+    let left_offset = geom::add(geom::sub(ta, apex), left.offset);
+    let right_offset = geom::add(geom::sub(tb, apex), right.offset);
+    let at = geom::add(apex, geom::scale(delta, 0.5));
+    let mut context = vec![face];
+    for &end in &ends {
+        let e = &part.edges[end];
+        let side = geom::dot(geom::sub(e.midpoint(), ta), axis);
+        let direction = if side > 0.5 * length {
+            axis
+        } else {
+            geom::scale(axis, -1.)
+        };
+        context.push(exterior(part, face, end, direction)?);
+    }
+    channel(
+        part,
+        [(a, left, left_offset), (b, right, right_offset)],
+        axis,
+        at,
+        length,
+        tolerance,
+        context,
+        Some(radius),
+    )
+}
+
+/// The channel two flanks prove, each with the offset from the (sharp or virtual) trough to its
+/// lip; *context* holds faces a rounded trough already consulted.
+#[allow(clippy::too_many_arguments)]
+fn channel(
+    part: &Part,
+    [(a, left, left_offset), (b, right, right_offset)]: [(usize, Wall, V3); 2],
+    axis: V3,
+    at: V3,
+    length: f64,
+    tolerance: f64,
+    mut context: Vec<usize>,
+    trough_radius: Option<f64>,
+) -> Option<Occurrence<VChannel>> {
+    let width_vector = geom::sub(right_offset, left_offset);
+    let width = geom::norm(width_vector);
+    let width_axis = geom::unit(width_vector)?;
+    let mut opening = geom::unit(geom::cross(axis, width_axis))?;
+    if geom::dot(opening, left_offset) < 0. {
+        opening = geom::scale(opening, -1.)
+    }
+    let depth = geom::dot(opening, left_offset);
+    if depth <= tolerance
+        || (geom::dot(opening, right_offset) - depth).abs() > tolerance
+        || geom::dot(left_offset, width_axis) >= -tolerance
+        || geom::dot(right_offset, width_axis) <= tolerance
+    {
+        return None;
+    }
+    context.extend([
         exterior(part, a, left.lip, opening)?,
         exterior(part, b, right.lip, opening)?,
-    ];
+    ]);
     for (wall, profile) in [(a, &left), (b, &right)] {
         context.push(exterior(
             part,
@@ -185,7 +318,7 @@ fn from_edge(part: &Part, edge: usize) -> Option<Occurrence<VChannel>> {
     {
         return None;
     }
-    let angle = geom::dot(geom::unit(left.offset)?, geom::unit(right.offset)?)
+    let angle = geom::dot(geom::unit(left_offset)?, geom::unit(right_offset)?)
         .clamp(-1., 1.)
         .acos()
         .to_degrees();
@@ -193,11 +326,12 @@ fn from_edge(part: &Part, edge: usize) -> Option<Occurrence<VChannel>> {
         record: VChannel {
             axis,
             opening,
-            at: geom::scale(geom::add(e.start, e.end), 0.5),
+            at,
             length,
             width,
             depth,
             included_angle_degrees: angle,
+            trough_radius,
         },
         defining,
         context,
@@ -212,7 +346,9 @@ pub fn discover(
     closed_passages: &[Occurrence<super::passages::SectionPassage>],
 ) -> Vec<Occurrence<VChannel>> {
     let found: Vec<_> = (0..ctx.part.edges.len())
-        .filter_map(|e| from_edge(ctx.part, e)).collect();
+        .filter_map(|e| from_edge(ctx.part, e))
+        .chain((0..ctx.part.faces.len()).filter_map(|f| from_round(ctx.part, f)))
+        .collect();
     found.iter()
         // A corner of a proved closed passage belongs to that complete section,
         // not an independent open channel. No passage record changes.
@@ -373,5 +509,30 @@ mod tests {
                 "fault {fault}"
             );
         }
+    }
+
+    #[test]
+    fn a_rounded_trough_is_measured_from_the_flanks_intersection_and_must_be_concave() {
+        // The fixture's V notch: flanks 3 and 7 at 60 degrees, an R5 trough round 5, and a
+        // virtual apex 35 below the mouth at y = 80, through a 12 thick plate.
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/plate_edge_notches.step");
+        let part = crate::read_step_file(&path).unwrap();
+        let found = discover(&Context::new(&part), &[]);
+        assert_eq!(found.len(), 1);
+        let o = &found[0];
+        assert_eq!(o.defining, [3, 7]);
+        assert!(o.context.contains(&5));
+        let r = &o.record;
+        assert!((r.trough_radius.unwrap() - 5.).abs() < 1e-9);
+        assert!((r.depth - 35.).abs() < 1e-9);
+        assert!((r.length - 12.).abs() < 1e-9);
+        assert!((r.included_angle_degrees - 60.).abs() < 1e-9);
+        assert!((r.width - 70. * 30_f64.to_radians().tan()).abs() < 1e-6);
+        assert!(geom::dist(r.at, [90., 45., 6.]) < 1e-9);
+        // A convex round (material on the other side) is not a trough.
+        let mut convex = Part::new(part.faces.clone(), part.edges.clone(), part.solids.clone());
+        convex.faces[5].reversed = !convex.faces[5].reversed;
+        assert!(discover(&Context::new(&convex), &[]).is_empty());
     }
 }

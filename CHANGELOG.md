@@ -6,6 +6,20 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **CTC-01's last unexplained faces (for #100).** `v_channels` also proves a rounded
+  trough: two rectangular flanks joined by one concave cylinder tangent to both, with
+  `trough_radius` and `depth`/`at` from the flanks' intersection; sharp-trough records are
+  unchanged. New `rectangular_through_notches` records a U cut through a recognised plate's
+  edge: bottom and two facing side walls each spanning exactly the slab on the plate faces'
+  outer loops, sharp or equally rounded concave corners, and convex mouths on one outward
+  plane; corner rounds stay blends, and a full-span channel keeps its walls. A polygonal
+  boss claims its consulted free-end cap when it lies within the side ring. Schema stays
+  recognition `/6`, fingerprints `/3`; boss fingerprints change faces, centroid and
+  adjacency. CTC-01 face accounting is now 97 feature, 20 body, 0 unexplained (was
+  90/20/7): flanks 11/13/15/17 are `v_channels/0,1`, notch walls 31–41 are
+  `rectangular_through_notches/0,1` (31, 35, 37, 41 keep their step-level evidence too),
+  and 104 joins `polygonal_bosses/0`.
+
 - **Conservative stock-wall support (for #100).** Plate edges also check parallel
   walls outside their slab over the same run, so a step shoulder beside a thin
   plate strip remains unexplained. Interior stock walls must be perpendicular to

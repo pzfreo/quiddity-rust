@@ -740,6 +740,65 @@ pub fn discover(ctx: &Context<'_>, opts: &PolygonalOptions) -> Vec<Occurrence<Po
 }
 }
 
+/// Extend a completed inventory's boss claim with its already-consulted free-end cap, after
+/// reconciliation. The cap must be the boss's own top: a plane facing along the axis at the
+/// boss's `base` or `top`, lying within the side ring's transverse extent, so a wider face the
+/// ring merely ends on cannot be claimed.
+pub(crate) fn claim_terminal_cap(
+    part: &Part,
+    record: &PolygonalBoss,
+    faces: &mut Vec<usize>,
+    constituent: &[usize],
+) {
+    let Some(axis) = AXES
+        .iter()
+        .find(|(_, n)| *n == record.axis)
+        .map(|&(a, _)| a)
+    else {
+        return;
+    };
+    let caps: Vec<usize> = constituent
+        .iter()
+        .copied()
+        .filter(|f| !faces.contains(f))
+        .collect();
+    let &[cap] = caps.as_slice() else {
+        return;
+    };
+    let tol = TOL;
+    let Some(normal) = super::graph::normal(part, cap) else {
+        return;
+    };
+    let cb = part.face_bounds(cap);
+    let level = (cb.min[axis] + cb.max[axis]) / 2.;
+    if !matches!(
+        part.faces[cap].surface,
+        crate::kernel::geom::Surface::Plane { .. }
+    ) || normal[axis].abs() < AXIS_ALIGNED_COS
+        || cb.max[axis] - cb.min[axis] > tol
+        || ![*record.base.raw(), *record.top.raw()]
+            .iter()
+            .any(|&at| (level - at).abs() <= tol)
+    {
+        return;
+    }
+    let inside = (0..3).filter(|&k| k != axis).all(|k| {
+        let lo = faces
+            .iter()
+            .map(|&f| part.face_bounds(f).min[k])
+            .fold(f64::INFINITY, f64::min);
+        let hi = faces
+            .iter()
+            .map(|&f| part.face_bounds(f).max[k])
+            .fold(f64::NEG_INFINITY, f64::max);
+        cb.min[k] >= lo - tol && cb.max[k] <= hi + tol
+    });
+    if inside {
+        faces.push(cap);
+        faces.sort_unstable();
+    }
+}
+
 internal_entry! {
 /// The evidence path: every boss's side ring, and the ring with its free end's cap, on one
 /// valid solid; no side face defining two bosses.
@@ -821,4 +880,29 @@ pub fn discover_stock_verified(
     }
     Ok(found)
 }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_boss_claims_its_own_top_but_not_a_wider_face() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/golden_polygonal_boss.step");
+        let part = crate::read_step_file(&path).unwrap();
+        // Sides 6..=11 stand on the plate top 2; 12 is the hexagonal top at z = 35.
+        let features = super::super::recognise(&part);
+        assert_eq!(
+            features.defining["polygonal_bosses"],
+            [vec![6, 7, 8, 9, 10, 11, 12]]
+        );
+        let record = &features.polygonal_bosses[0];
+        let sides = vec![6, 7, 8, 9, 10, 11];
+        let mut faces = sides.clone();
+        claim_terminal_cap(&part, record, &mut faces, &[2, 6, 7, 8, 9, 10, 11]);
+        assert_eq!(faces, sides, "the support plane extends beyond the ring");
+        claim_terminal_cap(&part, record, &mut faces, &[1, 6, 7, 8, 9, 10, 11]);
+        assert_eq!(faces, sides, "a side of the block is not a cap");
+    }
 }
