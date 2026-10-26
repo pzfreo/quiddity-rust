@@ -6,6 +6,15 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Snapshot tool in Rust; leaner CI.** `tools/rust_snapshot.py` is replaced by the unpublished
+  workspace crate `snapshot-tool` (`cargo run -p snapshot-tool --release -- [--check | --diff REF]`),
+  with the same provenance, clean-tree and CI rules. CI no longer replays the snapshots before the
+  shards: the Linux shards record what they verify and one job checks coverage and provenance.
+  Port-era and duplicated test work is removed (caller-space comparisons, recognition of
+  `captured/` fixtures in the transform and publication sweeps, 4,200 legacy per-function corpus
+  replays, repeated unmoved readings). Pull requests run the full suite on Linux and only the
+  float-sensitive pins on macOS; main, manual runs and `release*` PRs run the full macOS suite.
+
 ## 0.2.1-alpha.1 (2026-10-26)
 
 Upgrading from 0.2.0: the schema stays `quiddity-rust/recognition/6` and fingerprints `/3`.
