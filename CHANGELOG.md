@@ -6,6 +6,21 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **haecceity refuses malformed and hostile STEP instead of panicking (for #52).**
+  Library code no longer `unwrap`s, `expect`s, `panic!`s or reaches `unreachable!`
+  except at a site with a targeted `allow` stating its invariant (clippy enforces it);
+  the rest became typed refusals or fallbacks. Recursive and input-sized read paths
+  are bounded (`haecceity::step::limits`; new `StepError::Limit`): surface-curve
+  wrappers 16 deep (a cyclic chain used to hang), assembly depth 64 (now refused rather
+  than cut off), 100 000 instances, 500 000 faces, 10 000 edges per bound, knot vectors
+  no longer expanded past their pole count, PMI shape aspects 16 deep, and an iterative
+  Douglas–Peucker. No fixture or corpus file hits a bound. `tests/robustness.rs` reads
+  hostile files on a 1 MiB stack and sweeps truncated and byte-flipped fixtures.
+- **Oracle ledger (for #52).** `crates/haecceity/tests/oracle_ledger.json` records,
+  per kernel query, the cases agreed with each independent reference, the pinned
+  differences by verdict and the deferred ones with what they wait on; its test fails
+  when an agreed count falls or a deferral disappears unresolved.
+
 - **Conservative stock-wall support (for #100).** Plate edges also check parallel
   walls outside their slab over the same run, so a step shoulder beside a thin
   plate strip remains unexplained. Interior stock walls must be perpendicular to
