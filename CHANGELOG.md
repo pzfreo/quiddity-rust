@@ -14,8 +14,11 @@ in [docs/alpha1.md](docs/alpha1.md).
   wrappers 16 deep (a cyclic chain used to hang), assembly depth 64 (now refused rather
   than cut off), 100 000 instances, 500 000 faces, 10 000 edges per bound, knot vectors
   no longer expanded past their pole count, PMI shape aspects 16 deep, and an iterative
-  Douglas–Peucker. No fixture or corpus file hits a bound. `tests/robustness.rs` reads
-  hostile files on a 1 MiB stack and sweeps truncated and byte-flipped fixtures.
+  Douglas–Peucker. An assembly cycle or nesting past depth 64 now refuses the whole file
+  where it used to return a partial part. Face integrals past 2^20 panels are left
+  undetermined rather than coarsened. No fixture or corpus file hits a bound.
+  `tests/robustness.rs` reads hostile files on a 1 MiB stack and sweeps truncated and
+  byte-flipped fixtures, querying (mesh, mass, HLR) the mutants that still read.
 - **Oracle ledger (for #52).** `crates/haecceity/tests/oracle_ledger.json` records,
   per kernel query, the cases agreed with each independent reference, the pinned
   differences by verdict and the deferred ones with what they wait on; its test fails
