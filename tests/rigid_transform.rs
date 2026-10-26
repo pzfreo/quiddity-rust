@@ -312,8 +312,13 @@ fn recognition_bytes(part: &Part) -> Result<Vec<u8>, String> {
     })
 }
 
+/// Corpus parts whose recognition is also compared: a costly one and the two whose frame choice
+/// is closest (#91). The fixtures are all compared; every corpus part's recognition is pinned by
+/// the corpus snapshot and by `the_default_document_moves_with_the_part`.
+const RECOGNISED_CORPUS: [&str; 3] = ["cgb203.step", "cgb217.step.gz", "cgb241.step"];
+
 #[test]
-fn loaded_transform_matches_reader_on_every_fixture_and_corpus_part() {
+fn loaded_transform_matches_reader() {
     let mut paths = Vec::new();
     files(
         &Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures"),
@@ -322,6 +327,9 @@ fn loaded_transform_matches_reader_on_every_fixture_and_corpus_part() {
     if let Some(dir) = std::env::var_os("QUIDDITY_CORPUS").filter(|s| s != "off") {
         files(Path::new(&dir), &mut paths);
     }
+    // The captured query inputs kept from the Python port add files, not geometry kinds.
+    let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
+    paths.retain(|path| !path.starts_with(fixtures.join("captured")));
     // One reading per distinct file (some parts are committed in several places), largest
     // first: the costliest parts take minutes each, so starting them last leaves threads idle.
     let mut seen = std::collections::BTreeSet::new();
@@ -382,11 +390,11 @@ fn loaded_transform_matches_reader_on_every_fixture_and_corpus_part() {
                     "transform equivalence: geometry checked {} at {at:?}",
                     path.display()
                 );
-                // Recognition exercises production's transformed normalisation, outside capture
-                // inputs.
-                if path.starts_with(
-                    Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/captured"),
-                ) {
+                // Recognition exercises production's transformed normalisation.
+                let named = path
+                    .file_name()
+                    .is_some_and(|name| RECOGNISED_CORPUS.iter().any(|n| name == *n));
+                if !path.starts_with(&fixtures) && !named {
                     continue;
                 }
                 let (a, b) = (recognition_bytes(&moved), recognition_bytes(&read));
