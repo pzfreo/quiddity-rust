@@ -331,21 +331,22 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
         .map(|(a, _)| a.id.as_str())
         .collect();
     assert_eq!(changed, ["holes/1", "holes/2", "slots/1"]);
-    // The reference was captured on macOS; other fingerprint values differ by float
-    // round-off on Linux, so the whole-record comparison holds only where it was made.
-    if cfg!(target_os = "macos") {
-        let differing: Vec<_> = old
-            .features
-            .iter()
-            .zip(&new.features)
-            .filter(|(a, b)| a != b)
-            .map(|(a, _)| a.id.as_str())
-            .collect();
-        assert_eq!(differing, changed);
-    }
+    // Fingerprint floats differ in the last digits between builds and platforms, so
+    // everything else is compared exactly and numbers to a relative 1e-9.
+    let differing: Vec<_> = old
+        .features
+        .iter()
+        .zip(&new.features)
+        .filter(|(a, b)| !same(a, b))
+        .map(|(a, _)| a.id.as_str())
+        .collect();
+    assert_eq!(differing, changed);
     let old_claims: BTreeSet<_> = old.features.iter().flat_map(|f| &f.faces).collect();
     assert_eq!(old_claims.len(), 86); // main: feature 86, body 0, unexplained 31
-    assert_eq!(old.faces, new.faces);
+    assert_eq!(old.faces.len(), new.faces.len());
+    for (a, b) in old.faces.iter().zip(&new.faces) {
+        assert!(same(a, b), "{a:?}\n{b:?}");
+    }
     assert_eq!(old.features.len(), new.features.len());
     let correspondence = correspondence::correspond(&old, new).unwrap();
     for id in changed {
@@ -368,4 +369,25 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
     let moved = quiddity::correspondence::recognise(&moved);
     let moved_doc = quiddity::recognition::document(&moved, moved.fingerprints.faces.len());
     assert_eq!(moved_doc.face_accounting, doc.face_accounting);
+}
+
+fn same(a: &impl serde::Serialize, b: &impl serde::Serialize) -> bool {
+    fn close(a: &serde_json::Value, b: &serde_json::Value) -> bool {
+        use serde_json::Value::{Array, Number, Object};
+        match (a, b) {
+            (Number(x), Number(y)) => {
+                let (x, y) = (x.as_f64().unwrap(), y.as_f64().unwrap());
+                (x - y).abs() <= 1e-9 * x.abs().max(y.abs()).max(1.0)
+            }
+            (Array(x), Array(y)) => x.len() == y.len() && x.iter().zip(y).all(|(x, y)| close(x, y)),
+            (Object(x), Object(y)) => {
+                x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| close(v, w)))
+            }
+            _ => a == b,
+        }
+    }
+    close(
+        &serde_json::to_value(a).unwrap(),
+        &serde_json::to_value(b).unwrap(),
+    )
 }
