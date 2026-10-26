@@ -2888,30 +2888,6 @@
     "max_differing": 4
   },
   {
-    "file": "cadgenbench_inputs/cgb241.step",
-    "check": "caller_space",
-    "family": "blends",
-    "verdict": "equivalent",
-    "reason": "For #89, face 27 (R20) is again a concave Blend in both readings: frame_points_outward(27)=Some(false), so it cannot pass either convex fillet path. The former rust-wrong allowance for that face is removed. Only face 47 (R23) differs by family: a convex Fillet in the 27.4-degree default frame and a convex Blend in caller space. frame_points_outward(47)=Some(true); both readings retain its face, radius and convex side. Its shallow support pair has dot -0.03589128343 and enters the approximate coordinate-plane band only in the default frame. cgb241_inner_bend_is_concave_and_outer_bend_stays_a_fillet pins both results. This remaining family substitution is equivalent geometric coverage, not a convexity error.",
-    "max_differing": 1
-  },
-  {
-    "file": "cadgenbench_inputs/cgb241.step",
-    "check": "caller_space",
-    "family": "fillets",
-    "verdict": "equivalent",
-    "reason": "For #89, face 27 (R20) is again a concave Blend in both readings: frame_points_outward(27)=Some(false), so it cannot pass either convex fillet path. The former rust-wrong allowance for that face is removed. Only face 47 (R23) differs by family: a convex Fillet in the 27.4-degree default frame and a convex Blend in caller space. frame_points_outward(47)=Some(true); both readings retain its face, radius and convex side. Its shallow support pair has dot -0.03589128343 and enters the approximate coordinate-plane band only in the default frame. cgb241_inner_bend_is_concave_and_outer_bend_stays_a_fillet pins both results. This remaining family substitution is equivalent geometric coverage, not a convexity error.",
-    "max_differing": 1
-  },
-  {
-    "file": "cadgenbench_inputs/cgb241.step",
-    "check": "caller_space",
-    "family": "step_levels",
-    "verdict": "not-applicable",
-    "reason": "The 27.4-degree default frame has height line (-0.8877387930,0.4603475160,0), rather than caller-space Z. Default-only planar faces [26] and [46] have normals +/-(-0.9036892863,0.4281888296,0), within the existing level angular band of that height line; caller space correctly has no Z-level on either vertical wall. Both are real planar wall patches. The default classification is the material-frame directional level query, not a claim that these walls are horizontal in the file; the corresponding height/span fields remain local. This is a physically valid change of height context, not added or lost surfaces. (for #81)",
-    "max_differing": 2
-  },
-  {
     "file": "nist/nist_ctc_03_asme1_rc.stp",
     "check": "caller_space",
     "family": "risers",

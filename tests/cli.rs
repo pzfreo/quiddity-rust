@@ -561,15 +561,10 @@ fn v011_oriented_fingerprints_correspond_to_merged_step() {
                 .iter()
                 .find(|p| p["old"] == old["id"])
                 .unwrap();
-            // File-axis golden recognition proves four walls per slot; inferred-frame
-            // recognition proves the opposed wall pair. The family union preserves those
-            // proofs, so cross-frame correspondence is adapted while the same path is carried.
-            let expected = if case["kind"] == "fixture" {
-                "adapted"
-            } else {
-                "carried"
-            };
-            assert_eq!(pair["class"], expected, "{path}: {pair}");
+            // #91: inferred-frame recognition now keeps the golden plate on its file axes, so
+            // it proves the same four walls per slot as file-axis recognition and every
+            // cross-frame pair is carried (it was adapted while the frame turned 30 degrees).
+            assert_eq!(pair["class"], "carried", "{path}: {pair}");
             let new = recognised["document"]["records"]
                 .as_array()
                 .unwrap()
@@ -585,19 +580,24 @@ fn v011_oriented_fingerprints_correspond_to_merged_step() {
                     .unwrap()
             );
             if case["kind"] == "fixture" {
+                // #91: the captured oriented records claimed each slot's two side walls; on
+                // the plate's file axes each slot also claims its two end walls, so the merged
+                // record holds every captured face and as many again.
                 let faces = new["faces"].as_array().unwrap();
                 assert_eq!(
                     faces.len(),
                     if old["family"] == "oriented_slot_patterns" {
-                        6
+                        12
                     } else {
-                        2
+                        4
                     }
                 );
                 assert!(
-                    faces
+                    old["faces"]
+                        .as_array()
+                        .unwrap()
                         .iter()
-                        .all(|f| old["faces"].as_array().unwrap().contains(f))
+                        .all(|f| faces.contains(f))
                 );
             } else {
                 assert_eq!(new["faces"], old["faces"]);

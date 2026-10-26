@@ -278,6 +278,9 @@ fn material_origin(part: &Part) -> Result<V3, FrameRefusal> {
 /// Directions match within `DIRECTION_COS`; plane offsets, cylinder axis distances and radii
 /// match within the kernel's `COORD_FLOOR`. Supports need not share a topological edge.
 /// File axes win an equal support count; otherwise the frame follows the material directions.
+/// The vote settles the winner's leading line; a less-voted basis about that line whose box
+/// around the material is smaller then sets the roll ([`tightest_roll`], #91), so a repeated
+/// feature direction does not turn a plate away from its own outline.
 /// Within the winning set, area in the legacy angular band ranks the axes, followed by the
 /// exact class signatures; face offsets orient them.
 /// Thus a rigid motion carries the intrinsic frame unless the moved file axes win this vote.
@@ -380,7 +383,9 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
     };
     let file_axes = [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]];
     let file_support = support(file_axes);
-    let mut best = None;
+    let mut candidates: Vec<PartFrame> = Vec::new();
+    let mut votes_of: Vec<usize> = Vec::new();
+    let mut best: Option<(usize, usize)> = None;
     let mut aligned = None;
     for (k, &a) in ranked.iter().enumerate() {
         for &b in &ranked[k + 1..] {
@@ -397,19 +402,21 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
             } else {
                 FrameGauge::Orthogonal
             };
-            let candidate = PartFrame {
+            candidates.push(PartFrame {
                 origin,
                 x,
                 y,
                 z,
                 gauge,
-            };
+            });
+            let index = candidates.len() - 1;
             // Keep the second material class's own votes when its direction is adjusted
             // by Gram-Schmidt (the perpendicular tolerance is wider than DIRECTION_COS).
             let votes = support([first, second, z]);
+            votes_of.push(votes);
             // Strict improvement preserves the invariant signature ordering at a tie.
-            if best.as_ref().is_none_or(|(count, _)| votes > *count) {
-                best = Some((votes, candidate));
+            if best.is_none_or(|(count, _)| votes > count) {
+                best = Some((votes, index));
             }
             let file_line = |v: V3| {
                 file_axes
@@ -425,17 +432,16 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
                 // must retain a real tiny rotation. Snapping recognition geometry here
                 // leaves tilted pocket walls in an unrotated working frame (#70).
                 // Only publication may snap, bounded by movement at the coordinate floor.
-                aligned = Some(candidate);
+                aligned = Some(index);
             }
         }
     }
-    if let Some((votes, frame)) = best {
-        if file_support >= votes
-            && let Some(frame) = aligned
-        {
-            return Ok(frame);
-        }
-        return Ok(frame);
+    if let Some((votes, winner)) = best {
+        let winner = match aligned {
+            Some(file) if file_support >= votes => file,
+            _ => winner,
+        };
+        return Ok(tightest_roll(part, &candidates, &votes_of, winner));
     }
     let Some(&first) = ranked.first() else {
         return Err(FrameRefusal::NoAnalyticDirection);
@@ -463,6 +469,67 @@ pub fn infer_part_frame(part: &Part) -> Result<PartFrame, FrameRefusal> {
         z,
         gauge: FrameGauge::Axial,
     })
+}
+
+/// Two material envelopes this close (relative) are one: a rigid motion moves the sampled
+/// points by round-off only, and a near-round profile's rolls differ by far less than this.
+const ENVELOPE_RELATIVE_TOL: f64 = 1e-4;
+
+/// The volume of the box, aligned with *axes*, that holds every point.
+fn envelope_volume(points: &[V3], axes: [V3; 3]) -> f64 {
+    let mut lo = [f64::INFINITY; 3];
+    let mut hi = [f64::NEG_INFINITY; 3];
+    for p in points {
+        for (i, axis) in axes.iter().enumerate() {
+            let t = geom::dot(*p, *axis);
+            lo[i] = lo[i].min(t);
+            hi[i] = hi[i].max(t);
+        }
+    }
+    (0..3).map(|i| (hi[i] - lo[i]).max(0.0)).product()
+}
+
+/// The roll about the winning basis's leading line (#91). The vote settles that line; a
+/// less-voted candidate basis that contains it replaces the winner when its box around the
+/// material (every edge's sampled points) is smaller, so a repeated feature direction cannot
+/// turn a part away from its own outline. An equal vote keeps the existing tie rule, a box
+/// smaller by no more than [`ENVELOPE_RELATIVE_TOL`] keeps the winner, and the first of equally
+/// tight others is taken in the vote's (intrinsic) candidate order. The envelope never reads
+/// the file's axes.
+fn tightest_roll(
+    part: &Part,
+    candidates: &[PartFrame],
+    votes: &[usize],
+    winner: usize,
+) -> PartFrame {
+    let lead = candidates[winner].x;
+    let rival = |i: usize| {
+        let c = &candidates[i];
+        votes[i] < votes[winner]
+            && [c.x, c.y, c.z]
+                .iter()
+                .any(|a| py::dot(a, &lead).abs() >= DIRECTION_COS)
+    };
+    if (0..candidates.len()).all(|i| !rival(i)) {
+        return candidates[winner];
+    }
+    let points: Vec<V3> = part
+        .edges
+        .iter()
+        .flat_map(|e| e.samples.iter().copied().chain([e.start, e.end]))
+        .collect();
+    let volume = |c: &PartFrame| envelope_volume(&points, [c.x, c.y, c.z]);
+    let mut chosen = (winner, volume(&candidates[winner]));
+    for (i, c) in candidates.iter().enumerate() {
+        if !rival(i) {
+            continue;
+        }
+        let v = volume(c);
+        if v < chosen.1 - ENVELOPE_RELATIVE_TOL * chosen.1 {
+            chosen = (i, v);
+        }
+    }
+    candidates[chosen.0]
 }
 
 /// The unique line established by the top direction class, or by two tied oblique lines.

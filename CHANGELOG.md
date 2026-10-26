@@ -40,6 +40,23 @@ in [docs/alpha1.md](docs/alpha1.md).
   differences by verdict and the deferred ones with what they wait on; its test fails
   when an agreed count falls or a deferral disappears unresolved.
 
+- **A part's roll follows its own outline (for #91).** The frame vote still settles the
+  leading line, but a less-voted basis about that line now sets the roll when the box around
+  the material (every edge's sampled points) is more than 1e-4 smaller; an equal vote keeps
+  the file-axis tie rule, and the box never reads the file's axes, so a rigid motion still
+  carries the frame. Of 2,959 corpus and fixture STEP files, 14 change frame:
+  `golden_oriented_slots` and its five captures (slots 14 votes to the plate's 6, box 0.53)
+  and the 17-degree slotted assembly's four captures (10 to 8, box 0.44) return to the
+  plate's file axes, so each slot claims all four walls and the plate faces are body;
+  cgb241 and its capture return to file axes (20 to 18, box 0.94), so face 47 is again a
+  convex R23 blend (its walls' normals are 92.06 degrees apart) and the two oblique-plane
+  step levels go; cgb217 turns to the 13.07-degree set of its cross bores and largest walls
+  (93 votes, box 0.80 of the 45-degree set's), so none of its sixteen R1 rounds runs along
+  an axis and all are blends, with no tilted fillets; its cross bores now lie on frame axes,
+  so the `InteriorVoidRefusal` over faces [26, 28, 41] (an incomplete two-wall sampled
+  component in the 45-degree grid) is no longer emitted. Schema stays recognition `/6`,
+  fingerprints `/3`; fingerprints of the re-recognised records on those parts change.
+
 - **Conservative stock-wall support (for #100).** Plate edges also check parallel
   walls outside their slab over the same run, so a step shoulder beside a thin
   plate strip remains unexplained. Interior stock walls must be perpendicular to
