@@ -6,6 +6,22 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.2.0 (2026-10-26)
+
+Upgrading from 0.1.1: recognition schema 6 and the API changes in 0.2.0-alpha.1 and
+0.2.0-alpha.2 below. Re-recognise rather than reuse 0.1.1 output.
+
+Upgrading from 0.2.0-alpha.2: no schema or API break. The schema stays
+`quiddity-rust/recognition/6` and fingerprints `/3`.
+
+- **New families:** `annular_grooves`, `semicircular_blind_slots` and `v_channels`. Readers that
+  list families must accept them.
+- **More faces claimed:** drill-point holes claim their tip cones and rectangular slots their end
+  walls, so those records' fingerprint values change; `quiddity correspond` pairs them.
+- **Face accounting** gains the body reasons `plate_edge` and `stock_wall`, and blended box
+  corners now count as stock (CTC-01: 86/0/31 feature/body/unexplained becomes 90/20/7).
+- **Pockets** gain `rectangular_boundary`, which defaults to false when absent.
+
 - **Conservative stock-wall support (for #100).** Plate edges also check parallel
   walls outside their slab over the same run, so a step shoulder beside a thin
   plate strip remains unexplained. Interior stock walls must be perpendicular to
