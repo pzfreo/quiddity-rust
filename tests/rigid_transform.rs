@@ -9,6 +9,7 @@ use quiddity::Part;
 use quiddity::kernel::brep::Pcurve;
 use quiddity::kernel::geom::{Curve, Frame, Surface, V3};
 use quiddity::kernel::step::{IDENTITY, Placement, read_step_file_placed};
+use sha2::{Digest, Sha256};
 
 fn files(dir: &Path, out: &mut Vec<PathBuf>) {
     for entry in std::fs::read_dir(dir).unwrap() {
@@ -321,8 +322,19 @@ fn loaded_transform_matches_reader_on_every_fixture_and_corpus_part() {
     if let Some(dir) = std::env::var_os("QUIDDITY_CORPUS").filter(|s| s != "off") {
         files(Path::new(&dir), &mut paths);
     }
-    paths.sort();
-    paths.dedup();
+    // One reading per distinct file (some parts are committed in several places), largest
+    // first: the costliest parts take minutes each, so starting them last leaves threads idle.
+    let mut seen = std::collections::BTreeSet::new();
+    let mut paths: Vec<(u64, PathBuf)> = paths
+        .into_iter()
+        .filter_map(|path| {
+            let bytes = std::fs::read(&path).unwrap();
+            seen.insert(Sha256::digest(&bytes).to_vec())
+                .then_some((bytes.len() as u64, path))
+        })
+        .collect();
+    paths.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.cmp(&b.1)));
+    let paths: Vec<PathBuf> = paths.into_iter().map(|(_, path)| path).collect();
     let (s, c) = 0.37_f64.sin_cos();
     let (t, d) = 0.61_f64.sin_cos();
     let oblique: Placement = [
@@ -353,8 +365,9 @@ fn loaded_transform_matches_reader_on_every_fixture_and_corpus_part() {
         }
         eprintln!("transform equivalence: caches warmed {}", path.display());
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            // Two real motions, which also check the copied caches: an exact quarter turn and a
+            // generic one.
             for at in [
-                IDENTITY,
                 [
                     [0.0, -1.0, 0.0, 11.0],
                     [1.0, 0.0, 0.0, 23.0],
@@ -369,12 +382,11 @@ fn loaded_transform_matches_reader_on_every_fixture_and_corpus_part() {
                     "transform equivalence: geometry checked {} at {at:?}",
                     path.display()
                 );
-                // Identity still checks copied/warmed caches. Recognition exercises production's
-                // transformed normalisation at two nontrivial placements, outside capture inputs.
-                let captured = path.starts_with(
+                // Recognition exercises production's transformed normalisation, outside capture
+                // inputs.
+                if path.starts_with(
                     Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/captured"),
-                );
-                if at == IDENTITY || captured {
+                ) {
                     continue;
                 }
                 let (a, b) = (recognition_bytes(&moved), recognition_bytes(&read));
@@ -420,7 +432,9 @@ fn loaded_transform_matches_reader_on_every_fixture_and_corpus_part() {
     .into_iter()
     .filter(|v| *v)
     .count();
-    eprintln!("rigid transform: {checked} readable fixture/corpus parts, three placements each");
+    eprintln!(
+        "rigid transform: {checked} distinct readable fixture/corpus parts, two placements each"
+    );
     assert!(checked > 100);
 }
 
