@@ -306,15 +306,24 @@ fn rust_snapshot_corpus() {
         let file = entry["file"].as_str().unwrap();
         let part = read_step_file(&dir.join(file)).unwrap();
         let mut results = serde_json::Map::new();
+        // Default families are guarded by the reconciled framed document below. Keep
+        // only API contracts it does not carry: raw passages and non-default options.
         for (function, runs) in entry["results"].as_object().unwrap() {
-            let runs: Vec<Value> = runs.as_array().unwrap().iter().map(|run| {
+            let runs: Vec<Value> = runs.as_array().unwrap().iter().filter(|run| {
+                function == "recognise_passages"
+                    || (function == "recognise_fillets" && run["options"]["include_cylindrical"] == false)
+                    || (function == "recognise_chamfers" && run["options"]["include_planar"] == false)
+                    || (function == "recognise_holes" && run["options"].as_object().unwrap().is_empty())
+            }).map(|run| {
                 let mut result = serde_json::json!({"options":run["options"], "records":common::recognise(function, &part, &run["options"])});
                 if run["check_evidence"] == true {
                     result["defining"] = serde_json::to_value(common::defining(function,&part,&run["options"])).unwrap();
                 }
                 result
             }).collect();
-            results.insert(function.clone(), Value::Array(runs));
+            if !runs.is_empty() {
+                results.insert(function.clone(), Value::Array(runs));
+            }
         }
         common::snapshot::check_with(
             &common::fixtures(),
@@ -323,6 +332,14 @@ fn rust_snapshot_corpus() {
             &common::same_kernel_snapshot,
         );
         let recognised = quiddity::correspondence::recognise(&part);
+        if !recognised.features.section_recesses.is_empty() {
+            assert!(
+                include_str!("../support/section_recess_parts.txt")
+                    .lines()
+                    .any(|name| name == file),
+                "{file}: add this section-recess part to the carrying/publication subset"
+            );
+        }
         let mut document = serde_json::to_value(quiddity::recognition::document(
             &recognised,
             part.faces.len(),

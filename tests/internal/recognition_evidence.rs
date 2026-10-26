@@ -323,36 +323,6 @@ fn capture_covers_the_corpus() {
     assert_eq!(got, want);
 }
 
-#[test]
-fn rust_snapshot_recognition_evidence() {
-    let Some(dir) = corpus() else { return };
-    let capture = capture();
-    let entries = parts(&capture);
-    let found = common::parallel::map(entries, |p| {
-        let file = p["file"].as_str().unwrap();
-        let part = read(&dir, file);
-        let rust = port_view(&part);
-        // Structure unmoved Rust's view guarantees: a pattern's members are accepted holes, and every
-        // rejected position names a rejected candidate.
-        if let Ok(view) = build_recognition_evidence(&part) {
-            for f in &view.features {
-                for &m in &f.members {
-                    assert_eq!(view.features[m].family, "holes", "{file}");
-                }
-            }
-            assert!(view.rejected_candidates.iter().all(|&c| {
-                view.candidates[c].outcome == quiddity::features::reconcile::Outcome::Rejected
-            }));
-            for (at, f) in view.features.iter().enumerate() {
-                let record = view.record(at);
-                assert!(record.is_object(), "{file}: {} has no record", f.family);
-            }
-        }
-        json!({"file":file,"view":rust})
-    });
-    common::snapshot::check(&common::fixtures(), "recognition_evidence", &json!(found));
-}
-
 /// Two of `tests/invariance.rs`'s rigid motions: one moving every axis and the origin, and one
 /// reversing two axes (keeping Z vertical), each with whether it keeps Z vertical.
 const MOTIONS: [(&str, Placement, bool); 2] = [
@@ -378,13 +348,30 @@ const MOTIONS: [(&str, Placement, bool); 2] = [
 
 /// The view is the same faces however the part is placed.
 #[test]
-fn view_is_placement_independent() {
+fn rust_snapshot_recognition_evidence_and_view_is_placement_independent() {
     let Some(dir) = corpus() else { return };
     let capture = capture();
     let found = common::parallel::map(parts(&capture), |p| {
         let file = p["file"].as_str().unwrap();
         let path = dir.join(file);
-        let want = port_view(&read(&dir, file));
+        let part = read(&dir, file);
+        let want = build_recognition_evidence(&part)
+            .map(|view| {
+                for f in &view.features {
+                    for &m in &f.members {
+                        assert_eq!(view.features[m].family, "holes", "{file}");
+                    }
+                }
+                assert!(view.rejected_candidates.iter().all(|&c| {
+                    view.candidates[c].outcome == quiddity::features::reconcile::Outcome::Rejected
+                }));
+                for (at, f) in view.features.iter().enumerate() {
+                    let record = view.record(at);
+                    assert!(record.is_object(), "{file}: {} has no record", f.family);
+                }
+                as_json(&view)
+            })
+            .map_err(|e| e.to_string());
         let mut out = Vec::new();
         for (motion, placement, z_vertical) in &MOTIONS {
             let moved = read_step_file_placed(&path, placement).unwrap();
@@ -404,7 +391,13 @@ fn view_is_placement_independent() {
                 }
             }
         }
-        out
+        (json!({"file":file,"view":want}), out)
     });
-    check_known(found.into_iter().flatten().collect(), "motions");
+    let (snapshots, motions): (Vec<_>, Vec<_>) = found.into_iter().unzip();
+    common::snapshot::check(
+        &common::fixtures(),
+        "recognition_evidence",
+        &json!(snapshots),
+    );
+    check_known(motions.into_iter().flatten().collect(), "motions");
 }

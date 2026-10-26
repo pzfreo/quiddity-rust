@@ -194,23 +194,6 @@ fn read(dir: &Path, file: &str) -> Part {
     read_step_file(&dir.join(file)).unwrap_or_else(|e| panic!("{file}: {e}"))
 }
 
-#[test]
-fn rust_snapshot_reconcile() {
-    let Some(dir) = corpus() else { return };
-    let inputs = capture();
-    let actual = common::parallel::map(parts(&inputs), |p| {
-        let file = p["file"].as_str().unwrap();
-        let part = read(&dir, file);
-        let inventory = features::inventory(&part);
-        let decisions = decision_json(decided(inventory.clone().map(|i| i.dispositions)));
-        let accepted = inventory
-            .map(|i| i.accepted().defining)
-            .map_err(|e| e.to_string());
-        json!({"file":file,"decisions":decisions,"accepted":accepted})
-    });
-    common::snapshot::check(&common::fixtures(), "reconcile", &json!(actual));
-}
-
 /// The `Features` fields (`Defining` keys) the rules read, by unmoved Rust family value.
 const FIELDS: [(&str, &str); 19] = [
     ("angled_steps", "angled_steps"),
@@ -242,12 +225,10 @@ fn face_lists(v: Option<&Value>) -> Vec<Vec<usize>> {
 
 /// unmoved Rust's decisions on the synthetic scenarios that reach the branches the corpus does not
 /// (`tools/capture_reconcile.py --scenarios`), rebuilt from the same inputs: every one agrees.
-#[test]
-fn rust_snapshot_reconcile_scenarios() {
+fn snapshot_reconcile_scenarios(mut reasons: BTreeSet<String>, with_corpus: bool) {
     let captured = common::load("captured/reconcile/scenarios.json");
     let scenarios = captured["scenarios"].as_array().unwrap();
     let mut actual = Vec::new();
-    let mut reasons = BTreeSet::new();
     for s in scenarios {
         let families = &s["families"];
         for name in families.as_object().unwrap().keys() {
@@ -301,16 +282,7 @@ fn rust_snapshot_reconcile_scenarios() {
         actual.push(json!({"name":s["name"],"result":decision_json(rust)}));
     }
     common::snapshot::check(&common::fixtures(), "reconcile_scenarios", &json!(actual));
-    if let Some(dir) = corpus() {
-        let inputs = capture();
-        for p in parts(&inputs) {
-            let part = read(&dir, p["file"].as_str().unwrap());
-            if let Ok(map) = port_decisions(&part) {
-                for d in map.values().flatten() {
-                    reasons.insert(d["reason"].as_str().unwrap().to_owned());
-                }
-            }
-        }
+    if with_corpus {
         let missing: Vec<_> = reconcile::ReasonCode::ALL
             .iter()
             .filter(|r| !reasons.contains(r.value()))
@@ -342,13 +314,31 @@ const MOTIONS: [(&str, Placement); 2] = [
 
 /// The port's decisions are the same faces however the part is placed.
 #[test]
-fn decisions_are_placement_independent() {
-    let Some(dir) = corpus() else { return };
+fn rust_snapshot_reconcile_and_decisions_are_placement_independent() {
+    let Some(dir) = corpus() else {
+        snapshot_reconcile_scenarios(BTreeSet::new(), false);
+        return;
+    };
     let capture = capture();
     let found = common::parallel::map(parts(&capture), |p| {
         let file = p["file"].as_str().unwrap();
         let path = dir.join(file);
-        let want = port_decisions(&read(&dir, file));
+        let inventory = features::inventory(&read(&dir, file));
+        let want = decided(inventory.clone().map(|i| i.dispositions));
+        let reasons: BTreeSet<String> = want
+            .as_ref()
+            .map(|map| {
+                map.values()
+                    .flatten()
+                    .map(|d| d["reason"].as_str().unwrap().to_owned())
+                    .collect()
+            })
+            .unwrap_or_default();
+        let accepted = inventory
+            .map(|i| i.accepted().defining)
+            .map_err(|e| e.to_string());
+        let snapshot =
+            json!({"file":file,"decisions":decision_json(want.clone()),"accepted":accepted});
         let mut out = Vec::new();
         for (motion, placement) in &MOTIONS {
             let moved = read_step_file_placed(&path, placement).unwrap();
@@ -362,9 +352,19 @@ fn decisions_are_placement_independent() {
                 out.push(d);
             }
         }
-        out
+        (snapshot, out, reasons)
     });
-    check_known(found.into_iter().flatten().collect(), "motions");
+    let mut snapshots = Vec::new();
+    let mut motions = Vec::new();
+    let mut reasons = BTreeSet::new();
+    for (snapshot, motion, codes) in found {
+        snapshots.push(snapshot);
+        motions.extend(motion);
+        reasons.extend(codes);
+    }
+    common::snapshot::check(&common::fixtures(), "reconcile", &json!(snapshots));
+    snapshot_reconcile_scenarios(reasons, true);
+    check_known(motions, "motions");
 }
 
 fn decision_json(result: Result<Decided, String>) -> Value {

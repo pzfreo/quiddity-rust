@@ -91,31 +91,19 @@ fn cgb241_bends_are_blends_with_their_native_sides() {
     }
 }
 
-#[test]
-fn cgb202_concave_r3_faces_are_not_fillets_in_file_axes_or_five_degree_copy() {
-    let Some(dir) = common::corpus_dir() else {
-        return;
-    };
-    let part = read_step_file(&dir.join("cadgenbench_inputs/cgb202.step.gz")).unwrap();
-    for degrees in [0., 5.] {
-        let moved = part.transformed(&about_y(degrees)).unwrap();
-        for reading in [
-            correspondence::caller_space_recognise(&moved),
-            correspondence::recognise(&moved),
-        ] {
-            for face in [1215, 1219] {
-                assert_eq!(moved.frame_points_outward(face), Some(false));
-                assert!(
-                    matches!(moved.faces[face].surface, Surface::Cylinder { radius, .. } if (radius - 3.).abs() < 1e-9)
-                );
-                assert!(
-                    !reading.features.defining["fillets"].contains(&vec![face]),
-                    "{degrees} degrees: face {face}"
-                );
-            }
-            check_cylinder_sides(&moved, &reading);
-        }
+// #89: retain the exact face/radius/non-fillet guard in the shared motion readings.
+fn cgb202_guard(part: &Part, reading: &Recognition) {
+    for face in [1215, 1219] {
+        assert_eq!(part.frame_points_outward(face), Some(false));
+        assert!(
+            matches!(part.faces[face].surface, Surface::Cylinder { radius, .. } if (radius - 3.).abs() < 1e-9)
+        );
+        assert!(
+            !reading.features.defining["fillets"].contains(&vec![face]),
+            "face {face}"
+        );
     }
+    check_cylinder_sides(part, reading);
 }
 
 #[test]
@@ -129,7 +117,13 @@ fn every_round_keeps_its_sense_on_rotated_cgb241_cgb202_and_ctc02_ap242() {
     }
     for path in paths {
         let part = read_step_file(&path).unwrap();
-        let original = round_sides(&correspondence::recognise(&part));
+        let reading = correspondence::recognise(&part);
+        let cgb202 = path.file_name().unwrap() == "cgb202.step.gz";
+        if cgb202 {
+            cgb202_guard(&part, &reading);
+            cgb202_guard(&part, &correspondence::caller_space_recognise(&part));
+        }
+        let original = round_sides(&reading);
         assert!(!original.is_empty(), "{path:?}");
         for degrees in [5., 27.4, 60.] {
             let moved = part.transformed(&about_y(degrees)).unwrap();
@@ -142,7 +136,12 @@ fn every_round_keeps_its_sense_on_rotated_cgb241_cgb202_and_ctc02_ap242() {
             check_cylinder_sides(&moved, &reading);
             // Caller-space recognition deliberately changes the query axes. Families can
             // change, but every cylindrical round it emits must still have its native side.
-            check_cylinder_sides(&moved, &correspondence::caller_space_recognise(&moved));
+            let caller = correspondence::caller_space_recognise(&moved);
+            check_cylinder_sides(&moved, &caller);
+            if cgb202 && degrees == 5. {
+                cgb202_guard(&moved, &reading);
+                cgb202_guard(&moved, &caller);
+            }
             for (face, side) in &original {
                 if matches!(part.faces[*face].surface, Surface::Cylinder { .. }) {
                     assert_eq!(

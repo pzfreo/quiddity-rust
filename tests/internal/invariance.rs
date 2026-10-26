@@ -320,11 +320,7 @@ const GENERIC: &str = "generic_framed";
 /// part's frame is not full the two working frames may differ by the gauge's freedom (a sign or
 /// interchange, a roll about the axis), and the listed exceptions say so.
 ///
-/// Also prints, without failing, how many family results caller-space recognition changes under
-/// the same rotation (review M8's measure).
-///
-/// One test per slice of the corpus (`tests/support/slices.rs`); the measure printed is the
-/// slice's.
+/// One test per existing slice of the corpus.
 fn framed_invariant_under_a_generic_rotation(k: usize, n: usize) {
     let Some(dir) = common::corpus_dir() else {
         assert!(
@@ -338,30 +334,13 @@ fn framed_invariant_under_a_generic_rotation(k: usize, n: usize) {
     let known = known_entries(&[GENERIC], |file| slices::owns(&all, k, n, file));
     let files = slices::slice(&all, k, n);
     let generic = rotation([1.0, 2.0, 3.0], 37.0, T);
-    // Each part's four readings (as read, then in its frame; unmoved, then rotated), all spread
-    // over every core at once, so a costly part's readings run side by side.
-    let readings: Vec<(usize, bool, &Placement)> = (0..files.len())
-        .flat_map(|i| {
-            [
-                (false, &IDENTITY),
-                (false, &generic),
-                (true, &IDENTITY),
-                (true, &generic),
-            ]
-            .map(|(framed, at)| (i, framed, at))
-        })
+    let readings: Vec<(usize, &Placement)> = (0..files.len())
+        .flat_map(|i| [&IDENTITY, &generic].map(|at| (i, at)))
         .collect();
-    let mut read = common::parallel::map(&readings, |&(i, framed, at)| {
-        let path = dir.join(&files[i]);
-        if framed {
-            frames::prepare_framed_file(&path, at)
-                .map(|f| (Some(f.frame.gauge), signature(&f.part)))
-                .map_err(|e| e.to_string())
-        } else {
-            read_step_file_placed(&path, at)
-                .map(|p| (None, signature(&p)))
-                .map_err(|e| e.to_string())
-        }
+    let mut read = common::parallel::map(&readings, |&(i, at)| {
+        frames::prepare_framed_file(&dir.join(&files[i]), at)
+            .map(|f| (f.frame.gauge, signature(&f.part)))
+            .map_err(|e| e.to_string())
     })
     .into_iter();
     let mut breakdown_problems = Vec::new();
@@ -369,14 +348,9 @@ fn framed_invariant_under_a_generic_rotation(k: usize, n: usize) {
         .iter()
         .map(|name| {
             let mut next = || read.next().unwrap();
-            let (plain_unmoved, plain_moved) = (next(), next());
-            // Caller space: the part as read, and as read under the rotation.
-            let plain = plain_unmoved
-                .ok()
-                .map(|(_, unmoved)| differences(&unmoved, &plain_moved.unwrap().1, |_| false));
             // In the part's frame. A refused frame (no material, an unmeasured face) is a
             // difference only when the two placements disagree on it.
-            let differing = match (next(), next()) {
+            match (next(), next()) {
                 (Ok((_, unmoved)), Ok((_, moved))) => {
                     breakdown_problems.extend(check_breakdown(
                         "framed",
@@ -393,33 +367,12 @@ fn framed_invariant_under_a_generic_rotation(k: usize, n: usize) {
                 (a, b) => vec![Difference {
                     family: "frame",
                     count: 1,
-                    text: format!(
-                        "unmoved {:?}, moved {:?}",
-                        a.map(|f| f.0.unwrap()),
-                        b.map(|f| f.0.unwrap())
-                    ),
+                    text: format!("unmoved {:?}, moved {:?}", a.map(|f| f.0), b.map(|f| f.0)),
                 }],
-            };
-            (plain, differing)
+            }
         })
         .collect();
-    let (mut results, mut occurrences) = (0, 0);
-    for (name, (plain, _)) in files.iter().zip(&found) {
-        for d in plain.iter().flatten() {
-            results += 1;
-            occurrences += d.count;
-            eprintln!("caller space, {name} {}: {}", d.family, d.text);
-        }
-    }
-    eprintln!(
-        "caller-space recognition under the generic rotation: {results} family results change \
-         ({occurrences} occurrences differ) over {} parts",
-        files.len()
-    );
-    let framed = files
-        .iter()
-        .zip(found)
-        .map(|(name, (_, d))| (name, GENERIC, d));
+    let framed = files.iter().zip(found).map(|(name, d)| (name, GENERIC, d));
     let mut problems = unexplained(&known, framed);
     problems.extend(breakdown_problems);
     assert!(problems.is_empty(), "{}", problems.join("\n"));

@@ -2,8 +2,6 @@
 
 use super::common;
 
-use std::sync::OnceLock;
-
 use quiddity::correspondence;
 use quiddity::kernel::step::IDENTITY;
 use quiddity::recognition::{self, RecognitionDocument};
@@ -19,42 +17,39 @@ struct Run {
     framed_recesses: Value,
 }
 
-fn runs() -> &'static [Run] {
-    static RUNS: OnceLock<Vec<Run>> = OnceLock::new();
-    RUNS.get_or_init(|| {
-        let Some(corpus) = common::corpus_dir() else {
-            assert!(
-                std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
-                "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
-            );
-            return Vec::new();
-        };
-        let baseline = common::load("section_recess_publication_baseline.json");
-        let rows = baseline["runs"].as_array().unwrap();
-        assert_eq!(rows.len(), 30);
-        common::parallel::map(rows, |baseline| {
-            let file = baseline["file"].as_str().unwrap();
-            let path = corpus.join(file);
-            let part = quiddity::read_step_file(&path).unwrap();
-            let caller = correspondence::caller_space_recognise(&part);
-            assert!(caller.features.section_recess_refusal.is_none(), "{file}");
-            let caller_doc = recognition::document(&caller, part.faces.len());
-            let (_, framed, _) = serve::recognise_step(path.to_str().unwrap(), &IDENTITY).unwrap();
-            Run {
-                baseline: baseline.clone(),
-                caller_unpublished: without_section_recess_publication(&caller, part.faces.len()),
-                framed_unpublished: without_section_recess_publication(&framed, part.faces.len()),
-                caller: caller_doc,
-                framed: recognition::document(&framed, part.faces.len()),
-                framed_recesses: json!(
-                    recognition::families(&framed.features)
-                        .into_iter()
-                        .find(|(f, _)| f == "section_recesses")
-                        .unwrap()
-                        .1
-                ),
-            }
-        })
+fn runs() -> Vec<Run> {
+    let Some(corpus) = common::corpus_dir() else {
+        assert!(
+            std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
+            "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
+        );
+        return Vec::new();
+    };
+    let baseline = common::load("section_recess_publication_baseline.json");
+    let rows = baseline["runs"].as_array().unwrap();
+    assert_eq!(rows.len(), 30);
+    common::parallel::map(rows, |baseline| {
+        let file = baseline["file"].as_str().unwrap();
+        let path = corpus.join(file);
+        let part = quiddity::read_step_file(&path).unwrap();
+        let caller = correspondence::caller_space_recognise(&part);
+        assert!(caller.features.section_recess_refusal.is_none(), "{file}");
+        let caller_doc = recognition::document(&caller, part.faces.len());
+        let (_, framed, _) = serve::recognise_step(path.to_str().unwrap(), &IDENTITY).unwrap();
+        Run {
+            baseline: baseline.clone(),
+            caller_unpublished: without_section_recess_publication(&caller, part.faces.len()),
+            framed_unpublished: without_section_recess_publication(&framed, part.faces.len()),
+            caller: caller_doc,
+            framed: recognition::document(&framed, part.faces.len()),
+            framed_recesses: json!(
+                recognition::families(&framed.features)
+                    .into_iter()
+                    .find(|(f, _)| f == "section_recesses")
+                    .unwrap()
+                    .1
+            ),
+        }
     })
 }
 
@@ -81,10 +76,11 @@ fn recesses(doc: &RecognitionDocument) -> Vec<Value> {
 
 #[test]
 fn rust_snapshot_quality_section_recesses() {
-    if runs().is_empty() {
+    let runs = runs();
+    if runs.is_empty() {
         return;
     }
-    let actual: Vec<Value> = runs()
+    let actual: Vec<Value> = runs
         .iter()
         .map(|run| json!({"file":run.baseline["file"],"records":recesses(&run.caller)}))
         .collect();
@@ -93,15 +89,13 @@ fn rust_snapshot_quality_section_recesses() {
         "quality_recess_publication",
         &json!(actual),
     );
+    inferred_frame_section_recesses_are_published(&runs);
+    section_recess_publication_is_additive(&runs);
 }
 
-#[test]
-fn inferred_frame_section_recesses_are_published() {
-    if runs().is_empty() {
-        return;
-    }
+fn inferred_frame_section_recesses_are_published(runs: &[Run]) {
     let mut published = 0;
-    for run in runs() {
+    for run in runs {
         let file = run.baseline["file"].as_str().unwrap();
         let got = json!(recesses(&run.framed));
         assert_eq!(
@@ -152,9 +146,8 @@ fn existing_document_bytes(document: &RecognitionDocument) -> Vec<u8> {
     serde_json::to_vec(&value).unwrap()
 }
 
-#[test]
-fn section_recess_publication_is_additive() {
-    for run in runs() {
+fn section_recess_publication_is_additive(runs: &[Run]) {
+    for run in runs {
         let file = run.baseline["file"].as_str().unwrap();
         for (name, published, unpublished) in [
             ("caller", &run.caller, &run.caller_unpublished),

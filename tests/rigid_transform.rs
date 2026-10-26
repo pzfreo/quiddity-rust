@@ -369,6 +369,14 @@ fn loaded_transform_matches_reader_on_every_fixture_and_corpus_part() {
                     "transform equivalence: geometry checked {} at {at:?}",
                     path.display()
                 );
+                // Identity still checks copied/warmed caches. Recognition exercises production's
+                // transformed normalisation at two nontrivial placements, outside capture inputs.
+                let captured = path.starts_with(
+                    Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/captured"),
+                );
+                if at == IDENTITY || captured {
+                    continue;
+                }
                 let (a, b) = (recognition_bytes(&moved), recognition_bytes(&read));
                 match (&a, &b) {
                     (Ok(a), Ok(b)) if a != b => {

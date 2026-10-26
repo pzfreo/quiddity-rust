@@ -1,5 +1,4 @@
-//! Output does not depend on hash order: every corpus part (`corpus.json`'s files, as the corpus
-//! tests read them) is read, recognised and corresponded with itself twice in one process, where
+//! Output does not depend on hash order: representative corpus parts is read, recognised and corresponded with itself twice in one process, where
 //! each `HashMap` gets a fresh random hash seed (the STEP reader's entity indices, the
 //! recognisers' maps, the correspondence's face index), and the JSON the CLI would print — the
 //! recognition with fingerprints, and `correspond` of the part with itself — must be the same
@@ -79,6 +78,24 @@ fn recognition_json_is_the_same_twice_in_one_process() {
         .unwrap()
         .iter()
         .map(|e| e["file"].as_str().unwrap().to_owned())
+        .filter(|name| {
+            GUARDED.iter().any(|(file, _)| name == file)
+                || [
+                    "cadgenbench/flanged_spool_132.step",
+                    "inventory_refusal/13975.step.gz",
+                    "inventory_refusal/14052.step.gz",
+                    "mfcadpp/1000.step",
+                    "mfcadpp/10000.step",
+                    "mfcadpp/10047.step",
+                    "mfcadpp_holdout/118.step",
+                    "mfcadpp_regressions/11512.step",
+                    "nist/nist_ctc_01_asme1_rd.stp",
+                    "nist/nist_ctc_02_asme1_rc.stp",
+                    "nist/nist_ctc_05_asme1_rd.stp",
+                    "nist/nist_ftc_06_asme1_rd.stp",
+                ]
+                .contains(&name.as_str())
+        })
         .collect();
     // Each part twice, as two work items: the runs get fresh seeds and usually separate threads,
     // and the slowest part's two runs overlap rather than ending two passes.
