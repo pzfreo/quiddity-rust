@@ -979,7 +979,7 @@ fn build(mut faces: Vec<usize>, boxes: &[Bounds]) -> Node {
     let extent = geom::sub(all.max, all.min);
     let axis = (0..3)
         .max_by(|&a, &b| extent[a].total_cmp(&extent[b]))
-        .unwrap();
+        .unwrap_or(0);
     let centre = |f: usize| boxes[f].min[axis] + boxes[f].max[axis];
     faces.sort_by(|&a, &b| centre(a).total_cmp(&centre(b)).then(a.cmp(&b)));
     let right = faces.split_off(faces.len() / 2);

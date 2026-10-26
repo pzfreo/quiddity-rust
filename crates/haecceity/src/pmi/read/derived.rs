@@ -52,6 +52,15 @@ impl Reader<'_> {
                 surfaces.push(self.deriving_surface(st.part.faces[face.0], rep)?);
             }
             let geometry = derived::derive(&surfaces, tolerance)?;
+            if !geometry
+                .point
+                .iter()
+                .chain(&geometry.direction)
+                .chain(&geometry.radius)
+                .all(|x| x.is_finite())
+            {
+                return Err("the derived geometry is not finite".into());
+            }
             // Intermediate derived aspects have already passed their own cross-checks.
             let mut explicit = Vec::new();
             for (_, rep, items) in self.usages(aspect) {
@@ -109,6 +118,10 @@ impl Reader<'_> {
                 }
             }
         }
+        #[allow(
+            clippy::expect_used,
+            reason = "a finite f64 displays as a plain decimal; non-finite geometry is refused above"
+        )]
         let decimal = |x: f64| Decimal::parse(&x.to_string()).expect("finite computed coordinate");
         let length = |x| Length {
             value: decimal(x),

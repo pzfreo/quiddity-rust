@@ -11,7 +11,7 @@ fn find_span(knots: &[f64], degree: usize, n: usize, t: f64) -> usize {
 }
 
 /// OpenCascade's largest B-spline degree; basis values live on the stack up to it.
-const MAX_DEGREE: usize = 25;
+pub const MAX_DEGREE: usize = 25;
 
 /// Up to `MAX_DEGREE + 1` basis values, read as a slice.
 #[derive(Clone, Copy)]
@@ -311,8 +311,8 @@ impl NurbsCurve {
             .iter()
             .map(|&(t, q)| (geom::dist(q, p), t))
             .min_by(|a, b| a.0.total_cmp(&b.0))
-            .expect("samples")
-            .1;
+            // The table always holds 513 samples.
+            .map_or(lo, |(_, t)| t);
         let h = (hi - lo) * 1e-7;
         for _ in 0..30 {
             let (ta, tb) = ((t - h).max(lo), (t + h).min(hi));

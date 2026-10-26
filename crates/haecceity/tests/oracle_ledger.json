@@ -1,0 +1,173 @@
+{
+  "about": "Per kernel query: cases captured from an independent reference, agreed, differing by verdict, and deferred with what each waits on. Written by crates/haecceity/tests/oracle_ledger.rs (HAECCEITY_LEDGER=write); see there.",
+  "queries": [
+    {
+      "agreed": 8822,
+      "cases": 10653,
+      "deferred": [
+        {
+          "captured": true,
+          "case": "cadgenbench_inputs/cgb242.step.gz face 483",
+          "verdict": "undetermined",
+          "waits_on": "A degenerate sliver at the tip of a B-spline surface whose side u = 0 collapses to a point: its two edges (1618 and 177, at most 3.6e-5 mm apart, about their summed tolerances of 1.6e-5 and 2.1e-5) run out to u = 0.0016898 along what the port finds are the surface's sides v = 1 and v = 0, which lie 1.2e-5 mm apart there (the surface nearly closes at its tip). Read so, the edges bound the whole tip, whose area the port gives, 5.462467436e-08 (the exact surface integrated over u < 0.0016898, every v, gives 5.4618e-8 with OpenCascade's evaluator). OpenCascade's pcurves put both edges near v = 0.042 instead, joined by a degenerate edge along the collapsed side, and bound a thin triangle (face.area 5.908447598e-10, adaptive 5.908447598e-10; a triangulation of it has area 1e-21). The geometry does not decide which region the file means: the edges lie within their tolerance of either reading. Negligible either way (5.5e-13 of the solid's area); no principled fix short of reading slivers by their tolerances. (This entry once said OpenCascade bounds the face by one edge used twice: its two edges are distinct.) Reference audit: the raw 3D-boundary and supplied-pcurve interpretations remain distinct within the file's own edge tolerances. Neither further quadrature nor motion invariance selects the intended region. Missing evidence is an authoritative trim/author correction specifying which side of the nearly collapsed surface bounds the sliver; retain undetermined rather than treating a tiny contribution as zero."
+        }
+      ],
+      "differences": {
+        "not-applicable": 1,
+        "rust-correct": 1829,
+        "undetermined": 1
+      },
+      "oracle": "OpenCascade BRepGProp face areas (tests/fixtures/face_areas.json.gz); independent integrations by tools/face_area_evidence.py and tools/kernel_evidence.py",
+      "query": "face_area",
+      "test": "crates/haecceity/tests/face_areas.rs"
+    },
+    {
+      "agreed": 6114,
+      "cases": 7472,
+      "deferred": [
+        {
+          "captured": true,
+          "case": "cadgenbench_inputs/cgb242.step.gz face 483",
+          "verdict": "undetermined",
+          "waits_on": "BSPLINE face. OpenCascade's adaptive integral (eps 1e-9): area 5.908447598e-10, centroid (-62.53735528, 21.14073352, 2.693086912); with its pcurves rebuilt from the 3D edges: area 9.404544951e-10, centroid (-62.53679131, 21.14247982, 2.693086951). The port: area 5.462467436e-08, centroid (-62.53798554, 21.13876554, 2.693086787). The ambiguity is geometric: known_face_areas.json records two distinct edges only 3.6e-5 mm apart, within their summed tolerances, projecting to either side of a surface whose u = 0 side collapses. The 3D boundary bounds the full tip, whereas the pcurves bound a narrow triangle near v = 0.042. Independent OCCT boundary interpolation at 16 and 32 panels does not settle the choice (0.00284 relative area residual and 2.15e-5 mm centroid residual at 32 panels). The file's tolerances do not select between the two boundary interpretations. Reference audit: the raw 3D-boundary and supplied-pcurve interpretations remain distinct within the file's own edge tolerances. Neither further quadrature nor motion invariance selects the intended region. Missing evidence is an authoritative trim/author correction specifying which side of the nearly collapsed surface bounds the sliver; retain undetermined rather than treating a tiny contribution as zero."
+        }
+      ],
+      "differences": {
+        "rust-correct": 1357,
+        "undetermined": 1
+      },
+      "oracle": "OpenCascade adaptive face areas and centroids (tests/fixtures/face_moments.json.gz); Green's-theorem evidence in the test and tools/centroid_evidence.py",
+      "query": "face_moments",
+      "test": "crates/haecceity/tests/face_moments.rs"
+    },
+    {
+      "agreed": 29973,
+      "cases": 30000,
+      "deferred": [],
+      "differences": {
+        "not-applicable": 22,
+        "rust-correct": 5
+      },
+      "oracle": "OpenCascade BRepClass3d_SolidClassifier states (tests/fixtures/classify.json.gz)",
+      "query": "classification",
+      "test": "crates/haecceity/tests/classify.rs"
+    },
+    {
+      "agreed": 1475,
+      "cases": 1495,
+      "deferred": [],
+      "differences": {
+        "not-applicable": 1,
+        "rust-correct": 19
+      },
+      "oracle": "OpenCascade fuzzy-boolean probe volumes (tests/fixtures/probes.json.gz)",
+      "query": "rays",
+      "test": "crates/haecceity/tests/probes.rs"
+    },
+    {
+      "agreed": 477,
+      "cases": 540,
+      "deferred": [],
+      "differences": {
+        "not-applicable": 4,
+        "rust-correct": 59
+      },
+      "oracle": "OpenCascade hidden-line projections and sections (tests/fixtures/hlr.json.gz, section.json.gz)",
+      "query": "hlr",
+      "test": "crates/haecceity/tests/drawings.rs"
+    },
+    {
+      "agreed": 10447,
+      "cases": 12275,
+      "deferred": [
+        {
+          "captured": true,
+          "case": "cadgenbench_inputs/cgb202.step.gz face 1351",
+          "verdict": "rust-wrong",
+          "waits_on": "Independent raw-STEP reference: tools/perimeter_evidence.py reads EDGE_CURVE #193096 before TransferRoots/healing, projects its original vertices onto StepToGeom's exact B-spline and integrates speed at 1e-9/1e-11 (same result). Rust edge 3553 uses t=0 at its start; the closest foot is t=0.000251468574528, shortening this edge from Rust 1.194093370496 to 1.194070972635 mm. Its original vertex is 0.005701134662 mm from t=0, 0.005700359624 from the foot. Consequently face 1351 perimeter is 19.892893939914 rather than 19.892916337769, and face 1440 is 10.274090910222 rather than 10.274113308076. The areas remain rust-correct in known_face_areas.json. Cause: B-spline endpoint inversion selects the domain endpoint rather than the nearer interior foot; the derived nominal inherits the perimeter error. Recorded, not fixed."
+        },
+        {
+          "captured": true,
+          "case": "cadgenbench_inputs/cgb202.step.gz face 1440",
+          "verdict": "rust-wrong",
+          "waits_on": "Independent raw-STEP reference: tools/perimeter_evidence.py reads EDGE_CURVE #193096 before TransferRoots/healing, projects its original vertices onto StepToGeom's exact B-spline and integrates speed at 1e-9/1e-11 (same result). Rust edge 3553 uses t=0 at its start; the closest foot is t=0.000251468574528, shortening this edge from Rust 1.194093370496 to 1.194070972635 mm. Its original vertex is 0.005701134662 mm from t=0, 0.005700359624 from the foot. Consequently face 1351 perimeter is 19.892893939914 rather than 19.892916337769, and face 1440 is 10.274090910222 rather than 10.274113308076. The areas remain rust-correct in known_face_areas.json. Cause: B-spline endpoint inversion selects the domain endpoint rather than the nearer interior foot; the derived nominal inherits the perimeter error. Recorded, not fixed."
+        },
+        {
+          "captured": true,
+          "case": "cadgenbench_inputs/cgb207.step face 125",
+          "verdict": "rust-wrong",
+          "waits_on": "Both parts of the nominal differ. The area differs from OpenCascade's face.area (known_face_areas.json lists this face: rust-wrong); the physical perimeter differs from OpenCascade's even with each edge integrated to 1e-10, by up to 3e-4 relative: OpenCascade's import healing ends this file's edges at other vertices (cgb207 face 154: a line 0.76576 long in the port, 0.76574 in OpenCascade; an ellipse arc 2.14346 against 2.13509), and neither set of edges is shown to be the file's intent."
+        },
+        {
+          "captured": true,
+          "case": "cadgenbench_inputs/cgb217.step.gz face 34",
+          "verdict": "rust-wrong",
+          "waits_on": "The nominal follows the face's area, which differs from OpenCascade's face.area: known_face_areas.json lists this face (rust-wrong)."
+        },
+        {
+          "captured": true,
+          "case": "parts/2fe0e2383b80a0b8.step.gz face 0",
+          "verdict": "rust-wrong",
+          "waits_on": "A cylinder patch of radius 1e8 stored as a B-spline (Python's huge-radius ambiguity test): mass.rs gives its area as 0.0109 against 10.0 (round-off at coordinates of 1e8), so the port's nominal is wrong; both sides still refuse the surface."
+        },
+        {
+          "captured": true,
+          "case": "parts/6abd0d86721a0fe9.step.gz face 0",
+          "verdict": "rust-wrong",
+          "waits_on": "mass.rs gives this face no area (a closed B-spline surface whose only edge is its seam; README's known limitation, unchanged on w3/q-kernel-boxes 0c6de9b), so the port has no nominal where Python has one."
+        }
+      ],
+      "differences": {
+        "not-applicable": 16,
+        "rust-correct": 1806,
+        "rust-wrong": 6
+      },
+      "oracle": "OpenCascade face areas and perimeters behind recovered surfaces' nominal sizes (tests/fixtures/captured/effective_surfaces/faces.json.gz)",
+      "query": "recovery",
+      "test": "tests/internal/effective_surfaces.rs (recovery_lengths_match_opencascade_measurements)"
+    },
+    {
+      "agreed": 339,
+      "cases": 399,
+      "deferred": [],
+      "differences": {
+        "equivalent": 9,
+        "rust-correct": 65
+      },
+      "oracle": "NIST's expected PMI rows (tests/fixtures/ap242/nist/*.expected.json)",
+      "query": "pmi_read_nist",
+      "test": "crates/haecceity/tests/pmi_read.rs (nist_expected_pmi)"
+    },
+    {
+      "agreed": 277,
+      "cases": 425,
+      "deferred": [
+        {
+          "captured": false,
+          "case": "nist_ftc_08_asme1_ap242-e4-tg occt part definitions",
+          "verdict": "rust-wrong",
+          "waits_on": "Kernel gap, not PMI: the file's part shape is tessellated only (TESSELLATED_SHAPE_REPRESENTATION, no B-rep), which read_part_definitions refuses ('no solid or shell with faces'); OpenCascade reads it as a SOLID of 272 faces. With no part faces the reader has nothing to anchor this file's PMI to."
+        }
+      ],
+      "differences": {
+        "rust-correct": 402,
+        "rust-wrong": 1
+      },
+      "oracle": "OpenCascade XCAF's semantic PMI (tests/fixtures/ap242/occt/*.json.gz), for the files committed with their STEP",
+      "query": "pmi_read_occt",
+      "test": "crates/haecceity/tests/pmi_read.rs (opencascade_cross_check)"
+    },
+    {
+      "agreed": 50,
+      "cases": 70,
+      "deferred": [],
+      "differences": {
+        "not-applicable": 18,
+        "rust-correct": 20
+      },
+      "oracle": "specify-core's intents for the PMI it wrote (tests/fixtures/ap242/specify/*.intent.json)",
+      "query": "pmi_read_specify",
+      "test": "crates/haecceity/tests/pmi_read.rs (specify_core_outputs)"
+    }
+  ]
+}

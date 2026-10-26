@@ -147,7 +147,14 @@ struct PartState<'a> {
     geometry: HashMap<u64, GeometryId>,
     /// Hole occurrence → its definition and placement, until its feature is registered.
     holes: HashMap<u64, (RoundHole, Option<Placement>)>,
+    /// Shape aspects being read, one inside another (groups, derivations, aliases).
+    nesting: usize,
 }
+
+/// Shape aspects nested deeper than this (groups, derivations, aliases, one inside another)
+/// are not read: each level is several frames of the reader's stack, about 19 KiB unoptimised,
+/// and a 1 MiB (WASM-like) stack must hold them (#52). Files nest two or three.
+const FEATURE_NESTING: usize = 16;
 
 impl<'a> PartState<'a> {
     fn new(id: PartId, part: &'a PartDefinition) -> Self {
@@ -165,6 +172,7 @@ impl<'a> PartState<'a> {
             absorbed: BTreeSet::new(),
             geometry: HashMap::new(),
             holes: HashMap::new(),
+            nesting: 0,
         }
     }
 }
@@ -573,15 +581,14 @@ impl<'a> Reader<'a> {
                     .map_or(String::new(), str::to_ascii_lowercase),
                 name.to_ascii_lowercase()
             );
+            let one = Decimal::parse("1.")
+                .map_err(|e| MeasureError::nonconformance(format!("unit scale: {e:?}")))?;
             return Ok(match name.as_str() {
-                "METRE" => Unit::Length(LengthUnit::from_metres(
-                    &full,
-                    Decimal::parse("1.").expect("decimal").scaled(power),
-                )),
+                "METRE" => Unit::Length(LengthUnit::from_metres(&full, one.scaled(power))),
                 "RADIAN" if power == 0 => Unit::Angle(AngleUnit::Radian),
                 "RADIAN" => Unit::Angle(AngleUnit::Other {
                     name: full,
-                    radians: Decimal::parse("1.").expect("decimal").scaled(power),
+                    radians: one.scaled(power),
                 }),
                 _ => Unit::Other(full),
             });
@@ -1072,8 +1079,10 @@ impl<'a> Reader<'a> {
                     Ok(note) => last = Some(note),
                     Err(a) => match last.take() {
                         Some(note) => {
-                            let f = st.features[&a].expect("checked");
-                            st.pmi.notes[note].on = Some(NoteOwner::Feature(f));
+                            // Only aspects with a held feature are queued above.
+                            if let Some(f) = st.features.get(&a).copied().flatten() {
+                                st.pmi.notes[note].on = Some(NoteOwner::Feature(f));
+                            }
                         }
                         None => self.find(
                             FindingKind::Unresolved,
@@ -1278,8 +1287,35 @@ impl<'a> Reader<'a> {
         out
     }
 
+    /// Whether shape aspect `id` may be read one level deeper; a finding when not.
+    fn nest(&mut self, st: &mut PartState, id: u64) -> bool {
+        if st.nesting >= FEATURE_NESTING {
+            self.find(
+                FindingKind::Unsupported,
+                Some(st.id),
+                id,
+                &[],
+                format!(
+                    "shape aspects nested more than {FEATURE_NESTING} deep (groups, derivations or aliases); not read"
+                ),
+            );
+            return false;
+        }
+        st.nesting += 1;
+        true
+    }
+
     /// The feature of shape aspect `id`, registered in the part (memoised).
     fn feature(&mut self, st: &mut PartState, id: u64) -> Option<FeatureId> {
+        if st.features.contains_key(&id) || !self.nest(st, id) {
+            return st.features.get(&id).copied().flatten();
+        }
+        let r = self.feature_at(st, id);
+        st.nesting -= 1;
+        r
+    }
+
+    fn feature_at(&mut self, st: &mut PartState, id: u64) -> Option<FeatureId> {
         if let Some(r) = st.features.get(&id) {
             return *r;
         }
@@ -1327,6 +1363,15 @@ impl<'a> Reader<'a> {
 
     /// The content of shape aspect `id` without registering it (a member of a composite).
     fn content(&mut self, st: &mut PartState, id: u64) -> Option<(Feature, Vec<u64>)> {
+        if st.contents.contains_key(&id) || !self.nest(st, id) {
+            return st.contents.get(&id).cloned().flatten();
+        }
+        let c = self.content_at(st, id);
+        st.nesting -= 1;
+        c
+    }
+
+    fn content_at(&mut self, st: &mut PartState, id: u64) -> Option<(Feature, Vec<u64>)> {
         if let Some(c) = st.contents.get(&id) {
             return c.clone();
         }
@@ -2138,8 +2183,12 @@ impl<'a> Reader<'a> {
                         }
                     }
                     let f = old.feature();
-                    st.pmi.datums[existing.0] =
-                        Datum::new(label.clone(), f, ts).expect("datum stays established");
+                    #[allow(
+                        clippy::expect_used,
+                        reason = "the old datum was established, and this keeps its feature and adds targets"
+                    )]
+                    let datum = Datum::new(label.clone(), f, ts).expect("datum stays established");
+                    st.pmi.datums[existing.0] = datum;
                     let p = &mut st.prov.datums[existing.0];
                     p.extend(prov);
                     *p = ids(std::mem::take(p));

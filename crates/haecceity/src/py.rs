@@ -11,7 +11,8 @@ use std::cmp::Ordering;
 pub fn round_to(value: f64, digits: usize) -> f64 {
     format!("{value:.digits$}")
         .parse()
-        .expect("formatted float parses")
+        // Every float's `Display`/`LowerExp` text parses back ("NaN" and "inf" included).
+        .unwrap_or(value)
 }
 
 /// `round(value, 3)`, the grid most records are published on.
@@ -29,7 +30,8 @@ pub fn quantise(value: f64, figures: usize) -> f64 {
     let precision = figures.saturating_sub(1);
     format!("{value:.precision$e}")
         .parse()
-        .expect("formatted float parses")
+        // Every float's `Display`/`LowerExp` text parses back ("NaN" and "inf" included).
+        .unwrap_or(value)
 }
 
 /// `without_negative_zero`: -0.0 becomes 0.0.

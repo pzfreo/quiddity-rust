@@ -469,7 +469,9 @@ fn shared(
     };
     // Slices across the probe's longest side, lines along the next.
     let size = geom::sub(pb.max, pb.min);
-    let z = (0..3).max_by(|&i, &j| size[i].total_cmp(&size[j])).unwrap();
+    let z = (0..3)
+        .max_by(|&i, &j| size[i].total_cmp(&size[j]))
+        .unwrap_or(2);
     let unit = |i: usize| [0, 1, 2].map(|k| if k == i { 1.0 } else { 0.0 });
     let frame = Frame {
         origin: [0.0; 3],

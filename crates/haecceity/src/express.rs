@@ -783,8 +783,9 @@ impl<'a> Checker<'a> {
     }
 
     fn complex(&mut self, record: &RawEntity) -> Vec<(Option<String>, Problem)> {
+        // Only complex records are checked here.
         let RawEntity::Complex { parts, .. } = record else {
-            unreachable!()
+            return Vec::new();
         };
         let mut out = Vec::new();
         let mut decls = Vec::new();
@@ -1036,8 +1037,7 @@ impl<'a> Checker<'a> {
         match (v, ty) {
             (Param::Unset, _) => push(out, at, Kind::Unset, "`$` inside a value".into()),
             (Param::Derived, _) => push(out, at, Kind::Derived, "`*` inside a value".into()),
-            (Param::Typed { .. }, Ty::Named(_)) if self.select_of(ty).is_some() => {
-                let select = self.select_of(ty).expect("checked");
+            (Param::Typed { .. }, Ty::Named(_)) if let Some(select) = self.select_of(ty) => {
                 self.select(v, select, at, out);
             }
             (Param::Typed { type_name, .. }, _) => push(
