@@ -3007,6 +3007,7 @@
     "tests/fixtures/open_shell.step": "22624c1bea883c0e10bdb04e8377df61daa5df39b8e65b93d7ad52996d9ad6fa",
     "tests/fixtures/parabola_cut_cone.step": "71c199877c2fc038b2908837d0564c3478add931d5ee7cc0e87eb93773b06788",
     "tests/fixtures/patches.json.gz": "a80daaf504b138dc2e43fc9f04818d841880e7083e6f3f13ac12cd269f866cb3",
+    "tests/fixtures/plate_edge_notches.step": "7939cb8bcdaad81a83f49d21899fe30569e988081541b78e6128a39f1757b2b1",
     "tests/fixtures/pmi_inputs.json": "f08343e6770f81ae4a1bbff748e6650c9ad27795b9a86a62f3088e1f572df6c3",
     "tests/fixtures/prismatic.step": "5356158c5cf7b57a7cbadd351826378523f39b54007df2372bff9d80a03a03c9",
     "tests/fixtures/prismatic_axis_x.step": "8cce2861d7e21fc164557bb9f53c3f54b4e60fa11139d31de3364f2ff8e4beb0",
@@ -3023,7 +3024,7 @@
     "tests/fixtures/references/body_measurements.json.gz": "4e29f03e5e6b76964d80b6a78a4fb75499d191cdc46f891469b9951e96c46f7b",
     "tests/fixtures/references/classify.json": "c18f99bdc2838c953f7b4468a75749b733a742f36509e669319efc7414416309",
     "tests/fixtures/references/correspondence.json": "d9b0fa19648ca077a55c6f87b78b1f15eb7d893ccfdfe70f9ca5fd9c8534dea4",
-    "tests/fixtures/references/ctc01-main-fingerprints.json.gz": "8cbe3eaabfbcd912f3b30edafcc14b409a35432b6593b98c2d2b76bcedba0a38",
+    "tests/fixtures/references/ctc01-main-fingerprints.json.gz": "7c38164f7461478fff58124040f72534bd2bfd9b5694e44fb9fbf8a91c73a278",
     "tests/fixtures/references/cylindrical_proof_motion.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
     "tests/fixtures/references/cylindrical_volume_evidence.json": "7c66b1a8bc77cc058931258ece5502c96935d51dd5dd611fad14b8b1f43523fa",
     "tests/fixtures/references/drawings.json": "4823ca75c41b8aa204a972138460db40f0fb51fc3b89bfdbacfaa7d1b49b0b77",
@@ -3159,7 +3160,7 @@
     "calls/recognise_through_steps.json.gz": "ab6a0b5b06756fa3435099be76e5ab432b867be4d4a1b42c49047ff83b086cca",
     "calls/recognise_turned_steps.json.gz": "37d10e8c5e2ce5dcf6c5bd2fdc7444e86494bb44768e9d32d9a1abfd3f2fbd90",
     "channel_geometry.json.gz": "bd25ff87def7f73b4f119d26614600b141ee4350f45c77cef55aae7ea787e85f",
-    "corpus.json.gz": "46498d6fbd12315b4aa6f2424faa5dcd6c1d790b1cf557cb5122c02c4f332ec2",
+    "corpus.json.gz": "91747dfa9952af8f4334857ed52fff9742d870d575af98c108656a5f08d326b4",
     "coverage.json.gz": "c835b80d39757ae5ef556953e11a2d7e8bbde3148a233f2af51ae92e1d23a971",
     "cylindrical_proofs/corpus/cadgenbench/flanged_spool_132.step.json.gz": "b93acca566253df99ab62bb5ac97424226850b3ee3963c8d1025939a7339d823",
     "cylindrical_proofs/corpus/cadgenbench/threaded_connector_109.step.json.gz": "eea12e52bf91a9c762e7cadc1b12994398bf8f3836ab11ab8b58a2bf4c5d9a4e",
@@ -5266,7 +5267,7 @@
     "recess_geometry/test/parts/fc9df6ddac71ebfb.step.gz.json.gz": "d4f46f9e6b2e7d4a91e4beb51f52109203c316cff89437e6b35855d70a473c50",
     "recess_geometry/test/parts/ff1649b74b275e95.step.gz.json.gz": "b3463f9c4a49083d4fa3ddafbb224032e0e5f934eba1ad393c04c2ca80796497",
     "recognition_evidence.json.gz": "ac8c26f61bfb2d673797013977a39b894b161df7de3046561af79a1309d3b64a",
-    "reconcile.json.gz": "159f7d1da9b08123802fa59a367554d97d9f77060dc5f96721e15f8855c72f17",
+    "reconcile.json.gz": "9665584ebba3fe0cb1e1cbcc7a243ee812b7b8b266e080b00ff33b296b1ed660",
     "reconcile_scenarios.json.gz": "f3d2867544d794d5e6b57d6ddc991fe4d3d41ac36ed436abebef44bfb402d51d",
     "retry.json.gz": "a59e4d32892a173cf2611832db0b38ce1e292c815dcc7e802e18e330236666e7",
     "retry_publication.json.gz": "14b28c65684796e5552f78edcb92f024e907216689d1a77065ac75f7c52c932f",
@@ -5815,5 +5816,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "bbf2d27f090a1125bc38f671623ebeee0cdf68ea"
+  "source_commit": "1828acc8da4982330391993aadfb95434a5dbdc8"
 }
