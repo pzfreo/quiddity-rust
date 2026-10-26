@@ -608,6 +608,7 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("end_radius", Size),
             ("corner_radius", Size),
             ("edge_anchored", Trait),
+            ("rectangular_boundary", Trait),
             ("width_axis", Placement),
             ("w_center", Placement),
             ("lo", Placement),

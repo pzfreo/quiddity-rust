@@ -6,6 +6,89 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- **Conservative stock-wall support (for #100).** Plate edges also check parallel
+  walls outside their slab over the same run, so a step shoulder beside a thin
+  plate strip remains unexplained. Interior stock walls must be perpendicular to
+  the plate and have complete, perpendicular original-stock boundary edges along
+  their run and height; parallel cut ends and walls borrowing two stock end caps
+  abstain. Walls entirely on an outward envelope plane retain their independent
+  supporting-plane evidence and convex stock contacts.
+
+- **Face accounting and record coverage (for #100).** Recognised convex corner
+  treatments can supply replaced box corners; certified enclosed spline trims on
+  native surfaces no longer veto stock evidence. New `plate_edge` and `stock_wall`
+  reasons require plate perimeter/support and direct convex stock anchors, reject
+  concave cut boundaries, and keep plate-only notches unexplained. Drill-point
+  holes claim their terminal cones; rounded rectangular slots claim both proved
+  end walls after reconciliation, preserving feature selection and the inventory
+  floor. Schema remains recognition `/6`, fingerprints `/3`; affected feature
+  fingerprints change faces, centroid and adjacency, with correspondence retained.
+  CTC-01 has 90 feature, 20 body and 7 unexplained faces (formerly 86/0/31).
+  The issue omitted four V-notch flanks and incorrectly assumed cap 104 was already
+  claimed by `polygonal_bosses`; those stay unexplained. Four rectangular-notch
+  side walls retain their existing step-level claims. No notch or boss cap is body.
+- **Prove rectangular pocket boundaries before class scoring.** Publish `rectangular_boundary`
+  only for an intact straight rectangular floor with four full-height inward planar walls,
+  uniquely owned cavity evidence and no extra treatment faces. Circular-end pockets and blind
+  corner steps exclude that proved closed rectangle; unclassified boundaries remain ambiguous.
+  Against mapping round 2 alone on 2,000 dev models, rectangular-pocket instance recall/precision
+  improve 0.1946/0.1539 to 0.8452/0.6678, circular-end 0.2782/0.1382 to 0.7910/0.6138, and
+  blind-step 0.7850/0.3919 to 0.7850/0.6141. Their face recall/precision improve respectively
+  0.4477/0.7492 to 0.7030/0.8216, 0.4358/0.4696 to 0.6392/0.7689, and
+  0.7567/0.4762 to 0.7567/0.6869; no class loses true positives.
+  Pocket fingerprints gain the invariant `rectangular_boundary` trait within format v3.
+
+- **Complete pocket boundaries past intersecting mouths.** A uniquely owned intact rectangular
+  floor can prove both observed end walls after a crossing cut opens the mouth wire. Existing
+  cavity-emptiness and role proofs remain required. The 2,000-model dev set gains one more
+  rectangular-pocket TP without extra predictions: instance recall/precision
+  0.8438/0.1934 to 0.8452/0.1937 (594 to 595 TPs).
+
+- **Recover rectangular pockets from intact floors.** A closed straight-edged floor with a
+  concave wall on every edge now supports four-sided sections too, retaining all cavity,
+  floor and opening volume proofs. The 2,000-model dev set gains one rectangular-pocket TP:
+  instance recall/precision 0.8423/0.1932 to 0.8438/0.1934 (593 to 594 TPs).
+
+- **Complete pocket wall evidence.** A uniquely owned cavity now retains its observed planar
+  end walls or the sides smoothly joining both obround caps as defining faces; floors remain
+  context and ambiguous ownership keeps the seed unchanged. On the 2,000-model MFInstSeg dev
+  set, rectangular-pocket instance recall/precision rise from 0.1946/0.0446 to 0.8423/0.1932
+  (137 to 593 TPs), and circular-end-pocket from 0.2782/0.0985 to 0.7910/0.2799
+  (185 to 526 TPs), with unchanged prediction counts and no model/class TP losses.
+
+- **Subdivided oblique-step boundaries.** Merge only collinear outer-edge vertices and
+  complete straight seam intervals; retain gaps, bends and non-quadrilateral outlines
+  as refusals. MFInstSeg dev slanted-step instance recall 302/683 → 318/683
+  (0.4422 → 0.4656), face recall 604/1447 → 636/1447 (0.4174 → 0.4395);
+  both precisions remain 1.0000.
+
+- **Circular steps opening on shoulders.** Accept a local convex opening only with
+  outward perpendicular terminals, incident orthogonal corner supports and an empty
+  terminal sweep. Ambiguous axial ends remain refused. MFInstSeg dev circular-step
+  instance recall 499/666 → 530/666 (0.7492 → 0.7958), face recall
+  1000/1377 → 1062/1377 (0.7262 → 0.7712); both precisions remain 1.0000.
+
+- **Angled-step blind-cap evidence.** Concave triangular caps perpendicular to the run
+  define the cut; convex stock terminals remain context. MFInstSeg dev triangular-step
+  instance recall 426/643 → 458/643 (0.6625 → 0.7123), precision 0.8894 → 0.9562;
+  face recall 458/1345 → 915/1345 (0.3405 → 0.6803), precision 0.9562 → 0.9744.
+
+- **Paired ramps in short stock.** Establish the valley axis from its seam and convex
+  opening / concave blind terminal, independently of the stock aspect ratio. An alternate
+  full-run concave sidewall path closes a pocket and remains refused. MFInstSeg dev
+  two-sided-step instance recall 339/650 → 519/650 (0.5215 → 0.7985), face recall
+  1020/2065 → 1560/2065 (0.4939 → 0.7554); both precisions remain 1.0000.
+
+- **Drilled oblique-step walls.** Check the rectangular outer boundaries independently
+  of inner drill loops, retaining convex joins and the exact empty-sweep proof. MFInstSeg
+  dev slanted-step instance recall 271/683 → 302/683 (0.3968 → 0.4422),
+  face recall 542/1447 → 604/1447 (0.3746 → 0.4174); both precisions remain 1.0000.
+
+- **Shallow oblique through steps.** Require principal supports to have zero transverse
+  normal components within angular precision, so shallow slanted walls retain their
+  oblique role. MFInstSeg dev slanted-step instance recall 137/683 → 271/683
+  (0.2006 → 0.3968), face recall 274/1447 → 542/1447 (0.1894 → 0.3746);
+  instance and face precision remain 1.0000.
 - **Lip-bevelled blind-slot scoring.** Existing `section_recesses` can prove a
   rectangular U sweep whose mouth has one flared planar bevel. Map only its complete
   straight five-vertex profile, one planar blind cap, one open run end, and a run

@@ -122,10 +122,19 @@ fn candidate(
         (1.0, high)
     } else if close(terminal_at, high) && close(low, body.min[axis]) {
         (-1.0, low)
+    } else if close(terminal_at, low) && !close(terminal_at, high) {
+        (1.0, high)
+    } else if close(terminal_at, high) && !close(terminal_at, low) {
+        (-1.0, low)
     } else {
         return None;
     };
     let length = high - low;
+    let on_envelope = if direction > 0.0 {
+        close(opening_at, body.max[axis])
+    } else {
+        close(opening_at, body.min[axis])
+    };
 
     let (mut axial, mut sides) = (Vec::new(), Vec::new());
     let mut side_axes = Vec::new();
@@ -139,7 +148,7 @@ fn candidate(
         if let Some(plane) = axis_aligned_axis(part, neighbour)
             && plane.0 == axis
         {
-            axial.push(plane);
+            axial.push((neighbour, plane));
         } else {
             // The section contains actual transverse points, so its two side planes may
             // roll about the principal cylinder without changing the record contract.
@@ -150,7 +159,7 @@ fn candidate(
             let aligned = axis_aligned_axis(part, neighbour);
             // Preserve the existing principal-plane admission; only newly admitted rolled
             // supports need the additional intrinsic perpendicularity and axis-incidence proof.
-            if aligned.is_none()
+            if (aligned.is_none() || !on_envelope)
                 && (geom::dot(normal, evidence.direction).abs() > SMOOTH_ARC_GAP
                     || geom::dot(geom::sub(evidence.axis_point, frame.origin), normal).abs()
                         > COORD_FLOOR)
@@ -176,8 +185,21 @@ fn candidate(
     if !perpendicular {
         return None;
     }
-    if !close(axial[0].1, opening_at) {
+    if !close(axial[0].1.1, opening_at) {
         return None;
+    }
+    // A convex shoulder can open the cut inside the overall stock envelope. Its plane
+    // must face out along the run; the side-plane incidence checks above establish the
+    // same corner as the cylinder, and the complete terminal sweep below proves air.
+    if !on_envelope {
+        for face in [axial[0].0, terminal] {
+            let normal = unit_plane_normal(part, face)?;
+            if normal[axis] * direction < PRINCIPAL_AXIS_COS
+                || (0..3).any(|i| i != axis && normal[i].abs() > SMOOTH_ARC_GAP)
+            {
+                return None;
+            }
+        }
     }
     let mut sweep = [0.0; 3];
     sweep[axis] = direction * length;
@@ -228,4 +250,81 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<CircularBlindStep>> {
     });
     out
 }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::features::support_patches::ruled_prism;
+
+    #[test]
+    fn a_remote_stock_extension_keeps_a_local_corner_opening() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/golden_circular_blind_step.step");
+        let input = crate::read_step_file(&path).unwrap();
+        let frame = crate::frames::infer_part_frame(&input).unwrap();
+        let stock = input.transformed(&frame.normalisation()).unwrap();
+        let expected = discover(&Context::new(&stock));
+        assert_eq!(expected.len(), 1);
+        let b = stock.bounds();
+        // Attach a small rectangular boss to the opening plane, away from the circular
+        // corner. The opening is unchanged, but is no longer the solid's axial extremum.
+        let low = [
+            [b.min[0] + 2.0, b.min[1] + 2.0, b.min[2]],
+            [b.min[0] + 6.0, b.min[1] + 2.0, b.min[2]],
+            [b.min[0] + 6.0, b.min[1] + 6.0, b.min[2]],
+            [b.min[0] + 2.0, b.min[1] + 6.0, b.min[2]],
+        ];
+        let high = low.map(|p| [p[0], p[1], p[2] - 5.0]);
+        let boss = ruled_prism(&low, &high).unwrap();
+        let mut faces = stock.faces.clone();
+        let mut edges = stock.edges.clone();
+        let edge_offset = edges.len();
+        let vertex_offset = edges
+            .iter()
+            .flat_map(|e| [e.vertices.0, e.vertices.1])
+            .max()
+            .unwrap()
+            + 1;
+        for mut edge in boss.edges.clone() {
+            edge.vertices = (
+                edge.vertices.0 + vertex_offset,
+                edge.vertices.1 + vertex_offset,
+            );
+            edges.push(edge);
+        }
+        let owner = (0..stock.faces.len())
+            .find(|&f| {
+                stock
+                    .face_normal(f, 0.0, 0.0)
+                    .is_some_and(|n| n[2] < -PRINCIPAL_AXIS_COS)
+                    && close(stock.face_bounds(f).min[2], b.min[2])
+            })
+            .unwrap();
+        for (index, mut face) in boss.faces.into_iter().enumerate() {
+            for lp in &mut face.loops {
+                for (edge, _) in &mut lp.edges {
+                    *edge += edge_offset;
+                }
+            }
+            if index == 0 {
+                faces[owner].loops.push(face.loops.remove(0));
+            } else {
+                faces.push(face);
+            }
+        }
+        let solid = crate::kernel::brep::Solid {
+            faces: (0..faces.len()).collect(),
+        };
+        let extended = Part::new(faces, edges, vec![solid]);
+        assert!(
+            extended.solid_is_geometrically_valid(0),
+            "bad faces {:?}",
+            extended.bad_faces(0)
+        );
+        let found = discover(&Context::new(&extended));
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].defining, expected[0].defining);
+        assert_eq!(found[0].record, expected[0].record);
+    }
 }

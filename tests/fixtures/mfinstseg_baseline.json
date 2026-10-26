@@ -1,8 +1,8 @@
 {
   "schema": 2,
-  "reason": "Initial Rust-first baseline from independent MFInstSeg labels; no recognition changes. Coarse family correspondence follows AAGNet generator geometry: analytic OpenCascade U-channel and aligned/rotated enclosed rectangular cuts establish classes 6 and 3. Only defining faces; identical face sets deduplicated, empty claims count as unmatched predictions; maximum one-to-one instance IoU >= 0.5; zero denominators score zero. Lowered 2026-10-21 with maintainer approval: #57's ambiguous-role refusal (ADR 0011) withdraws one legacy Pocket record on 20221121_154648_9433 (faces [1,3,4,5], zero-based); the section-recess pocket on [1..5] remains. Shared-family classes rectangular_pocket, circular_end_pocket and rectangular_blind_step lose that one prediction; rectangular_pocket loses 4 face and 1 instance true positives (143->139, 9->8).\n\n2026-10-25 approved mapping update: mapping schema 2 selects existing section_recesses with published channel/circular classification for circular_through_slot; Oring, triangular_through_slot, and v_circular_end_blind_slot map to the new geometry-proved annular_grooves, v_channels, and semicircular_blind_slots families. The proposed coarse hole/passage/pocket subtype split was rejected for losing dev true positives; those original correspondences remain. Input hashes, sample IDs, class supports, IoU matching, zero-denominator conventions and all score/accounting refusals are unchanged. Recomputed fixed-200 effects: triangular_through_slot: instances TP 0->5, predicted 0->5 (support 11), faces TP 0->10, predicted 0->10 (support 24); circular_through_slot: instances TP 0->7, predicted 0->7 (support 11), faces TP 0->7, predicted 0->7 (support 11); Oring: instances TP 0->71, predicted 0->71 (support 76), faces TP 0->213, predicted 0->213 (support 236); v_circular_end_blind_slot: instances TP 0->11, predicted 10->11 (support 14), faces TP 0->44, predicted 40->44 (support 57). The round class retains 23 instance and 25 face TP while predictions fall 46->25; the exact stream-start scorer already yields 25 predictions, so this is a pre-existing main improvement, not a change to fillet recognition here. Every other class score is unchanged from the recorded baseline; only the four mapped target classes differ from the stream start. The strict recall, precision and accounting ratchet passed.\n\n2026-10-25 approved round-2 mapping update: complete the internal chamfer correspondence with oriented_chamfers, already merged into published chamfers. MFInstSeg round includes external and internal edge rounds; select complete blends with published convex or concave side while preserving #89 and all fillet radius rules. For section passages and prismatic pockets, exclude only another complete canonical triangle, rectangle or regular hexagon at the published coordinate precision; altered or unresolved sections retain the original coarse correspondence. Retain unknown hole ends while excluding proved through bores from blind-hole scoring. Pocket flags exclude only proved incompatible corner-notch or half-cylindrical-end subtypes. Select existing lip-bevelled blind U sweeps only with a planar blind cap, open run end and uniquely longer run. Their defining bevel faces remain predictions; cap context is not expanded. No engine, label-derived selector, dataset/input hash, sample ID, support, IoU rule, zero-denominator convention or refusal changes. Recomputed fixed-200 per-class effects: chamfer: instances TP 34->43, predicted 50->59 (support 65), faces TP 39->48, predicted 50->59 (support 71); triangular_passage: instances TP 57->57, predicted 148->62 (support 69), faces TP 177->177, predicted 653->208 (support 224); rectangular_passage: instances TP 49->49, predicted 153->56 (support 67), faces TP 220->220, predicted 673->244 (support 304); 6sides_passage: instances TP 42->42, predicted 148->45 (support 54), faces TP 272->272, predicted 653->289 (support 373); blind_hole: instances TP 68->68, predicted 218->147 (support 68), faces TP 73->73, predicted 231->157 (support 142); triangular_pocket: instances TP 38->38, predicted 108->44 (support 43), faces TP 114->114, predicted 518->144 (support 173); rectangular_pocket: instances TP 8->8, predicted 299->84 (support 62), faces TP 139->139, predicted 1002->194 (support 331); 6sides_pocket: instances TP 62->62, predicted 108->62 (support 69), faces TP 372->372, predicted 518->375 (support 478); circular_end_pocket: instances TP 21->21, predicted 191->131 (support 66), faces TP 155->155, predicted 484->304 (support 337); rectangular_blind_slot: instances TP 7->7, predicted 7->7 (support 17), faces TP 28->28, predicted 28->28 (support 70); rectangular_blind_step: instances TP 56->56, predicted 191->136 (support 66), faces TP 168->168, predicted 484->333 (support 203); round: instances TP 23->59, predicted 25->61 (support 64), faces TP 25->61, predicted 25->61 (support 73). All other scores and every model accounting are unchanged. Every strict class recall/precision and accounting ratchet check passed without lowering a floor or relaxing a check.",
+  "reason": "Initial Rust-first baseline from independent MFInstSeg labels; no recognition changes. Coarse family correspondence follows AAGNet generator geometry: analytic OpenCascade U-channel and aligned/rotated enclosed rectangular cuts establish classes 6 and 3. Only defining faces; identical face sets deduplicated, empty claims count as unmatched predictions; maximum one-to-one instance IoU >= 0.5; zero denominators score zero. Lowered 2026-10-21 with maintainer approval: #57's ambiguous-role refusal (ADR 0011) withdraws one legacy Pocket record on 20221121_154648_9433 (faces [1,3,4,5], zero-based); the section-recess pocket on [1..5] remains. Shared-family classes rectangular_pocket, circular_end_pocket and rectangular_blind_step lose that one prediction; rectangular_pocket loses 4 face and 1 instance true positives (143->139, 9->8).\n\n2026-10-25 approved mapping update: mapping schema 2 selects existing section_recesses with published channel/circular classification for circular_through_slot; Oring, triangular_through_slot, and v_circular_end_blind_slot map to the new geometry-proved annular_grooves, v_channels, and semicircular_blind_slots families. The proposed coarse hole/passage/pocket subtype split was rejected for losing dev true positives; those original correspondences remain. Input hashes, sample IDs, class supports, IoU matching, zero-denominator conventions and all score/accounting refusals are unchanged. Recomputed fixed-200 effects: triangular_through_slot: instances TP 0->5, predicted 0->5 (support 11), faces TP 0->10, predicted 0->10 (support 24); circular_through_slot: instances TP 0->7, predicted 0->7 (support 11), faces TP 0->7, predicted 0->7 (support 11); Oring: instances TP 0->71, predicted 0->71 (support 76), faces TP 0->213, predicted 0->213 (support 236); v_circular_end_blind_slot: instances TP 0->11, predicted 10->11 (support 14), faces TP 0->44, predicted 40->44 (support 57). The round class retains 23 instance and 25 face TP while predictions fall 46->25; the exact stream-start scorer already yields 25 predictions, so this is a pre-existing main improvement, not a change to fillet recognition here. Every other class score is unchanged from the recorded baseline; only the four mapped target classes differ from the stream start. The strict recall, precision and accounting ratchet passed.\n\n2026-10-25 approved round-2 mapping update: complete the internal chamfer correspondence with oriented_chamfers, already merged into published chamfers. MFInstSeg round includes external and internal edge rounds; select complete blends with published convex or concave side while preserving #89 and all fillet radius rules. For section passages and prismatic pockets, exclude only another complete canonical triangle, rectangle or regular hexagon at the published coordinate precision; altered or unresolved sections retain the original coarse correspondence. Retain unknown hole ends while excluding proved through bores from blind-hole scoring. Pocket flags exclude only proved incompatible corner-notch or half-cylindrical-end subtypes. Select existing lip-bevelled blind U sweeps only with a planar blind cap, open run end and uniquely longer run. Their defining bevel faces remain predictions; cap context is not expanded. No engine, label-derived selector, dataset/input hash, sample ID, support, IoU rule, zero-denominator convention or refusal changes. Recomputed fixed-200 per-class effects: chamfer: instances TP 34->43, predicted 50->59 (support 65), faces TP 39->48, predicted 50->59 (support 71); triangular_passage: instances TP 57->57, predicted 148->62 (support 69), faces TP 177->177, predicted 653->208 (support 224); rectangular_passage: instances TP 49->49, predicted 153->56 (support 67), faces TP 220->220, predicted 673->244 (support 304); 6sides_passage: instances TP 42->42, predicted 148->45 (support 54), faces TP 272->272, predicted 653->289 (support 373); blind_hole: instances TP 68->68, predicted 218->147 (support 68), faces TP 73->73, predicted 231->157 (support 142); triangular_pocket: instances TP 38->38, predicted 108->44 (support 43), faces TP 114->114, predicted 518->144 (support 173); rectangular_pocket: instances TP 8->8, predicted 299->84 (support 62), faces TP 139->139, predicted 1002->194 (support 331); 6sides_pocket: instances TP 62->62, predicted 108->62 (support 69), faces TP 372->372, predicted 518->375 (support 478); circular_end_pocket: instances TP 21->21, predicted 191->131 (support 66), faces TP 155->155, predicted 484->304 (support 337); rectangular_blind_slot: instances TP 7->7, predicted 7->7 (support 17), faces TP 28->28, predicted 28->28 (support 70); rectangular_blind_step: instances TP 56->56, predicted 191->136 (support 66), faces TP 168->168, predicted 484->333 (support 203); round: instances TP 23->59, predicted 25->61 (support 64), faces TP 25->61, predicted 25->61 (support 73). All other scores and every model accounting are unchanged. Every strict class recall/precision and accounting ratchet check passed without lowering a floor or relaxing a check.\n\n2026-10-25 approved pocket-boundary correspondence update: round-1 wall completion is retained. Publish rectangular_boundary only when one intact four-line floor has four full-height inward planar walls concave to every edge, with uniquely owned cavity evidence and no extra treatment faces. This positively proved closed rectangular boundary cannot be a circular-end pocket or an edge-anchored rectangular blind step. Exclude only this proof from those two classes; a null end radius alone does not classify a profile, and modified or unproved profiles retain the existing correspondence. No labels or model identity enter engine rules or selectors. Input hashes, fixed sample IDs, class supports, IoU matching, zero-denominator conventions, all recorded score floors and accounting/refusal checks stay unchanged. Fixed-200 effects: rectangular_pocket: instances TP 8->45, predicted 84->84 (support 62), faces TP 139->212, predicted 194->267 (support 331); circular_end_pocket: instances TP 21->53, predicted 131->94 (support 66), faces TP 155->219, predicted 304->293 (support 337); rectangular_blind_step: instances TP 56->56, predicted 136->99 (support 66), faces TP 168->168, predicted 333->258 (support 203). Every other score is unchanged; every strict recall/precision and accounting ratchet check passed without lowering any recorded score.",
   "selection": "200 evenly spaced indices i*62495//200 in lexical STEP-stem order, i=0..199; IDs and input hashes fixed below.",
-  "mapping_sha256": "b999ed72dbd2e36f3a2168e84ac1edae70b660d850cb9d09d221836d52b4dac6",
+  "mapping_sha256": "ad8f957b4c2f814de398cb0391cec08c7c6e0d3c2c2f83d0c1709433e7d7d347",
   "models": [
     {
       "id": "20221121_154647_0",
@@ -87,12 +87,12 @@
           "stock_box_side": 1,
           "stock_box_split": 2
         },
-        "feature": 23,
+        "feature": 24,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 5,
-        "unexplained": 16
+        "unexplained": 15
       }
     },
     {
@@ -117,14 +117,18 @@
       "step_sha256": "9d9fd2b4adac03e4b7fd8b01ff2785c94484253781bca696b4c809c938fb5a64",
       "labels_sha256": "3bbc4947d3aea4568aa14bb5f9dbfa243afe8441ad4065fd5dc75ec678953846",
       "accounting": {
-        "body": 0,
-        "body_reasons": {},
+        "body": 6,
+        "body_reasons": {
+          "stock_box_notched": 2,
+          "stock_box_split": 2,
+          "stock_wall": 2
+        },
         "feature": 9,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 0,
-        "stock_unexplained": 8,
-        "unexplained": 18
+        "stock_body": 6,
+        "stock_unexplained": 2,
+        "unexplained": 12
       }
     },
     {
@@ -191,12 +195,12 @@
           "stock_box_side": 2,
           "stock_box_split": 1
         },
-        "feature": 11,
+        "feature": 12,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -227,12 +231,12 @@
           "stock_box_notched": 1,
           "stock_box_split": 1
         },
-        "feature": 27,
+        "feature": 28,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 5,
-        "unexplained": 9
+        "unexplained": 8
       }
     },
     {
@@ -263,12 +267,12 @@
           "stock_box_side": 1,
           "stock_box_split": 1
         },
-        "feature": 24,
+        "feature": 25,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -294,14 +298,16 @@
       "step_sha256": "fa35ceb05bcb50cf87de92c747b2145fda43006b3cd524b262e4b71f20fa9de6",
       "labels_sha256": "5aaad662c2fa87540325b576258e3708cb213521e6db824154c2093828cde0bf",
       "accounting": {
-        "body": 0,
-        "body_reasons": {},
+        "body": 4,
+        "body_reasons": {
+          "stock_box_notched": 4
+        },
         "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 0,
-        "stock_unexplained": 7,
-        "unexplained": 10
+        "stock_body": 4,
+        "stock_unexplained": 3,
+        "unexplained": 6
       }
     },
     {
@@ -417,17 +423,18 @@
       "step_sha256": "c830b36b802c271e225c6796879b8aeeaec7967eb564624a11bfce80d1dec47d",
       "labels_sha256": "124bf79ca06f477f701adcc0b5a4bc99cfa293fdac14d696f3ca34ece78d6792",
       "accounting": {
-        "body": 2,
+        "body": 5,
         "body_reasons": {
           "stock_box_notched": 1,
-          "stock_box_side": 1
+          "stock_box_side": 1,
+          "stock_wall": 3
         },
         "feature": 22,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 2,
-        "stock_unexplained": 4,
-        "unexplained": 8
+        "stock_body": 5,
+        "stock_unexplained": 1,
+        "unexplained": 5
       }
     },
     {
@@ -557,17 +564,18 @@
       "step_sha256": "71474f48ea24b5da4d57af7deb4eee2c404f495f3190b30ce76d8f12b632d0e0",
       "labels_sha256": "f1005285ab3cc5e7fad45cc5e086113907d91ba57a0468e7166179032b60687f",
       "accounting": {
-        "body": 4,
+        "body": 5,
         "body_reasons": {
           "stock_box_notched": 3,
-          "stock_box_side": 1
+          "stock_box_side": 1,
+          "stock_wall": 1
         },
         "feature": 25,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 4,
-        "stock_unexplained": 1,
-        "unexplained": 4
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 3
       }
     },
     {
@@ -580,12 +588,12 @@
           "stock_box_notched": 4,
           "stock_box_side": 1
         },
-        "feature": 29,
+        "feature": 32,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 1,
-        "unexplained": 5
+        "unexplained": 2
       }
     },
     {
@@ -608,16 +616,17 @@
       "step_sha256": "1e43b262721f21713a15c8ae31e43190d5b41a9df8a8e30600c38568e5c20ce9",
       "labels_sha256": "ee3a1a0f664a2d18dba60dd3cca314e796fb5fb68548620a9c58a2f6d53faac8",
       "accounting": {
-        "body": 3,
+        "body": 5,
         "body_reasons": {
-          "stock_box_notched": 3
+          "stock_box_notched": 3,
+          "stock_wall": 2
         },
         "feature": 14,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 2,
-        "unexplained": 4
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 2
       }
     },
     {
@@ -629,12 +638,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 17,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 5,
-        "unexplained": 11
+        "unexplained": 9
       }
     },
     {
@@ -642,17 +651,19 @@
       "step_sha256": "6868c9eff7a99425fa5acd87e99810b1d249130f3c00e9df613ca323a322879e",
       "labels_sha256": "a3a8ac19356181084cb253588012e677896441a18a79f1504d3e0034e3285b00",
       "accounting": {
-        "body": 3,
+        "body": 5,
         "body_reasons": {
+          "plate_edge": 1,
           "stock_box_notched": 2,
-          "stock_box_side": 1
+          "stock_box_side": 1,
+          "stock_wall": 1
         },
         "feature": 8,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 2,
-        "unexplained": 8
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 6
       }
     },
     {
@@ -665,12 +676,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 1
         },
-        "feature": 14,
+        "feature": 15,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -678,14 +689,18 @@
       "step_sha256": "0cb997954a2a993c8f0854674c4c3ec9ff5c8684bc30d35152782658837d8811",
       "labels_sha256": "af59df92ec28fd3b9c774091e127406b88b0246aeb590cef1d240a26c722d892",
       "accounting": {
-        "body": 0,
-        "body_reasons": {},
+        "body": 9,
+        "body_reasons": {
+          "stock_box_notched": 1,
+          "stock_box_side": 1,
+          "stock_box_split": 7
+        },
         "feature": 12,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 0,
-        "stock_unexplained": 10,
-        "unexplained": 23
+        "stock_body": 9,
+        "stock_unexplained": 1,
+        "unexplained": 14
       }
     },
     {
@@ -697,12 +712,12 @@
         "body_reasons": {
           "stock_box_notched": 2
         },
-        "feature": 18,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 4,
-        "unexplained": 6
+        "unexplained": 5
       }
     },
     {
@@ -710,17 +725,18 @@
       "step_sha256": "c967226efb70d1c06803eb3f1f12af2784c38295a204c3798369963389bb4688",
       "labels_sha256": "29ffdbaa2a0638b7ba27a80c06ccd8e3373497afc9e8f691906f8d378eaeff93",
       "accounting": {
-        "body": 4,
+        "body": 6,
         "body_reasons": {
           "stock_box_notched": 2,
-          "stock_box_split": 2
+          "stock_box_split": 2,
+          "stock_wall": 2
         },
         "feature": 15,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 4,
-        "stock_unexplained": 2,
-        "unexplained": 9
+        "stock_body": 6,
+        "stock_unexplained": 0,
+        "unexplained": 7
       }
     },
     {
@@ -728,16 +744,17 @@
       "step_sha256": "bdab1f48568b9592259a17b28d330d201111e7d98919d234dd28e6952612366c",
       "labels_sha256": "e9e609dd5d5dd279c0069ddd77acd3972f5341d442e131a7fa387a23e8dd19c9",
       "accounting": {
-        "body": 3,
+        "body": 6,
         "body_reasons": {
-          "stock_box_notched": 3
+          "stock_box_notched": 3,
+          "stock_wall": 3
         },
         "feature": 16,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 3,
-        "unexplained": 9
+        "stock_body": 6,
+        "stock_unexplained": 0,
+        "unexplained": 6
       }
     },
     {
@@ -768,12 +785,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 16,
+        "feature": 20,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 11
+        "unexplained": 7
       }
     },
     {
@@ -817,17 +834,18 @@
       "step_sha256": "c0dbe806e6003bae763a55dd3aaba7f27f4658c13da0041b6aa5cba1d9dc5c0d",
       "labels_sha256": "d36986b36789d24089d13e1f380a57aa326faf46320322ca29f0c7491a741059",
       "accounting": {
-        "body": 3,
+        "body": 6,
         "body_reasons": {
           "stock_box_side": 1,
-          "stock_box_split": 2
+          "stock_box_split": 2,
+          "stock_wall": 3
         },
-        "feature": 7,
+        "feature": 8,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 3,
-        "unexplained": 6
+        "stock_body": 6,
+        "stock_unexplained": 0,
+        "unexplained": 2
       }
     },
     {
@@ -835,16 +853,17 @@
       "step_sha256": "88d7a520715863cd7095095aa12a8f84d8f7a3e531bf6fc5c3daa9766a7e5748",
       "labels_sha256": "255b580a584072cf5d578629c62636195fd751bd1e8c457051cc88eb5b5bd48d",
       "accounting": {
-        "body": 3,
+        "body": 4,
         "body_reasons": {
-          "stock_box_notched": 3
+          "stock_box_notched": 3,
+          "stock_wall": 1
         },
         "feature": 5,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 1,
-        "unexplained": 1
+        "stock_body": 4,
+        "stock_unexplained": 0,
+        "unexplained": 0
       }
     },
     {
@@ -873,12 +892,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 17,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 5,
-        "unexplained": 9
+        "unexplained": 7
       }
     },
     {
@@ -940,17 +959,19 @@
       "step_sha256": "7b3f6445467e6d41b2322f07f902b4e674e357f33e9a47a1d52d6d2b13b41e59",
       "labels_sha256": "493e4a918766a7187fce2c669a6e9310ebc80bbd0abd07b8b39a3c2a5de825b5",
       "accounting": {
-        "body": 3,
+        "body": 6,
         "body_reasons": {
+          "plate_edge": 1,
           "stock_box_notched": 2,
-          "stock_box_side": 1
+          "stock_box_side": 1,
+          "stock_wall": 2
         },
         "feature": 21,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 3,
-        "unexplained": 5
+        "stock_body": 6,
+        "stock_unexplained": 0,
+        "unexplained": 2
       }
     },
     {
@@ -958,18 +979,19 @@
       "step_sha256": "3dae93540f9bde5f746736508551b8e5de499df8f8c2d9884abfb7e340b4aca3",
       "labels_sha256": "3f732136319f9867524f1476bdcac42ddbe67d0281d008a6da8cfe26c51b8258",
       "accounting": {
-        "body": 5,
+        "body": 6,
         "body_reasons": {
           "stock_box_notched": 2,
           "stock_box_side": 1,
-          "stock_box_split": 2
+          "stock_box_split": 2,
+          "stock_wall": 1
         },
         "feature": 28,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 5,
-        "stock_unexplained": 1,
-        "unexplained": 10
+        "stock_body": 6,
+        "stock_unexplained": 0,
+        "unexplained": 9
       }
     },
     {
@@ -1036,12 +1058,12 @@
           "stock_box_notched": 4,
           "stock_box_split": 1
         },
-        "feature": 16,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 2,
-        "unexplained": 5
+        "unexplained": 2
       }
     },
     {
@@ -1054,12 +1076,12 @@
           "stock_box_notched": 2,
           "stock_box_side": 1
         },
-        "feature": 27,
+        "feature": 30,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 4,
-        "unexplained": 9
+        "unexplained": 6
       }
     },
     {
@@ -1067,17 +1089,18 @@
       "step_sha256": "6ddf7af0175c34ac42ac824b03bc7e3a0b69dbb896f1ce2f4b1bf7e6f3cf3bf7",
       "labels_sha256": "be9f961ccaae635650c6a7353432b0d39f7c23b0397cefaadde2df2edd4c3072",
       "accounting": {
-        "body": 4,
+        "body": 5,
         "body_reasons": {
           "stock_box_notched": 3,
-          "stock_box_side": 1
+          "stock_box_side": 1,
+          "stock_wall": 1
         },
-        "feature": 16,
+        "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 4,
-        "stock_unexplained": 1,
-        "unexplained": 3
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 1
       }
     },
     {
@@ -1107,12 +1130,12 @@
         "body_reasons": {
           "stock_box_notched": 4
         },
-        "feature": 18,
+        "feature": 21,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 6
+        "unexplained": 3
       }
     },
     {
@@ -1172,16 +1195,18 @@
       "step_sha256": "514f058b7b3791d602f2504754ad6a6fa2ca6ee1560d7ba12a1acf24176d5320",
       "labels_sha256": "1aa8929e798c2bf9889eec7482f6c91ba01f5f1178213f9bf80688c837f4886e",
       "accounting": {
-        "body": 1,
+        "body": 4,
         "body_reasons": {
-          "stock_box_notched": 1
+          "plate_edge": 1,
+          "stock_box_notched": 1,
+          "stock_wall": 2
         },
         "feature": 24,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 1,
-        "stock_unexplained": 4,
-        "unexplained": 5
+        "stock_body": 4,
+        "stock_unexplained": 1,
+        "unexplained": 2
       }
     },
     {
@@ -1230,12 +1255,12 @@
         "body_reasons": {
           "stock_box_notched": 2
         },
-        "feature": 29,
+        "feature": 30,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 2,
         "stock_unexplained": 4,
-        "unexplained": 8
+        "unexplained": 7
       }
     },
     {
@@ -1260,17 +1285,18 @@
       "step_sha256": "e06eaca73e5e31a0a13606245e4be0d19f935f39c3373e49c5d32d3bc26cd9dd",
       "labels_sha256": "67a40e1e0b622bc14401ff7bb4463e038d9f4ac5b272bcfbd20ef908578bebc1",
       "accounting": {
-        "body": 3,
+        "body": 5,
         "body_reasons": {
           "stock_box_notched": 2,
-          "stock_box_split": 1
+          "stock_box_split": 1,
+          "stock_wall": 2
         },
-        "feature": 16,
+        "feature": 18,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 5,
-        "unexplained": 8
+        "stock_body": 5,
+        "stock_unexplained": 3,
+        "unexplained": 4
       }
     },
     {
@@ -1280,12 +1306,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 11,
+        "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 6,
-        "unexplained": 12
+        "unexplained": 10
       }
     },
     {
@@ -1329,17 +1355,18 @@
       "step_sha256": "0ee22ba55cd70c6464e5c10d1abbd2fce75bf211e4235ee35816390b02b878bb",
       "labels_sha256": "df24f3440764cb81cde3eb5f84a7809f1783e6b58ad1c58da3215f76d13df540",
       "accounting": {
-        "body": 2,
+        "body": 6,
         "body_reasons": {
           "stock_box_notched": 1,
-          "stock_box_side": 1
+          "stock_box_side": 1,
+          "stock_wall": 4
         },
         "feature": 8,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 2,
-        "stock_unexplained": 4,
-        "unexplained": 5
+        "stock_body": 6,
+        "stock_unexplained": 0,
+        "unexplained": 1
       }
     },
     {
@@ -1369,12 +1396,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 25,
+        "feature": 27,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 5,
-        "unexplained": 11
+        "unexplained": 9
       }
     },
     {
@@ -1386,12 +1413,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 27,
+        "feature": 28,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 5,
-        "unexplained": 11
+        "unexplained": 10
       }
     },
     {
@@ -1471,12 +1498,12 @@
       "accounting": {
         "body": 0,
         "body_reasons": {},
-        "feature": 20,
+        "feature": 21,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 0,
         "stock_unexplained": 7,
-        "unexplained": 10
+        "unexplained": 9
       }
     },
     {
@@ -1499,17 +1526,19 @@
       "step_sha256": "47f3703c6ba1c6dfe599c602f68473f690075c18af7d87d0f201ba11d2886821",
       "labels_sha256": "b70531a7679accf457087660999c629e3ecbcc1704dd1ba9e010aef3ea37ed59",
       "accounting": {
-        "body": 2,
+        "body": 5,
         "body_reasons": {
+          "plate_edge": 1,
           "stock_box_notched": 1,
-          "stock_box_split": 1
+          "stock_box_split": 1,
+          "stock_wall": 2
         },
-        "feature": 20,
+        "feature": 23,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 2,
-        "stock_unexplained": 5,
-        "unexplained": 9
+        "stock_body": 5,
+        "stock_unexplained": 2,
+        "unexplained": 3
       }
     },
     {
@@ -1534,17 +1563,19 @@
       "step_sha256": "253e6ae67b42c9c33091d3987ae4472c03964956346acc4e4910bd39be7a0032",
       "labels_sha256": "b9e4845b939f242dfd19083744cd371a74f3c8249ed5561d01ced7aa59a03cc7",
       "accounting": {
-        "body": 3,
+        "body": 5,
         "body_reasons": {
+          "plate_edge": 1,
           "stock_box_notched": 2,
-          "stock_box_side": 1
+          "stock_box_side": 1,
+          "stock_wall": 1
         },
         "feature": 7,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 2,
-        "unexplained": 2
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 0
       }
     },
     {
@@ -1574,12 +1605,12 @@
         "body_reasons": {
           "stock_box_notched": 4
         },
-        "feature": 11,
+        "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 10
+        "unexplained": 8
       }
     },
     {
@@ -1642,17 +1673,18 @@
       "step_sha256": "8d4726a9588e7bd0986f2a75dbc3ab641b4aa1e8bdf7ec7454e86db67bdc4df8",
       "labels_sha256": "ffce15265afc08cbc9e8266b6228e2cd36d2733a5d33e64e6ab6ff789026e395",
       "accounting": {
-        "body": 5,
+        "body": 7,
         "body_reasons": {
           "stock_box_notched": 2,
-          "stock_box_split": 3
+          "stock_box_split": 4,
+          "stock_wall": 1
         },
         "feature": 12,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 5,
-        "stock_unexplained": 2,
-        "unexplained": 3
+        "stock_body": 7,
+        "stock_unexplained": 0,
+        "unexplained": 1
       }
     },
     {
@@ -1702,12 +1734,12 @@
           "stock_box_side": 1,
           "stock_box_split": 2
         },
-        "feature": 7,
+        "feature": 8,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 6,
         "stock_unexplained": 1,
-        "unexplained": 9
+        "unexplained": 8
       }
     },
     {
@@ -1715,16 +1747,18 @@
       "step_sha256": "23280f23dfc189941ed295b7da7b1a847668cc2d0b1b08e5bd82220f4744ee22",
       "labels_sha256": "bc81d13848b54c6b58c1fae8f73839fb1471dc48c0f66499dc2839b4629e3249",
       "accounting": {
-        "body": 2,
+        "body": 4,
         "body_reasons": {
-          "stock_box_notched": 2
+          "plate_edge": 1,
+          "stock_box_notched": 2,
+          "stock_wall": 1
         },
         "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 2,
-        "stock_unexplained": 3,
-        "unexplained": 7
+        "stock_body": 4,
+        "stock_unexplained": 1,
+        "unexplained": 5
       }
     },
     {
@@ -1750,16 +1784,16 @@
       "step_sha256": "836a07487015a2a51de278e01cda2c1424de7eca780cc7725436223ad6f1a851",
       "labels_sha256": "ce1d861fd4c842fd1e0786d3621373dcfa88400d17c8dd10a19e908a079ebaaf",
       "accounting": {
-        "body": 3,
+        "body": 4,
         "body_reasons": {
-          "stock_box_notched": 3
+          "stock_box_notched": 4
         },
         "feature": 10,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 3,
-        "unexplained": 10
+        "stock_body": 4,
+        "stock_unexplained": 2,
+        "unexplained": 9
       }
     },
     {
@@ -1767,16 +1801,17 @@
       "step_sha256": "9ceb5c57a07c2776153025210e7d41e438fa3355efc7e1a903d795e7e17b72bf",
       "labels_sha256": "23a3383612314d1d7ab41732cd9c9494ad86d31d607e69ae69080473149771d1",
       "accounting": {
-        "body": 1,
+        "body": 3,
         "body_reasons": {
+          "plate_edge": 2,
           "stock_box_notched": 1
         },
         "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 1,
-        "stock_unexplained": 3,
-        "unexplained": 7
+        "stock_body": 3,
+        "stock_unexplained": 1,
+        "unexplained": 5
       }
     },
     {
@@ -1836,16 +1871,17 @@
       "step_sha256": "270d921f8d1df61e3f98baccfce5eed927996c58c606e22bb67be0ace1c5db54",
       "labels_sha256": "f303ab0ce81886793f09f505f0faff077b8e6cfb523245332f1098de71b235f8",
       "accounting": {
-        "body": 2,
+        "body": 4,
         "body_reasons": {
-          "stock_box_notched": 2
+          "stock_box_notched": 2,
+          "stock_wall": 2
         },
         "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 2,
-        "stock_unexplained": 3,
-        "unexplained": 3
+        "stock_body": 4,
+        "stock_unexplained": 1,
+        "unexplained": 1
       }
     },
     {
@@ -1905,17 +1941,18 @@
       "step_sha256": "3a593ce0a5d35fa32cc8ead13233c15fb8d4243c9b3807b31a6c1100480a3cbf",
       "labels_sha256": "4e10902975facf5d3b57c02cbc299447a0bddd439b1094f7eb7e67d0b6dde1cb",
       "accounting": {
-        "body": 4,
+        "body": 5,
         "body_reasons": {
           "stock_box_notched": 3,
-          "stock_box_side": 1
+          "stock_box_side": 1,
+          "stock_wall": 1
         },
         "feature": 10,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 4,
-        "stock_unexplained": 2,
-        "unexplained": 3
+        "stock_body": 5,
+        "stock_unexplained": 1,
+        "unexplained": 2
       }
     },
     {
@@ -1929,12 +1966,12 @@
           "stock_box_side": 1,
           "stock_box_split": 2
         },
-        "feature": 19,
+        "feature": 20,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 5,
-        "unexplained": 6
+        "unexplained": 5
       }
     },
     {
@@ -1942,16 +1979,17 @@
       "step_sha256": "01050defe6536c72ede6a6d9635cd456ec8f1579f42bf2659c9eea20c1cf4742",
       "labels_sha256": "bb19e581e8c3252b5c10ecd6b611cb33b1dee8f4bab681dfe9705a56fc9915c7",
       "accounting": {
-        "body": 1,
+        "body": 2,
         "body_reasons": {
-          "stock_box_notched": 1
+          "stock_box_notched": 1,
+          "stock_wall": 1
         },
-        "feature": 27,
+        "feature": 28,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 1,
-        "stock_unexplained": 4,
-        "unexplained": 17
+        "stock_body": 2,
+        "stock_unexplained": 3,
+        "unexplained": 15
       }
     },
     {
@@ -1963,12 +2001,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 11,
+        "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 8
+        "unexplained": 6
       }
     },
     {
@@ -1976,17 +2014,18 @@
       "step_sha256": "157f6d8975b5d289724a7a3e558003ae7854b6412947a936a3351aa48998ed34",
       "labels_sha256": "56c8d0b823ff7c2f16a6bcb049a969f6770c29119e3fb143e57ac4d2430ea39c",
       "accounting": {
-        "body": 4,
+        "body": 5,
         "body_reasons": {
           "stock_box_notched": 3,
-          "stock_box_side": 1
+          "stock_box_side": 1,
+          "stock_wall": 1
         },
         "feature": 27,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 4,
-        "stock_unexplained": 1,
-        "unexplained": 9
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 8
       }
     },
     {
@@ -2012,16 +2051,17 @@
       "step_sha256": "92652ff99f95f8b4e11ced24a001e719500e0298e9b56b7ccb7d79d2bedc5808",
       "labels_sha256": "2db2e85d725f406e1d9460f1a2d13e0cb640e0803db2d43161259b9eae4acdab",
       "accounting": {
-        "body": 2,
+        "body": 4,
         "body_reasons": {
+          "plate_edge": 2,
           "stock_box_notched": 2
         },
         "feature": 32,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 2,
-        "stock_unexplained": 2,
-        "unexplained": 5
+        "stock_body": 4,
+        "stock_unexplained": 0,
+        "unexplained": 3
       }
     },
     {
@@ -2066,12 +2106,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 28,
+        "feature": 29,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 8
+        "unexplained": 7
       }
     },
     {
@@ -2130,17 +2170,18 @@
       "step_sha256": "05b043bbc2a1650e6b3b30378dddc48b45620a9287e0d196e3e29e369c900ec1",
       "labels_sha256": "6259cccb39a9466d742d03a6be292fdd549b422085b178d9ee416e13d991e9fb",
       "accounting": {
-        "body": 4,
+        "body": 5,
         "body_reasons": {
           "stock_box_notched": 3,
-          "stock_box_side": 1
+          "stock_box_side": 1,
+          "stock_wall": 1
         },
         "feature": 15,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 4,
-        "stock_unexplained": 1,
-        "unexplained": 4
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 3
       }
     },
     {
@@ -2166,17 +2207,18 @@
       "step_sha256": "a38354113fb51f27c86d1e0787c0dbd410256a75f41ae5fd830fe9a0a6835def",
       "labels_sha256": "2126836da5d09f23a003cb1eca9864be7865123d9579f64e37fb72e32b46b531",
       "accounting": {
-        "body": 3,
+        "body": 7,
         "body_reasons": {
           "stock_box_notched": 1,
-          "stock_box_split": 2
+          "stock_box_split": 2,
+          "stock_wall": 4
         },
         "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 5,
-        "unexplained": 15
+        "stock_body": 7,
+        "stock_unexplained": 1,
+        "unexplained": 11
       }
     },
     {
@@ -2217,16 +2259,17 @@
       "step_sha256": "314a86a09de61a84318041e92303de0873220067ffeadc040d1ceb316d9fc140",
       "labels_sha256": "898cbfc93a79f46dafd66faae2b78eae48409e57255b2478adc6253526f9826b",
       "accounting": {
-        "body": 1,
+        "body": 3,
         "body_reasons": {
+          "plate_edge": 2,
           "stock_box_notched": 1
         },
-        "feature": 9,
+        "feature": 10,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 1,
-        "stock_unexplained": 3,
-        "unexplained": 6
+        "stock_body": 3,
+        "stock_unexplained": 1,
+        "unexplained": 3
       }
     },
     {
@@ -2234,16 +2277,18 @@
       "step_sha256": "a17995a795ad9be1155eeb7cde131e303416341fca76c289bc74539672a089be",
       "labels_sha256": "6c01dbe802fe4ccfa525e6b85871e860d1354580cdbea53a44474c6bbfed1ca5",
       "accounting": {
-        "body": 2,
+        "body": 5,
         "body_reasons": {
-          "stock_box_notched": 2
+          "plate_edge": 1,
+          "stock_box_notched": 2,
+          "stock_wall": 2
         },
-        "feature": 19,
+        "feature": 20,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 2,
-        "stock_unexplained": 4,
-        "unexplained": 7
+        "stock_body": 5,
+        "stock_unexplained": 1,
+        "unexplained": 3
       }
     },
     {
@@ -2269,16 +2314,17 @@
       "step_sha256": "f9879a5983238ab70b8da101f023f3444e3917b7051dd00e12bcc59ea76ddead",
       "labels_sha256": "bb90783e1e04551da57bde912adbd172783a90695977a729d323b96997a1f42d",
       "accounting": {
-        "body": 3,
+        "body": 6,
         "body_reasons": {
-          "stock_box_notched": 3
+          "stock_box_notched": 3,
+          "stock_wall": 3
         },
         "feature": 9,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 3,
-        "unexplained": 4
+        "stock_body": 6,
+        "stock_unexplained": 0,
+        "unexplained": 1
       }
     },
     {
@@ -2323,16 +2369,17 @@
       "step_sha256": "7d54e8454fa6f4ddae2fc0a99b31c906e0c3042f89f620bdfe63557d71f623c3",
       "labels_sha256": "14fec21a73bf312c09485e86e6b30c783b5c90bd40dbc9939af38b838c41ea6f",
       "accounting": {
-        "body": 4,
+        "body": 5,
         "body_reasons": {
-          "stock_box_notched": 4
+          "stock_box_notched": 4,
+          "stock_wall": 1
         },
         "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 4,
-        "stock_unexplained": 1,
-        "unexplained": 2
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 1
       }
     },
     {
@@ -2357,16 +2404,17 @@
       "step_sha256": "882b440567f6b56d49877324b4f5cd2badbb86cdb1fbb11d77c5c8036d4354a8",
       "labels_sha256": "7deec71b000e8308c0ee23073647dbdf56e2224ccbd89d0e622a9a1135836878",
       "accounting": {
-        "body": 3,
+        "body": 5,
         "body_reasons": {
-          "stock_box_notched": 3
+          "stock_box_notched": 3,
+          "stock_wall": 2
         },
         "feature": 29,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 2,
-        "unexplained": 3
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 1
       }
     },
     {
@@ -2409,16 +2457,17 @@
       "step_sha256": "447056bc1a2c20507dcd9c56e8950d6191f794bc6308b91be4c3320d75ee31d7",
       "labels_sha256": "b63a44b1d35179fbb45ece01dd1ee61cea6c63646b72bd5b4306d5006a8dfb12",
       "accounting": {
-        "body": 2,
+        "body": 5,
         "body_reasons": {
-          "stock_box_side": 2
+          "stock_box_side": 2,
+          "stock_wall": 3
         },
         "feature": 16,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 2,
-        "stock_unexplained": 5,
-        "unexplained": 5
+        "stock_body": 5,
+        "stock_unexplained": 2,
+        "unexplained": 2
       }
     },
     {
@@ -2426,16 +2475,17 @@
       "step_sha256": "8f12c10cb36c155ae823b5878285ec41e3eb897a0173c0c0b40c67ccc1b04991",
       "labels_sha256": "c0bf011ce06c3e0dcae81912454d61016ff7b3110a69128bb4a24a4b3bebc8f8",
       "accounting": {
-        "body": 2,
+        "body": 5,
         "body_reasons": {
-          "stock_box_notched": 2
+          "stock_box_notched": 2,
+          "stock_wall": 3
         },
         "feature": 10,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 2,
-        "stock_unexplained": 4,
-        "unexplained": 12
+        "stock_body": 5,
+        "stock_unexplained": 1,
+        "unexplained": 9
       }
     },
     {
@@ -2448,12 +2498,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 1
         },
-        "feature": 8,
+        "feature": 9,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 6
+        "unexplained": 5
       }
     },
     {
@@ -2500,12 +2550,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 2
         },
-        "feature": 9,
+        "feature": 11,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 1,
-        "unexplained": 10
+        "unexplained": 8
       }
     },
     {
@@ -2635,16 +2685,17 @@
       "step_sha256": "3c85f1df1cae4c5c5e4455d9356f9481dc4a29175d8e1a3a8d5549fed64c0bf8",
       "labels_sha256": "b72ffaeea003669c57340785900500dbf52958f711f7cf5020b3c282c0ab9098",
       "accounting": {
-        "body": 2,
+        "body": 4,
         "body_reasons": {
+          "plate_edge": 2,
           "stock_box_notched": 2
         },
         "feature": 14,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 2,
-        "stock_unexplained": 2,
-        "unexplained": 14
+        "stock_body": 4,
+        "stock_unexplained": 0,
+        "unexplained": 12
       }
     },
     {
@@ -2652,16 +2703,17 @@
       "step_sha256": "b1441888ae861f713aecdd1eca81c77afecaf509292523469675126b8df95076",
       "labels_sha256": "a3155b383b6e67ea90175b08060abb6660b3fdb1ab7a702618caa0ee7d00787f",
       "accounting": {
-        "body": 1,
+        "body": 5,
         "body_reasons": {
-          "stock_box_notched": 1
+          "stock_box_notched": 1,
+          "stock_wall": 4
         },
-        "feature": 24,
+        "feature": 25,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 1,
-        "stock_unexplained": 4,
-        "unexplained": 8
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 3
       }
     },
     {
@@ -2669,17 +2721,18 @@
       "step_sha256": "2657145adb76bab8da09823d00a5c4627f135ad32835babf1a5aba28ea583eba",
       "labels_sha256": "56de6f19f2feefe847aac7554aca785babde7b19de08f88948df12f521c9d4dd",
       "accounting": {
-        "body": 4,
+        "body": 5,
         "body_reasons": {
           "stock_box_notched": 3,
-          "stock_box_side": 1
+          "stock_box_side": 1,
+          "stock_wall": 1
         },
         "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 4,
-        "stock_unexplained": 1,
-        "unexplained": 10
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 9
       }
     },
     {
@@ -2776,14 +2829,16 @@
       "step_sha256": "7b176042b399e012f42a53fce178e34f93fc96212f4596a340177b0438b55f0c",
       "labels_sha256": "3e37567c0268ce204e8bf3ba55c1be56289dab691c3abdcfdeda0b596d990828",
       "accounting": {
-        "body": 0,
-        "body_reasons": {},
-        "feature": 16,
+        "body": 1,
+        "body_reasons": {
+          "stock_box_notched": 1
+        },
+        "feature": 18,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 0,
-        "stock_unexplained": 6,
-        "unexplained": 12
+        "stock_body": 1,
+        "stock_unexplained": 5,
+        "unexplained": 9
       }
     },
     {
@@ -2833,12 +2888,12 @@
           "stock_box_notched": 1,
           "stock_box_side": 2
         },
-        "feature": 7,
+        "feature": 8,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -2881,18 +2936,19 @@
       "step_sha256": "f88ecf04fe7d46c716fd880f75d16c58e4c6745fc38a0e7ace4e8be33d5e7314",
       "labels_sha256": "5933af8ade474c00778a9c3fb734542cba4c40b5bff7f92b31baefe3f428b8e7",
       "accounting": {
-        "body": 5,
+        "body": 6,
         "body_reasons": {
           "stock_box_notched": 1,
           "stock_box_side": 1,
-          "stock_box_split": 3
+          "stock_box_split": 3,
+          "stock_wall": 1
         },
-        "feature": 28,
+        "feature": 29,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 5,
-        "stock_unexplained": 4,
-        "unexplained": 19
+        "stock_body": 6,
+        "stock_unexplained": 3,
+        "unexplained": 17
       }
     },
     {
@@ -2906,12 +2962,12 @@
           "stock_box_side": 2,
           "stock_box_split": 1
         },
-        "feature": 20,
+        "feature": 22,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 9
+        "unexplained": 7
       }
     },
     {
@@ -2940,12 +2996,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 22,
+        "feature": 23,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 5,
-        "unexplained": 16
+        "unexplained": 15
       }
     },
     {
@@ -2953,16 +3009,17 @@
       "step_sha256": "5c3d7216c15010143c0d841da915f24a53c1a56d56ddea6832747c4700bcf0e0",
       "labels_sha256": "b0d9a4c1ff4d19f5230c5924e4c5a9181b4ecbe9dd93499b6f59c379f443538a",
       "accounting": {
-        "body": 3,
+        "body": 5,
         "body_reasons": {
-          "stock_box_side": 3
+          "stock_box_side": 3,
+          "stock_wall": 2
         },
         "feature": 24,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 3,
-        "stock_unexplained": 2,
-        "unexplained": 4
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 2
       }
     },
     {
@@ -3061,12 +3118,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 1
         },
-        "feature": 11,
+        "feature": 13,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 14
+        "unexplained": 12
       }
     },
     {
@@ -3078,12 +3135,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 18,
+        "feature": 21,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 9
+        "unexplained": 6
       }
     },
     {
@@ -3095,12 +3152,12 @@
         "body_reasons": {
           "stock_box_notched": 4
         },
-        "feature": 16,
+        "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -3108,14 +3165,17 @@
       "step_sha256": "30ec893d1d2e0cbdc776416e55ad5ddf2b6be8bdf1b413b330cbc5ea47769756",
       "labels_sha256": "b2d62cab5c1f66af9b4a2a443213ec4f605c3ecb519afb0ab61aa0ca08a87e03",
       "accounting": {
-        "body": 0,
-        "body_reasons": {},
+        "body": 4,
+        "body_reasons": {
+          "stock_box_side": 3,
+          "stock_box_split": 1
+        },
         "feature": 36,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 0,
-        "stock_unexplained": 5,
-        "unexplained": 16
+        "stock_body": 4,
+        "stock_unexplained": 1,
+        "unexplained": 12
       }
     },
     {
@@ -3128,12 +3188,12 @@
           "stock_box_notched": 2,
           "stock_box_split": 1
         },
-        "feature": 17,
+        "feature": 18,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 4,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -3212,12 +3272,12 @@
         "body_reasons": {
           "stock_box_notched": 1
         },
-        "feature": 34,
+        "feature": 36,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 1,
         "stock_unexplained": 5,
-        "unexplained": 11
+        "unexplained": 9
       }
     },
     {
@@ -3248,12 +3308,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 1
         },
-        "feature": 14,
+        "feature": 15,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 7
+        "unexplained": 6
       }
     },
     {
@@ -3302,12 +3362,12 @@
           "stock_box_notched": 3,
           "stock_box_side": 2
         },
-        "feature": 16,
+        "feature": 17,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 5,
         "stock_unexplained": 1,
-        "unexplained": 5
+        "unexplained": 4
       }
     },
     {
@@ -3332,16 +3392,17 @@
       "step_sha256": "ea9446f1061117957f86368379f34322950415494bd7431d8c55cc699f584035",
       "labels_sha256": "889cfcfff470a032f9f4b0f4755e8204719784b13fe11d641bea1e0727fcef48",
       "accounting": {
-        "body": 4,
+        "body": 5,
         "body_reasons": {
-          "stock_box_notched": 4
+          "stock_box_notched": 4,
+          "stock_wall": 1
         },
         "feature": 7,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 4,
-        "stock_unexplained": 1,
-        "unexplained": 1
+        "stock_body": 5,
+        "stock_unexplained": 0,
+        "unexplained": 0
       }
     },
     {
@@ -3353,12 +3414,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 17,
+        "feature": 20,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 7
+        "unexplained": 4
       }
     },
     {
@@ -3366,18 +3427,19 @@
       "step_sha256": "0073dc07c182cd557314624bde989b75b7b1e4a0d40281361d3ce8ccbd9b1313",
       "labels_sha256": "4be6b8c3da8a2aadeb33a424bfd2302e8401d0fe03eb217a7f278ee364b34ed8",
       "accounting": {
-        "body": 4,
+        "body": 6,
         "body_reasons": {
           "stock_box_notched": 2,
           "stock_box_side": 1,
-          "stock_box_split": 1
+          "stock_box_split": 1,
+          "stock_wall": 2
         },
-        "feature": 26,
+        "feature": 27,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 4,
-        "stock_unexplained": 3,
-        "unexplained": 7
+        "stock_body": 6,
+        "stock_unexplained": 1,
+        "unexplained": 4
       }
     },
     {
@@ -3443,12 +3505,12 @@
         "body_reasons": {
           "stock_box_notched": 3
         },
-        "feature": 14,
+        "feature": 15,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 3,
         "stock_unexplained": 3,
-        "unexplained": 15
+        "unexplained": 14
       }
     },
     {
@@ -3456,16 +3518,18 @@
       "step_sha256": "23a98be9154d7189d2b185af2d3591792181de3478fc324ecf21cb5ab35f2a0b",
       "labels_sha256": "e48da42b7cba03b7a3265e22bf5ffa77cae10cff64965480b2cf9a7fb1860f16",
       "accounting": {
-        "body": 2,
+        "body": 6,
         "body_reasons": {
-          "stock_box_notched": 2
+          "plate_edge": 1,
+          "stock_box_notched": 2,
+          "stock_wall": 3
         },
         "feature": 8,
         "feature_as_body": 0,
         "refused": 0,
-        "stock_body": 2,
-        "stock_unexplained": 4,
-        "unexplained": 4
+        "stock_body": 6,
+        "stock_unexplained": 0,
+        "unexplained": 0
       }
     },
     {
@@ -3477,12 +3541,12 @@
         "body_reasons": {
           "stock_box_notched": 4
         },
-        "feature": 17,
+        "feature": 19,
         "feature_as_body": 0,
         "refused": 0,
         "stock_body": 4,
         "stock_unexplained": 2,
-        "unexplained": 10
+        "unexplained": 8
       }
     },
     {
@@ -3616,25 +3680,25 @@
     {
       "faces": {
         "labelled": 212,
-        "predicted": 114,
-        "true_positive": 114
+        "predicted": 159,
+        "true_positive": 159
       },
       "instances": {
         "labelled": 67,
-        "predicted": 38,
-        "true_positive": 38
+        "predicted": 53,
+        "true_positive": 53
       }
     },
     {
       "faces": {
         "labelled": 113,
-        "predicted": 22,
-        "true_positive": 22
+        "predicted": 40,
+        "true_positive": 40
       },
       "instances": {
         "labelled": 54,
-        "predicted": 11,
-        "true_positive": 11
+        "predicted": 20,
+        "true_positive": 20
       }
     },
     {
@@ -3676,13 +3740,13 @@
     {
       "faces": {
         "labelled": 331,
-        "predicted": 194,
-        "true_positive": 139
+        "predicted": 267,
+        "true_positive": 212
       },
       "instances": {
         "labelled": 62,
         "predicted": 84,
-        "true_positive": 8
+        "true_positive": 45
       }
     },
     {
@@ -3700,13 +3764,13 @@
     {
       "faces": {
         "labelled": 337,
-        "predicted": 304,
-        "true_positive": 155
+        "predicted": 293,
+        "true_positive": 219
       },
       "instances": {
         "labelled": 66,
-        "predicted": 131,
-        "true_positive": 21
+        "predicted": 94,
+        "true_positive": 53
       }
     },
     {
@@ -3748,36 +3812,36 @@
     {
       "faces": {
         "labelled": 145,
-        "predicted": 51,
-        "true_positive": 51
+        "predicted": 102,
+        "true_positive": 102
       },
       "instances": {
         "labelled": 68,
         "predicted": 51,
-        "true_positive": 47
+        "true_positive": 51
       }
     },
     {
       "faces": {
         "labelled": 130,
-        "predicted": 80,
-        "true_positive": 80
+        "predicted": 92,
+        "true_positive": 92
       },
       "instances": {
         "labelled": 62,
-        "predicted": 40,
-        "true_positive": 40
+        "predicted": 46,
+        "true_positive": 46
       }
     },
     {
       "faces": {
         "labelled": 203,
-        "predicted": 333,
+        "predicted": 258,
         "true_positive": 168
       },
       "instances": {
         "labelled": 66,
-        "predicted": 136,
+        "predicted": 99,
         "true_positive": 56
       }
     },
@@ -3806,19 +3870,21 @@
       }
     }
   ],
-  "accounting_reason": "Initial complete face-accounting baseline on the unchanged fixed 200 IDs and hashes. Strict stock_box_side geometry; labels 0\u201323 may never be body, and label-24 unexplained faces are ratcheted per model. Existing feature scores retained unchanged; the separately approved PR #63 correction is merged without changing recognition.",
+  "accounting_reason": "Initial complete face-accounting baseline on the unchanged fixed 200 IDs and hashes. Strict stock_box_side geometry; labels 0\u201323 may never be body, and label-24 unexplained faces are ratcheted per model. Existing feature scores retained unchanged; the separately approved PR #63 correction is merged without changing recognition.\n\nThe pocket boundary evidence already proved in round 1 accounts for two additional feature faces on 20221124_154714_7424 (feature 17 to 19, unexplained 7 to 5). Every other model accounting is unchanged. Stock body reasons, stock_unexplained and feature_as_body stay unchanged; no floor or refusal check is relaxed.",
   "accounting": {
-    "body": 676,
+    "body": 789,
     "body_reasons": {
-      "stock_box_notched": 393,
-      "stock_box_side": 224,
-      "stock_box_split": 59
+      "plate_edge": 16,
+      "stock_box_notched": 402,
+      "stock_box_side": 228,
+      "stock_box_split": 70,
+      "stock_wall": 73
     },
-    "feature": 3249,
+    "feature": 3328,
     "feature_as_body": 0,
     "refused": 3,
-    "stock_body": 676,
-    "stock_unexplained": 554,
-    "unexplained": 1401
+    "stock_body": 789,
+    "stock_unexplained": 441,
+    "unexplained": 1209
   }
 }

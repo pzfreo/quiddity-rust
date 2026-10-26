@@ -2,9 +2,11 @@
 //! `_discover_pockets`): the through-slot's wall pairs kept where a floor caps one depth end,
 //! corner notches, and stubby obround pockets from their caps, recognised per solid.
 //!
-//! What defines a pocket depends on how it was found: from opposed walls the two walls (the
-//! floor only had to exist), from a corner notch the floor and both walls, from obround ends the
-//! cap clusters. The floor and any proved complete inner region are consulted context.
+//! The seed defines a pocket from opposed walls, a corner notch's floor and both walls, or
+//! obround cap clusters. A uniquely owned complete cavity adds its observed planar end walls
+//! or the sides joining both cap clusters. The floor and remaining cavity faces are consulted
+//! context. An intact rectangular floor can also prove the end walls when an intersecting cut
+//! destroys the mouth wire; competing cavity or floor ownership never expands a claim.
 
 use std::collections::BTreeSet;
 

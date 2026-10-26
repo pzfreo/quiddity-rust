@@ -24,3 +24,18 @@ default-filter = '''
 '''
 fail-fast = false
 test-threads = 1
+
+# CTC-01 face claims, accounting and the downstream regression gates (#100).
+[profile.ctc01-accounting]
+default-filter = '''
+    binary(face_accounting) | binary(cli) | binary(serve) |
+    binary(rigid_transform) | binary(corpus_files) | binary(snapshot_provenance) |
+    (binary(quiddity) & (
+        test(body::) | test(holes::) | test(slots::) | test(inventory_floor::) |
+        test(corpus::) | test(correspondence::) | test(fingerprint::) |
+        test(framed_records::) | test(recognition::) | test(invariance::) |
+        test(publication::) | test(vector_publication::) | test(mfinstseg::)
+    ))
+'''
+fail-fast = false
+test-threads = 2

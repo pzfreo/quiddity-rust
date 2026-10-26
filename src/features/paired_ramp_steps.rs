@@ -111,6 +111,65 @@ fn order(a: &PairedRampStep, b: &PairedRampStep) -> std::cmp::Ordering {
         .then(py::order(a.half_width, b.half_width))
 }
 
+/// An alternate full-run concave sidewall path between the ramps closes a pocket section.
+/// Blind and opening caps touch only one axial station, so they cannot close this path.
+fn closed_sidewall_cycle(
+    part: &Part,
+    left: usize,
+    right: usize,
+    axis: usize,
+    run: (f64, f64),
+) -> bool {
+    let tolerance = policy::length_tol(run.1 - run.0, 1e-9);
+    if run.1 - run.0 <= 2.0 * tolerance {
+        return false;
+    }
+    let complete_join = |a, b| {
+        let mut intervals: Vec<_> = part
+            .shared_edges(a, b)
+            .into_iter()
+            .filter_map(|edge| {
+                let points = part.edges[edge].vertex_points();
+                let low = points.iter().map(|p| p[axis]).fold(f64::INFINITY, f64::min);
+                let high = points
+                    .iter()
+                    .map(|p| p[axis])
+                    .fold(f64::NEG_INFINITY, f64::max);
+                (high - low > tolerance).then_some((low, high))
+            })
+            .collect();
+        intervals.sort_by(|a, b| py::order(a.0, b.0));
+        let mut covered = run.0;
+        for (low, high) in intervals {
+            if low > covered + tolerance {
+                return false;
+            }
+            covered = covered.max(high);
+        }
+        covered >= run.1 - tolerance
+    };
+    let mut seen = vec![false; part.faces.len()];
+    seen[left] = true;
+    let mut pending = vec![left];
+    while let Some(face) = pending.pop() {
+        for next in part.neighbours(face) {
+            if seen[next]
+                || (face == left && next == right)
+                || !matches!(part.arc(face, next), Some(Arc::Concave | Arc::Smooth))
+                || !complete_join(face, next)
+            {
+                continue;
+            }
+            if next == right {
+                return true;
+            }
+            seen[next] = true;
+            pending.push(next);
+        }
+    }
+    false
+}
+
 fn candidate(
     part: &Part,
     left: usize,
@@ -176,17 +235,9 @@ fn candidate(
         return None;
     }
     let bounds = part.solid_bounds(solid);
-    let extents = [0, 1, 2].map(|i| bounds.max[i] - bounds.min[i]);
     let tolerance = policy::length_tol(bounds.max_extent(), 1e-9);
-    if extents[axis]
-        < cross
-            .iter()
-            .map(|&i| extents[i])
-            .fold(f64::INFINITY, f64::min)
-            - tolerance
-    {
-        return None;
-    }
+    // The convex opening and concave internal terminal establish a blind valley along
+    // this axis; its role does not depend on the unrelated stock dimensions.
     let coordinate = |f: usize| {
         let b = part.face_bounds(f);
         mid((b.min[axis], b.max[axis]))
@@ -211,6 +262,9 @@ fn candidate(
         return None;
     }
     if arc(left, inside) != Some(Arc::Concave) || arc(right, inside) != Some(Arc::Concave) {
+        return None;
+    }
+    if closed_sidewall_cycle(part, left, right, axis, l.spans[axis]) {
         return None;
     }
     let edge_bounds = {
@@ -269,4 +323,78 @@ fn candidate(
         defining: vec![left, right, inside],
         context: vec![],
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::features::support_patches::polygon_part;
+
+    /// A V cut open at y=0 and closed at y=5, in stock whose length along y varies.
+    fn valley(stock_length: f64) -> Part {
+        let points = [
+            [0.0, 0.0, 0.0],
+            [20.0, 0.0, 0.0],
+            [20.0, 0.0, 40.0],
+            [10.0, 0.0, 20.0],
+            [0.0, 0.0, 40.0],
+            [0.0, 5.0, 0.0],
+            [20.0, 5.0, 0.0],
+            [20.0, 5.0, 40.0],
+            [10.0, 5.0, 20.0],
+            [0.0, 5.0, 40.0],
+            [0.0, stock_length, 0.0],
+            [20.0, stock_length, 0.0],
+            [20.0, stock_length, 40.0],
+            [0.0, stock_length, 40.0],
+        ];
+        let faces = [
+            vec![0, 1, 2, 3, 4],
+            vec![4, 3, 8, 9],
+            vec![3, 2, 7, 8],
+            vec![9, 8, 7],
+            vec![9, 7, 12, 13],
+            vec![10, 13, 12, 11],
+            vec![0, 4, 9, 13, 10],
+            vec![1, 11, 12, 7, 2],
+            vec![0, 10, 11, 1],
+        ];
+        polygon_part(&points, &faces, true).unwrap()
+    }
+
+    #[test]
+    fn triangular_and_hexagonal_pocket_corners_are_not_paired_ramp_cuts() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/golden_triangular_and_hex_pockets.step");
+        let part = crate::read_step_file(&path).unwrap();
+        for degrees in [0.0_f64, 30.0] {
+            let (sin, cos) = degrees.to_radians().sin_cos();
+            let moved = part
+                .transformed(&[
+                    [cos, -sin, 0.0, 0.0],
+                    [sin, cos, 0.0, 0.0],
+                    [0.0, 0.0, 1.0, 0.0],
+                ])
+                .unwrap();
+            assert!(discover(&Context::new(&moved)).is_empty(), "pose {degrees}");
+        }
+    }
+
+    #[test]
+    fn stock_aspect_ratio_does_not_change_a_proved_valley() {
+        let read = |length| {
+            let part = valley(length);
+            assert!(part.solid_is_valid(0));
+            let found = discover(&Context::new(&part));
+            assert_eq!(found.len(), 1, "stock length {length}");
+            assert_eq!(found[0].defining, vec![1, 2, 3]);
+            found[0].record.clone()
+        };
+        let short = read(10.0);
+        assert_eq!(short, read(60.0));
+        assert_eq!(short.axis, 'y');
+        assert_eq!(short.length, 5.0);
+        assert_eq!(short.half_width, 10.0);
+        assert_eq!(short.opening_direction, [0.0, -1.0, 0.0]);
+    }
 }

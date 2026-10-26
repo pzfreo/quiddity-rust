@@ -97,7 +97,7 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
         }
     };
     let features = features::recognise(&working);
-    let body_evidence = crate::body::evidence(&working);
+    let body_evidence = crate::body::evidence(&working, &features);
     let Mapped {
         features,
         fingerprinted,

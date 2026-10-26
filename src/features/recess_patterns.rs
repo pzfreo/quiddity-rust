@@ -252,6 +252,7 @@ mod tests {
             d_hi: 10.0.into(),
             open_sign,
             edge_anchored: false,
+            rectangular_boundary: false,
             body_key: body,
             end_radius: None,
             corner_radius: None,
