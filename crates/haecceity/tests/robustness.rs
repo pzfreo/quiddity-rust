@@ -115,15 +115,20 @@ fn read_everything(bytes: &[u8]) -> Outcome {
     out
 }
 
-/// The kernel queries a reader's caller makes of a part.
-fn query(part: &haecceity::Part) {
+/// The kernel queries a reader's caller makes of a part; hidden lines only when `hlr`.
+fn query(part: &haecceity::Part, hlr: bool) {
     let _ = part.mesh(0.5, 0.5);
     let _ = part.volume_centroid();
     let view = haecceity::hlr::View::new([0.0, 0.0, 1.0], [1.0, 0.0, 0.0]);
-    if let Some(view) = view {
+    if let Some(view) = view.filter(|_| hlr) {
         let _ = haecceity::hlr::project(part, &view);
     }
 }
+
+/// The largest file (in bytes of Part 21) whose mutants the sweep also projects: HLR of a
+/// larger part takes seconds even unmutated (15 s for left_two_start's 170 kB), so the default
+/// budget leaves those to the HLR tests themselves.
+const SWEEP_HLR_BYTES: usize = 50_000;
 
 /// `f` run on a thread with the WASM-like stack; a panic fails the test, an overflow aborts it.
 fn on_small_stack<R: Send + 'static>(f: impl FnOnce() -> R + Send + 'static) -> R {
@@ -152,7 +157,7 @@ fn refused_or_read(text: String) -> Outcome {
     on_small_stack(move || {
         let out = read_everything(text.as_bytes());
         if let Some(Ok(part)) = &out.geometry {
-            query(part);
+            query(part, true);
         }
         out
     })
@@ -483,7 +488,12 @@ fn sweep(files: &[PathBuf], per_file: impl Fn(usize) -> usize + Sync) -> (usize,
                 m
             };
             let what = if k % 2 == 0 { "truncated" } else { "flipped" };
-            let result = std::panic::catch_unwind(|| read_everything(&mutant));
+            // A mutant that still reads is queried too, as a caller would (mesh, mass, HLR).
+            let result = std::panic::catch_unwind(|| {
+                if let Some(Ok(part)) = &read_everything(&mutant).geometry {
+                    query(part, bytes.len() <= SWEEP_HLR_BYTES);
+                }
+            });
             if let Err(e) = result {
                 let why = e
                     .downcast_ref::<String>()
