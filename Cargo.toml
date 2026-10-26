@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/haecceity"]
+members = ["crates/haecceity", "crates/snapshot-tool"]
 
 [package]
 name = "quiddity"

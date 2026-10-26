@@ -56,9 +56,9 @@ explicit write flag supplied by the tool and is forbidden in CI.
 ```sh
 export QUIDDITY_CORPUS=/path/to/pinned/corpus
 export CARGO_BUILD_JOBS=6 RUST_TEST_THREADS=6
-python3 tools/rust_snapshot.py
-python3 tools/rust_snapshot.py --diff BASE_REF
-python3 tools/rust_snapshot.py --check
+cargo run -p snapshot-tool --release --
+cargo run -p snapshot-tool --release -- --diff BASE_REF
+cargo run -p snapshot-tool --release -- --check
 cargo fmt --all --check
 cargo clippy --workspace --all-targets --release -- -D warnings
 QUIDDITY_CORPUS_REQUIRED=1 cargo test --workspace --release
@@ -72,9 +72,9 @@ requires byte-identical compressed output on HEAD. CI adds `--coverage-only`: th
 comparisons retain their original numeric bands across platforms, and the produced-file
 inventory must match exactly, so orphaned snapshots fail. Normal tests only read expectations.
 
-Every recorded recognition call is replayed with its original options and record arguments.
-The corpus retains every family/option/evidence run and now also snapshots the public
-recognition document and fingerprints, plus Rust kernel inventory, masses, UV bounds and arcs. Other replays cover fillet manifests, frames,
+The corpus snapshots the public recognition document and fingerprints, plus Rust kernel
+inventory, masses, UV bounds and arcs. Legacy per-function corpus replays are retained only
+for raw passages and alternative hole/fillet/chamfer options absent from the default document. Other replays cover fillet manifests, frames,
 effective surfaces, outer profiles, sections, patches, passages, geometry proofs,
 section-recess records/documents/publication, face levels/risers, reconciliation,
 recognition evidence, degradation, volume probes and semantic PMI. Inputs that a former capture
@@ -220,7 +220,7 @@ NIST AP242 files can be checked by exporting `HAECCEITY_NIST_PMI` and
 - `tests/fixtures/captured/`: preserved legacy test inputs and query arguments.
 - `tests/fixtures/references/`: independent measured ledgers and motion exceptions.
 - `tests/fixtures/rust-snapshot/`: Rust-owned expectations and provenance.
-- `tools/rust_snapshot.py`: the single snapshot regeneration/check/review tool.
+- `cargo run -p snapshot-tool --release --`: the single snapshot regeneration/check/review tool.
 - `docs/history/python-parity.md`: archived verdicts, evidence and source commits.
 
 Kernel limitations and historical findings remain documented in the source and reference

@@ -85,7 +85,7 @@ faces are on no part are under `unattached`. Captured: every `*_ap242-*.stp` of 
 
 Python draftwright outputs and its capture tool have been retired. The same 14 STEP inputs
 are listed in `../pmi_inputs.json`; `tests/pmi_snapshot.rs` records their complete Rust semantic
-PMI documents and part bindings through `tools/rust_snapshot.py`. NIST, stated intent,
+PMI documents and part bindings through `cargo run -p snapshot-tool --release --`. NIST, stated intent,
 OpenCascade XCAF, analytic writer and round-trip reference checks remain independent.
 Historical verdicts and evidence are in `docs/history/python-parity.md`.
 

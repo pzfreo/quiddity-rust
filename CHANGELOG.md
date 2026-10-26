@@ -542,7 +542,7 @@ Rust owns, with Python no longer consulted (#67).
 ### Changed
 
 - Rust owns its regression baseline, with source-commit provenance and deterministic gzip
-  expectations. Regenerate with `python3 tools/rust_snapshot.py`, review decompressed changes
+  expectations. Regenerate with `cargo run -p snapshot-tool --release --`, review decompressed changes
   with `--diff BASE_REF`, and verify current HEAD with `--check`. Python is no longer consulted.
 - Removed Python recognition/PMI oracle outputs, capture-only tools, parity harnesses and the
   `python-parity` Cargo feature. Caller-space algorithms are private; their internal tests

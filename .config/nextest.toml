@@ -39,3 +39,31 @@ default-filter = '''
 '''
 fail-fast = false
 test-threads = 2
+
+# Maintainer, 2026-10-26: ordinary PRs use these macOS libm-sensitive pins.
+# Full Linux always runs; main, dispatch and release* PRs also run full macOS.
+# Measured/adjusted pin budget: ~14 test runner-minutes (limit ~60).
+# The rigid-motion slices exercise references/correspondence.json faces_at_most;
+# correspondence/fingerprint tests pin matching and publication numeric thresholds.
+# Corpus and frames snapshots pin numeric records, fingerprints and inferred frame axes.
+# Kernel, areas, moments, integrals, drawings (HLR) and revolution pin numeric geometry
+# against analytic/independent expectations. No new shards or test concurrency.
+[profile.macos-pr]
+default-filter = '''
+    (binary(quiddity) & (
+        test(regression_tests::invariance::recognition_is_invariant_under_rigid_motion::) |
+        test(regression_tests::invariance::listed_face_counts_are_pinned_or_bounded) |
+        test(regression_tests::correspondence::) |
+        test(engine::correspondence::) |
+        test(regression_tests::wiring::families_are_wired_and_their_records_fingerprinted_field_by_field) |
+        test(regression_tests::corpus::rust_snapshot_corpus) |
+        test(regression_tests::frames::rust_snapshot_frames_and_equivariance)
+    )) |
+    (package(haecceity) & (
+        binary(kernel) | binary(face_areas) | binary(face_moments) |
+        binary(face_integrals) | binary(drawings) | binary(revolution)
+    )) |
+    (binary(cli) & test(v011_oriented_fingerprints_correspond_to_merged_step))
+'''
+fail-fast = false
+test-threads = 1

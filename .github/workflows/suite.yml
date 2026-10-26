@@ -8,6 +8,9 @@ on:
       os:
         type: string
         required: true
+      tier:
+        type: string
+        default: ci
       # The shard numbers, 1..N, as a JSON list.
       shards:
         type: string
@@ -29,23 +32,6 @@ jobs:
       - uses: taiki-e/install-action@7623a79cdfecb99d681017af368ca353d9f49bb5 # v2.87.19
         with:
           tool: nextest@0.9.146
-      # Replay all snapshot producers and reject orphaned expected files. --check always
-      # compares before recording temporary verification output; CI cannot regenerate.
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          repository: pzfreo/quiddity
-          ref: 6d544e060cd0eeb4442d2196e5df757b5a15ea55
-          path: quiddity
-          sparse-checkout: tests/corpus
-      - run: echo /quiddity/ >> .git/info/exclude
-      # Keep each test's existing numeric bands across platforms; compare producer/file
-      # inventories exactly rather than requiring libm round-off to be byte-identical.
-      - run: python3 tools/rust_snapshot.py --check --coverage-only
-        env:
-          QUIDDITY_CORPUS: ${{ github.workspace }}/quiddity/tests/corpus
-          QUIDDITY_CORPUS_REQUIRED: "1"
-          CARGO_BUILD_JOBS: "6"
-          RUST_TEST_THREADS: "6"
       - run: cargo nextest archive --workspace --release --archive-file tests-${{ inputs.os }}.tar.zst
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -64,6 +50,7 @@ jobs:
     env:
       QUIDDITY_CORPUS: ${{ github.workspace }}/quiddity/tests/corpus
       QUIDDITY_CORPUS_REQUIRED: "1"
+      QUIDDITY_SNAPSHOT_VERIFY_DIR: ${{ github.workspace }}/snapshot-verified
       # Extracted into the workspace, so target/release/quiddity is where CARGO_BIN_EXE_quiddity
       # says. Run through cargo-nextest itself: no toolchain is needed to run the archive.
       ARCHIVE: >-
@@ -90,8 +77,42 @@ jobs:
           name: tests-${{ inputs.os }}
       # Every test in the archive is dealt to one shard by its measured time (.github/shards.py,
       # .config/test-times.json), so the shards together run the whole suite.
-      - run: cargo-nextest nextest list $ARCHIVE --message-format json > tests.json
+      - run: cargo-nextest nextest list $ARCHIVE --profile ${{ inputs.tier }} --message-format json > tests.json
       - run: >-
           python3 .github/shards.py tests.json .config/test-times.json ${{ runner.os }}
           ${{ matrix.shard }} ${{ strategy.job-total }} > shard.filter
-      - run: cargo-nextest nextest run --profile ci $ARCHIVE -E "$(cat shard.filter)"
+      - run: cargo-nextest nextest run --profile ${{ inputs.tier }} $ARCHIVE -E "$(cat shard.filter)"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: inputs.os == 'ubuntu-latest'
+        with:
+          name: snapshot-verified-${{ matrix.shard }}
+          path: snapshot-verified/
+          if-no-files-found: ignore
+          retention-days: 1
+
+  snapshot-coverage:
+    if: inputs.os == 'ubuntu-latest'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: pzfreo/quiddity
+          ref: 6d544e060cd0eeb4442d2196e5df757b5a15ea55
+          path: quiddity
+          sparse-checkout: tests/corpus
+      - run: rustup toolchain install
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: snapshot-verified-*
+          path: snapshot-verified
+          merge-multiple: true
+      - run: |
+          echo /quiddity/ >> .git/info/exclude
+          echo /snapshot-verified/ >> .git/info/exclude
+      - run: cargo run -p snapshot-tool --release -- --check --coverage-only --verify-dir snapshot-verified
+        env:
+          QUIDDITY_CORPUS: ${{ github.workspace }}/quiddity/tests/corpus
