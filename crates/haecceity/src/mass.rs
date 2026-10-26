@@ -70,10 +70,15 @@ fn integrate<const N: usize>(cuts: &[f64], f: impl Fn(f64) -> [f64; N]) -> [f64;
     total
 }
 
-/// The cuts from a to b: `panels` equal pieces, each further split at any of `breaks` (where
-/// the integrand's polynomial pieces meet) strictly inside it.
+/// Most panels or periods an integral is cut into. An angular range is a few turns and a conic's
+/// a few radians, so only nonsense geometry (a coordinate of 1e288 from a corrupt file) reaches
+/// this; it is held here rather than allocated (#52), and the integral is then only coarse.
+const MAX_PANELS: usize = 4096;
+
+/// The cuts from a to b: `panels` equal pieces (at most [`MAX_PANELS`]), each further split at
+/// any of `breaks` (where the integrand's polynomial pieces meet) strictly inside it.
 fn cuts(a: f64, b: f64, panels: usize, breaks: &[f64]) -> Vec<f64> {
-    let panels = panels.max(1);
+    let panels = panels.clamp(1, MAX_PANELS);
     let mut out: Vec<f64> = (0..=panels)
         .map(|k| a + (b - a) * k as f64 / panels as f64)
         .chain(breaks.iter().copied().filter(|&x| (x - a) * (x - b) < 0.0))
@@ -106,7 +111,8 @@ fn surface_cuts(surface: &Surface, span: f64, along_v: bool, a: f64, b: f64) -> 
             if span.is_finite() && !knots.is_empty() {
                 let lo = knots[0];
                 let turns = |x: f64| ((x - lo) / span).floor() as i64;
-                let (first, last) = (turns(a.min(b)), turns(a.max(b)));
+                let first = turns(a.min(b));
+                let last = turns(a.max(b)).min(first.saturating_add(MAX_PANELS as i64));
                 let one = knots.clone();
                 knots = (first..=last)
                     .flat_map(|n| one.iter().map(move |k| k + n as f64 * span))

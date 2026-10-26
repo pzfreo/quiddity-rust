@@ -11,7 +11,7 @@ fn find_span(knots: &[f64], degree: usize, n: usize, t: f64) -> usize {
 }
 
 /// OpenCascade's largest B-spline degree; basis values live on the stack up to it.
-const MAX_DEGREE: usize = 25;
+pub const MAX_DEGREE: usize = 25;
 
 /// Up to `MAX_DEGREE + 1` basis values, read as a slice.
 #[derive(Clone, Copy)]

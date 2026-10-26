@@ -147,7 +147,14 @@ struct PartState<'a> {
     geometry: HashMap<u64, GeometryId>,
     /// Hole occurrence → its definition and placement, until its feature is registered.
     holes: HashMap<u64, (RoundHole, Option<Placement>)>,
+    /// Shape aspects being read, one inside another (groups, derivations, aliases).
+    nesting: usize,
 }
+
+/// Shape aspects nested deeper than this (groups, derivations, aliases, one inside another)
+/// are not read: each level is several frames of the reader's stack, about 19 KiB unoptimised,
+/// and a 1 MiB (WASM-like) stack must hold them (#52). Files nest two or three.
+const FEATURE_NESTING: usize = 16;
 
 impl<'a> PartState<'a> {
     fn new(id: PartId, part: &'a PartDefinition) -> Self {
@@ -165,6 +172,7 @@ impl<'a> PartState<'a> {
             absorbed: BTreeSet::new(),
             geometry: HashMap::new(),
             holes: HashMap::new(),
+            nesting: 0,
         }
     }
 }
@@ -1279,8 +1287,35 @@ impl<'a> Reader<'a> {
         out
     }
 
+    /// Whether shape aspect `id` may be read one level deeper; a finding when not.
+    fn nest(&mut self, st: &mut PartState, id: u64) -> bool {
+        if st.nesting >= FEATURE_NESTING {
+            self.find(
+                FindingKind::Unsupported,
+                Some(st.id),
+                id,
+                &[],
+                format!(
+                    "shape aspects nested more than {FEATURE_NESTING} deep (groups, derivations or aliases); not read"
+                ),
+            );
+            return false;
+        }
+        st.nesting += 1;
+        true
+    }
+
     /// The feature of shape aspect `id`, registered in the part (memoised).
     fn feature(&mut self, st: &mut PartState, id: u64) -> Option<FeatureId> {
+        if st.features.contains_key(&id) || !self.nest(st, id) {
+            return st.features.get(&id).copied().flatten();
+        }
+        let r = self.feature_at(st, id);
+        st.nesting -= 1;
+        r
+    }
+
+    fn feature_at(&mut self, st: &mut PartState, id: u64) -> Option<FeatureId> {
         if let Some(r) = st.features.get(&id) {
             return *r;
         }
@@ -1328,6 +1363,15 @@ impl<'a> Reader<'a> {
 
     /// The content of shape aspect `id` without registering it (a member of a composite).
     fn content(&mut self, st: &mut PartState, id: u64) -> Option<(Feature, Vec<u64>)> {
+        if st.contents.contains_key(&id) || !self.nest(st, id) {
+            return st.contents.get(&id).cloned().flatten();
+        }
+        let c = self.content_at(st, id);
+        st.nesting -= 1;
+        c
+    }
+
+    fn content_at(&mut self, st: &mut PartState, id: u64) -> Option<(Feature, Vec<u64>)> {
         if let Some(c) = st.contents.get(&id) {
             return c.clone();
         }

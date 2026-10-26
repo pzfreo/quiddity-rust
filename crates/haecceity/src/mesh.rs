@@ -648,13 +648,12 @@ fn straying(
             at[*place].push(k);
         }
     }
-    let uses = |e: usize| {
-        f.loops
-            .iter()
-            .flat_map(|l| &l.edges)
-            .filter(|&&(g, _)| g == e)
-            .count()
-    };
+    // How many times the face's loops use each edge, counted once rather than per stray.
+    let mut used: std::collections::HashMap<usize, usize> = std::collections::HashMap::new();
+    for &(g, _) in f.loops.iter().flat_map(|l| &l.edges) {
+        *used.entry(g).or_insert(0) += 1;
+    }
+    let uses = |e: usize| used.get(&e).copied().unwrap_or(0);
     let mut out = Vec::new();
     for line in 0..n {
         let ks = &at[line];

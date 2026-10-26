@@ -24,6 +24,9 @@ pub enum StepError {
     /// The file parses but its shapes are not all there: no solid or shell at all, or
     /// geometry or topology step-io dropped (missing, malformed or of an unknown type).
     Incomplete(String),
+    /// The file exceeds a bound the reader keeps so that hostile input cannot exhaust the
+    /// stack or memory (a WASM build has little of either): which bound, and by what.
+    Limit(String),
 }
 
 impl std::fmt::Display for StepError {
@@ -32,6 +35,7 @@ impl std::fmt::Display for StepError {
             StepError::Parse(s) => write!(f, "STEP parse error: {s}"),
             StepError::Unsupported(s) => write!(f, "unsupported STEP content: {s}"),
             StepError::Incomplete(s) => write!(f, "incomplete STEP geometry: {s}"),
+            StepError::Limit(s) => write!(f, "STEP input exceeds a reader bound: {s}"),
         }
     }
 }
@@ -62,6 +66,73 @@ impl Resolved for m::StepModel {
         self.get(id)
             .expect("step-io resolves every reference it keeps")
     }
+}
+
+/// Bounds on what one file can make the reader follow or build, so that hostile input is
+/// refused with [`StepError::Limit`] instead of exhausting the stack or memory (#52). Each is far
+/// above any file of the corpus or the fixtures (`tests/robustness.rs` reads them all).
+///
+/// The others on the read path: step-io refuses parameters nested deeper than
+/// [`step_io::parser::MAX_NESTING_DEPTH`] and B-splines of degree above 25; [`NurbsCurve`] and
+/// [`NurbsSurface`] refuse degrees above [`crate::nurbs::MAX_DEGREE`]; a B-spline whose
+/// multiplicities exceed its knot count is malformed, and is left unresolved without expanding.
+pub mod limits {
+    /// Assembly levels below the root (`NEXT_ASSEMBLY_USAGE_OCCURRENCE` nesting).
+    pub const ASSEMBLY_DEPTH: usize = 64;
+    /// Product definitions placed, and solid instances, across every assembly level: a few
+    /// levels of repeated occurrences multiply.
+    pub const INSTANCES: usize = 100_000;
+    /// Faces read across every placed instance (the corpus's most is 2 157).
+    pub const FACES: usize = 500_000;
+    /// Edges in one face bound (the corpus's most is 92). Several kernel queries walk a
+    /// bound's edges per edge.
+    pub const LOOP_EDGES: usize = 10_000;
+    /// `SURFACE_CURVE`-like wrappers (surface, seam, bounded surface and intersection curves)
+    /// between an edge and its 3D curve; a cyclic chain has no end and is refused here.
+    pub const CURVE_WRAPPERS: usize = 16;
+}
+
+/// Refuse a model whose curve wrappers nest deeper than [`limits::CURVE_WRAPPERS`] (or cycle):
+/// the reader and step-io's scene follow them to the curve.
+fn check_curve_wrappers(model: &m::StepModel) -> Result<(), StepError> {
+    let inner = |r: &m::CurveRef| -> Option<m::CurveRef> {
+        Some(match r {
+            m::CurveRef::SurfaceCurve(i) => model.get(*i)?.curve_3d.clone(),
+            m::CurveRef::SeamCurve(i) => model.get(*i)?.curve_3d.clone(),
+            m::CurveRef::BoundedSurfaceCurve(i) => model.get(*i)?.curve_3d.clone(),
+            m::CurveRef::IntersectionCurve(i) => model.get(*i)?.curve_3d.clone(),
+            _ => return None,
+        })
+    };
+    let starts = model
+        .all::<m::SurfaceCurve>()
+        .map(|(_, c)| &c.curve_3d)
+        .chain(model.all::<m::SeamCurve>().map(|(_, c)| &c.curve_3d))
+        .chain(
+            model
+                .all::<m::BoundedSurfaceCurve>()
+                .map(|(_, c)| &c.curve_3d),
+        )
+        .chain(
+            model
+                .all::<m::IntersectionCurve>()
+                .map(|(_, c)| &c.curve_3d),
+        );
+    for start in starts {
+        let mut r = start.clone();
+        let mut depth = 1;
+        while let Some(next) = inner(&r) {
+            depth += 1;
+            if depth > limits::CURVE_WRAPPERS {
+                return Err(StepError::Limit(format!(
+                    "surface curves nested more than {} deep (or cyclic)",
+                    limits::CURVE_WRAPPERS
+                )));
+            }
+            r = next;
+        }
+    }
+    Ok(())
 }
 
 /// A rigid placement, rows of `[R | t]` with `t` in millimetres.
@@ -727,10 +798,20 @@ impl Reader<'_> {
                 _ => None,
             })
             .unwrap_or_else(|| vec![1.0; points.len()]);
+        // A curve has as many knots as poles plus degree plus one; more is malformed (and
+        // refused by NurbsCurve::new), so it is not expanded.
+        let count = |m: i64| usize::try_from(m).unwrap_or(0);
+        let total = mults
+            .iter()
+            .take(values.len())
+            .try_fold(0usize, |t, &m| t.checked_add(count(m)))?;
+        if total > points.len().saturating_add(crate::nurbs::MAX_DEGREE + 1) {
+            return None;
+        }
         let knots: Vec<f64> = values
             .iter()
             .zip(mults)
-            .flat_map(|(k, &m)| std::iter::repeat_n(*k, usize::try_from(m).unwrap_or(0)))
+            .flat_map(|(k, &m)| std::iter::repeat_n(*k, count(m)))
             .collect();
         NurbsCurve::new(usize::try_from(degree).ok()?, points, weights, knots).map(Curve::Nurbs)
     }
@@ -1206,9 +1287,21 @@ fn collect_instances<'m>(
     placed: &mut Vec<(step_io::scene::ProductDef<'m>, Placement)>,
     depth: usize,
     paths: &mut PlacementPaths,
-) {
-    if depth > 64 {
-        return;
+) -> Result<(), StepError> {
+    if depth > limits::ASSEMBLY_DEPTH {
+        return Err(StepError::Limit(format!(
+            "assembly nested more than {} levels deep (or cyclic)",
+            limits::ASSEMBLY_DEPTH
+        )));
+    }
+    let too_many = || {
+        StepError::Limit(format!(
+            "more than {} product or solid instances",
+            limits::INSTANCES
+        ))
+    };
+    if placed.len() >= limits::INSTANCES {
+        return Err(too_many());
     }
     placed.push((def, placement));
     paths.definitions.push(paths.current.clone().into());
@@ -1226,6 +1319,9 @@ fn collect_instances<'m>(
     );
     paths.products.push(paths.current_products.clone().into());
     for solid in def.solids() {
+        if out.len() >= limits::INSTANCES {
+            return Err(too_many());
+        }
         out.push((solid, placement, Some(placed.len() - 1)));
     }
     for occurrence in def.occurrences() {
@@ -1269,11 +1365,12 @@ fn collect_instances<'m>(
             placed,
             depth + 1,
             paths,
-        );
+        )?;
         paths.current.pop();
         paths.current_raw.pop();
     }
     paths.current_products.pop();
+    Ok(())
 }
 
 #[allow(
@@ -1837,6 +1934,7 @@ impl Parsed {
         let (model, report) = step_io::read(bytes).map_err(parse_error)?;
         let graph = step_io::parser::parse(bytes).map_err(parse_error)?;
         refuse_dropped_shapes(&graph, &report)?;
+        check_curve_wrappers(&model)?;
         Ok(Parsed {
             model,
             report,
@@ -1903,7 +2001,7 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
             &mut placed,
             0,
             &mut placement_paths,
-        );
+        )?;
     }
     if instances.is_empty() {
         instances = scene.all_solids().map(|s| (s, *outer, None)).collect();
@@ -2045,6 +2143,12 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
             for bound in face.bounds() {
                 let mut edges = Vec::new();
                 for (edge, forward) in bound.oriented_edges() {
+                    if edges.len() >= limits::LOOP_EDGES {
+                        return Err(StepError::Limit(format!(
+                            "a face bound of more than {} edges",
+                            limits::LOOP_EDGES
+                        )));
+                    }
                     let index = match edge_index.get(&edge.key()) {
                         Some(&i) => i,
                         None => {
@@ -2165,6 +2269,12 @@ fn build(parsed: &Parsed, scope: Scope) -> Result<Read, StepError> {
             } else {
                 None
             };
+            if out_faces.len() >= limits::FACES {
+                return Err(StepError::Limit(format!(
+                    "more than {} faces across the placed instances",
+                    limits::FACES
+                )));
+            }
             out_faces.push(placed_face);
             native_faces.push((native, context.clone()));
             face_sources.push(Source {
