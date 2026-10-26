@@ -2984,7 +2984,7 @@
     "tests/fixtures/interrupted_corner_mirror.step": "e11c0dfe7de4f7abaa92a1dd7e35fe5911f23df070f0e5d0078274b5a115a571",
     "tests/fixtures/interrupted_corner_rot.step": "e384424458d1510d4c5cc540427deea9308785b2db342256f7671ac6fe2ddfe9",
     "tests/fixtures/interrupted_pocket_mouth.step": "079c85d758f9dbad90593f49e5af7d9a8b90912bfddd13df97f3c8a354161687",
-    "tests/fixtures/inventory_floor.json": "77ed0acce4e2c3e53c5290bdb4251f03bbbb06d642cf9d844c7fcba1a15f5b6d",
+    "tests/fixtures/inventory_floor.json": "a76a7e4548781235fdec7d2831a412c807bf86758ea43a547c7921eaad19b35e",
     "tests/fixtures/kissing_cylinders_knife.step": "2208a45500ffbd4b7fb8de3faf6548c7593eaf9b2613cfd5ae7597f90b61cfe6",
     "tests/fixtures/kissing_cylinders_notch.step": "c36b869747e41d40ccadadbd17934abeec3e661fcb6e87a69930ce3d30e7119a",
     "tests/fixtures/large_block_small_fillets.step": "bfcbd950368723969e8881d09386a579654546f1e36700afa8a773d0d4aece55",
@@ -3159,7 +3159,7 @@
     "calls/recognise_through_steps.json.gz": "ab6a0b5b06756fa3435099be76e5ab432b867be4d4a1b42c49047ff83b086cca",
     "calls/recognise_turned_steps.json.gz": "37d10e8c5e2ce5dcf6c5bd2fdc7444e86494bb44768e9d32d9a1abfd3f2fbd90",
     "channel_geometry.json.gz": "bd25ff87def7f73b4f119d26614600b141ee4350f45c77cef55aae7ea787e85f",
-    "corpus.json.gz": "46498d6fbd12315b4aa6f2424faa5dcd6c1d790b1cf557cb5122c02c4f332ec2",
+    "corpus.json.gz": "e2968c48a30a8a0ce02a0856d85baeef5de9cc4b3b5d68a795a3e6691371d092",
     "coverage.json.gz": "c835b80d39757ae5ef556953e11a2d7e8bbde3148a233f2af51ae92e1d23a971",
     "cylindrical_proofs/corpus/cadgenbench/flanged_spool_132.step.json.gz": "b93acca566253df99ab62bb5ac97424226850b3ee3963c8d1025939a7339d823",
     "cylindrical_proofs/corpus/cadgenbench/threaded_connector_109.step.json.gz": "eea12e52bf91a9c762e7cadc1b12994398bf8f3836ab11ab8b58a2bf4c5d9a4e",
@@ -3817,8 +3817,8 @@
     "frames/corpus/cadgenbench_inputs/cgb202.step.gz.json.gz": "d57e9e54010f92225c068306b6a832e3d6b69645ddb313f749df9c740e608736",
     "frames/corpus/cadgenbench_inputs/cgb203.step.json.gz": "b88da541e2771b6650581b811664948f8d4fd487c1445296de6ca8389d053b59",
     "frames/corpus/cadgenbench_inputs/cgb207.step.json.gz": "eb0ef4238c57cac450525aca00089b29c5ab7d68b3dbb09bcc59c1c5c410af34",
-    "frames/corpus/cadgenbench_inputs/cgb217.step.gz.json.gz": "08b7b8a60389ad0e7459a77d3d15773780f183d33981b50dc0ba9e9b1d215d52",
-    "frames/corpus/cadgenbench_inputs/cgb241.step.json.gz": "a0dbbc8a64ae02b4ade9ecb08403a77b66f75202cdabb7010e9b9e17b24adfc8",
+    "frames/corpus/cadgenbench_inputs/cgb217.step.gz.json.gz": "a220ce4ece6783cb9c97bcb66f863d687aa3d20bd877d9d1fb9727bf36cdb0f2",
+    "frames/corpus/cadgenbench_inputs/cgb241.step.json.gz": "c3f94172f9260e9629fb591022fb4465319ceec9308df342f433d432914901f6",
     "frames/corpus/cadgenbench_inputs/cgb242.step.gz.json.gz": "1fb52690c5840de0ddc2c92e169811e921260cabb4c74f66b9b0e1f9ff5bf9fb",
     "frames/corpus/cadgenbench_inputs/cgb243.step.gz.json.gz": "c58798345ff7e8f098e1fd3dcc900de608a5491741e54a41284f9f8a551b7902",
     "frames/corpus/cadgenbench_inputs/cgb245.step.json.gz": "6616d84d87c2f569defbd7cf119ab4002dd9a42acc6a1b6b2bc633506071c48e",
@@ -3933,7 +3933,7 @@
     "frames/fixture/golden_oblique_through_step.step.json.gz": "ad4dfe75d8e2d2c4cd03d4f47ca90792f5423dc61c7562d608bffe0c08a5ce9c",
     "frames/fixture/golden_open_channels.step.json.gz": "5815e9847c508dcbb5d5189ee8dd3f385a68bde7d73368d153b00782f50a6b05",
     "frames/fixture/golden_oriented_chamfer.step.json.gz": "e806d22cbb2b18e15d6b394f4f5f786239201c7fa83da57c980eb590f7b1333b",
-    "frames/fixture/golden_oriented_slots.step.json.gz": "bd3d9819de215bd09a37a0f8febb34a7e0af9dccd8f3bb2cb275c4863f1a21b6",
+    "frames/fixture/golden_oriented_slots.step.json.gz": "c99e39465f7654af3b4631f3680b6f5d4333a8dd87b3bada8ac329fd3eada721",
     "frames/fixture/golden_paired_ramp_step.step.json.gz": "1c8273735dc28081eb3a5bbbf47e09fd5712e1539ba2236edfe4adc5d4a9959a",
     "frames/fixture/golden_plates_pads_levels_and_slanted_steps.step.json.gz": "0d21c04acb533118fdf318d8fd10e471f82a20dd3e9265b493fbe83d4d52c638",
     "frames/fixture/golden_polygonal_boss.step.json.gz": "9d93244f11fd41d1232e106dd4a9196d2533ec801d6c127b71a95e7b71b93095",
@@ -5815,5 +5815,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "bbf2d27f090a1125bc38f671623ebeee0cdf68ea"
+  "source_commit": "9035db955bb3fc002b207e8b14917948f760344b"
 }
