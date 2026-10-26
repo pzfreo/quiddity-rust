@@ -760,6 +760,7 @@
   "quiddity::serve unresolved_geometry_is_reported_as_a_warning": 0.023,
   "quiddity::snapshot_provenance snapshot_provenance_pins_every_expected_file_and_input": 0.565,
   "snapshot-tool::bin/snapshot-tool tests::coverage_rejects_orphans_and_uncommitted_producers_but_allows_numeric_bands": 1.0,
+  "snapshot-tool::bin/snapshot-tool tests::downloaded_coverage_checks_provenance_and_inputs_without_replay": 1.0,
   "snapshot-tool::bin/snapshot-tool tests::invalid_cli_combinations_are_rejected": 1.0
  },
  "macOS": {
@@ -1523,6 +1524,7 @@
   "quiddity::serve unresolved_geometry_is_reported_as_a_warning": 0.03,
   "quiddity::snapshot_provenance snapshot_provenance_pins_every_expected_file_and_input": 1.855,
   "snapshot-tool::bin/snapshot-tool tests::coverage_rejects_orphans_and_uncommitted_producers_but_allows_numeric_bands": 1.0,
+  "snapshot-tool::bin/snapshot-tool tests::downloaded_coverage_checks_provenance_and_inputs_without_replay": 1.0,
   "snapshot-tool::bin/snapshot-tool tests::invalid_cli_combinations_are_rejected": 1.0
  }
 }
