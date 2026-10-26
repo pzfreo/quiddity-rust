@@ -12,15 +12,24 @@ permissions:
 env:
   CARGO_TERM_COLOR: always
 
-# The suite is built once per platform, as a nextest archive of the test binaries, and run in
-# shards, one test at a time (.config/nextest.toml): `linux` and `macos` each run
-# .github/workflows/suite.yml, so one platform's shards start when its own build is done.
-# Formatting, clippy and doc-tests run beside them (`lint`). The shards together run the whole
-# suite on each platform.
-# Pins that depend on float round-off, such as known_correspondence.json's faces_at_most, must
-# hold on both platforms: Linux stays the reference for them, and macOS runs the full suite too
-# (the maintainer's decision of 2026-10-08; docs/review-2026-10-08.md, H1). The full suite
-# passing on an arm64 Mac, as macos-latest is, was the evidence that macOS holds them.
+# Maintainer decision, 2026-10-26: ordinary PRs build and lint on both platforms, run
+# full Linux and only macOS float-sensitive pins (.config/nextest.toml macos-pr).
+# This supersedes 2026-10-08's full macOS on every PR (docs/review-2026-10-08.md H1):
+# macOS has five shared account runners; removing redundant work buys time, more shards
+# cannot. Main pushes, workflow_dispatch and PR head branches release* run full macOS.
+# Measured baseline: run 40297454015, ~170 Linux / ~165 macOS test runner-minutes,
+# plus 18.7 / 7.5 minutes of serial build-gating snapshot replay. That replay is gone:
+# Linux shards record passing comparisons; one small downstream job checks exact coverage
+# and provenance without running the producers again. Existing 15 shards and one-test
+# concurrency stay fixed, dealt by refreshed measured times and explicit cut estimates.
+# See .config/nextest.toml for each macOS pin category and .config/test-times.json for
+# post-cut estimates: ~128 / 123 test runner-minutes full, ~14 for macOS PR pins.
+# With unchanged build/setup costs and five available macOS runners, budget PRs at
+# ~16-20 minutes and full/release events at ~30-36 (external runner queues excluded).
+# Changed-test costs are estimates, not fresh CI measurements: generic-frame readings
+# halved; rigid-transform 45%, publication 50%, corpus replay 75%, determinism 25%;
+# merged tests reuse the measured motion/quality work plus their small extra assertions.
+# Lint (fmt, clippy, doc-tests) runs alongside each platform's build.
 jobs:
   lint:
     strategy:
@@ -33,20 +42,12 @@ jobs:
       # The toolchain comes from rust-toolchain.toml.
       - run: rustup toolchain install
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - run: python3 -m unittest discover -s .github -p 'test_*.py'
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets --release -- -D warnings
       # nextest does not run doc-tests.
       - run: cargo test --doc --workspace --release
 
-  # Shards per platform: 15 each, about five minutes of tests per shard (run 38007924732, at
-  # c2ce06a: 77 runner-minutes of tests on Linux, 72 on macOS, plus 20-30 s of setup per job; a
-  # test's time varies by up to a fifth from run to run). Linux runs all 15 at once (with macOS's
-  # five, within a free account's 20 jobs at a time): that run took 10.8 minutes from push (build
-  # 3.6, shards 3.2-7.2 minutes each). macOS runs at most five jobs at a time per account, so its
-  # shards go in three waves: that run took 24.2 minutes (build 3.4, shards starting at 3.5,
-  # 7.3-8.7, 11.0-12.9, 15.0-17.6 minutes); 15 at once would take about 10. About 10 minutes on
-  # macOS needs more than five macOS jobs at a time or faster runners, not more shards; the 15
-  # shards keep each one short so a higher limit would get there at once.
   linux:
     uses: ./.github/workflows/suite.yml
     with:
@@ -57,4 +58,5 @@ jobs:
     uses: ./.github/workflows/suite.yml
     with:
       os: macos-latest
+      tier: ${{ github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release') && 'macos-pr' || 'ci' }}
       shards: "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]"

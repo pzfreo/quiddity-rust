@@ -5,16 +5,12 @@
 //!
 //! The document is the default recognition: the part recognised in its own frame and reported
 //! in the file's coordinates (review M8). Over the corpus it must not depend on the part's
-//! placement, and on parts aligned with the file's axes it must say what caller-space
-//! recognition says; see [`the_default_document_moves_with_the_part`] and
-//! [`the_default_document_agrees_with_caller_space_recognition`].
+//! placement; see [`the_default_document_moves_with_the_part`].
 
 use super::common;
 use super::slices;
 #[path = "../support/published_geometry.rs"]
 mod published_geometry;
-#[path = "../support/recess_samples.rs"]
-mod recess_samples;
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -761,101 +757,6 @@ sliced!(
     ]
 );
 
-/// The check name of [`the_default_document_agrees_with_caller_space_recognition`].
-const CALLER_SPACE: &str = "caller_space";
-
-/// On every corpus part, the default document against caller-space recognition
-/// (`correspondence::caller_space_recognise`, Python's entry points' space) of the part as read: the same
-/// features on the same faces, every parameter in the file's coordinates agreeing as
-/// [`the_default_document_moves_with_the_part`] compares them. A parameter the default leaves in
-/// the frame (a part whose frame is not the file's axes up to order and sign) has no file-space
-/// value to compare. Every difference is listed in `tests/fixtures/references/framed_document.json`
-/// under `caller_space`, with a verdict.
-///
-/// One test per slice of the corpus (`tests/support/slices.rs`); the counts printed are the
-/// slice's.
-fn agrees_with_caller_space(k: usize, n: usize) {
-    let Some(dir) = common::corpus_dir() else {
-        assert!(
-            std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
-            "QUIDDITY_CORPUS_REQUIRED is set but the corpus was not found"
-        );
-        eprintln!("corpus not found; set QUIDDITY_CORPUS");
-        return;
-    };
-    let all = corpus_files();
-    let files = slices::slice(&all, k, n);
-    let found = common::parallel::map(&files, |name| {
-        let path = dir.join(name);
-        let Ok((part, framed, _)) = serve::recognise_step(&path.to_string_lossy(), &IDENTITY)
-        else {
-            return (Vec::new(), 0, 0);
-        };
-        let caller = correspondence::caller_space_recognise(&part);
-        for features in [&caller.features, &framed.features] {
-            super::vector_publication::validate_boxes(
-                &serde_json::to_value(features).unwrap(),
-                &part,
-            );
-        }
-        let known = common::load("references/framed_document.json");
-        if known.as_array().unwrap().iter().any(|v| {
-            v["file"] == *name
-                && v["check"] == CALLER_SPACE
-                && v["family"] == "section_recesses"
-                && v["verdict"] == "equivalent"
-        }) {
-            recess_samples::check(name, &caller, &framed);
-        }
-        let (df, dc) = (
-            recognition::document(&framed, part.faces.len()),
-            recognition::document(&caller, part.faces.len()),
-        );
-        let relative = df
-            .records
-            .iter()
-            .filter(|r| r.parameters.contains_key("origin"))
-            .count();
-        let mut grid = 0;
-        let d = differences(
-            &compared(&dc, &caller.features),
-            &compared(&df, &framed.features),
-            &mut grid,
-        );
-        (d, grid, relative)
-    });
-    let (mut grid, mut relative) = (0, 0);
-    let found: Vec<(String, String, Vec<Difference>)> = files
-        .iter()
-        .zip(found)
-        .map(|(name, (d, g, l))| {
-            grid += g;
-            relative += l;
-            (name.clone(), CALLER_SPACE.to_string(), d)
-        })
-        .collect();
-    eprintln!(
-        "against caller space: {grid} values agree only to the two-decimal grid; {relative} records \
-         use an explicit measurement origin"
-    );
-    let owned = |file: &str| slices::owns(&all, k, n, file);
-    let problems = unexplained(&[CALLER_SPACE], owned, found.into_iter());
-    assert!(problems.is_empty(), "{}", problems.join("\n"));
-}
-
-sliced!(
-    the_default_document_agrees_with_caller_space_recognition,
-    super::agrees_with_caller_space,
-    [
-        0 => slice_0,
-        1 => slice_1,
-        2 => slice_2,
-        3 => slice_3,
-        4 => slice_4,
-        5 => slice_5,
-    ]
-);
-
 /// Corpus parts on which reconciliation rejects candidates, between them by every rule that
 /// rejects a carried family and that the corpus reaches (`captured/reconcile/capture.json.gz`).
 const RECONCILED: [&str; 8] = [
@@ -1106,12 +1007,10 @@ fn a_pattern_never_includes_a_rejected_member() {
     }
 }
 
-/// On every corpus part `features::recognise` (through `correspondence::caller_space_recognise`) carries the
-/// section recesses `recognise_section_recesses` gives, or its refusal, each defined by its
-/// record's own defining faces and fingerprinted; the default (framed) recognition fingerprints
-/// those its run finds, and the document publishes every one with its file-space geometry,
-/// defining faces and self-contained coordinates. One test per slice of the corpus (`tests/support/slices.rs`).
-fn carries_section_recesses(k: usize, n: usize) {
+/// Caller-space carrying and framed publication on every recorded section-recess part,
+/// plus named empty/refusal controls. The corpus document snapshot guards the other parts.
+#[test]
+fn recognition_carries_section_recesses() {
     let Some(dir) = common::corpus_dir() else {
         assert!(
             std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none(),
@@ -1119,7 +1018,9 @@ fn carries_section_recesses(k: usize, n: usize) {
         );
         return;
     };
-    let files = slices::slice(&corpus_files(), k, n);
+    let files: Vec<&str> = include_str!("../support/section_recess_parts.txt")
+        .lines()
+        .collect();
     let problems = common::parallel::map(&files, |file| {
         let part = quiddity::read_step_file(&dir.join(file)).unwrap();
         let recognition = correspondence::caller_space_recognise(&part);
@@ -1233,17 +1134,6 @@ fn carries_section_recesses(k: usize, n: usize) {
     let problems: Vec<String> = problems.into_iter().flatten().collect();
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
-
-sliced!(
-    recognition_carries_section_recesses,
-    super::carries_section_recesses,
-    [
-        0 => slice_0,
-        1 => slice_1,
-        2 => slice_2,
-        3 => slice_3,
-    ]
-);
 
 /// A sampling refusal retains the cavity's source anatomy and volume estimate in the public
 /// document, without turning an unproved widening into a fingerprinted feature.

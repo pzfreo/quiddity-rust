@@ -24,7 +24,10 @@ def shard(listing, times, platform, k, n):
     with open(times) as f:
         cost = json.load(f)[platform]
     tests = sorted(
-        (suite["binary-id"], name) for suite in suites.values() for name in suite["testcases"]
+        (suite["binary-id"], name)
+        for suite in suites.values()
+        for name, case in suite["testcases"].items()
+        if case.get("filter-match", {}).get("status", "matches") == "matches"
     )
     seconds = {t: cost.get(f"{t[0]} {t[1]}", 1.0) for t in tests}
     load = [0.0] * n

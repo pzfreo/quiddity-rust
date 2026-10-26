@@ -187,12 +187,9 @@ are unchanged by the inferred-frame mapping. The whole-projection error on 13975
 distinct and still carried provisionally, as before. The quality-part parity test now compares
 all 12 refusals on 5 parts against Python's capture, in order, as well as all occurrences.
 
-The earlier independent reconstruction is now enforced by
-`tests/support/recess_samples.rs` in the caller-space document tests for every equivalent
-section-recess verdict. It compares body, classification, both evidence lists and symmetric
-file-space boundary/end samples (vertices and bulged-edge midpoints), allowing only the
-existing 0.01 mm serialization bound. This checks equivalent regions despite section basis,
-run direction and record-order changes. The three undetermined proof verdicts remain open.
+That reconstruction (`tests/support/recess_samples.rs`, run by the caller-space document
+test) was retired with that test on 2026-10-26: the framed document snapshot pins the output.
+The three undetermined proof verdicts remain open.
 
 Overturnable judgement call: retain schema v2 for this fix, preserving all previous document
 bytes apart from the new family as required. G7b must admit both classes before draftwright

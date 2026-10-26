@@ -282,7 +282,9 @@ fn paths(dir: &Path, out: &mut Vec<PathBuf>) {
     for entry in std::fs::read_dir(dir).unwrap() {
         let p = entry.unwrap().path();
         if p.is_dir() {
-            paths(&p, out);
+            if p.file_name().unwrap() != "captured" {
+                paths(&p, out);
+            }
         } else if p.to_str().is_some_and(|p| {
             [".step", ".stp", ".step.gz", ".stp.gz"]
                 .iter()

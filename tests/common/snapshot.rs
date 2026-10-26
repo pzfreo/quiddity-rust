@@ -1,4 +1,4 @@
-//! Rust-owned expected results. Only tools/rust_snapshot.py regenerates the committed record.
+//! Rust-owned expected results. Only cargo run -p snapshot-tool --release -- regenerates the committed record.
 use serde_json::Value;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
@@ -37,7 +37,7 @@ pub fn check_with(root: &Path, name: &str, actual: &Value, equal: &dyn Fn(&Value
     let mut bytes = Vec::new();
     flate2::read::GzDecoder::new(std::fs::File::open(&path).unwrap_or_else(|e| {
         panic!(
-            "{}: {e}; regenerate with tools/rust_snapshot.py",
+            "{}: {e}; regenerate with cargo run -p snapshot-tool --release --",
             path.display()
         )
     }))
@@ -46,7 +46,7 @@ pub fn check_with(root: &Path, name: &str, actual: &Value, equal: &dyn Fn(&Value
     let expected: Value = serde_json::from_slice(&bytes).unwrap();
     assert!(
         equal(actual, &expected),
-        "Rust snapshot {name} changed. Regenerate with tools/rust_snapshot.py and review the decompressed diff.\n{}",
+        "Rust snapshot {name} changed. Regenerate with cargo run -p snapshot-tool --release -- and review the decompressed diff.\n{}",
         first_difference(actual, &expected, "")
     );
     // --check records only after the ordinary comparison succeeded; never an acceptance mode.
