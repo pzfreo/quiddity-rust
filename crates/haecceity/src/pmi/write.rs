@@ -496,8 +496,13 @@ pub fn write(
         let original = &pmi
             .iter()
             .find(|(id, _)| id == p)
-            .expect("part is from the input")
+            .ok_or_else(|| WriteError::Internal("a planned part is not in the input".into()))?
             .1;
+        #[allow(
+            clippy::expect_used,
+            reason = "the standard form is made from this input: each of its migrated or \
+                      normalized items has its original"
+        )]
         refusals.extend(plan.refusals.iter().cloned().map(|mut refusal| {
             // Plans use the standard form, but public item indices name the caller's input.
             refusal.item = match refusal.item {
@@ -656,8 +661,9 @@ pub fn write(
                 {
                     for &id in callouts {
                         if removed.contains(&id) {
-                            let kind =
-                                removal::entity_name(doc.get(id).expect("read callout exists"));
+                            let kind = removal::entity_name(doc.get(id).ok_or_else(|| {
+                                WriteError::Internal(format!("callout #{id} is not in the file"))
+                            })?);
                             report
                                 .note_presentation_removed
                                 .push((*part, note, id, kind.clone()));
@@ -1196,6 +1202,10 @@ impl<'a> Emitter<'a> {
     }
 
     fn practice_conflict(&mut self, instance: R, rules: &[&'static str]) {
+        #[allow(
+            clippy::unreachable,
+            reason = "callers pass only instances the writer adds"
+        )]
         let R::New(id) = instance else {
             unreachable!("only new instances may be exempted");
         };
@@ -1314,7 +1324,9 @@ impl<'a> Emitter<'a> {
         let mut leaves = Vec::new();
         let mut remaining: Vec<((&str, &str), A)> = vals.to_vec();
         for leaf in &all {
-            let decl = ed.entity(leaf).expect("in the table");
+            let decl = ed.entity(leaf).ok_or_else(|| {
+                WriteError::Internal(format!("{leaf} is not in the EXPRESS table"))
+            })?;
             let slots: Vec<_> = decl
                 .attributes
                 .iter()
@@ -1437,6 +1449,7 @@ impl<'a> Emitter<'a> {
                             LengthUnit::Other { name, metres } => {
                                 (name.clone(), metres.as_str(), LengthUnit::Metre)
                             }
+                            #[allow(clippy::unreachable, reason = "the base units match above")]
                             _ => unreachable!("matched above"),
                         };
                         let factor =
@@ -1503,6 +1516,7 @@ impl<'a> Emitter<'a> {
                                     .map_err(|e| WriteError::Internal(e.0))?,
                             ),
                             AngleUnit::Other { name, radians } => (name.clone(), radians.clone()),
+                            #[allow(clippy::unreachable, reason = "radians match above")]
                             AngleUnit::Radian => unreachable!("matched above"),
                         };
                         let base = self.angle_unit(context, &AngleUnit::Radian)?;
@@ -2996,7 +3010,7 @@ impl<'a> PartPlan<'a> {
         }
         if let Some(places) = p.decimal_places
             && !p.general.iter().any(|g| matches!(g, GeneralTolerance::Table { cells, .. } if cells.iter().any(|c| c.items.iter().any(|(n,_)| n == "number of decimal places")))) {
-            self.tolerance_table(em, pds, "", &[ToleranceCell { items: vec![("number of decimal places".into(), CellValue::Count(Decimal::parse(&places.to_string()).expect("u8 count")))] }])?;
+            self.tolerance_table(em, pds, "", &[ToleranceCell { items: vec![("number of decimal places".into(), CellValue::Count(Decimal::parse(&places.to_string()).map_err(|e| WriteError::Internal(e.0))?))] }])?;
         }
         for t in &p.threads {
             self.thread(em, &mut st, pds, t)?;
@@ -3024,7 +3038,9 @@ impl<'a> PartPlan<'a> {
         if let Some(d) = p.material.as_ref().and_then(|m| m.density.as_ref()) {
             let mut elements = Vec::new();
             for (name, exponent) in &d.unit {
-                let unit = match density_unit(name).expect("checked density unit") {
+                let unit = match density_unit(name)
+                    .ok_or_else(|| WriteError::Internal(format!("{name} is not a density unit")))?
+                {
                     DensityUnit::Length(l) => em.length_unit(self.context, &l)?.0,
                     DensityUnit::Mass(prefix) => em.instance(
                         &["mass_unit", "si_unit"],

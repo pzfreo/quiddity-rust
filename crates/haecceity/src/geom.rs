@@ -106,7 +106,8 @@ pub fn dominant_axis_preferring_z(v: V3) -> usize {
     (0..3)
         .rev()
         .find(|&i| peak - c[i] <= 1e-12)
-        .expect("one component is the peak")
+        // Only a direction with no finite component has no peak.
+        .unwrap_or(2)
 }
 
 /// The x axis `gp_Ax2(P, V)` chooses for a z axis given without a reference direction.
@@ -122,7 +123,8 @@ pub fn default_x_axis(z: V3) -> V3 {
     } else {
         [b, -a, 0.0]
     };
-    unit(d).expect("a unit z gives a non-zero x")
+    // A unit z gives a non-zero x; only a degenerate z falls back to the x axis.
+    unit(d).unwrap_or([1.0, 0.0, 0.0])
 }
 
 /// A right-handed placement: origin plus three unit axes.

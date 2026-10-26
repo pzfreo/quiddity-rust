@@ -307,7 +307,7 @@ fn widest(p: &[(V3, usize)]) -> usize {
     }
     (0..3)
         .max_by(|&i, &j| (b.max[i] - b.min[i]).total_cmp(&(b.max[j] - b.min[j])))
-        .unwrap()
+        .unwrap_or(0)
 }
 
 /// `_distance`: the larger of the two directed 99th-percentile nearest-neighbour distances

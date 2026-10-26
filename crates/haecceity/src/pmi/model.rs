@@ -207,6 +207,10 @@ struct Exact {
 }
 
 fn exact(t: &str) -> Exact {
+    #[allow(
+        clippy::expect_used,
+        reason = "a Decimal holds only text Decimal::parse accepted"
+    )]
     let (negative, int, frac, e) = parts(t).expect("a validated decimal");
     let mut digits: Vec<u8> = int.bytes().chain(frac.bytes()).map(|c| c - b'0').collect();
     let exp = e.map_or(0, |e| e.parse::<i64>().unwrap_or(0)) - frac.len() as i64;

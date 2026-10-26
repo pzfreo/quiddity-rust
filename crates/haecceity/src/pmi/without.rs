@@ -34,6 +34,12 @@ pub fn without(p: &PartPmi, items: &[ItemRef]) -> PartPmi {
 /// *p* without the given items and every item that depends on them, indices renumbered, with
 /// which of *p*'s items are kept.
 #[must_use]
+#[allow(
+    clippy::unwrap_used,
+    reason = "the cascade removes every item that names a removed one, so each id a kept item \
+              names has an entry in its kind's renumbering, and the rebuilt datums, targets and \
+              datum systems keep what established the originals"
+)]
 pub(crate) fn without_kept(p: &PartPmi, refused: &[ItemRef]) -> (PartPmi, Kept) {
     let has = |r: ItemRef| refused.contains(&r);
     let mut gone_f: Vec<bool> = (0..p.features.len())

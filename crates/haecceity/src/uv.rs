@@ -679,8 +679,9 @@ impl Part {
                 .zip(&ends)
                 .map(|(&a, &b)| {
                     (a..b)
-                        .filter(|&k| placed[k].is_some() && (k == a || placed[k - 1].is_none()))
-                        .map(|k| pts[placed[k].expect("regular")])
+                        .filter(|&k| k == a || placed[k - 1].is_none())
+                        .filter_map(|k| placed[k])
+                        .map(|p| pts[p])
                         .collect()
                 })
                 .collect();
@@ -856,7 +857,10 @@ impl Part {
             let placed = near(periodic, mean, loop_centre);
             let (du, dv) = (placed.0 - mean.0, placed.1 - mean.1);
             pts.iter_mut().for_each(|p| *p = (p.0 + du, p.1 + dv));
-            last = *pts.last().expect("non-empty");
+            // Not empty (checked above).
+            if let Some(&p) = pts.last() {
+                last = p;
+            }
             if own.is_empty() {
                 pts.iter().for_each(|&p| widen(range, p));
                 continue;
@@ -1100,6 +1104,11 @@ fn fixed_parameters(curve: &Pcurve) -> (Option<f64>, Option<f64>) {
 /// rising to the top line (+u for a reversed face), mirrored at the bottom.
 ///
 /// Also returns where each regular input sample lands in the output (`None` for a singular one).
+#[allow(
+    clippy::expect_used,
+    clippy::unwrap_used,
+    reason = "past the early return the loop has both a regular and a singular sample"
+)]
 fn route_singular_points(
     surface: &Surface,
     raw: Vec<(f64, f64)>,

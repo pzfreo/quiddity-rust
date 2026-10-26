@@ -573,15 +573,14 @@ impl<'a> Reader<'a> {
                     .map_or(String::new(), str::to_ascii_lowercase),
                 name.to_ascii_lowercase()
             );
+            let one = Decimal::parse("1.")
+                .map_err(|e| MeasureError::nonconformance(format!("unit scale: {e:?}")))?;
             return Ok(match name.as_str() {
-                "METRE" => Unit::Length(LengthUnit::from_metres(
-                    &full,
-                    Decimal::parse("1.").expect("decimal").scaled(power),
-                )),
+                "METRE" => Unit::Length(LengthUnit::from_metres(&full, one.scaled(power))),
                 "RADIAN" if power == 0 => Unit::Angle(AngleUnit::Radian),
                 "RADIAN" => Unit::Angle(AngleUnit::Other {
                     name: full,
-                    radians: Decimal::parse("1.").expect("decimal").scaled(power),
+                    radians: one.scaled(power),
                 }),
                 _ => Unit::Other(full),
             });
@@ -1072,8 +1071,10 @@ impl<'a> Reader<'a> {
                     Ok(note) => last = Some(note),
                     Err(a) => match last.take() {
                         Some(note) => {
-                            let f = st.features[&a].expect("checked");
-                            st.pmi.notes[note].on = Some(NoteOwner::Feature(f));
+                            // Only aspects with a held feature are queued above.
+                            if let Some(f) = st.features.get(&a).copied().flatten() {
+                                st.pmi.notes[note].on = Some(NoteOwner::Feature(f));
+                            }
                         }
                         None => self.find(
                             FindingKind::Unresolved,
@@ -2138,8 +2139,12 @@ impl<'a> Reader<'a> {
                         }
                     }
                     let f = old.feature();
-                    st.pmi.datums[existing.0] =
-                        Datum::new(label.clone(), f, ts).expect("datum stays established");
+                    #[allow(
+                        clippy::expect_used,
+                        reason = "the old datum was established, and this keeps its feature and adds targets"
+                    )]
+                    let datum = Datum::new(label.clone(), f, ts).expect("datum stays established");
+                    st.pmi.datums[existing.0] = datum;
                     let p = &mut st.prov.datums[existing.0];
                     p.extend(prov);
                     *p = ids(std::mem::take(p));

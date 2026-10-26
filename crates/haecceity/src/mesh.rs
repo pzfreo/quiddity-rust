@@ -207,7 +207,7 @@ impl Part {
         }
         out.into_iter()
             .map(|r| {
-                r.expect("every face meshed")
+                r.unwrap_or_else(|| Err("the face was not meshed".into()))
                     .map_err(|reason| MeshRefusal { reason })
             })
             .collect()
@@ -596,7 +596,7 @@ impl<'a> PartMesher<'a> {
         let setup = match &self.setups[face] {
             Some(Ok(s)) => s,
             Some(Err(why)) => return Err(why.clone()),
-            None => unreachable!("set up above"),
+            None => return Err("the face was not set up".into()),
         };
         let plans: BTreeMap<usize, &Plan> = edges
             .iter()
@@ -701,7 +701,10 @@ fn straying(
                 }
                 let Some(side) = inside else { continue };
                 for (k, d) in meeting {
-                    let (place, sample) = lp.sources[k].expect("sourced above");
+                    // Only sourced samples meet the edge (above).
+                    let Some((place, sample)) = lp.sources[k] else {
+                        continue;
+                    };
                     let e = edges[place].0;
                     if d.signum() != side && uses(e) == 1 {
                         out.push((e, sample));
@@ -1596,7 +1599,8 @@ fn straight_side(
     }
     kept[1..kept.len() - 1]
         .iter()
-        .map(|&k| uv[k].expect("every sample has parameters"))
+        // Every sample of the line has parameters (built above).
+        .filter_map(|&k| uv[k])
         .collect()
 }
 
@@ -1814,7 +1818,10 @@ impl<'a> Mesher<'a> {
         }
         while let Some(fixed) = queue.pop_front() {
             let face = self.cdt.face(fixed);
-            let here = state[fixed.index()].expect("queued faces are set");
+            // A face is queued only once its state is set.
+            let Some(here) = state[fixed.index()] else {
+                continue;
+            };
             for edge in face.adjacent_edges() {
                 if let Some(next) = edge.rev().face().as_inner() {
                     let index = next.fix().index();

@@ -92,6 +92,10 @@ impl Exact {
                 ..
             } => {
                 let p: Vec<V3> = poles.iter().map(|q| [q[0], q[1], 0.0]).collect();
+                #[allow(
+                    clippy::expect_used,
+                    reason = "exact() projects the poles of a curve NurbsCurve::new accepted"
+                )]
                 let curve =
                     super::nurbs::NurbsCurve::new(*degree, p, weights.clone(), knots.clone())
                         .expect("projected from a well-formed curve");
@@ -170,6 +174,7 @@ fn exact(curve: &Curve, view: &View, run: &[V3]) -> Option<Exact> {
             t0,
             t1,
         }),
+        #[allow(clippy::unreachable, reason = "lines return above")]
         Curve::Line { .. } => unreachable!("returned above"),
     }
 }
@@ -836,7 +841,7 @@ fn parallel<R: Send>(items: &[usize], f: impl Fn(usize) -> R + Sync) -> Vec<R> {
             .collect();
         workers
             .into_iter()
-            .flat_map(|w| w.join().expect("a drawing thread panicked"))
+            .flat_map(|w| w.join().unwrap_or_else(|e| std::panic::resume_unwind(e)))
             .collect()
     });
     done.sort_by_key(|(i, _)| *i);

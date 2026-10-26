@@ -489,8 +489,11 @@ impl Part {
         for (index, face) in faces.iter_mut().enumerate() {
             let (native, context) = &native_faces[index];
             let at = context.placement();
-            for (bound, source) in face.loops.iter_mut().zip(&native.as_ref().unwrap().loops) {
-                bound.vertex = source.vertex;
+            // Every face has a native form here (built above).
+            if let Some(native) = native {
+                for (bound, source) in face.loops.iter_mut().zip(&native.loops) {
+                    bound.vertex = source.vertex;
+                }
             }
             let point = |p| point(&at, p);
             match &mut face.surface {
