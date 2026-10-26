@@ -1384,6 +1384,9 @@ fn a_seat_split_by_a_slot_stays_a_countersink() {
 /// #81: a different set of principal runs must not erase physical rounds. The other set
 /// remains represented by exact cylindrical blends. Cross-drilled through holes also must
 /// survive even when the six-axis chamber sampler correctly refuses its old coarse-grid claim.
+/// #91: the part's own frame is now the 13.07-degree set of its cross bores, where neither
+/// round set runs along an axis: all sixteen R1 rounds are blends there, and caller space
+/// (file axes) keeps the file-X/Y set as fillets.
 #[test]
 fn changed_query_axes_retain_physical_rounds_and_bores() {
     use quiddity::kernel::geom::{self, Surface};
@@ -1394,8 +1397,13 @@ fn changed_query_axes_retain_physical_rounds_and_bores() {
     let framed = correspondence::recognise(&part);
     let caller = correspondence::caller_space_recognise(&part);
     for (specific, general, faces) in [
-        (&framed, &caller, [177, 182, 205, 210, 233, 238, 261, 266]),
-        (&caller, &framed, [191, 196, 219, 224, 247, 252, 296, 301]),
+        (None, &framed, [177, 182, 205, 210, 233, 238, 261, 266]),
+        (None, &caller, [177, 182, 205, 210, 233, 238, 261, 266]),
+        (
+            Some(&caller),
+            &framed,
+            [191, 196, 219, 224, 247, 252, 296, 301],
+        ),
     ] {
         for face in faces {
             let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
@@ -1424,11 +1432,14 @@ fn changed_query_axes_retain_physical_rounds_and_bores() {
                     "{face}"
                 );
             }
-            let index = specific.features.defining["fillets"]
-                .iter()
-                .position(|f| *f == vec![face])
-                .unwrap();
-            assert_eq!(specific.features.fillets[index].radius, radius);
+            if let Some(specific) = specific {
+                let index = specific.features.defining["fillets"]
+                    .iter()
+                    .position(|f| *f == vec![face])
+                    .unwrap();
+                assert_eq!(specific.features.fillets[index].radius, radius);
+            }
+            assert!(!general.features.defining["fillets"].contains(&vec![face]));
             let index = general.features.defining["blends"]
                 .iter()
                 .position(|f| *f == vec![face])
@@ -1475,12 +1486,15 @@ fn changed_query_axes_retain_physical_rounds_and_bores() {
     // R5.1 exit. The old caller grid accepted an incomplete two-wall sampled component.
     assert!((4.25_f64.powi(2) + 5.1_f64.powi(2)).sqrt() < 1.5 * 5.1);
     assert!(framed.features.interior_voids.is_empty());
+    // #91: in the 13.07-degree frame both cross bores run along frame axes, so the six-axis
+    // grid finds no enclosed component to refuse; under the former 45-degree frame it refused
+    // [26, 28, 41]. Either way no void is published over the through holes.
     let document = recognition::document(&framed, part.faces.len());
     assert!(
-        document
+        !document
             .records
             .iter()
-            .any(|r| r.record_type == "InteriorVoidRefusal" && r.faces == vec![26, 28, 41])
+            .any(|r| r.family == "interior_voids" || r.record_type.starts_with("InteriorVoid"))
     );
 
     let part = quiddity::read_step_file(&dir.join("cadgenbench_inputs/cgb241.step")).unwrap();

@@ -147,7 +147,11 @@ Candidates come from perpendicular material direction pairs, with the existing p
 tolerance of 0.001 in cosine. The pair's original direction classes vote even when the second
 axis is orthogonalised; the third line is their normalised cross product. The highest distinct
 surface count wins; the file's axes win an equal count when two material directions establish
-them. This preference retains the original material basis within the tight direction band;
+them. The winner's leading line is kept, but its roll about that line (#91) goes to a less-voted
+candidate set containing the line when the box around the material in that set (every edge's
+sampled points) is more than 1e-4 smaller in volume: three parallel angled slots no longer turn
+their rectangular plate (14 votes against 6, box 0.53 times the slots' box). An equal vote keeps
+the tie rule above. The box is intrinsic, so this choice follows a rigid motion. This preference retains the original material basis within the tight direction band;
 recognition does not snap its real tiny rotations to exact coordinate axes. Publication alone
 may snap a near-axis motion when no part point moves beyond the coordinate floor (#70).
 Within a winning set, area within the legacy cosine-0.999 angular band ranks

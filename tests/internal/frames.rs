@@ -515,7 +515,7 @@ fn majority_frame_recovers_specify_fillets_and_parallel_support_chamfer() {
 }
 
 #[test]
-fn genuinely_rotated_corpus_direction_sets_keep_their_winning_frames() {
+fn corpus_direction_sets_keep_their_winning_frames() {
     let Some(dir) = common::corpus_dir() else {
         return;
     };
@@ -524,21 +524,18 @@ fn genuinely_rotated_corpus_direction_sets_keep_their_winning_frames() {
             "cadgenbench_inputs/cgb203.step",
             [0.18196311701898504, 0.9833053564609191, 0.],
         ),
+        // #91: cgb217's vote (98, the 45-degree rounds) settles Z; its roll goes to the
+        // 13.07-degree set of its cross bores and largest walls (93 votes), whose box is 0.80
+        // times the 45-degree box (the file axes' 96-vote box is 0.83 times it).
         (
             "cadgenbench_inputs/cgb217.step.gz",
-            [
-                std::f64::consts::FRAC_1_SQRT_2,
-                -std::f64::consts::FRAC_1_SQRT_2,
-                0.,
-            ],
+            [-0.9741017810080629, -0.22610997376701458, 0.],
         ),
         // Distinct-surface maxima over every candidate basis: cgb203 5 > file 4,
-        // cgb217 98 > file 96, cgb241 20 > file 18, connector 19 > file 17.
-        // Area does not cast votes: cgb241's larger file-axis walls do not change this rule.
-        (
-            "cadgenbench_inputs/cgb241.step",
-            [0.46034751596800805, 0.8877387929690156, 0.],
-        ),
+        // connector 19 > file 17; no less-voted roll about their leading lines has a smaller
+        // box. cgb241 (20 > file 18) keeps its file-axis outline: tests/internal/frames.rs
+        // `tightest_roll_keeps_plates_and_sheets_on_their_outline`.
+        ("cadgenbench_inputs/cgb241.step", [-1., 0., 0.]),
         (
             "cadgenbench/threaded_connector_109.step",
             [-0.45979133716192094, -0.8880269851028474, 0.],
@@ -665,5 +662,49 @@ fn split_channel_surfaces_do_not_outvote_file_axes() {
             recognised.features.defining[family].contains(&faces),
             "{family}: {faces:?}"
         );
+    }
+}
+
+/// #91: three parallel 30-degree slots (14 distinct surfaces) outvote their plate (6), and a
+/// 17-degree slot outvotes its two plates (10 against 8), but the vote only settles the leading
+/// line (Z). About it, the plate's own roll has the smaller box around the material (0.53 and
+/// 0.44 times the slots' box) and sets the frame. cgb241's sheet keeps its file-axis outline
+/// (box 0.94 times that of its 27.4-degree bend walls, 18 votes against 20). The rule never
+/// reads the file's axes: a generic motion carries every one of these frames exactly.
+#[test]
+fn tightest_roll_keeps_plates_and_sheets_on_their_outline() {
+    let root = common::fixtures();
+    let mut paths = vec![
+        (root.join("golden_oriented_slots.step"), [0., 1., 0.]),
+        (root.join("captured/3f89fd15d4993366.step.gz"), [0., 1., 0.]),
+    ];
+    if let Some(dir) = common::corpus_dir() {
+        paths.push((dir.join("cadgenbench_inputs/cgb241.step"), [-1., 0., 0.]));
+    }
+    for (path, expected_y) in paths {
+        let part = quiddity::read_step_file(&path).unwrap();
+        let frame = infer_part_frame(&part).unwrap();
+        assert_eq!(frame.x, [0., 0., 1.], "{path:?}");
+        assert!(
+            largest_difference(frame.y, expected_y) < 1e-12,
+            "{path:?}: {frame:?}"
+        );
+        let placement = motion([1., 2., 3.], 37., [123.456, -78.9, 41.3]);
+        let moved = part.transformed(&placement).unwrap();
+        let moved_frame = infer_part_frame(&moved).unwrap();
+        for (a, b) in [
+            (frame.x, moved_frame.x),
+            (frame.y, moved_frame.y),
+            (frame.z, moved_frame.z),
+        ] {
+            let carried = apply(&placement, a, false);
+            // An orthogonal gauge may reverse a representative axis; a full one may not.
+            let along = carried.iter().zip(&b).map(|(p, q)| p * q).sum::<f64>();
+            assert!(
+                (along.abs() - 1.).abs() < 1e-9 && (frame.gauge != FrameGauge::Full || along > 0.),
+                "{path:?}: {frame:?} -> {moved_frame:?}"
+            );
+        }
+        assert_eq!(frame.gauge, moved_frame.gauge, "{path:?}");
     }
 }
