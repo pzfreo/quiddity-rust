@@ -6,6 +6,18 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.2.1-alpha.1 (2026-10-26)
+
+Upgrading from 0.2.0: the schema stays `quiddity-rust/recognition/6` and fingerprints `/3`.
+
+- **New family:** `rectangular_through_notches`. Readers that list families must accept it.
+- **`haecceity::step::StepError` has a new `Limit` variant.** The enum is exhaustive, so a
+  `match` on it needs an arm for `Limit`.
+- **Malformed assemblies are refused whole.** An assembly cycle or nesting past depth 64
+  refuses the file instead of returning a partial part.
+- **Re-recognised records change fingerprints:** CTC-01's notches, rounded V-channels and
+  polygonal boss caps, and the 14 files whose frame changes (below).
+
 - **CTC-01's last unexplained faces (for #100).** `v_channels` also proves a rounded
   trough: two rectangular flanks joined by one concave cylinder tangent to both, with
   `trough_radius` and `depth`/`at` from the flanks' intersection; sharp-trough records are
