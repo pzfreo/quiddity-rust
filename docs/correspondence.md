@@ -169,7 +169,7 @@ are crate-private by default. Record types remain public at their existing paths
 `frames::prepare_framed*`, `working_part`, `FramedPart` and `FramedError` helpers and the
 `RecordFrame::CallerSpace` variant are private to crate tests. Caller-space recognition,
 discovery and inventory are implementation details; tests exercise them internally. Rust
-snapshots own the regression record; see the README for regeneration and review.
+snapshots own the regression record; see [development](development.md#regression-snapshots) for regeneration and review.
 
 
 ### Fingerprints (`fingerprint.rs`, version `quiddity-rust/fingerprint/3`)
