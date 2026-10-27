@@ -12,34 +12,37 @@ Status: **0.2.1** (2026-10-27). See [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
-quiddity isn't published on crates.io. Depend on a release tag:
+```sh
+cargo install quiddity          # the `quiddity` command line
+```
 
 ```toml
 [dependencies]
-quiddity = { git = "https://github.com/pzfreo/quiddity-rust", tag = "v0.2.1" }
+quiddity = "0.2"                # the library; the geometry kernel is the `haecceity` crate
 ```
 
-The command line:
+## Command line
 
-```sh
-cargo install --git https://github.com/pzfreo/quiddity-rust --tag v0.2.1 quiddity
+```text
+quiddity <file.step>                                  recognise the part's features
+quiddity correspond <old.json|old.step> <new.json|new.step>   match features across revisions
+quiddity parts <file.step>                            list an assembly's parts
+quiddity pmi read <file.step> [--part N]              the file's PMI as JSON
+quiddity pmi check <file.step> <pmi.json>             validate a PMI document against the part
+quiddity pmi write <file.step> <pmi.json> -o <out.step> [--mode add|replace|remove]
+                   [--presentation refuse|remove]     write PMI into the file
+quiddity brep <file.step> -o <out.step> [--pmi <pmi.json>]   the B-rep and PMI as a new AP242 file
+quiddity serve                                        JSON-lines requests on stdin
+quiddity --help
 ```
+
+Every command prints JSON. Files may be `.step`, `.stp` or gzipped. The exit code is 0 for
+success, 1 for an unreadable file or a refused operation, and 2 for wrong usage.
 
 ## Recognise a part
 
-```rust
-let part = quiddity::read_step_file(std::path::Path::new("part.step"))?;
-let recognised = quiddity::correspondence::recognise(&part);
-let document = quiddity::recognition::document(&recognised, part.faces.len());
-
-for record in document.records.iter().filter(|r| r.family == "holes") {
-    let p = &record.parameters;
-    println!("{}: Ø{} × {} on faces {:?}", record.id, p["diameter"], p["depth"], record.faces);
-}
-```
-
-From the command line, `quiddity part.step` prints the same result as JSON. It accepts
-`.step`, `.stp` and gzipped files. For a part with a counterbored hole, the output includes:
+`quiddity part.step` prints the part's features. For a part with a counterbored hole, the
+output includes:
 
 ```json
 {
@@ -70,6 +73,19 @@ natural orientation itself, so a part rotated in its file is recognised the same
 What each field means: [schema 6](docs/recognition-6.md), [face accounting](docs/face-accounting.md)
 and [the trust contract](docs/recognition-trust.md), which says what `verified` does and
 doesn't promise.
+
+The same from Rust:
+
+```rust
+let part = quiddity::read_step_file(std::path::Path::new("part.step"))?;
+let recognised = quiddity::correspondence::recognise(&part);
+let document = quiddity::recognition::document(&recognised, part.faces.len());
+
+for record in document.records.iter().filter(|r| r.family == "holes") {
+    let p = &record.parameters;
+    println!("{}: Ø{} × {} on faces {:?}", record.id, p["diameter"], p["depth"], record.faces);
+}
+```
 
 ### Families
 
@@ -104,27 +120,17 @@ looks like this:
 
 ## Read and write PMI
 
-```sh
-quiddity pmi read part.step                     # the file's PMI as JSON
-quiddity pmi check part.step pmi.json           # validate a PMI document against the part
-quiddity pmi write part.step pmi.json -o out.step [--mode add|replace|remove]
-quiddity brep part.step -o out.step [--pmi pmi.json]   # write the B-rep and PMI as a new AP242 file
-```
-
 PMI JSON is bound to the exact STEP text it was read from. A write keeps everything else in
 the file, and it checks the result by reading it back before replacing the destination. The
 reader reports where a file departs from the AP242 recommended practices. See
 [AP242 practice](docs/step-ap242.md) and [`src/pmi_json.rs`](src/pmi_json.rs).
 
-## Other commands
+## Assemblies and applications
 
-- `quiddity parts file.step` lists the parts of an assembly. `pmi read --part N` reads one of them.
+- `quiddity parts file.step` lists the parts of an assembly; `pmi read --part N` reads one of them.
 - `quiddity serve` keeps a process open for applications: one JSON request per line on
   stdin, one response line per request on stdout. For example,
   `{"id":1,"op":"recognise","step":"part.step"}`. The operations are `recognise` and `correspond`.
-
-Every command prints JSON. The exit code is 0 for success, 1 for an unreadable file or a
-refused operation, and 2 for wrong usage.
 
 ## Limits
 

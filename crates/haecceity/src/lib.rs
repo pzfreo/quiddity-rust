@@ -1,5 +1,5 @@
-//! Haecceity: an exact B-rep geometry kernel in pure Rust — what OpenCascade is to the Python
-//! implementations of quiddity and draftwright. STEP import, the B-rep model, exact geometry,
+//! Haecceity: an exact B-rep geometry kernel in pure Rust, the kernel under quiddity. STEP
+//! import, the B-rep model, exact geometry,
 //! faces in parameter space, rays and point classification, shared volumes and face coverage,
 //! and analytic surfaces recovered from freeform ones.
 //!

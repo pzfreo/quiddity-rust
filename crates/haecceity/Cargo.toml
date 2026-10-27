@@ -6,7 +6,8 @@ license = "Apache-2.0"
 repository = "https://github.com/pzfreo/quiddity-rust"
 keywords = ["cad", "step", "brep", "geometry", "ap242"]
 categories = ["science", "mathematics", "parser-implementations"]
-include = ["/src", "/LICENSE", "/NOTICE"]
+readme = "README.md"
+include = ["/src", "/README.md", "/LICENSE", "/NOTICE"]
 description = "An exact B-rep geometry kernel in pure Rust: STEP import, rays, classification, volumes and surface recovery."
 
 [dependencies]
