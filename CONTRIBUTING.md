@@ -8,7 +8,7 @@ The regression record is the Rust snapshot in `tests/fixtures/rust-snapshot/`. P
 no longer consulted. Python-written STEP/PMI, old notes/fingerprints and helper arguments
 remain inputs; they do not supply expected recognition results.
 
-Use the independent references in [README.md](README.md#independent-references-by-family)
+Use the independent references in [docs/development.md](docs/development.md#independent-references-by-family)
 to establish correctness. Keep OpenCascade, analytic, label, motion, inventory-floor and NIST
 checks and their bands intact. Do not discard output to improve a metric or lower a floor.
 
