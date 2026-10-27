@@ -6,6 +6,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.2.1 (2026-10-27)
+
+Upgrading from 0.2.0: as for 0.2.1-alpha.1 below. Upgrading from 0.2.1-alpha.1: no library
+change; the schema stays `quiddity-rust/recognition/6` and fingerprints `/3`.
+
 - **Snapshot tool in Rust; leaner CI.** `tools/rust_snapshot.py` is replaced by the unpublished
   workspace crate `snapshot-tool` (`cargo run -p snapshot-tool --release -- [--check | --diff REF]`),
   with the same provenance, clean-tree and CI rules. CI no longer replays the snapshots before the
