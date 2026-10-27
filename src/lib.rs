@@ -1,4 +1,5 @@
-//! Quiddity: deterministic, geometry-only feature recognition for STEP B-Rep — Rust port.
+//! Quiddity: deterministic, geometry-only manufacturing feature recognition for STEP B-rep
+//! models. See the README for the command line and the recognition document.
 //!
 //! The recognisers ([`features`]) stand on the geometry kernel, [`haecceity`], re-exported as
 //! [`kernel`]. [`pmi_json`] is the versioned JSON form of the kernel's semantic PMI model, the
