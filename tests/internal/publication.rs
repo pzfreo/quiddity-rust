@@ -301,7 +301,11 @@ fn sm_hanger_is_mapped_in_the_files_axes() {
         let w = (0..3)
             .max_by(|&a, &b| cyl.z[a].abs().total_cmp(&cyl.z[b].abs()))
             .unwrap();
-        assert_eq!(fillet.axis, ['x', 'y', 'z'][w], "{fillet:?}");
+        assert_eq!(
+            fillet.axis,
+            quiddity::FilletAxis::Principal(['x', 'y', 'z'][w]),
+            "{fillet:?}"
+        );
     }
 }
 

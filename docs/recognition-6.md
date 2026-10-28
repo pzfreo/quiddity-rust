@@ -300,3 +300,28 @@ consulted, after reconciliation: a plane facing along the boss axis at the recor
 `top`, lying within the side ring's transverse extent. A support face or any wider face the
 ring ends on is not claimed. Feature selection and record fields are unchanged; the boss's
 fingerprint `faces`, area-weighted `position` and `neighbourhood` change within format 3.
+
+## Straight convex fillets (for #120)
+
+A partial cylinder rounding a convex edge between two tangent planar walls is a fillet
+at any angle and in any direction. Principal and oblique runs use the same intrinsic
+proof: two distinct nonparallel transverse walls, each tangent within the existing
+`length_tol(radius, 1e-7)`, an outward cylindrical material side, and an empty-space probe
+towards the round from the virtual sharp corner. Radius limits are unchanged.
+
+The cylindrical sweep must be strictly between zero and 180° and match 180° minus
+the interior wall angle (the turn between outward wall normals). Direction agreement
+uses the existing `1 - dot <= SMOOTH_ARC_GAP` angular tolerance. This replaces a fixed
+extent cap: acute corners can sweep over 90°, while obtuse corners sweep less. Bores,
+parallel supports, competing walls and concave rounds remain excluded. The turned-torus
+fillet proof and extent limit are unchanged. Chamfers retain their right-angle contract.
+
+The internal untagged `FilletAxis` stores a principal letter or a full-precision unit
+vector, with the dominant component positive in the working frame. Principal records
+retain their serialization and sort order; oblique records sort afterwards by direction
+and anchor. Publication rotates vector axes directly into file coordinates. Fingerprint
+format 3 already reads both letters and vectors as axes and retains the exact direction.
+This fits schema 6's existing axis contract, so neither version changes. Accepted fillets
+supersede generic blends on their defining faces; family IDs, fingerprints and face
+accounting references change accordingly. Move saved selections by defining faces or
+correspondence as described above.

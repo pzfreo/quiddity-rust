@@ -18,6 +18,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 - Recognition no longer panics on disconnected pocket wall cycles or narrow pad tops;
   wall roles use measured geometry and refused discovery evidence remains visible in documents.
 
+### Changed
+
+- For #120, a straight constant-radius convex round between two tangent walls is a fillet
+  at any wall angle and in any direction, including drafted cast walls. Its cylindrical sweep
+  must match 180° minus the interior wall angle within the existing angular tolerance;
+  concave rounds and bores remain excluded. Oblique fillets carry unit-vector axes.
+  Recognition schema 6 and fingerprint format 3 are unchanged.
+
 ## 0.2.1 (2026-10-27)
 
 Upgrading from 0.2.0: as for 0.2.1-alpha.1 below. Upgrading from 0.2.1-alpha.1: no library

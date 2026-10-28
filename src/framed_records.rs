@@ -51,7 +51,7 @@ use crate::features::edge_open_circular::{
 use crate::features::edge_open_prismatic::{
     EdgeOpenPrismaticRecess, OpenPolygonalSection, OpenSectionOpening,
 };
-use crate::features::fillets::Fillet;
+use crate::features::fillets::{Fillet, FilletAxis};
 use crate::features::flats::Flat;
 use crate::features::freeform_surfaces::{
     BSplineSurfaceSupport, FreeformSurface, SurfaceContinuityLink,
@@ -788,7 +788,10 @@ fn fillet(out: &mut Out, r: Fillet) -> Fillet {
         side,
     } = r;
     Fillet {
-        axis: out.letter(axis, "axis"),
+        axis: match axis {
+            FilletAxis::Principal(axis) => FilletAxis::Principal(out.letter(axis, "axis")),
+            FilletAxis::Direction(direction) => FilletAxis::Direction(out.direction(direction)),
+        },
         radius,
         at: out.placed_point(at),
         turned,
@@ -2831,7 +2834,7 @@ mod publication_tests {
     fn fillet(at: V3) -> Features {
         Features {
             fillets: vec![Fillet {
-                axis: 'x',
+                axis: FilletAxis::Principal('x'),
                 radius: 2.0,
                 at: Placed::new(at, Grid::Decimals(3)),
                 turned: false,
@@ -2896,7 +2899,7 @@ mod publication_tests {
         // Fingerprints read the frame's published value carried as it is.
         let found = *mapped.fingerprinted.fillets[0].at;
         assert_eq!(found, quarter_turn(origin).point([41.354, 44.348, 72.299]));
-        assert_eq!(mapped.features.fillets[0].axis, 'y');
+        assert_eq!(mapped.features.fillets[0].axis, FilletAxis::Principal('y'));
     }
 
     /// Where the motion keeps the grid (a signed permutation and a translation on it), the

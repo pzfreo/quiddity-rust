@@ -526,7 +526,7 @@ fn a_flat_axis_line_needs_no_provenance_even_with_a_tilted_stock_axis() {
 fn vector_snaps_share_the_coordinate_floor_across_the_whole_basis() {
     use quiddity::features::{
         Features,
-        fillets::Fillet,
+        fillets::{Fillet, FilletAxis},
         placed::{Grid, Placed},
     };
     use quiddity::frames::{FrameGauge, PartFrame};
@@ -557,7 +557,7 @@ fn vector_snaps_share_the_coordinate_floor_across_the_whole_basis() {
         let raw = Features {
             fillets: ['x', 'y', 'z']
                 .map(|axis| Fillet {
-                    axis,
+                    axis: FilletAxis::Principal(axis),
                     radius: 1.,
                     at: Placed::new([0.; 3], Grid::Exact),
                     turned: false,

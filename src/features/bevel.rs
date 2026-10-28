@@ -179,6 +179,20 @@ pub(crate) fn transverse_corner(
     centre: V3,
     run: V3,
 ) -> Option<TransverseCorner> {
+    let corner = transverse_wall_corner(part, face, centre, run)?;
+    (crate::kernel::geom::dot(corner.normals[0], corner.normals[1]).abs()
+        <= crate::kernel::geom::SMOOTH_ARC_GAP)
+        .then_some(corner)
+}
+
+/// Two nonparallel transverse walls, at any angle. Callers prove the treatment's own
+/// angle contract; chamfers retain their perpendicular-wall requirement above.
+pub(crate) fn transverse_wall_corner(
+    part: &Part,
+    face: usize,
+    centre: V3,
+    run: V3,
+) -> Option<TransverseCorner> {
     use super::planes::unit_plane_normal;
     use crate::kernel::geom::{self, COORD_FLOOR, SMOOTH_ARC_GAP};
     let mut supports: Vec<(V3, V3, f64)> = Vec::with_capacity(2);
@@ -201,11 +215,7 @@ pub(crate) fn transverse_corner(
             *total += area;
             continue;
         }
-        if supports.len() == 2
-            || supports
-                .iter()
-                .any(|(n, _, _)| geom::dot(*n, normal).abs() > SMOOTH_ARC_GAP)
-        {
+        if supports.len() == 2 {
             return None;
         }
         supports.push((normal, frame.origin, area));
