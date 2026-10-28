@@ -23,3 +23,7 @@ by Paul Fremantle, supplied for issue #83.
 Test fixture tests/fixtures/cast_bearing_unit.step.gz is Apache-2.0 from
 pzfreo/step-diff-demo, cast_bearing_unit.step at commit
 9f1018816812bb0d305f7b7d06d4d5262afd60a2, by Paul Fremantle, supplied for #120.
+
+Test fixture tests/fixtures/spotface_outer_steps.step is an original Apache-2.0
+analytic construction made for #118 by tools/make_spotface_fixture.py, using only
+Python's standard library and no third-party model or external dataset.
