@@ -1,6 +1,6 @@
 //! External edge fillet recognition (`quiddity.fillets`).
 //!
-//! A prismatic fillet is a partial cylinder rounding a convex 90° edge between two axis-aligned
+//! A prismatic fillet is a partial cylinder rounding a convex edge between two tangent
 //! walls; a turned fillet is a short external torus meeting a coaxial external cylinder.
 
 use std::collections::BTreeMap;
@@ -9,11 +9,10 @@ use std::f64::consts::PI;
 use serde::{Deserialize, Serialize};
 
 use super::Context;
-use super::bevel::{convex_bevel, transverse_corner};
+use super::bevel::{cylinder_support_tolerance, tangent_cylinder_corner};
 use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::placed::{Grid, Placed};
-use super::planes::nearest_axis_aligned_planes;
 use super::policy::AXIS_ALIGNED_COS;
 use super::turned;
 use crate::kernel::brep::Part;
@@ -23,18 +22,43 @@ use crate::kernel::py;
 
 /// A minimum-evidence threshold, deliberately absolute (ADR 0008).
 const MIN_RADIUS: f64 = 0.6;
-/// A convex edge fillet is a quarter turn; a bore keeps more than half a turn.
-const FILLET_MAX_EXTENT: f64 = PI * 1.05;
+/// Nearly half-turn rounds between nearly parallel walls are groove/slot full-round
+/// bottoms, not edge fillets (#120). Keep walls at least 45° apart.
+const FILLET_MAX_EXTENT: f64 = 3.0 * PI / 4.0;
+/// Reject gross sweep mismatches (a truncated bend skin), while allowing the angular
+/// noise of modelled geometry such as CTC-03's 90.0246° round (#120).
+const FILLET_SWEEP_TOL_DEG: f64 = 0.5;
 /// A turned edge fillet is a quarter circle in section; a bead is a half or full one.
 const TURNED_FILLET_MAX_EXTENT: f64 = PI / 2.0 * 1.05;
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct Fillet {
-    pub axis: char,
+    pub axis: FilletAxis,
     pub radius: f64,
     pub at: Placed<V3>,
     pub turned: bool,
     pub side: &'static str,
+}
+
+/// Principal runs keep their existing letter and serialization. Oblique runs carry a
+/// full-precision unit direction, canonical with its dominant component positive.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize)]
+#[serde(untagged)]
+pub enum FilletAxis {
+    Principal(char),
+    Direction(V3),
+}
+
+impl FilletAxis {
+    fn order(self, other: Self) -> std::cmp::Ordering {
+        use FilletAxis::{Direction, Principal};
+        match (self, other) {
+            (Principal(a), Principal(b)) => a.cmp(&b),
+            (Principal(_), Direction(_)) => std::cmp::Ordering::Less,
+            (Direction(_), Principal(_)) => std::cmp::Ordering::Greater,
+            (Direction(a), Direction(b)) => py::tuple_order(&a, &b),
+        }
+    }
 }
 
 /// Options named as `recognise_fillets`' keyword arguments.
@@ -91,7 +115,7 @@ pub fn fillet_anchor(part: &Part, face: usize) -> Option<V3> {
 }
 
 fn occurrence(
-    axis: usize,
+    axis: FilletAxis,
     radius: f64,
     at: V3,
     turned: bool,
@@ -100,7 +124,7 @@ fn occurrence(
 ) -> Occurrence<Fillet> {
     Occurrence {
         record: Fillet {
-            axis: ['x', 'y', 'z'][axis],
+            axis,
             radius: py::round_to3(radius),
             at: Placed::new(at, Grid::Decimals(3)),
             turned,
@@ -139,13 +163,13 @@ pub fn discover(ctx: &Context<'_>, opts: &FilletOptions) -> Vec<Occurrence<Fille
     out.sort_by(|a, b| {
         let key = |o: &Occurrence<Fillet>| (o.record.axis, o.record.at);
         let (ka, kb) = (key(a), key(b));
-        ka.0.cmp(&kb.0).then_with(|| py::tuple_order(&ka.1[..], &kb.1[..]))
+        ka.0.order(kb.0).then_with(|| py::tuple_order(&ka.1[..], &kb.1[..]))
     });
     out
 }
 }
 
-/// A partial cylinder rounding a convex edge between two axis-aligned walls.
+/// A partial cylinder rounding a convex edge between two tangent walls, in any direction.
 fn prismatic(
     ctx: &Context<'_>,
     face: usize,
@@ -157,44 +181,63 @@ fn prismatic(
         return None;
     };
     let (u0, u1, _, _) = part.uv_bounds(face)?;
-    if u1 - u0 >= FILLET_MAX_EXTENT || radius < min_radius || radius > max_radius {
+    if radius < min_radius || radius > max_radius {
         return None;
     }
-    let edge_axis = principal_axis(frame.z)?;
     // Convexity belongs to the cylinder's oriented material side, independently of the
-    // query axes. Approximate coordinate support planes can put a concave round's
-    // reconstructed sharp corner in free space, so neither corner proof suffices alone.
+    // query axes. The corner probe alone cannot prove the surface's material side.
     if part.frame_points_outward(face) != Some(true) {
         return None;
     }
-    let centre = part.face_bounds(face).centre();
-    let planes = nearest_axis_aligned_planes(part, face, centre, edge_axis, true);
     let at = fillet_anchor(part, face)?;
-    if (0..3).all(|j| j == edge_axis || planes.contains_key(&j)) {
-        if !convex_bevel(ctx, centre, edge_axis, &planes) {
-            return None;
-        }
-    } else {
-        // A principal cylinder can have transverse supports at any roll. Its axis-letter
-        // record remains exact; only the support-plane test needed to become intrinsic.
-        let corner = transverse_corner(part, face, at, frame.z)?;
-        // The two planes must be tangent to this cylinder, not unrelated nearby walls.
-        if corner.normals.iter().any(|&n| {
-            (geom::dot(geom::sub(frame.origin, corner.point), n).abs() - radius).abs()
-                > super::policy::length_tol(radius, 1e-7)
-        }) {
-            return None;
-        }
-        let corner = corner.point;
-        let near = geom::add(
-            corner,
-            geom::scale(geom::sub(at, corner), super::policy::INTERIOR_PROBE_FRAC),
-        );
-        if material_at(ctx.classifier(), near) {
-            return None;
-        }
+    let corner = tangent_cylinder_corner(part, face, at, frame.z, frame.origin, radius)?;
+    // The planes must be tangent to this cylinder, not unrelated nearby walls.
+    if corner.normals.iter().any(|&n| {
+        (geom::dot(geom::sub(frame.origin, corner.point), n).abs() - radius).abs()
+            > cylinder_support_tolerance(part)
+    }) || !sweep_matches_walls(u1 - u0, corner.normals)
+    {
+        return None;
     }
-    Some(occurrence(edge_axis, radius, at, false, face, vec![]))
+    let near = geom::add(
+        corner.point,
+        geom::scale(
+            geom::sub(at, corner.point),
+            super::policy::INTERIOR_PROBE_FRAC,
+        ),
+    );
+    if material_at(ctx.classifier(), near) {
+        return None;
+    }
+    let axis = run_axis(frame.z)?;
+    Some(occurrence(axis, radius, at, false, face, vec![]))
+}
+
+/// Preserve the legacy principal-direction representation, including its alignment band.
+fn run_axis(direction: V3) -> Option<FilletAxis> {
+    Some(if let Some(axis) = principal_axis(direction) {
+        FilletAxis::Principal(['x', 'y', 'z'][axis])
+    } else {
+        let direction = geom::unit(direction)?;
+        let sign = if direction[dominant_axis(direction.map(f64::abs))] < 0.0 {
+            -1.0
+        } else {
+            1.0
+        };
+        FilletAxis::Direction(geom::scale(direction, sign))
+    })
+}
+
+/// The outward wall normals turn through the swept arc: PI minus the interior wall
+/// angle. The sweep tolerance accommodates modelled geometry, not a truncated bend skin.
+/// The 135° cap separates edge rounds from full-round groove/slot bottoms.
+fn sweep_matches_walls(sweep: f64, normals: [V3; 2]) -> bool {
+    if !(sweep > 0.0 && sweep <= FILLET_MAX_EXTENT) {
+        return false;
+    }
+    let expected =
+        geom::norm(geom::cross(normals[0], normals[1])).atan2(geom::dot(normals[0], normals[1]));
+    (sweep - expected).abs() <= FILLET_SWEEP_TOL_DEG.to_radians()
 }
 
 /// A short external torus: a lathe-swept edge round, proved by a coaxial external cylinder.
@@ -218,7 +261,14 @@ fn turned(
     let edge_axis = principal_axis(frame.z)?;
     let context = turned_context(part, face, &part.neighbours(face), external)?;
     let at = fillet_anchor(part, face)?;
-    Some(occurrence(edge_axis, minor, at, true, face, context))
+    Some(occurrence(
+        FilletAxis::Principal(['x', 'y', 'z'][edge_axis]),
+        minor,
+        at,
+        true,
+        face,
+        context,
+    ))
 }
 
 internal_entry! {
@@ -261,4 +311,140 @@ pub fn turned_context(
     }
     Some(context)
 }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn principal_runs_keep_the_legacy_axis_letter_throughout_the_alignment_band() {
+        for degrees in [0_f64, 2.94, 5., 8.] {
+            let (s, c) = degrees.to_radians().sin_cos();
+            for (axis, direction) in [('x', [c, s, 0.]), ('y', [0., c, s]), ('z', [s, 0., c])] {
+                assert_eq!(run_axis(direction), Some(FilletAxis::Principal(axis)));
+                assert_eq!(
+                    run_axis(direction.map(|d| -d)),
+                    Some(FilletAxis::Principal(axis))
+                );
+                assert_eq!(
+                    serde_json::to_value(run_axis(direction).unwrap()).unwrap(),
+                    axis.to_string()
+                );
+            }
+        }
+        let (s, c) = 9_f64.to_radians().sin_cos();
+        assert!(matches!(
+            run_axis([c, s, 0.]),
+            Some(FilletAxis::Direction(_))
+        ));
+    }
+
+    #[test]
+    fn sweep_follows_acute_right_and_obtuse_walls() {
+        let tolerance = FILLET_SWEEP_TOL_DEG.to_radians();
+        for wall_degrees in [60_f64, 86., 90., 94., 120., 160.] {
+            let sweep = PI - wall_degrees.to_radians();
+            let walls = [[1., 0., 0.], [sweep.cos(), sweep.sin(), 0.]];
+            assert!(sweep_matches_walls(sweep, walls));
+            assert!(sweep_matches_walls(sweep + 0.5 * tolerance, walls));
+            assert!(!sweep_matches_walls(sweep + 2.0 * tolerance, walls));
+            assert!(!sweep_matches_walls(sweep - 2.0 * tolerance, walls));
+            if wall_degrees != 90. {
+                assert!(!sweep_matches_walls(PI - sweep, walls));
+            }
+            for invalid in [0., -sweep, PI, 2. * PI, f64::NAN] {
+                assert!(!sweep_matches_walls(invalid, walls));
+            }
+        }
+    }
+
+    #[test]
+    fn modelled_near_quarter_rounds_pass_but_truncated_bend_skins_do_not() {
+        let walls = [[1., 0., 0.], [0., 1., 0.]];
+        // CTC-03 face 36 and sm-hanger faces 73/76, expressed as constructed sections.
+        assert!(sweep_matches_walls(
+            90.02457403831906_f64.to_radians(),
+            walls
+        ));
+        assert!(!sweep_matches_walls(
+            25.376933525173_f64.to_radians(),
+            walls
+        ));
+        assert!(sweep_matches_walls(90.499_f64.to_radians(), walls));
+        assert!(!sweep_matches_walls(90.501_f64.to_radians(), walls));
+        assert!(sweep_matches_walls(89.501_f64.to_radians(), walls));
+        assert!(!sweep_matches_walls(89.499_f64.to_radians(), walls));
+    }
+
+    #[test]
+    fn edge_rounds_stop_at_135_degrees() {
+        for degrees in [45_f64, 40., 5.879068972873341] {
+            let sweep = PI - degrees.to_radians();
+            let walls = [[1., 0., 0.], [sweep.cos(), sweep.sin(), 0.]];
+            assert_eq!(sweep_matches_walls(sweep, walls), degrees >= 45.);
+        }
+    }
+
+    #[test]
+    fn drafted_round_still_requires_tangent_walls_and_convex_material() {
+        let part = crate::read_step_file(
+            &std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/cast_bearing_unit.step.gz"),
+        )
+        .unwrap();
+        let face = 24;
+        let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
+            panic!()
+        };
+        let accepts = |p: &Part| prismatic(&Context::new(p), face, MIN_RADIUS, 100.).is_some();
+        assert!(accepts(&part));
+        // Perturb measured evidence in fresh Parts so caches cannot mask a failed proof.
+        let mut faces = part.faces.clone();
+        faces[face].surface = Surface::Cylinder {
+            frame,
+            radius: radius + 0.1,
+        };
+        assert!(!accepts(&Part::new(
+            faces,
+            part.edges.clone(),
+            part.solids.clone()
+        )));
+        let mut faces = part.faces.clone();
+        faces[face].reversed = !faces[face].reversed;
+        assert!(!accepts(&Part::new(
+            faces,
+            part.edges.clone(),
+            part.solids.clone()
+        )));
+        let mut faces = part.faces.clone();
+        for n in part.neighbours(face) {
+            if matches!(faces[n].surface, Surface::Plane { .. }) {
+                faces[n].surface = Surface::Other {
+                    kind: "missing support",
+                };
+            }
+        }
+        assert!(!accepts(&Part::new(
+            faces,
+            part.edges.clone(),
+            part.solids.clone()
+        )));
+        assert!(prismatic(&Context::new(&part), face, radius + 0.1, 100.).is_none());
+        assert!(prismatic(&Context::new(&part), face, MIN_RADIUS, radius - 0.1).is_none());
+        let mut over_limit = 0;
+        for f in 0..part.faces.len() {
+            if matches!(part.faces[f].surface, Surface::Cylinder { .. })
+                && let Some((u0, u1, _, _)) = part.uv_bounds(f)
+                && u1 - u0 >= PI
+            {
+                over_limit += 1;
+                assert!(prismatic(&Context::new(&part), f, MIN_RADIUS, 100.).is_none());
+            }
+        }
+        assert!(
+            over_limit > 0,
+            "fixture must exercise the bore/extent guard"
+        );
+    }
 }

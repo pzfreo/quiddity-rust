@@ -179,6 +179,56 @@ pub(crate) fn transverse_corner(
     centre: V3,
     run: V3,
 ) -> Option<TransverseCorner> {
+    let corner = transverse_wall_corner(part, face, centre, run)?;
+    (crate::kernel::geom::dot(corner.normals[0], corner.normals[1]).abs()
+        <= crate::kernel::geom::SMOOTH_ARC_GAP)
+        .then_some(corner)
+}
+
+/// Two nonparallel transverse walls, at any angle. Callers prove the treatment's own
+/// angle contract; chamfers retain their perpendicular-wall requirement above.
+pub(crate) fn transverse_wall_corner(
+    part: &Part,
+    face: usize,
+    centre: V3,
+    run: V3,
+) -> Option<TransverseCorner> {
+    transverse_wall_corner_where(part, face, centre, run, |_, _| true)
+}
+
+/// Contact cannot require more precision than the STEP input or kernel coordinates.
+pub(crate) fn cylinder_support_tolerance(part: &Part) -> f64 {
+    // The STEP reader converts its declared modelling precision to millimetres. Never
+    // demand more accurate contact than the input states, or less than kernel coordinates.
+    part.file_uncertainty()
+        .unwrap_or(crate::kernel::geom::COORD_FLOOR)
+        .max(crate::kernel::geom::COORD_FLOOR)
+}
+
+/// A cylinder's supports must be tangent before they can compete. A transverse cut/end
+/// plane that is not tangent does not propose another rounded corner (#120).
+pub(crate) fn tangent_cylinder_corner(
+    part: &Part,
+    face: usize,
+    centre: V3,
+    run: V3,
+    origin: V3,
+    radius: f64,
+) -> Option<TransverseCorner> {
+    transverse_wall_corner_where(part, face, centre, run, |point, normal| {
+        (crate::kernel::geom::dot(crate::kernel::geom::sub(origin, point), normal).abs() - radius)
+            .abs()
+            <= cylinder_support_tolerance(part)
+    })
+}
+
+fn transverse_wall_corner_where(
+    part: &Part,
+    face: usize,
+    centre: V3,
+    run: V3,
+    include: impl Fn(V3, V3) -> bool,
+) -> Option<TransverseCorner> {
     use super::planes::unit_plane_normal;
     use crate::kernel::geom::{self, COORD_FLOOR, SMOOTH_ARC_GAP};
     let mut supports: Vec<(V3, V3, f64)> = Vec::with_capacity(2);
@@ -187,7 +237,7 @@ pub(crate) fn transverse_corner(
             continue;
         };
         let normal = unit_plane_normal(part, f)?;
-        if geom::dot(normal, run).abs() > SMOOTH_ARC_GAP {
+        if geom::dot(normal, run).abs() > SMOOTH_ARC_GAP || !include(frame.origin, normal) {
             continue;
         }
         let area = part.face_mass(f)?[0];
@@ -201,11 +251,7 @@ pub(crate) fn transverse_corner(
             *total += area;
             continue;
         }
-        if supports.len() == 2
-            || supports
-                .iter()
-                .any(|(n, _, _)| geom::dot(*n, normal).abs() > SMOOTH_ARC_GAP)
-        {
+        if supports.len() == 2 {
             return None;
         }
         supports.push((normal, frame.origin, area));
@@ -227,4 +273,95 @@ pub(crate) fn transverse_corner(
         normals: [*a, *b],
         areas: [*aa, *ab],
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::features::support_patches::polygon_face;
+    use crate::kernel::brep::{Face, Loop};
+    use crate::kernel::geom::{self, Frame};
+
+    /// A support-query B-rep built entirely in code: an R10 cylinder with two tangent
+    /// rectangular walls (98° interior), plus one transverse rectangle. Shared run edges
+    /// establish incidence; no solid/classification claim is made by this helper test.
+    fn cylinder_supports(extra_degrees: f64, extra_distance: f64) -> Part {
+        let run = [0., 0., 1.];
+        let mut edges = Vec::new();
+        let mut walls = Vec::new();
+        let mut shared = Vec::new();
+        for (degrees, distance) in [(0_f64, 10.), (82., 10.), (extra_degrees, extra_distance)] {
+            let (s, c) = degrees.to_radians().sin_cos();
+            let normal = [c, s, 0.];
+            let across = geom::cross(run, normal);
+            // The shared edge lies on the cylinder even for an inset, non-tangent plane.
+            let point = geom::add(
+                geom::scale(normal, distance),
+                geom::scale(across, (100. - distance * distance).max(0.).sqrt()),
+            );
+            let far = geom::add(point, geom::scale(across, 2.));
+            let patch = polygon_face(&[
+                point,
+                far,
+                geom::add(far, geom::scale(run, 5.)),
+                geom::add(point, geom::scale(run, 5.)),
+            ])
+            .unwrap();
+            let offset = edges.len();
+            let mut wall = patch.faces[0].clone();
+            for lp in &mut wall.loops {
+                for (edge, _) in &mut lp.edges {
+                    *edge += offset;
+                }
+            }
+            shared.push((offset + 3, true));
+            edges.extend(patch.edges);
+            walls.push(wall);
+        }
+        let mut faces = vec![Face {
+            surface: crate::kernel::geom::Surface::Cylinder {
+                frame: Frame {
+                    origin: [0.; 3],
+                    x: [1., 0., 0.],
+                    y: [0., 1., 0.],
+                    z: run,
+                },
+                radius: 10.,
+            },
+            reversed: false,
+            solid: None,
+            pcurves: vec![],
+            loops: vec![Loop {
+                edges: shared,
+                vertex: None,
+            }],
+        }];
+        faces.extend(walls);
+        Part::new(faces, edges, vec![])
+    }
+
+    #[test]
+    fn only_tangent_planes_compete_for_a_cylinder_corner() {
+        let origin = [0.; 3];
+        let run = [0., 0., 1.];
+        let part = cylinder_supports(30., 10. - 0.164);
+        assert!(transverse_wall_corner(&part, 0, origin, run).is_none());
+        let corner = tangent_cylinder_corner(&part, 0, origin, run, origin, 10.).unwrap();
+        assert!(
+            (geom::dot(corner.normals[0], corner.normals[1]) - 82_f64.to_radians().cos()).abs()
+                < 1e-12
+        );
+        for n in corner.normals {
+            assert!((geom::dot(corner.point, n).abs() - 10.).abs() < 1e-12);
+        }
+        // Preserve the original guard's competing direction and distinct parallel-plane
+        // refusals. A coplanar split is still one support, with both patches' area.
+        for (degrees, accepted) in [(30., false), (180., false), (0., true)] {
+            let part = cylinder_supports(degrees, 10.);
+            assert_eq!(
+                tangent_cylinder_corner(&part, 0, origin, run, origin, 10.).is_some(),
+                accepted
+            );
+        }
+    }
 }

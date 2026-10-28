@@ -26,6 +26,24 @@ in [docs/alpha1.md](docs/alpha1.md).
   fingerprint format `/3` stay unchanged; affected hole fingerprints change traits
   and sizes, including outer-step count and paired dimensions within v3.
 
+- For #120, a straight constant-radius convex round between two tangent walls is a fillet
+  at any wall angle and in any direction, including drafted cast walls. Its cylindrical sweep
+  must match 180° minus the interior wall angle within 0.5°;
+  concave rounds and bores remain excluded. Oblique fillets carry unit-vector axes.
+  Sweeps above 135° remain groove/slot full-round bottoms rather than edge fillets.
+  Only tangent walls compete as supports; non-tangent transverse cut/end planes do not
+  remove an otherwise proved round. Recognition schema 6 and fingerprint format 3 are unchanged.
+  Whole-body classifications such as thin-wall and sheet-metal bodies retain their
+  existing co-ownership of faces when a round becomes a fillet.
+  Sheet-metal bend skins previously misread as fillets by the axis-aligned path's missing
+  tangency check are no longer fillets; their sheet-metal classification remains.
+  NIST CTC-05's four R203.2 cylinders with grossly non-tangent walls are also no longer
+  fillets. CGB243 face 196, an R6 half-round with a 180-degree sweep, is no longer a
+  fillet: it exceeds the 135-degree edge-round cap and remains unexplained.
+  Support tangency respects the STEP file's modelling precision, bounded below
+  by the kernel coordinate floor. Accepted defining claims take precedence over new
+  fillets, retaining the existing gusset and circular-pattern claims on rounded faces.
+
 ### Fixed
 
 - Recognition no longer panics on disconnected pocket wall cycles or narrow pad tops;

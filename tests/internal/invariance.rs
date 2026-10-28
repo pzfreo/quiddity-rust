@@ -1095,7 +1095,7 @@ fn rolled_boss_rounds_are_specific_fillets() {
             accepted
                 .fillets
                 .iter()
-                .all(|r| r.radius == 2. && r.axis == 'z')
+                .all(|r| r.radius == 2. && r.axis == quiddity::FilletAxis::Principal('z'))
         );
         if let Some(expected) = &baseline {
             assert_eq!(&faces, expected);

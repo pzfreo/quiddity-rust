@@ -343,3 +343,62 @@ consulted, after reconciliation: a plane facing along the boss axis at the recor
 `top`, lying within the side ring's transverse extent. A support face or any wider face the
 ring ends on is not claimed. Feature selection and record fields are unchanged; the boss's
 fingerprint `faces`, area-weighted `position` and `neighbourhood` change within format 3.
+
+## Straight convex fillets (for #120)
+
+A partial cylinder rounding a convex edge between two tangent planar walls is a fillet
+at any angle and in any direction. Principal and oblique runs use the same intrinsic
+proof: two distinct nonparallel transverse walls, each tangent within the existing
+coordinate tolerance, an outward cylindrical material side, and an empty-space probe
+towards the round from the virtual sharp corner. Radius limits are unchanged.
+The contact tolerance is `max(part.file_uncertainty(), COORD_FLOOR)`, with
+`COORD_FLOOR` (0.000001 mm) as the fallback for files without a stated precision.
+The STEP reader supplies the file uncertainty in millimetres; CTC-03 states 0.00002 mm.
+
+The cylindrical sweep must be greater than zero and at most 135° and match 180° minus
+the interior wall angle (the turn between outward wall normals), within 0.5°. This rejects
+grossly truncated bend skins without demanding exact agreement from modelled geometry:
+CTC-03's 90.0246° round passes; sm-hanger's 25.4° skins between perpendicular walls do not.
+This replaces a fixed
+extent cap: acute corners can sweep over 90°, while obtuse corners sweep less. The 135°
+cap keeps wall angles at least 45°: a near-half-turn between nearly parallel walls is a
+full-round groove/slot bottom, not an edge fillet. CGB202's R90 face 2074 stays a groove.
+Only planes tangent within the existing length tolerance participate in the corner query.
+Non-tangent transverse end/cut planes are ignored; the competing-corner guard still rejects
+three distinct tangent supports or distinct parallel tangent walls, while merging coplanar
+splits. This preserves NIST CTC-02 AP242's six R10, 82° rounds with a third non-tangent plane.
+Bores, parallel supports, competing tangent walls and concave rounds remain excluded. The turned-torus
+fillet proof and extent limit are unchanged. Chamfers retain their right-angle contract.
+
+The internal untagged `FilletAxis` stores a principal letter for every run passing the
+existing `principal_axis` / `AXIS_ALIGNED_COS` band, including its legacy approximation.
+Only runs outside that band use a full-precision unit vector, with its dominant component
+positive in the working frame. Principal records
+retain their serialization and sort order; oblique records sort afterwards by direction
+and anchor. Publication rotates vector axes directly into file coordinates. Fingerprint
+format 3 already reads both letters and vectors as axes and retains the exact direction.
+This fits schema 6's existing axis contract, so neither version changes. Accepted fillets
+supersede generic blends on their defining faces; family IDs, fingerprints and face
+accounting references change accordingly. Move saved selections by defining faces or
+correspondence as described above.
+
+Whole-body classifications may retain the same faces as individual features. In
+particular, a round becoming a fillet retains its `thin_wall_bodies` or
+`sheet_metal_bodies` classification, just as existing fillets, holes and blends already
+do. This co-ownership does not replace the round's geometric proof or permit a second
+claim by another individual feature family.
+
+Sheet-metal bend skins must satisfy the same edge-round proof to be fillets. The old
+axis-aligned path skipped tangency and could label a skin cut short of its tangent wall
+as a fillet. For example, sm-hanger's R7 faces 73 and 76 remain the outer skins of
+sheet-metal bends 6 and 7 (inner R3, face pairs 73/75 and 76/85), but are no longer
+fillets: each has a transverse wall 4 mm away from tangency and sweeps only 25.38°
+between perpendicular walls.
+CTC-05's R203.2 faces 14, 15, 168 and 169 also fail tangency, by 2.54 and 133.35 mm;
+they remain unexplained rather than carrying a false fillet claim.
+
+Individual features reserve their accepted defining faces before fillets. The inventory
+uses its `kept` evidence and reconciliation dispositions, so rejected proposals do not
+reserve faces and a suppressed fillet cannot suppress its generic blend. Whole-body
+classifications and generic surface fallbacks use shared claims; derived patterns and
+section recesses retain their existing publication paths.

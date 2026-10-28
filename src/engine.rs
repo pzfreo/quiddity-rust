@@ -49,7 +49,7 @@ pub use features::circular_face_patterns::CircularFacePattern;
 pub use features::countersinks::CounterSink;
 pub use features::edge_open_circular::EdgeOpenCircularPocket;
 pub use features::edge_open_prismatic::EdgeOpenPrismaticRecess;
-pub use features::fillets::{Fillet, FilletOptions};
+pub use features::fillets::{Fillet, FilletAxis, FilletOptions};
 pub use features::flats::Flat;
 pub use features::freeform_surfaces::{
     BSplineSurfaceSupport, FreeformSurface, SurfaceContinuityLink,

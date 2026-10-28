@@ -546,6 +546,7 @@ fn composed_and_preplaced_transforms_match_one_composed_read() {
     }
     for name in [
         "large_block_small_fillets.step",
+        "cast_bearing_unit.step.gz",
         "hyperbola_cut_cone.step",
         "ap242/assembly/nested.step",
         "revolution_cone.step.gz",

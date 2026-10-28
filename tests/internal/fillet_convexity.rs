@@ -49,13 +49,11 @@ fn check_cylinder_sides(part: &Part, reading: &Recognition) {
     }
 }
 
-/// #91: cgb241's outer R23 bend (face 47) is a convex blend in its own (file-axis) frame, as
-/// it is in caller space: the normals of its two support walls (46, 48) are 92.06 degrees
-/// apart, so the edge it rounds is 87.94 degrees, not the right angle of a fillet. The former
-/// 27.4-degree frame took 48 as one axis and 46, 2.06 degrees off the other, as aligned.
-/// The inner R20 bend (27) stays concave.
+/// #120 supersedes #91's right-angle boundary: the R23 face 47 rounds an 87.94°
+/// convex edge between tangent walls and is now a fillet. The inner R20 face 27 stays
+/// a concave blend. Both query frames must agree on these material sides and families.
 #[test]
-fn cgb241_bends_are_blends_with_their_native_sides() {
+fn cgb241_bends_keep_their_native_sides_and_convex_round_is_a_fillet() {
     use quiddity::kernel::geom;
     let Some(dir) = common::corpus_dir() else {
         return;
@@ -74,8 +72,17 @@ fn cgb241_bends_are_blends_with_their_native_sides() {
         correspondence::recognise(&part),
         correspondence::caller_space_recognise(&part),
     ] {
-        assert!(reading.features.fillets.is_empty());
         let f = &reading.features;
+        let fillet = f.defining["fillets"]
+            .iter()
+            .position(|d| *d == vec![47])
+            .unwrap();
+        assert_eq!(
+            (f.fillets[fillet].radius, f.fillets[fillet].side),
+            (23., "convex")
+        );
+        assert!(f.defining["blends"].iter().all(|d| !d.contains(&47)));
+        assert!(!f.defining["fillets"].iter().any(|d| d.contains(&27)));
         let blend = |face: usize| {
             let i = f.defining["blends"]
                 .iter()
@@ -83,11 +90,94 @@ fn cgb241_bends_are_blends_with_their_native_sides() {
                 .unwrap_or_else(|| panic!("face {face} is not a blend"));
             &f.blends[i]
         };
-        assert_eq!((blend(47).radius, blend(47).side.as_str()), (23., "convex"));
         assert_eq!(
             (blend(27).radius, blend(27).side.as_str()),
             (20., "concave")
         );
+    }
+}
+
+/// #120: these outer bend skins stop at a cut, not a second tangent wall. The old
+/// axis-aligned shortcut accepted them without checking tangency or the swept angle.
+#[test]
+fn truncated_sm_hanger_bend_skins_keep_sheet_ownership_without_false_fillets() {
+    use quiddity::kernel::geom;
+    let Some(dir) = common::corpus_dir() else {
+        return;
+    };
+    let part = read_step_file(&dir.join("ttt_inputs/sm-hanger.step")).unwrap();
+    for face in [73, 76] {
+        let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
+            panic!("face {face}")
+        };
+        let Surface::Plane { frame: wall } = part.faces[64].surface else {
+            panic!("wall 64")
+        };
+        assert_eq!(radius, 7.);
+        assert!(part.neighbours(face).contains(&64));
+        let error = (geom::dot(geom::sub(frame.origin, wall.origin), wall.z).abs() - radius).abs();
+        assert!((error - 4.).abs() < 1e-9, "face {face}: {error}");
+    }
+    for degrees in [0., 5.] {
+        let moved = part.transformed(&about_y(degrees)).unwrap();
+        for reading in [
+            correspondence::recognise(&moved),
+            correspondence::caller_space_recognise(&moved),
+        ] {
+            let f = &reading.features;
+            let sheet = &f.sheet_metal_bodies[0];
+            for (bend, outer, inner) in [(6, 73, 75), (7, 76, 85)] {
+                let bend = &sheet.bends[bend];
+                assert_eq!(bend.inner_radius, 3.);
+                assert!((bend.angle_degrees - 90.).abs() < 1e-9);
+                assert!(
+                    bend.face_pairs
+                        .iter()
+                        .any(|p| { p.first_face == outer && p.second_face == inner })
+                );
+                assert!(f.defining["sheet_metal_bodies"][0].contains(&outer));
+                assert!(f.defining["fillets"].iter().all(|d| !d.contains(&outer)));
+            }
+        }
+    }
+}
+
+/// #120: a proved round does not replace a more specific accepted defining claim.
+/// Its generic blend must remain when the fillet proposal is suppressed.
+#[test]
+fn specific_defining_claims_keep_gusset_and_pattern_rounds_out_of_fillets() {
+    for (file, faces, family) in [
+        (
+            "b9b085119521ca83.step.gz",
+            &[2, 6, 12, 13][..],
+            "gusset_ribs",
+        ),
+        ("76434c8233b191c6.step.gz", &[2, 6][..], "gusset_ribs"),
+        ("9d0b60cef180d03e.step.gz", &[2, 6][..], "gusset_ribs"),
+        ("a96691391681646d.step.gz", &[2][..], "gusset_ribs"),
+        (
+            "outer_profiles/parts/9bf8ce472067c7ac.step.gz",
+            &[2, 3, 7][..],
+            "circular_face_patterns",
+        ),
+    ] {
+        let part = read_step_file(&common::fixtures().join("captured").join(file)).unwrap();
+        let reading = correspondence::recognise(&part);
+        let defining = &reading.features.defining;
+        for face in faces {
+            assert!(
+                defining[family].iter().any(|d| d.contains(face)),
+                "{file}: {face}"
+            );
+            assert!(
+                defining["blends"].iter().any(|d| d.contains(face)),
+                "{file}: {face}"
+            );
+            assert!(
+                defining["fillets"].iter().all(|d| !d.contains(face)),
+                "{file}: {face}"
+            );
+        }
     }
 }
 
@@ -234,4 +324,100 @@ fn inward_quarter_cylinders_dropped_by_89_are_not_blends() {
         (f.blends[i].radius, f.blends[i].side.as_str()),
         (6.35, "concave")
     );
+}
+
+/// #120: drafted tangent walls prove the same R1 fillets on both mirrored flange sides.
+#[test]
+fn cast_bearing_rounds_are_fillets_at_any_angle_and_direction() {
+    use quiddity::framed_records::Rigid;
+    use quiddity::kernel::geom;
+    let part = read_step_file(&common::fixtures().join("cast_bearing_unit.step.gz")).unwrap();
+    let original = correspondence::recognise(&part);
+    check_cast_rounds(&part, &original);
+    check_cast_rounds(&part, &correspondence::caller_space_recognise(&part));
+    for degrees in [5., 27.4, 60.] {
+        let mut placement = about_y(degrees);
+        placement[0][3] = 17.;
+        placement[1][3] = -23.;
+        placement[2][3] = 41.;
+        let moved = part.transformed(&placement).unwrap();
+        let reading = correspondence::recognise(&moved);
+        check_cast_rounds(&moved, &reading);
+        check_cast_rounds(&moved, &correspondence::caller_space_recognise(&moved));
+        for old in original
+            .fingerprints
+            .features
+            .iter()
+            .filter(|f| f.family == "fillets")
+        {
+            let new = reading
+                .fingerprints
+                .features
+                .iter()
+                .find(|f| f.family == "fillets" && f.faces == old.faces)
+                .unwrap();
+            assert_eq!(old.sizes, new.sizes);
+            assert_eq!(old.traits, new.traits);
+            let expected = Rigid::from_placement(&placement).direction(old.axis.unwrap());
+            assert!((geom::dot(expected, new.axis.unwrap()).abs() - 1.).abs() < 1e-12);
+        }
+    }
+}
+
+fn check_cast_rounds(part: &Part, reading: &Recognition) {
+    use quiddity::features::bevel::transverse_wall_corner;
+    use quiddity::features::fillets::fillet_anchor;
+    use quiddity::kernel::geom;
+    assert_eq!(reading.features.fillets.len(), 8);
+    let families = reading.features.families();
+    let records = &families.iter().find(|(f, _)| f == "fillets").unwrap().1;
+    for face in [14, 25, 16, 27, 24, 18, 22, 20] {
+        let i = reading.features.defining["fillets"]
+            .iter()
+            .position(|d| *d == vec![face])
+            .unwrap_or_else(|| panic!("face {face}: missing fillet"));
+        let record = &records[i];
+        assert_eq!(record["radius"], 1.);
+        assert_eq!(record["side"], "convex");
+        assert_eq!(record["turned"], false);
+        let axis = match record["axis"].as_str() {
+            Some("x") => [1., 0., 0.],
+            Some("y") => [0., 1., 0.],
+            Some("z") => [0., 0., 1.],
+            _ => serde_json::from_value(record["axis"].clone()).unwrap(),
+        };
+        let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
+            panic!("{face}")
+        };
+        assert!((radius - 1.).abs() < 1e-12);
+        assert_eq!(part.frame_points_outward(face), Some(true));
+        let at = fillet_anchor(part, face).unwrap();
+        let corner = transverse_wall_corner(part, face, at, frame.z).unwrap();
+        assert!(
+            (geom::dot(corner.normals[0], corner.normals[1]).abs() - 4_f64.to_radians().sin())
+                .abs()
+                < 1e-12
+        );
+        for n in corner.normals {
+            let distance = geom::dot(geom::sub(frame.origin, corner.point), n).abs();
+            assert!((distance - radius).abs() <= 1e-7);
+        }
+        assert!((geom::norm(axis) - 1.).abs() < 1e-12);
+        assert!(
+            (geom::dot(axis, frame.z).abs() - 1.).abs() < 1e-12,
+            "face {face}: {axis:?}"
+        );
+        let fp = reading
+            .fingerprints
+            .features
+            .iter()
+            .find(|f| f.family == "fillets" && f.faces == vec![face])
+            .unwrap();
+        assert!((geom::dot(fp.axis.unwrap(), frame.z).abs() - 1.).abs() < 1e-12);
+        assert!(
+            reading.features.defining["blends"]
+                .iter()
+                .all(|d| !d.contains(&face))
+        );
+    }
 }

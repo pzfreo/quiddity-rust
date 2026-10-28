@@ -292,8 +292,16 @@ fn sm_hanger_is_mapped_in_the_files_axes() {
         .flat_map(|(a, b)| (0..3).map(move |i| (a[i] - b[i]).abs()))
         .fold(0.0, f64::max);
     assert!(off > 0.0 && off < 3e-9, "{frame:?}");
-    assert_eq!(r.features.fillets.len(), 6);
+    // For #120: ten proved rounds join the four retained fillets; bend skins 73/76
+    // lose their former false fillet claims. All fourteen publish on file axes.
+    assert_eq!(r.features.fillets.len(), 14);
     let defining = &r.features.defining["fillets"];
+    let mut faces: Vec<_> = defining.iter().flatten().copied().collect();
+    faces.sort_unstable();
+    assert_eq!(
+        faces,
+        [8, 18, 22, 24, 27, 35, 39, 52, 53, 57, 58, 59, 63, 98]
+    );
     for (fillet, faces) in r.features.fillets.iter().zip(defining) {
         let Surface::Cylinder { frame: cyl, .. } = &part.faces[faces[0]].surface else {
             panic!("a fillet is a cylinder");
@@ -301,7 +309,11 @@ fn sm_hanger_is_mapped_in_the_files_axes() {
         let w = (0..3)
             .max_by(|&a, &b| cyl.z[a].abs().total_cmp(&cyl.z[b].abs()))
             .unwrap();
-        assert_eq!(fillet.axis, ['x', 'y', 'z'][w], "{fillet:?}");
+        assert_eq!(
+            fillet.axis,
+            quiddity::FilletAxis::Principal(['x', 'y', 'z'][w]),
+            "{fillet:?}"
+        );
     }
 }
 
