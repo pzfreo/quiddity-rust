@@ -29,6 +29,7 @@ pub mod cylindrical_end_surface;
 pub mod cylindrical_passages;
 pub mod cylindrical_pockets;
 pub mod cylindrical_seats;
+pub mod discovery;
 pub mod edge_open;
 pub mod edge_open_circular;
 pub mod edge_open_prismatic;
@@ -117,6 +118,9 @@ pub struct Features {
     /// The completed run, independent of the thread-local retry flag after recognition.
     #[serde(skip)]
     pub run_mode: evidence::RunMode,
+    /// Source faces of refused discovery candidates, keyed by their refusal family.
+    #[serde(skip)]
+    pub discovery_refusals: BTreeMap<&'static str, Vec<discovery::DiscoveryRefusal>>,
     /// Strict proof on each occurrence's defining AND consulted faces, kept through filtering.
     #[serde(skip)]
     pub evidence_status: BTreeMap<&'static str, Vec<evidence::EvidenceStatus>>,
@@ -224,15 +228,16 @@ internal_entry! {
 /// pockets and oriented slots (`_take_inventory_once`); the section recesses are projected from
 /// the same run (`_project_result`). Where Python's strict run refuses an unproved hole on a
 /// part whose solids are not all valid, the run is a locally degraded one, as Python's retry
-/// is (`take_inventory`). Python refuses the whole recognition where two rules decide one
-/// candidate; `recognise` has no refusal to return, so it panics with the message. Python also
-/// refuses it where the section-recess projection raises (an accepted record whose faces have
-/// no valid solid, which on the corpus no part reaches since the retry is ported); there the
-/// other families are kept and the projection's refusal is carried in
-/// [`Features::section_recess_refusal`], with no section recesses (whether to panic or carry a
-/// refusal is an open maintainer question).
+/// is (`take_inventory`). A reconciliation refusal is retained as a whole-run refusal,
+/// covering the input faces without issuing feature claims. Section-recess projection
+/// refusals are carried in [`Features::section_recess_refusal`].
 pub fn recognise(part: &Part) -> Features {
-    take_inventory(part, recognise_in).unwrap_or_else(|e| panic!("reconciliation refused: {e}"))
+    take_inventory(part, recognise_in).unwrap_or_else(|error| Features {
+        discovery_refusals: BTreeMap::from([("reconciliation_refusals", vec![
+            discovery::DiscoveryRefusal::new(error, 0..part.faces.len())
+        ])]),
+        ..Features::default()
+    })
 }
 }
 
@@ -509,19 +514,46 @@ pub(crate) fn inventory_in(
     );
     let pocket_occurrences = skip_unproved(part, pockets::discover(ctx));
     let thin_wall_bodies = kept(&mut defining, "thin_wall_bodies", thin_walls::discover(ctx));
-    // Python's aggregate raises on the same internal inconsistencies, refusing the whole
-    // recognition; `inventory` carries only the reconciliation's refusal, so it panics with the
-    // message.
-    let passages =
-        passages::discover(ctx).unwrap_or_else(|e| panic!("section passages refused: {e}"));
-    // The passages' refusal is the panic above, so the evidence's own discovery of them agrees.
-    let evidence = reconcile::Evidence::with_pockets(ctx, &pocket_occurrences)?;
+    let mut discovery_refusals = BTreeMap::new();
+    let passages = match passages::discover(ctx) {
+        Ok(found) => found,
+        Err(error) => {
+            let faces = passages::proposal_faces(ctx);
+            discovery_refusals.insert(
+                "section_passage_refusals",
+                vec![discovery::DiscoveryRefusal::new(error, faces)],
+            );
+            Vec::new()
+        }
+    };
+    // Reconciliation must read the same completed passages; a refused family has no
+    // compatibility views and cannot suppress a pocket or slot.
+    let compatibility = if discovery_refusals.contains_key("section_passage_refusals") {
+        Vec::new()
+    } else {
+        passages::compatibility_views(ctx)?
+    };
+    let evidence = reconcile::Evidence::with_passage_views(ctx, &pocket_occurrences, compatibility);
     let pockets = kept(&mut defining, "pockets", pocket_occurrences);
     let oriented_slots = kept(
         &mut defining,
         "oriented_slots",
-        oriented_slots::discover(ctx, &passages)
-            .unwrap_or_else(|e| panic!("oriented slots refused: {e}")),
+        match oriented_slots::discover(ctx, &passages) {
+            Ok(found) => found,
+            Err(error) => {
+                discovery_refusals.insert(
+                    "oriented_slot_refusals",
+                    vec![discovery::DiscoveryRefusal::new(
+                        error,
+                        passages
+                            .iter()
+                            .flat_map(|p| p.defining.iter().chain(&p.context))
+                            .copied(),
+                    )],
+                );
+                Vec::new()
+            }
+        },
     );
     let thread_analysis = ctx.modelled_threads();
     let claimed: BTreeSet<_> = thread_analysis
@@ -560,7 +592,20 @@ pub(crate) fn inventory_in(
     let plate_occurrences = plates::discover(ctx, &Default::default());
     let channel_occurrences = skip_unproved(part, channels::discover(ctx));
     let notches = through_notches::discover(ctx, &plate_occurrences, &channel_occurrences);
+    let boss_analysis = polygonal_bosses::analyse(ctx, &Default::default());
+    if !boss_analysis.refusals.is_empty() {
+        discovery_refusals.insert("polygonal_boss_refusals", boss_analysis.refusals);
+    }
+    let pad_analysis = pads::analyse(ctx, &Default::default());
+    let prismatic_analysis = prismatic_pockets::analyse(ctx);
+    if !pad_analysis.refusals.is_empty() {
+        discovery_refusals.insert("pad_refusals", pad_analysis.refusals);
+    }
+    if !prismatic_analysis.refusals.is_empty() {
+        discovery_refusals.insert("prismatic_pocket_refusals", prismatic_analysis.refusals);
+    }
     let physical = Features {
+        discovery_refusals,
         run_mode: if evidence::local_degradation() {
             evidence::RunMode::LocallyDegraded
         } else {
@@ -693,11 +738,7 @@ pub(crate) fn inventory_in(
         freeform_surfaces,
         modelled_threads,
         modelled_thread_refusals: thread_analysis.refusals.clone(),
-        polygonal_bosses: kept(
-            &mut defining,
-            "polygonal_bosses",
-            polygonal_bosses::discover(ctx, &Default::default()),
-        ),
+        polygonal_bosses: kept(&mut defining, "polygonal_bosses", boss_analysis.accepted),
         polygonal_stock: kept(
             &mut defining,
             "polygonal_stock",
@@ -707,16 +748,11 @@ pub(crate) fn inventory_in(
         prismatic_pockets: kept(
             &mut defining,
             "prismatic_pockets",
-            skip_unproved(part, prismatic_pockets::discover(ctx)),
+            skip_unproved(part, prismatic_analysis.accepted),
         ),
         oriented_slot_patterns: Vec::new(),
         oriented_slots,
-        pads: kept(
-            &mut defining,
-            "pads",
-            pads::discover(ctx, &Default::default())
-                .unwrap_or_else(|e| panic!("rectangular pads refused: {e}")),
-        ),
+        pads: kept(&mut defining, "pads", pad_analysis.accepted),
         step_levels,
         risers,
         section_recesses: Vec::new(),

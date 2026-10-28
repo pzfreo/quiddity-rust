@@ -373,7 +373,10 @@ type Mouth = (usize, BTreeSet<usize>, usize);
 /// Pockets recovered from one exterior mouth whose wall spans a treatment interrupted
 /// (`_one_ended_regions`): the cavity region behind an inner wire of a principal plane, unique
 /// to that mouth and shared with no other region, with one floor level.
-fn one_ended_regions(ctx: &Context<'_>) -> Vec<Recovered> {
+fn one_ended_regions(
+    ctx: &Context<'_>,
+    refusals: &mut Vec<super::discovery::DiscoveryRefusal>,
+) -> Vec<Recovered> {
     let part = ctx.part;
     // Regions in the order Python's dict first meets them, each with its mouths.
     let mut raw: Vec<(BTreeSet<usize>, Vec<Mouth>)> = Vec::new();
@@ -461,14 +464,18 @@ fn one_ended_regions(ctx: &Context<'_>) -> Vec<Recovered> {
         {
             continue;
         }
-        // Python walks the walls as one cycle and raises (a bare `next`) when they are two;
-        // `cross_section` panics alike.
-        let section = cross_section(ctx, &walls, &wall_set, axis);
+        let Some(section) = cross_section(ctx, &walls, &wall_set, axis) else {
+            refusals.push(super::discovery::DiscoveryRefusal::new(
+                "wall boundary is not one simple prismatic polygon",
+                region.iter().copied().chain([opening]),
+            ));
+            continue;
+        };
         let (low, high) = (mouth_at.min(floor_at), mouth_at.max(floor_at));
         let mut faces: Vec<usize> = region.iter().copied().collect();
         faces.push(opening);
         let solid = common_valid_solid(part, &faces);
-        let (Some(section), Some(solid)) = (section, solid) else {
+        let Some(solid) = solid else {
             continue;
         };
         if high - low <= SPAN_EPS
@@ -537,6 +544,12 @@ pub fn discover_verified(
 internal_entry! {
 /// Every pocket, in record order (`_discover_prismatic_pockets`).
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<PrismaticPocket>> {
+    analyse(ctx).accepted
+}
+}
+
+pub(crate) fn analyse(ctx: &Context<'_>) -> super::discovery::Analysis<PrismaticPocket> {
+    let mut refusals = Vec::new();
     let occurrence = |record, walls: &[usize], constituent: &BTreeSet<usize>| Occurrence {
         record,
         defining: walls.to_vec(),
@@ -573,7 +586,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<PrismaticPocket>> {
         existing.push(nodes.iter().copied().collect());
         found.push(occurrence(pocket, nodes, &constituent));
     }
-    for r in one_ended_regions(ctx)
+    for r in one_ended_regions(ctx, &mut refusals)
         .into_iter()
         .chain(floor_seeded_regions(ctx))
     {
@@ -593,13 +606,53 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<PrismaticPocket>> {
         found.push(occurrence(pocket, &r.walls, &r.constituent));
     }
     found.sort_by(|a, b| a.record.order(&b.record));
-    found
-}
+    super::discovery::Analysis {
+        accepted: found,
+        refusals,
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn disconnected_wall_cycles_are_a_visible_pocket_refusal() {
+        let part = super::super::discovery::tests::island_pocket();
+        assert!(part.solid_is_geometrically_valid(0));
+        let ctx = Context::new(&part);
+        let walls: Vec<_> = (6..10).chain(11..15).collect();
+        let members = walls.iter().copied().collect();
+        assert!(cross_section(&ctx, &walls, &members, 2).is_none());
+        let analysis = analyse(&ctx);
+        assert!(analysis.accepted.is_empty());
+        assert_eq!(analysis.refusals.len(), 1);
+        assert_eq!(analysis.refusals[0].faces, (5..15).collect::<Vec<_>>());
+        let recognised = crate::correspondence::recognise(&part);
+        let document = crate::recognition::document(&recognised, part.faces.len());
+        let refusal = document
+            .records
+            .iter()
+            .find(|r| r.record_type == "PrismaticPocketRefusal")
+            .unwrap();
+        assert!(refusal.is_refusal());
+        assert_eq!(refusal.faces, analysis.refusals[0].faces);
+        assert!(
+            recognised
+                .fingerprints
+                .features
+                .iter()
+                .all(|f| !f.family.ends_with("refusals"))
+        );
+        assert!(
+            document
+                .face_accounting
+                .as_ref()
+                .unwrap()
+                .iter()
+                .any(|f| matches!(f, crate::recognition::FaceAccounting::Refused { .. }))
+        );
+    }
 
     #[test]
     fn an_intact_rectangular_floor_survives_an_intersected_mouth() {

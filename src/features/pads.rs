@@ -22,6 +22,7 @@ use std::collections::BTreeSet;
 use serde::{Deserialize, Serialize};
 
 use super::Context;
+use super::discovery::{Analysis, DiscoveryRefusal};
 use super::effective_surfaces::EffectiveFaces;
 use super::evidence::{self, Occurrence, common_valid_solid};
 use super::experimental_geometry::{GeometryGraph, SurfaceKind};
@@ -32,6 +33,10 @@ use super::solid_properties;
 use crate::kernel::brep::Part;
 use crate::kernel::geom::{Bounds, V3};
 use crate::kernel::py;
+
+/// Per-candidate failures retained by analysis; legacy checked entry points still return
+/// the first error, while the aggregate publishes every refusal and independent success.
+type Refusals = Vec<(PadError, DiscoveryRefusal)>;
 
 /// `_TOL`: a minimum-evidence threshold, deliberately absolute (Python's ADR 0008); also the
 /// pad-footprint minimum on both in-plane axes.
@@ -409,10 +414,13 @@ impl Solid<'_, '_, '_> {
                 wall_role(&walls, along, pos, across, *top.level, tol, axis, axis_sign)
             };
             let roles = [
-                role(u_axis, top.u.0, *top.v),
-                role(u_axis, top.u.1, *top.v),
-                role(v_axis, top.v.0, *top.u),
-                role(v_axis, top.v.1, *top.u),
+                // Face roles are geometric facts, measured before publication. Rounding a
+                // narrow footprint first can put an opposite wall within the fit tolerance
+                // of both bounds and let its higher base steal both roles.
+                role(u_axis, top.u.raw().0, *top.v.raw()),
+                role(u_axis, top.u.raw().1, *top.v.raw()),
+                role(v_axis, top.v.raw().0, *top.u.raw()),
+                role(v_axis, top.v.raw().1, *top.u.raw()),
             ];
             let Some(roles) = roles.into_iter().collect::<Option<Vec<_>>>() else {
                 continue;
@@ -487,7 +495,7 @@ impl Solid<'_, '_, '_> {
 
     /// `_recognise_blended_rectangular_pads_one`: one complete four-corner convex blend cycle
     /// around a rectangular top.
-    fn blended(&self, axis: usize, axis_sign: i32) -> Result<Vec<Proposal>, PadError> {
+    fn blended(&self, axis: usize, axis_sign: i32, refusals: &mut Refusals) -> Vec<Proposal> {
         let tol = self.tol;
         let sign = f64::from(axis_sign);
         let geometry = self.geometry;
@@ -513,7 +521,7 @@ impl Solid<'_, '_, '_> {
         let pick = |s: (f64, f64), end: usize| if end == 1 { s.1 } else { s.0 };
         let mut eligible: Option<Vec<usize>> = None;
         let mut proposals = Vec::new();
-        for planar in &self.planar {
+        'tops: for planar in &self.planar {
             let top_face = planar.face;
             let (top_lo, top_hi) = planar.bounds[axis];
             let top_at = Placed::new((top_lo + top_hi) / 2.0, Grid::Decimals(3));
@@ -663,11 +671,30 @@ impl Solid<'_, '_, '_> {
                 continue;
             }
 
-            let bridges = geometry
-                .collapsed_bridges(&selected)
-                .map_err(PadError::Collapse)?;
+            let candidate_faces: BTreeSet<_> = std::iter::once(top_face)
+                .chain(ordered)
+                .chain(
+                    selected
+                        .iter()
+                        .flat_map(|&i| facts[i].blend_faces.iter().copied()),
+                )
+                .collect();
+            let mut refuse = |error| {
+                refusals.push((
+                    error,
+                    DiscoveryRefusal::new(error, candidate_faces.iter().copied()),
+                ))
+            };
+            let bridges = match geometry.collapsed_bridges(&selected) {
+                Ok(bridges) => bridges,
+                Err(message) => {
+                    refuse(PadError::Collapse(message));
+                    continue;
+                }
+            };
             if bridges.len() != 4 {
-                return Err(PadError::NoUniqueBridges);
+                refuse(PadError::NoUniqueBridges);
+                continue 'tops;
             }
             for &i in &selected {
                 let chain = &facts[i];
@@ -677,7 +704,8 @@ impl Solid<'_, '_, '_> {
                     .filter(|b| pair(b.supports.0, b.supports.1) == wanted)
                     .collect();
                 let [bridge] = matching.as_slice() else {
-                    return Err(PadError::NoUniqueBridge);
+                    refuse(PadError::NoUniqueBridge);
+                    continue 'tops;
                 };
                 let mut faces: Vec<usize> = chain
                     .blend_faces
@@ -693,7 +721,8 @@ impl Solid<'_, '_, '_> {
                     keys
                 };
                 if bridge.faces != faces || keys(&bridge.boundary) != keys(&chain.boundary) {
-                    return Err(PadError::LostProvenance);
+                    refuse(PadError::LostProvenance);
+                    continue 'tops;
                 }
             }
 
@@ -706,7 +735,7 @@ impl Solid<'_, '_, '_> {
                 walls: ordered.map(|f| vec![f]),
             });
         }
-        Ok(proposals)
+        proposals
     }
 }
 
@@ -773,7 +802,8 @@ fn occurrences<'a>(
     part: &'a Part,
     effective: &EffectiveFaces<'_, 'a>,
     opts: &PadOptions,
-) -> Result<Vec<(RaisedPad, Vec<Proposal>)>, PadError> {
+    refusals: &mut Refusals,
+) -> Vec<(RaisedPad, Vec<Proposal>)> {
     let tol = opts.tol.unwrap_or(TOL);
     let geometry = GeometryGraph::new(part);
     let mut found: Vec<(RaisedPad, Vec<Proposal>)> = Vec::new();
@@ -791,7 +821,7 @@ fn occurrences<'a>(
         for (axis, _) in AXES {
             for axis_sign in [1, -1] {
                 proposals.extend(reading.sharp(axis, axis_sign));
-                proposals.extend(reading.blended(axis, axis_sign)?);
+                proposals.extend(reading.blended(axis, axis_sign, refusals));
             }
         }
         let mut by_record: Vec<(RaisedPad, Vec<Proposal>)> = Vec::new();
@@ -805,7 +835,7 @@ fn occurrences<'a>(
     }
     // Stable: equal records of different solids stay in solid order.
     found.sort_by(|a, b| record_order(&a.0, &b.0));
-    Ok(found)
+    found
 }
 
 internal_entry! {
@@ -816,8 +846,12 @@ pub fn recognise_rectangular_pads(
     opts: &PadOptions,
 ) -> Result<Vec<RaisedPad>, PadError> {
     let ctx = Context::new(part);
-    Ok(occurrences(part, &EffectiveFaces::new(&ctx), opts)?
-        .into_iter()
+    let mut refusals = Vec::new();
+    let found = occurrences(part, &EffectiveFaces::new(&ctx), opts, &mut refusals);
+    if let Some((error, _)) = refusals.first() {
+        return Err(*error);
+    }
+    Ok(found.into_iter()
         .map(|(record, _)| record)
         .collect())
 }
@@ -833,33 +867,58 @@ pub fn discover(
     ctx: &Context<'_>,
     opts: &PadOptions,
 ) -> Result<Vec<Occurrence<RaisedPad>>, PadError> {
+    let (analysis, error) = analyse_checked(ctx, opts);
+    match error {
+        Some(error) => Err(error),
+        None => Ok(analysis.accepted),
+    }
+}
+}
+
+pub(crate) fn analyse(ctx: &Context<'_>, opts: &PadOptions) -> Analysis<RaisedPad> {
+    analyse_checked(ctx, opts).0
+}
+
+fn analyse_checked(
+    ctx: &Context<'_>,
+    opts: &PadOptions,
+) -> (Analysis<RaisedPad>, Option<PadError>) {
     let part = ctx.part;
     let effective = EffectiveFaces::new(ctx);
     let mut used_tops: BTreeSet<usize> = BTreeSet::new();
     let mut found = Vec::new();
-    for (record, alternatives) in occurrences(part, &effective, opts)? {
+    let mut refusals = Vec::new();
+    let candidates = occurrences(part, &effective, opts, &mut refusals);
+    'candidates: for (record, alternatives) in candidates {
+        let faces: BTreeSet<_> = alternatives.iter().flat_map(Proposal::faces).collect();
+        let mut refuse =
+            |error| refusals.push((error, DiscoveryRefusal::new(error, faces.iter().copied())));
         let mut signatures: Vec<[usize; 5]> = Vec::new();
         for proposal in &alternatives {
             let mut signature = [proposal.top; 5];
             for (k, faces) in proposal.walls.iter().enumerate() {
                 let distinct: BTreeSet<usize> = faces.iter().copied().collect();
                 let &[face] = distinct.iter().collect::<Vec<_>>().as_slice() else {
-                    return Err(PadError::AmbiguousRole);
+                    refuse(PadError::AmbiguousRole);
+                    continue 'candidates;
                 };
                 signature[k + 1] = *face;
             }
             if signature.iter().collect::<BTreeSet<_>>().len() != 5 {
-                return Err(PadError::NotFiveFaces);
+                refuse(PadError::NotFiveFaces);
+                continue 'candidates;
             }
             if !signatures.contains(&signature) {
                 signatures.push(signature);
             }
         }
         let [signature] = signatures.as_slice() else {
-            return Err(PadError::AmbiguousOccurrences);
+            refuse(PadError::AmbiguousOccurrences);
+            continue 'candidates;
         };
         if used_tops.contains(&signature[0]) {
-            return Err(PadError::SharedTop);
+            refuse(PadError::SharedTop);
+            continue 'candidates;
         }
         let mut ordered = signature.to_vec();
         ordered.sort_unstable();
@@ -868,7 +927,8 @@ pub fn discover(
             if evidence::local_degradation() {
                 continue;
             }
-            return Err(PadError::NoValidSolid);
+            refuse(PadError::NoValidSolid);
+            continue 'candidates;
         }
         used_tops.insert(signature[0]);
         let top = signature[0];
@@ -876,7 +936,8 @@ pub fn discover(
             .iter()
             .any(|&f| effective.surface_use(f, f == top).is_err())
         {
-            return Err(PadError::ProvenanceUnavailable);
+            refuse(PadError::ProvenanceUnavailable);
+            continue 'candidates;
         }
         found.push(Occurrence {
             record,
@@ -884,6 +945,33 @@ pub fn discover(
             context: Vec::new(),
         });
     }
-    Ok(found)
+    let error = refusals.first().map(|(error, _)| *error);
+    (
+        Analysis {
+            accepted: found,
+            refusals: refusals.into_iter().map(|(_, refusal)| refusal).collect(),
+        },
+        error,
+    )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn narrow_pad_wall_roles_use_measured_footprint() {
+        let part = super::super::discovery::tests::narrow_pad();
+        assert!(part.solid_is_geometrically_valid(0));
+        // Exercise the aggregate first: previously its pad evidence error became a panic.
+        let features = super::super::recognise(&part);
+        assert_eq!(features.pads.len(), 1);
+        assert!(features.discovery_refusals.is_empty());
+        let found = discover(&Context::new(&part), &PadOptions::default()).unwrap();
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].defining, vec![6, 7, 8, 9, 10]);
+        assert_eq!(found[0].record.axis, "z");
+        assert_eq!(found[0].record.direction, 1);
+        assert_eq!((*found[0].record.x0, *found[0].record.x1), (0.123, 0.323));
+    }
 }
