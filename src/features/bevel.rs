@@ -196,6 +196,15 @@ pub(crate) fn transverse_wall_corner(
     transverse_wall_corner_where(part, face, centre, run, |_, _| true)
 }
 
+/// Contact cannot require more precision than the STEP input or kernel coordinates.
+pub(crate) fn cylinder_support_tolerance(part: &Part) -> f64 {
+    // The STEP reader converts its declared modelling precision to millimetres. Never
+    // demand more accurate contact than the input states, or less than kernel coordinates.
+    part.file_uncertainty()
+        .unwrap_or(crate::kernel::geom::COORD_FLOOR)
+        .max(crate::kernel::geom::COORD_FLOOR)
+}
+
 /// A cylinder's supports must be tangent before they can compete. A transverse cut/end
 /// plane that is not tangent does not propose another rounded corner (#120).
 pub(crate) fn tangent_cylinder_corner(
@@ -209,7 +218,7 @@ pub(crate) fn tangent_cylinder_corner(
     transverse_wall_corner_where(part, face, centre, run, |point, normal| {
         (crate::kernel::geom::dot(crate::kernel::geom::sub(origin, point), normal).abs() - radius)
             .abs()
-            <= super::policy::length_tol(radius, 1e-7)
+            <= cylinder_support_tolerance(part)
     })
 }
 

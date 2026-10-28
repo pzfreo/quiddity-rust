@@ -500,6 +500,7 @@ pub(crate) fn inventory_in(
     let found_holes = skip_unproved(part, found_holes);
     let mut defining = Kept {
         part,
+        claimed: Defining::new(),
         defining: Defining::new(),
         constituent: Defining::new(),
         evidence_status: BTreeMap::new(),
@@ -513,7 +514,8 @@ pub(crate) fn inventory_in(
         skip_unproved(part, slots::discover(ctx)),
     );
     let pocket_occurrences = skip_unproved(part, pockets::discover(ctx));
-    let thin_wall_bodies = kept(&mut defining, "thin_wall_bodies", thin_walls::discover(ctx));
+    let thin_wall_bodies =
+        kept_shared(&mut defining, "thin_wall_bodies", thin_walls::discover(ctx));
     let mut discovery_refusals = BTreeMap::new();
     let passages = match passages::discover(ctx) {
         Ok(found) => found,
@@ -570,7 +572,7 @@ pub(crate) fn inventory_in(
             thread_analysis.threads.clone(),
         )
     };
-    let freeform_surfaces = kept(
+    let freeform_surfaces = kept_shared(
         &mut defining,
         "freeform_surfaces",
         freeform_surfaces::discover(ctx, &thin_wall_bodies)
@@ -604,18 +606,13 @@ pub(crate) fn inventory_in(
     if !prismatic_analysis.refusals.is_empty() {
         discovery_refusals.insert("prismatic_pocket_refusals", prismatic_analysis.refusals);
     }
-    let physical = Features {
+    let mut physical = Features {
         discovery_refusals,
         run_mode: if evidence::local_degradation() {
             evidence::RunMode::LocallyDegraded
         } else {
             evidence::RunMode::Strict
         },
-        fillets: kept(
-            &mut defining,
-            "fillets",
-            skip_unproved(part, fillets::discover(ctx, &Default::default())),
-        ),
         chamfers: kept(
             &mut defining,
             "chamfers",
@@ -672,7 +669,7 @@ pub(crate) fn inventory_in(
                 kept(&mut defining, "annular_grooves", found)
             }
         },
-        plates: kept(&mut defining, "plates", plate_occurrences),
+        plates: kept_shared(&mut defining, "plates", plate_occurrences),
         round_bottom_blind_slots: kept(
             &mut defining,
             "round_bottom_blind_slots",
@@ -706,8 +703,8 @@ pub(crate) fn inventory_in(
             "edge_open_prismatic_recesses",
             skip_unproved(part, edge_open_prismatic::discover(ctx)),
         ),
-        blends: kept(&mut defining, "blends", blends::discover(ctx)),
-        sheet_metal_bodies: kept(
+        blends: kept_shared(&mut defining, "blends", blends::discover(ctx)),
+        sheet_metal_bodies: kept_shared(
             &mut defining,
             "sheet_metal_bodies",
             sheet_metal::discover(ctx),
@@ -739,7 +736,7 @@ pub(crate) fn inventory_in(
         modelled_threads,
         modelled_thread_refusals: thread_analysis.refusals.clone(),
         polygonal_bosses: kept(&mut defining, "polygonal_bosses", boss_analysis.accepted),
-        polygonal_stock: kept(
+        polygonal_stock: kept_shared(
             &mut defining,
             "polygonal_stock",
             polygonal_bosses::discover_stock(ctx, &Default::default()),
@@ -759,13 +756,56 @@ pub(crate) fn inventory_in(
         section_recess_refusals: Vec::new(),
         section_recess_patterns: Vec::new(),
         section_recess_refusal: None,
+        fillets: kept_shared(
+            &mut defining,
+            "fillets",
+            skip_unproved(part, fillets::discover(ctx, &Default::default())),
+        ),
         defining: defining.defining,
         evidence_status: defining.evidence_status,
     };
     // The thin-wall rule reads the risers this inventory carries, in its order.
     let mut evidence = evidence;
     evidence.risers = physical.defining["risers"].clone();
-    let dispositions = reconcile::reconcile(&physical, &evidence)?;
+    let mut dispositions = reconcile::reconcile(&physical, &evidence)?;
+    // Specific accepted features reserve their defining faces before edge rounds.
+    // Rejected proposals cannot suppress a fillet. Body classifications and generic
+    // surface fallbacks use kept_shared; derived patterns inherit their members' claims.
+    let rejected: BTreeSet<_> = dispositions
+        .iter()
+        .filter(|d| d.outcome == reconcile::Outcome::Rejected)
+        .map(|d| {
+            (
+                d.candidate.family.field().unwrap_or("risers"),
+                d.candidate.index,
+            )
+        })
+        .collect();
+    let claimed: BTreeSet<_> = defining
+        .claimed
+        .iter()
+        .flat_map(|(family, records)| {
+            records
+                .iter()
+                .enumerate()
+                .filter(|(i, _)| !rejected.contains(&(*family, *i)))
+                .flat_map(|(_, faces)| faces.iter().copied())
+        })
+        .collect();
+    let gone: BTreeSet<_> = physical.defining["fillets"]
+        .iter()
+        .enumerate()
+        .filter(|(_, faces)| faces.iter().any(|f| claimed.contains(f)))
+        .map(|(i, _)| i)
+        .collect();
+    if !gone.is_empty() {
+        drop_rejected(&mut physical.fillets, &gone);
+        drop_rejected(physical.defining.get_mut("fillets").unwrap(), &gone);
+        drop_rejected(physical.evidence_status.get_mut("fillets").unwrap(), &gone);
+        drop_rejected(defining.constituent.get_mut("fillets").unwrap(), &gone);
+        // A suppressed fillet cannot defeat a blend; indices follow the filtered records.
+        dispositions = reconcile::reconcile(&physical, &evidence)?;
+    }
     Ok(Some(Inventory {
         physical,
         evidence,
@@ -777,6 +817,7 @@ pub(crate) fn inventory_in(
 /// Defining and constituent faces by family field name, then record.
 struct Kept<'p> {
     part: &'p Part,
+    claimed: Defining,
     defining: Defining,
     constituent: Defining,
     evidence_status: BTreeMap<&'static str, Vec<evidence::EvidenceStatus>>,
@@ -785,6 +826,14 @@ struct Kept<'p> {
 /// The records of a family's occurrences, their defining and constituent faces kept under the
 /// family's name.
 fn kept<R>(kept: &mut Kept<'_>, family: &'static str, found: Vec<Occurrence<R>>) -> Vec<R> {
+    kept.claimed
+        .insert(family, found.iter().map(|o| o.defining.clone()).collect());
+    kept_shared(kept, family, found)
+}
+
+/// Whole-body classifications and generic surface fallbacks retain evidence without
+/// reserving their faces against a specific feature discovered later.
+fn kept_shared<R>(kept: &mut Kept<'_>, family: &'static str, found: Vec<Occurrence<R>>) -> Vec<R> {
     kept.evidence_status.insert(
         family,
         found

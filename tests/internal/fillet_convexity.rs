@@ -142,6 +142,45 @@ fn truncated_sm_hanger_bend_skins_keep_sheet_ownership_without_false_fillets() {
     }
 }
 
+/// #120: a proved round does not replace a more specific accepted defining claim.
+/// Its generic blend must remain when the fillet proposal is suppressed.
+#[test]
+fn specific_defining_claims_keep_gusset_and_pattern_rounds_out_of_fillets() {
+    for (file, faces, family) in [
+        (
+            "b9b085119521ca83.step.gz",
+            &[2, 6, 12, 13][..],
+            "gusset_ribs",
+        ),
+        ("76434c8233b191c6.step.gz", &[2, 6][..], "gusset_ribs"),
+        ("9d0b60cef180d03e.step.gz", &[2, 6][..], "gusset_ribs"),
+        ("a96691391681646d.step.gz", &[2][..], "gusset_ribs"),
+        (
+            "outer_profiles/parts/9bf8ce472067c7ac.step.gz",
+            &[2, 3, 7][..],
+            "circular_face_patterns",
+        ),
+    ] {
+        let part = read_step_file(&common::fixtures().join("captured").join(file)).unwrap();
+        let reading = correspondence::recognise(&part);
+        let defining = &reading.features.defining;
+        for face in faces {
+            assert!(
+                defining[family].iter().any(|d| d.contains(face)),
+                "{file}: {face}"
+            );
+            assert!(
+                defining["blends"].iter().any(|d| d.contains(face)),
+                "{file}: {face}"
+            );
+            assert!(
+                defining["fillets"].iter().all(|d| !d.contains(face)),
+                "{file}: {face}"
+            );
+        }
+    }
+}
+
 // #89: retain the exact face/radius/non-fillet guard in the shared motion readings.
 fn cgb202_guard(part: &Part, reading: &Recognition) {
     for face in [1215, 1219] {

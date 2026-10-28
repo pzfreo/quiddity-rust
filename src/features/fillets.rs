@@ -9,7 +9,7 @@ use std::f64::consts::PI;
 use serde::{Deserialize, Serialize};
 
 use super::Context;
-use super::bevel::tangent_cylinder_corner;
+use super::bevel::{cylinder_support_tolerance, tangent_cylinder_corner};
 use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::placed::{Grid, Placed};
@@ -191,7 +191,7 @@ fn prismatic(
     // The planes must be tangent to this cylinder, not unrelated nearby walls.
     if corner.normals.iter().any(|&n| {
         (geom::dot(geom::sub(frame.origin, corner.point), n).abs() - radius).abs()
-            > super::policy::length_tol(radius, 1e-7)
+            > cylinder_support_tolerance(part)
     }) || !sweep_matches_walls(u1 - u0, corner.normals)
     {
         return None;

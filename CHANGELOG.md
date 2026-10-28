@@ -31,6 +31,10 @@ in [docs/alpha1.md](docs/alpha1.md).
   existing co-ownership of faces when a round becomes a fillet.
   Sheet-metal bend skins previously misread as fillets by the axis-aligned path's missing
   tangency check are no longer fillets; their sheet-metal classification remains.
+  NIST CTC-05's four R203.2 cylinders with grossly non-tangent walls are also no longer
+  fillets. Support tangency respects the STEP file's modelling precision, bounded below
+  by the kernel coordinate floor. Accepted defining claims take precedence over new
+  fillets, retaining the existing gusset and circular-pattern claims on rounded faces.
 
 ## 0.2.1 (2026-10-27)
 

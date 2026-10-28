@@ -306,8 +306,11 @@ fingerprint `faces`, area-weighted `position` and `neighbourhood` change within 
 A partial cylinder rounding a convex edge between two tangent planar walls is a fillet
 at any angle and in any direction. Principal and oblique runs use the same intrinsic
 proof: two distinct nonparallel transverse walls, each tangent within the existing
-`length_tol(radius, 1e-7)`, an outward cylindrical material side, and an empty-space probe
+coordinate tolerance, an outward cylindrical material side, and an empty-space probe
 towards the round from the virtual sharp corner. Radius limits are unchanged.
+The contact tolerance is `max(part.file_uncertainty(), COORD_FLOOR)`, with
+`COORD_FLOOR` (0.000001 mm) as the fallback for files without a stated precision.
+The STEP reader supplies the file uncertainty in millimetres; CTC-03 states 0.00002 mm.
 
 The cylindrical sweep must be greater than zero and at most 135° and match 180° minus
 the interior wall angle (the turn between outward wall normals). Direction agreement
@@ -346,3 +349,11 @@ as a fillet. For example, sm-hanger's R7 faces 73 and 76 remain the outer skins 
 sheet-metal bends 6 and 7 (inner R3, face pairs 73/75 and 76/85), but are no longer
 fillets: each has a transverse wall 4 mm away from tangency and sweeps only 25.38°
 between perpendicular walls.
+CTC-05's R203.2 faces 14, 15, 168 and 169 also fail tangency, by 2.54 and 133.35 mm;
+they remain unexplained rather than carrying a false fillet claim.
+
+Individual features reserve their accepted defining faces before fillets. The inventory
+uses its `kept` evidence and reconciliation dispositions, so rejected proposals do not
+reserve faces and a suppressed fillet cannot suppress its generic blend. Whole-body
+classifications and generic surface fallbacks use shared claims; derived patterns and
+section recesses retain their existing publication paths.
