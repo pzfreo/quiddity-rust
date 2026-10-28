@@ -109,6 +109,24 @@ internal. The published registry has 45 families; raw recogniser APIs retain the
 internal types. Intrinsic fingerprints use exact-motion working measurements, with
 axes resolved at extraction; no provenance-frame repair is needed by correspondence.
 
+## Spotfaces and counterbores (For #118)
+
+A near-side cylindrical step is a `spotface` only when its depth is at most 1.0 mm
+and strictly below 0.2 times its diameter; otherwise it is a `cbore`. The absolute
+limit is in quiddity's internal millimetres, like ADR 0008's other minimum-evidence
+thresholds: a spotface only cleans up a surface; deeper recesses are functional.
+Both comparisons use the published measurements, including depth rounded to two
+decimal places, preserving the ratio test's existing rounding policy. Thus a raw
+1.004 mm depth publishes as 1.00 mm and can be a spotface; 1.006 mm publishes as
+1.01 mm and is a counterbore. Depth exactly 1.0 mm qualifies only below the ratio
+limit; equality at the ratio limit is a counterbore.
+
+Recognition schema 6 and fingerprint format 3 are unchanged: the record shape and
+trait meanings are unchanged. Re-recognise affected parts; their hole fingerprints
+change within v3 because the existing `spotface` traits become `cbore` traits.
+Hole-pattern member records carry the same classification. Raised collars remain
+bosses, not additional hole steps.
+
 ## Slot precision correction (for #92)
 
 The plain recess recogniser retains its legacy two-decimal positions, for stable

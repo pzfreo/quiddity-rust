@@ -33,8 +33,12 @@ use crate::kernel::py;
 const SAME_DIAMETER_FRAC: f64 = 1e-4;
 /// Smallest diameter the proportional test divides by.
 const DIAMETER_FLOOR: f64 = 1e-9;
-/// A step shallower than this fraction of its diameter is a spotface, deeper a counterbore.
+/// A spotface must be shallower than this fraction of its diameter and at most
+/// SPOTFACE_MAX_DEPTH_MM deep. Both tests use the published, rounded measurements.
 const SPOTFACE_MAX_RATIO: f64 = 0.2;
+/// Absolute millimetre limit, like ADR 0008's other minimum-evidence thresholds (#118):
+/// a spotface only cleans up a surface; deeper recesses are functional counterbores.
+const SPOTFACE_MAX_DEPTH_MM: f64 = 1.0;
 
 /// A cylindrical enlargement at a hole mouth.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -436,7 +440,9 @@ fn near_side_steps(steps: &[Segment]) -> (Option<CounterBore>, Option<CounterBor
             diameter: key,
             depth: policy::round_measurement(hi - lo, 2),
         };
-        let slot = if spec.depth < SPOTFACE_MAX_RATIO * spec.diameter {
+        let slot = if spec.depth <= SPOTFACE_MAX_DEPTH_MM
+            && spec.depth < SPOTFACE_MAX_RATIO * spec.diameter
+        {
             &mut spotface
         } else {
             &mut cbore
@@ -751,4 +757,207 @@ pub(crate) fn claim_drill_point(
     faces.extend(tips);
     faces.sort_unstable();
     faces.dedup();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::kernel::brep::{Edge, Face, Loop, Solid};
+    use crate::kernel::geom::{Curve, Frame};
+    use crate::kernel::step::IDENTITY;
+    use std::f64::consts::TAU;
+
+    #[test]
+    fn spotface_depth_and_ratio_boundaries_use_published_measurements() {
+        for (diameter, raw_depth, published_depth, is_spotface) in [
+            (16.4, 1.0, 1.0, true),
+            (16.4, 1.01, 1.01, false),
+            (40., 0.5, 0.5, true),
+            (4., 0.9, 0.9, false),
+            (4., 0.8, 0.8, false), // Ratio equality is excluded.
+            (4., 0.79, 0.79, true),
+            (16.4, 1.004, 1.0, true),
+            (16.4, 1.006, 1.01, false),
+            (4., 0.796, 0.8, false), // Ratio also reads rounded depth.
+            (4., 0.794, 0.79, true),
+        ] {
+            let step = Segment {
+                solid: 0,
+                diameter,
+                axis: 2,
+                axis_point: [0.; 3],
+                direction: [0., 0., 1.],
+                s_lo: 0.,
+                s_hi: raw_depth,
+                external: false,
+                faces: vec![7],
+            };
+            let (cbore, spotface, faces) = near_side_steps(&[step]);
+            let spec = Some(CounterBore {
+                diameter,
+                depth: published_depth,
+            });
+            assert_eq!(spotface, if is_spotface { spec.clone() } else { None });
+            assert_eq!(cbore, if is_spotface { None } else { spec });
+            assert_eq!(faces, [7]);
+        }
+    }
+
+    /// Independently built turned ring: diameter 10 through, diameter 16.4 x 1.4
+    /// recess at each end, with diameter 11.2 collars rising 0.7 from each floor.
+    /// Only these analytic dimensions are shared with the #118 example; no STEP is read.
+    fn collared_recesses() -> Part {
+        let frame = |z| Frame {
+            origin: [0., 0., z],
+            x: [1., 0., 0.],
+            y: [0., 1., 0.],
+            z: [0., 0., 1.],
+        };
+        // Walk the material boundary, starting up the outside then into the top mouth.
+        let rings = [
+            (9.5, 0.),
+            (9.5, 29.),
+            (8.2, 29.),
+            (8.2, 27.6),
+            (5.6, 27.6),
+            (5.6, 28.3),
+            (5., 28.3),
+            (5., 0.7),
+            (5.6, 0.7),
+            (5.6, 1.4),
+            (8.2, 1.4),
+            (8.2, 0.),
+        ];
+        let mut edges: Vec<_> = rings
+            .iter()
+            .enumerate()
+            .map(|(i, &(radius, z))| {
+                let curve = Curve::Circle {
+                    frame: frame(z),
+                    radius,
+                };
+                Edge {
+                    start: curve.value(0.),
+                    end: curve.value(0.),
+                    samples: (0..=32)
+                        .map(|j| curve.value(TAU * j as f64 / 32.))
+                        .collect(),
+                    curve,
+                    vertices: (i, i),
+                    same_sense: true,
+                }
+            })
+            .collect();
+        let mut faces = Vec::new();
+        for (i, &(radius, z)) in rings.iter().enumerate() {
+            let j = (i + 1) % rings.len();
+            let (next_radius, next_z) = rings[j];
+            let (surface, reversed, boundaries) = if radius == next_radius {
+                let (bottom, top) = if z < next_z { (i, j) } else { (j, i) };
+                let seam = edges.len();
+                let (start, end) = (edges[bottom].start, edges[top].start);
+                edges.push(Edge {
+                    curve: Curve::Line {
+                        origin: start,
+                        dir: [0., 0., 1.],
+                    },
+                    start,
+                    end,
+                    vertices: (bottom, top),
+                    same_sense: true,
+                    samples: vec![start, end],
+                });
+                (
+                    Surface::Cylinder {
+                        frame: frame(0.),
+                        radius,
+                    },
+                    z > next_z,
+                    vec![vec![
+                        (bottom, z < next_z),
+                        (seam, true),
+                        (top, z > next_z),
+                        (seam, false),
+                    ]],
+                )
+            } else {
+                assert_eq!(z, next_z);
+                let reversed = radius < next_radius;
+                (
+                    Surface::Plane { frame: frame(z) },
+                    reversed,
+                    vec![vec![(i, true)], vec![(j, false)]],
+                )
+            };
+            faces.push(Face {
+                surface,
+                reversed,
+                solid: Some(0),
+                pcurves: Vec::new(),
+                loops: boundaries
+                    .into_iter()
+                    .map(|edges| Loop {
+                        edges,
+                        vertex: None,
+                    })
+                    .collect(),
+            });
+        }
+        Part::new(
+            faces,
+            edges,
+            vec![Solid {
+                faces: (0..rings.len()).collect(),
+            }],
+        )
+    }
+
+    #[test]
+    fn collared_recesses_are_counterbores_and_collars_stay_bosses() {
+        let base = collared_recesses();
+        assert!(base.solid_is_geometrically_valid(0));
+        let (s, c) = 0.37_f64.sin_cos();
+        for motion in [
+            IDENTITY,
+            [[c, 0., s, 123.456], [0., 1., 0., -78.9], [-s, 0., c, 41.3]],
+        ] {
+            let part = base.transformed(&motion).unwrap();
+            let found = discover(&Context::new(&part), &[]);
+            assert_eq!(found.len(), 1);
+            let hole = &found[0].record;
+            assert_eq!(
+                (hole.diameter, hole.depth, hole.bottom),
+                (10., 27.6, Bottom::Through)
+            );
+            assert_eq!(
+                hole.cbore,
+                Some(CounterBore {
+                    diameter: 16.4,
+                    depth: 1.4
+                })
+            );
+            assert!(hole.spotface.is_none());
+            let mut faces = found[0].defining.clone();
+            faces.sort_unstable();
+            assert_eq!(faces, [2, 6, 10], "bore and both recess walls");
+            let recognition = crate::correspondence::recognise(&part);
+            let doc = crate::recognition::document(&recognition, part.faces.len());
+            let holes: Vec<_> = doc.records.iter().filter(|r| r.family == "holes").collect();
+            assert_eq!(holes.len(), 1);
+            assert_eq!(
+                holes[0].parameters["cbore"],
+                serde_json::json!({"diameter":16.4,"depth":1.4})
+            );
+            assert!(holes[0].parameters["spotface"].is_null());
+            let collars: Vec<_> = doc
+                .records
+                .iter()
+                .filter(|r| r.family == "bosses" && r.parameters["diameter"] == 11.2)
+                .collect();
+            assert_eq!(collars.len(), 2);
+            for collar in collars {
+                assert_eq!(collar.parameters["height"], 0.7);
+            }
+        }
+    }
 }

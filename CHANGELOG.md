@@ -13,6 +13,13 @@ in [docs/alpha1.md](docs/alpha1.md).
   parts, the JSON-lines service and new AP242 export with `brep --pmi`. Fusion has no imported
   PMI; `pmi read` returns an empty document and `pmi write` requires STEP input.
 
+### Changed
+
+- A near-side hole step is a spotface only at depth <= 1.0 mm and depth < 0.2 times
+  its diameter, using the published rounded measurements; deeper functional recesses
+  are counterbores. For #118. Recognition schema `/6` and fingerprint format `/3`
+  stay unchanged; re-recognised affected holes change fingerprint traits within v3.
+
 ### Fixed
 
 - Recognition no longer panics on disconnected pocket wall cycles or narrow pad tops;
