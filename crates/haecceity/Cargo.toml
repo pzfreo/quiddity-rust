@@ -10,7 +10,15 @@ readme = "README.md"
 include = ["/src", "/README.md", "/LICENSE", "/NOTICE"]
 description = "An exact B-rep geometry kernel in pure Rust: STEP import, rays, classification, volumes and surface recovery."
 
+[features]
+default = []
+f3d = ["dep:cadmpeg-codec-f3d", "dep:cadmpeg-codec-step", "dep:cadmpeg-core", "dep:cadmpeg-ir"]
+
 [dependencies]
+cadmpeg-codec-f3d = { version = "=0.6.7", optional = true }
+cadmpeg-codec-step = { version = "=0.6.7", optional = true }
+cadmpeg-core = { version = "=0.6.7", optional = true }
+cadmpeg-ir = { version = "=0.6.7", optional = true }
 flate2 = "1.1.10"
 i_overlay = "8.1.2"
 spade = "2.15.1"

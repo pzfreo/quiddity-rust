@@ -61,6 +61,7 @@ use quiddity::kernel::p21;
 use quiddity::kernel::pmi::write::{Mode, PresentationPolicy};
 use quiddity::kernel::pmi::{self, PartId, PartPmi, Snapshot};
 use quiddity::kernel::step::{PartDefinition, read_part_definitions};
+use quiddity::part_input;
 use quiddity::pmi_json::{self, Binding};
 use quiddity::serve::{self, Failure};
 
@@ -77,7 +78,8 @@ const USAGE: &str = "usage: quiddity <file.step>
 
 `quiddity <file.step>` prints JSON: each family's records, their `fingerprints`, and the
 versioned recognition `document`. `quiddity serve` answers JSON-lines requests on stdin
-(`recognise`, `correspond`), one response line each on stdout.";
+(`recognise`, `correspond`), one response line each on stdout.
+With `--features f3d`, part inputs also accept .f3d (geometry only).";
 
 const COMMANDS: [&str; 5] = ["correspond", "serve", "parts", "pmi", "brep"];
 
@@ -180,28 +182,54 @@ fn gzipped(path: &str) -> bool {
     path.to_lowercase().ends_with(".gz")
 }
 
-/// A STEP file's text, gunzipped when the name ends in `.gz`.
-fn step_bytes(path: &str) -> Result<Vec<u8>, String> {
+/// One source snapshot, with its STEP representation and original Fusion binding.
+struct Input {
+    step: Vec<u8>,
+    fusion: Option<Vec<u8>>,
+}
+
+impl Input {
+    fn binding_bytes(&self) -> &[u8] {
+        self.fusion.as_deref().unwrap_or(&self.step)
+    }
+}
+
+/// Geometry as STEP, gunzipped for STEP and converted for Fusion.
+fn step_bytes(path: &str) -> Result<Input, String> {
     let raw = std::fs::read(path).map_err(|e| format!("{path}: {e}"))?;
+    if part_input::is_f3d(path) {
+        let step = part_input::fusion_step(&raw).map_err(|e| format!("{path}: {e}"))?;
+        warn(vec![part_input::fusion_warning(path)]);
+        return Ok(Input {
+            step,
+            fusion: Some(raw),
+        });
+    }
     if !gzipped(path) {
-        return Ok(raw);
+        return Ok(Input {
+            step: raw,
+            fusion: None,
+        });
     }
     let mut out = Vec::new();
     std::io::Read::read_to_end(&mut flate2::read::GzDecoder::new(&raw[..]), &mut out)
         .map_err(|e| format!("{path}: not gzip ({e})"))?;
-    Ok(out)
+    Ok(Input {
+        step: out,
+        fusion: None,
+    })
 }
 
 /// A STEP file's text and its distinct parts.
-fn part_definitions(path: &str) -> Result<(Vec<u8>, Vec<PartDefinition>), String> {
+fn part_definitions(path: &str) -> Result<(Input, Vec<PartDefinition>), String> {
     let bytes = step_bytes(path)?;
-    let defs = read_part_definitions(&bytes).map_err(|e| format!("{path}: {e}"))?;
+    let defs = read_part_definitions(&bytes.step).map_err(|e| format!("{path}: {e}"))?;
     Ok((bytes, defs))
 }
 
 fn parts(path: &str) -> Result<String, String> {
     let (bytes, defs) = part_definitions(path)?;
-    let json = pmi_json::parts_json(&defs, &Binding::of(&bytes));
+    let json = pmi_json::parts_json(&defs, &Binding::of(bytes.binding_bytes()));
     Ok(serde_json::to_string_pretty(&json).expect("JSON serialises"))
 }
 
@@ -216,8 +244,8 @@ fn pmi_read(path: &str, part: Option<usize>) -> Result<String, String> {
             defs.len().saturating_sub(1)
         ));
     }
-    let binding = Binding::of(&bytes);
-    let doc = p21::Document::parse(bytes).map_err(|e| format!("{path}: {e}"))?;
+    let binding = Binding::of(bytes.binding_bytes());
+    let doc = p21::Document::parse(bytes.step).map_err(|e| format!("{path}: {e}"))?;
     let read = quiddity::kernel::pmi::read(&doc, &defs).map_err(|e| format!("{path}: {e}"))?;
     let document = pmi_json::read_document(&read, &defs, binding, part);
     Ok(
@@ -231,7 +259,8 @@ fn pmi_check(path: &str, json: &str) -> Result<String, String> {
     let text = std::fs::read_to_string(json).map_err(|e| format!("{json}: {e}"))?;
     let value = pmi_json::parse(&text).map_err(|e| format!("{json}: not JSON ({e})"))?;
     let document = pmi_json::document_from_json(&value).map_err(|e| format!("{json}: {e}"))?;
-    pmi_json::check_against(&document, &bytes, &defs).map_err(|e| format!("{json}: {e}"))?;
+    pmi_json::check_against(&document, bytes.binding_bytes(), &defs)
+        .map_err(|e| format!("{json}: {e}"))?;
     Ok(
         serde_json::to_string_pretty(&pmi_json::document_to_json(&document))
             .expect("JSON serialises"),
@@ -286,12 +315,12 @@ fn brep(args: &BrepArgs) -> Result<String, String> {
     let given = match &args.pmi {
         None => None,
         Some(json) => {
-            let defs = read_part_definitions(&bytes).map_err(|e| format!("{path}: {e}"))?;
+            let defs = read_part_definitions(&bytes.step).map_err(|e| format!("{path}: {e}"))?;
             let text = std::fs::read_to_string(json).map_err(|e| format!("{json}: {e}"))?;
             let value = pmi_json::parse(&text).map_err(|e| format!("{json}: not JSON ({e})"))?;
             let document =
                 pmi_json::document_from_json(&value).map_err(|e| format!("{json}: {e}"))?;
-            pmi_json::check_against(&document, &bytes, &defs)
+            pmi_json::check_against(&document, bytes.binding_bytes(), &defs)
                 .map_err(|e| format!("{json}: {e}"))?;
             if defs.len() != 1 {
                 return Err(format!(
@@ -301,7 +330,7 @@ fn brep(args: &BrepArgs) -> Result<String, String> {
             }
             let [part] = <[_; 1]>::try_from(document.parts)
                 .map_err(|_| format!("{json}: must name the file's one part (part 0)"))?;
-            let read = quiddity::kernel::step::read_part(&bytes, &defs[0])
+            let read = quiddity::kernel::step::read_part(&bytes.step, &defs[0])
                 .map_err(|e| format!("{path}: {e}"))?;
             Some((read, part.pmi))
         }
@@ -311,8 +340,8 @@ fn brep(args: &BrepArgs) -> Result<String, String> {
     let (given_part, given_pmi) = given.map_or((None, None), |(p, m)| (Some(p), Some(m)));
     let read = match given_part {
         Some(_) => None,
-        None => read_part_definitions(&bytes).ok().and_then(|defs| {
-            let doc = p21::Document::parse(bytes.clone()).ok()?;
+        None => read_part_definitions(&bytes.step).ok().and_then(|defs| {
+            let doc = p21::Document::parse(bytes.step.clone()).ok()?;
             let read = quiddity::kernel::pmi::read(&doc, &defs).ok()?;
             Some((defs, read))
         }),
@@ -321,7 +350,7 @@ fn brep(args: &BrepArgs) -> Result<String, String> {
     let (part, pmi) = match (given_part, &read) {
         (Some(part), _) => (part, given_pmi.as_ref()),
         (None, Some((defs, read))) if defs.len() == 1 && items(&read.parts[0]) > 0 => (
-            quiddity::kernel::step::read_part(&bytes, &defs[0])
+            quiddity::kernel::step::read_part(&bytes.step, &defs[0])
                 .map_err(|e| format!("{path}: {e}"))?,
             Some(&read.parts[0]),
         ),
@@ -338,7 +367,7 @@ fn brep(args: &BrepArgs) -> Result<String, String> {
                 }
             }
             (
-                quiddity::kernel::read_step(&bytes).map_err(|e| format!("{path}: {e}"))?,
+                quiddity::kernel::read_step(&bytes.step).map_err(|e| format!("{path}: {e}"))?,
                 None,
             )
         }
@@ -347,7 +376,7 @@ fn brep(args: &BrepArgs) -> Result<String, String> {
         .file_name()
         .map_or_else(|| "part".to_owned(), |n| n.to_string_lossy().into_owned());
     let lower = file_name.to_lowercase();
-    let stem = [".step.gz", ".stp.gz", ".step", ".stp", ".gz"]
+    let stem = [".step.gz", ".stp.gz", ".step", ".stp", ".f3d", ".gz"]
         .iter()
         .find(|s| lower.ends_with(*s))
         .map_or(file_name.as_str(), |s| {
@@ -475,18 +504,27 @@ impl WriteArgs {
 }
 
 fn pmi_write(w: &WriteArgs) -> Result<String, String> {
+    if part_input::is_f3d(&w.step) {
+        #[cfg(not(feature = "f3d"))]
+        part_input::fusion_step(&[]).map_err(|e| format!("{}: {e}", w.step))?;
+        return Err(format!(
+            "{}: pmi write requires original STEP text; use `brep --pmi` to create a new AP242 STEP file from Fusion geometry",
+            w.step
+        ));
+    }
     let (bytes, defs) = part_definitions(&w.step)?;
     let json = &w.json;
     let text = std::fs::read_to_string(json).map_err(|e| format!("{json}: {e}"))?;
     let value = pmi_json::parse(&text).map_err(|e| format!("{json}: not JSON ({e})"))?;
     let document = pmi_json::document_from_json(&value).map_err(|e| format!("{json}: {e}"))?;
-    pmi_json::check_against(&document, &bytes, &defs).map_err(|e| format!("{json}: {e}"))?;
+    pmi_json::check_against(&document, bytes.binding_bytes(), &defs)
+        .map_err(|e| format!("{json}: {e}"))?;
     if document.parts.is_empty() {
         return Err(format!("{json}: names no part; there is nothing to write"));
     }
-    let input = Binding::of(&bytes);
+    let input = Binding::of(bytes.binding_bytes());
     let step = &w.step;
-    let doc = p21::Document::parse(bytes).map_err(|e| format!("{step}: {e}"))?;
+    let doc = p21::Document::parse(bytes.step).map_err(|e| format!("{step}: {e}"))?;
     let before = quiddity::kernel::pmi::read(&doc, &defs).map_err(|e| format!("{step}: {e}"))?;
     // A standard is a set member, not an item: adding one the part already states (or stating
     // one twice) is that standard, so it is not written again.

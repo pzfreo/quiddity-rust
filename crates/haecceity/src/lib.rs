@@ -27,6 +27,8 @@ pub mod classify;
 pub mod cloud;
 pub mod cover;
 pub mod express;
+#[cfg(feature = "f3d")]
+pub mod f3d;
 pub mod geom;
 pub mod hlr;
 pub mod mass;

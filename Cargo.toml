@@ -13,6 +13,10 @@ keywords = ["cad", "step", "brep", "feature-recognition", "manufacturing"]
 categories = ["science", "parser-implementations"]
 include = ["/src", "/README.md", "/CHANGELOG.md", "/LICENSE", "/NOTICE"]
 
+[features]
+default = []
+f3d = ["haecceity/f3d"]
+
 [dependencies]
 flate2 = "1.1.10"
 haecceity = { path = "crates/haecceity", version = "=0.2.1" }

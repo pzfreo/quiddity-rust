@@ -16,6 +16,8 @@ Status: **0.2.1** (2026-10-27). See [CHANGELOG.md](CHANGELOG.md).
 cargo install quiddity          # the `quiddity` command line
 ```
 
+Add `--features f3d` to import Autodesk Fusion `.f3d` parts (visible solid geometry only, no PMI); see [Fusion input](docs/f3d.md). The feature is off by default in both crates.
+
 ```toml
 [dependencies]
 quiddity = "0.2"                # the library; the geometry kernel is the `haecceity` crate

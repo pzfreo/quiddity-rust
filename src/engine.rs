@@ -21,6 +21,8 @@ pub mod features;
 pub mod framed_records;
 #[path = "frames.rs"]
 pub mod frames;
+#[path = "part_input.rs"]
+pub mod part_input;
 #[path = "pmi_json.rs"]
 pub mod pmi_json;
 #[path = "published_records.rs"]

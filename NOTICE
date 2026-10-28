@@ -12,6 +12,10 @@ The regression fixture tests/fixtures/whistle_frame_reference.step.gz is the mai
 own model from draftwright-rust (tests/fixtures/recognition/issues/whistle_frame_reference.step.gz),
 copied unchanged for #85.
 
+crates/haecceity/tests/fixtures/generated_unit_cube.f3d is an Apache-2.0
+encoder-generated fixture from cadmpeg/cadmpeg; its source path and hash are recorded
+in crates/haecceity/tests/fixtures/README.md.
+
 Test fixture tests/fixtures/countersink_two_face.step.gz is from draftwright-rust's
 tests/fixtures/coverage-holes/countersink-two-face.step, a CC0/own build123d model
 by Paul Fremantle, supplied for issue #83.

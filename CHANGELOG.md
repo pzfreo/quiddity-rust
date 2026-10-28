@@ -6,6 +6,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- Optional `f3d` feature in haecceity and quiddity: read visible Fusion solid geometry
+  through cadmpeg 0.6.7, including placements, and use it for recognition, correspondence,
+  parts, the JSON-lines service and new AP242 export with `brep --pmi`. Fusion has no imported
+  PMI; `pmi read` returns an empty document and `pmi write` requires STEP input.
+
 ## 0.2.1 (2026-10-27)
 
 Upgrading from 0.2.0: as for 0.2.1-alpha.1 below. Upgrading from 0.2.1-alpha.1: no library
