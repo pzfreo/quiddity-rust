@@ -6,6 +6,17 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.2.2 (2026-10-28)
+
+Upgrading from 0.2.1: the schema stays `quiddity-rust/recognition/6` and fingerprints `/3`, but
+recognition output changes for two rules, so saved fingerprints of the affected holes and rounds
+change. Holes: a near-side step deeper than 1.0 mm is now a counterbore, not a spotface, and a new
+optional `outer_steps` field carries extra counterbore-class steps (#118). Rounds: straight convex
+rounds between tangent walls are fillets at any wall angle and direction, so many former `blends`
+become `fillets`, and a few false fillets are no longer fillets (#120). Rust code that builds
+`HoleRecord` literals needs `outer_steps: Vec::new()`. The optional `f3d` feature is new and off by
+default.
+
 ### Added
 
 - Optional `f3d` feature in haecceity and quiddity: read visible Fusion solid geometry
