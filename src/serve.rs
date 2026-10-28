@@ -23,7 +23,8 @@
 //! (not an object, a repeated key, an `id` that is not a string or integer, a field of the wrong
 //! type, an unknown field), `missing_field`, `unknown_op`, `unreadable` (a file cannot be
 //! read), `broken_step` (the kernel refuses the STEP file: [`StepError`]'s parse, unsupported
-//! and incomplete refusals), `bad_document` (a revision without valid fingerprints, or
+//! and incomplete refusals), `broken_f3d` (Fusion conversion refused or the feature is disabled),
+//! `bad_document` (a revision without valid fingerprints, or
 //! fingerprints `correspond` refuses) and `internal` (a panic, caught per request; the server
 //! keeps serving). Blank lines are skipped.
 //!

@@ -165,24 +165,24 @@ fn body_placements_as_occurrences(ir: &mut CadIr) -> Result<(), Error> {
                 continue;
             }
             owner.bodies.retain(|id| *id != body.id);
-            let mut found: Vec<_> = occurrences.iter().filter(|o| matches!(
+            // A body placement belongs to the reusable definition. One child relationship
+            // places it in every use of that definition; one per instance would duplicate it.
+            let parent = if let Some(found) = occurrences.iter().find(|o| matches!(
                 &o.prototype, PrototypeReference::Local { definition } if *definition == owner.id
-            )).map(|o| o.id.clone()).collect();
-            if found.is_empty() {
+            )) {
+                found.id.clone()
+            } else {
                 let root = occurrence(
                     occurrences.len(),
                     owner.id.clone(),
                     OccurrenceParent::Root {},
                     Transform::identity(),
                 )?;
-                found.push(root.id.clone());
+                let id = root.id.clone();
                 occurrences.push(root);
-            }
-            parents.extend(
-                found
-                    .into_iter()
-                    .map(|occurrence| OccurrenceParent::Occurrence { occurrence }),
-            );
+                id
+            };
+            parents.push(OccurrenceParent::Occurrence { occurrence: parent });
         }
         if parents.is_empty() {
             parents.push(OccurrenceParent::Root {});
@@ -228,6 +228,21 @@ fn select_solids(ir: &mut CadIr) -> Result<(), Error> {
         })
         .into());
     }
+    // Ownership back-links (including radial coedges) must not promote another body into
+    // the selection, even when two source bodies share topology. Carriers may still be shared.
+    let selected: HashSet<_> = pending.iter().map(String::as_str).collect();
+    ir.model.bodies.retain(|b| selected.contains(b.id.as_str()));
+    macro_rules! owned {
+        ($field:ident, $parents:ident, $owner:ident) => {{
+            let parents: HashSet<_> = ir.model.$parents.iter().map(|e| e.id.clone()).collect();
+            ir.model.$field.retain(|e| parents.contains(&e.$owner));
+        }};
+    }
+    owned!(regions, bodies, body);
+    owned!(shells, regions, region);
+    owned!(faces, shells, shell);
+    owned!(loops, faces, face);
+    owned!(coedges, loops, owner_loop);
     let arena = DecodeArena::new();
     let policy = DecodePolicy::desktop();
     let (ctx, _) = DecodeContext::from_root_bytes(b"", &arena, &policy)?;
@@ -256,6 +271,10 @@ fn select_solids(ir: &mut CadIr) -> Result<(), Error> {
                 product.sketches.clear();
             }
             model.occurrences = std::mem::take(&mut ir.model.occurrences);
+            let coedges: HashSet<_> = model.coedges.iter().map(|e| e.id.clone()).collect();
+            for coedge in &mut model.coedges {
+                if !coedges.contains(&coedge.radial_next) { coedge.radial_next = coedge.id.clone(); }
+            }
             ir.model = model;
         }};
     }
@@ -359,6 +378,8 @@ mod tests {
         let mut hidden =
             CadIr::from_json(&ir.to_canonical_json().unwrap().replace("f3d:", "hidden:")).unwrap();
         hidden.model.bodies[0].visible = Some(false);
+        ir.model.coedges[0].radial_next = hidden.model.coedges[0].id.clone();
+        hidden.model.coedges[0].radial_next = ir.model.coedges[0].id.clone();
         macro_rules! append_geometry {
             ($($field:ident),+) => { $(ir.model.$field.append(&mut hidden.model.$field);)+ };
         }
@@ -481,6 +502,27 @@ mod tests {
             "parent": {"kind": "root"}, "ordinal": 0, "scale": [1, 1, 1],
             "transform": [[1,0,0,20], [0,1,0,30], [0,0,1,40]]
         })).unwrap()];
+        let mut body_only = ir.clone();
+        body_only.model.product_definitions.clear();
+        body_only.model.occurrences.clear();
+        let body_only = crate::read_step(&export_solids(body_only).unwrap()).unwrap();
+        assert_eq!(body_only.bounds().min, [2.0, 3.0, 4.0]);
+        let mut repeated = ir.clone();
+        let mut second = repeated.model.occurrences[0].clone();
+        second.id = OccurrenceId::mint("test:model:occurrence#second").unwrap();
+        second.ordinal = 1;
+        second.transform = Transform::affine([
+            [1.0, 0.0, 0.0, 50.0],
+            [0.0, 1.0, 0.0, 60.0],
+            [0.0, 0.0, 1.0, 70.0],
+        ])
+        .unwrap();
+        repeated.model.occurrences.push(second);
+        let repeated = crate::read_step(&export_solids(repeated).unwrap()).unwrap();
+        assert_eq!(repeated.solids.len(), 2);
+        assert_eq!(repeated.faces.len(), 12);
+        assert_eq!(repeated.bounds().min, [22.0, 33.0, 44.0]);
+        assert_eq!(repeated.bounds().max, [62.0, 73.0, 84.0]);
         let step = export_solids(ir).unwrap();
         let part = crate::read_step(&step).unwrap();
         assert_eq!(part.faces.len(), 6);

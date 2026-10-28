@@ -95,7 +95,10 @@ fn cube_recognition_parts_correspond_service_and_pmi_export() {
     std::fs::copy(fixture(), &upper).unwrap();
     let path = upper.to_str().unwrap();
     let raw = std::fs::read(&upper).unwrap();
-    let hash = format!("{:x}", Sha256::digest(&raw));
+    let hash = Sha256::digest(&raw)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect::<String>();
     let recognition = ok(&[path]);
     assert_eq!(recognition["document"]["face_count"], 6);
     assert_eq!(recognition["document"]["source_sha256"], hash);
@@ -148,7 +151,13 @@ fn cube_recognition_parts_correspond_service_and_pmi_export() {
     );
     let read: Value = serde_json::from_slice(&read.stdout).unwrap();
     let read = pmi_json::document_from_json(&read).unwrap();
-    assert_eq!(read.parts[0].pmi.notes[0].text, "Deburr all edges");
+    // The AP242 writer migrates legacy notes to standard semantic-text attributes.
+    assert!(
+        pmi_json::document_to_json(&read)
+            .to_string()
+            .contains("Deburr all edges")
+    );
+    assert!(read.findings.is_empty());
     let out = run(&["pmi", "write", path, json_path, "-o", step_path]);
     assert!(!out.status.success());
     assert!(

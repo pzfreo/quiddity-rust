@@ -10,7 +10,10 @@ conversion as bytes for clients needing STEP part definitions and stable face an
 
 The route is cadmpeg-codec-f3d → selected CadIr → cadmpeg-codec-step in memory →
 haecceity's existing STEP reader. This reuses the tested geometry path and cadmpeg's
-body transforms and occurrence placements. Fusion model lengths decode to millimetres;
+body transforms and occurrence placements. Body transforms are restated as child
+occurrences before export: cadmpeg's body-local `MAPPED_ITEM` representation is not
+resolved by the existing STEP scene. This preserves the same rigid motion without
+changing STEP import. Non-rigid body placements refuse. Fusion model lengths decode to millimetres;
 STEP export declares millimetres. The generated unit cube is 10 × 10 × 10 mm,
 six faces and 1000 mm³.
 
@@ -38,8 +41,15 @@ input because it edits original STEP text. Output is STEP, never an edited Fusio
 Before integration, cadmpeg CLI 0.6.6 matched Autodesk STEP face counts for 294/297
 Fusion Gallery parts, and quiddity recognition for 286/297. On 21 private sample designs,
 20 decoded without blocking losses; five single-solid parts already recognised through
-unfiltered CLI export (Toe: 33 faces, 10 records, no unproved; Shell 2844: 74 faces,
+unfiltered CLI export (Toe: 33 faces, 10 records, no unproved; Shell `45df37c8`: 74 faces,
 46 records). The other 15 were obstructed by exported sketch wires or hidden solids
 (Hip Servo: 14 solids, 11 hidden, plus 660 wire bodies). Foot failed upstream with two
 blocking losses. These samples are local validation inputs and are not distributed.
 Only cadmpeg's Apache-2.0 encoder-generated cube is committed, with attribution beside it.
+
+Local validation with 0.6.7 imports all 20 decodable designs (970 faces, 537 records;
+three records remain unproved: two on Hip Ball `197f6865`, one on Knee Ball `594773a4`).
+All five previously working real designs have identical recognition to the 0.6.6 CLI
+route, excluding source hashes. Toe's millimetre bounds also agree exactly with that route:
+`[-49.39692620785909, 0, -10]` to `[0, 10, 3.0781812899310186]`.
+Shell `2844649c` is a different design: two visible solids, one hidden, 175 faces.

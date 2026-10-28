@@ -47,6 +47,7 @@ jobs:
       - run: cargo clippy --workspace --all-targets --release -- -D warnings
       # Keep optional Fusion coverage on the existing Linux runner, without another archive
       # or shard build. cadmpeg's release code generation is too costly to repeat in CI.
+      # Local first feature check: 2.7 minutes at load ~55; budget ~3 added Linux minutes.
       - run: cargo check --workspace --all-targets --release --features f3d
         if: runner.os == 'Linux'
       # nextest does not run doc-tests.
