@@ -24,7 +24,9 @@ in [docs/alpha1.md](docs/alpha1.md).
   at any wall angle and in any direction, including drafted cast walls. Its cylindrical sweep
   must match 180° minus the interior wall angle within the existing angular tolerance;
   concave rounds and bores remain excluded. Oblique fillets carry unit-vector axes.
-  Recognition schema 6 and fingerprint format 3 are unchanged.
+  Sweeps above 135° remain groove/slot full-round bottoms rather than edge fillets.
+  Only tangent walls compete as supports; non-tangent transverse cut/end planes do not
+  remove an otherwise proved round. Recognition schema 6 and fingerprint format 3 are unchanged.
 
 ## 0.2.1 (2026-10-27)
 

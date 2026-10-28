@@ -9,7 +9,7 @@ use std::f64::consts::PI;
 use serde::{Deserialize, Serialize};
 
 use super::Context;
-use super::bevel::transverse_wall_corner;
+use super::bevel::tangent_cylinder_corner;
 use super::cylinders::CylinderEvidence;
 use super::evidence::{self, EvidenceError, Occurrence};
 use super::placed::{Grid, Placed};
@@ -22,6 +22,9 @@ use crate::kernel::py;
 
 /// A minimum-evidence threshold, deliberately absolute (ADR 0008).
 const MIN_RADIUS: f64 = 0.6;
+/// Nearly half-turn rounds between nearly parallel walls are groove/slot full-round
+/// bottoms, not edge fillets (#120). Keep walls at least 45° apart.
+const FILLET_MAX_EXTENT: f64 = 3.0 * PI / 4.0;
 /// A turned edge fillet is a quarter circle in section; a bead is a half or full one.
 const TURNED_FILLET_MAX_EXTENT: f64 = PI / 2.0 * 1.05;
 
@@ -184,7 +187,7 @@ fn prismatic(
         return None;
     }
     let at = fillet_anchor(part, face)?;
-    let corner = transverse_wall_corner(part, face, at, frame.z)?;
+    let corner = tangent_cylinder_corner(part, face, at, frame.z, frame.origin, radius)?;
     // The planes must be tangent to this cylinder, not unrelated nearby walls.
     if corner.normals.iter().any(|&n| {
         (geom::dot(geom::sub(frame.origin, corner.point), n).abs() - radius).abs()
@@ -224,9 +227,9 @@ fn run_axis(direction: V3) -> Option<FilletAxis> {
 
 /// The outward wall normals turn through the swept arc: PI minus the interior wall
 /// angle. Use the existing parallel-direction angular tolerance, not a fixed 90° cap.
-/// A convex edge has strictly less than a half turn; full cylinders and bores cannot pass.
+/// The 135° cap separates edge rounds from full-round groove/slot bottoms.
 fn sweep_matches_walls(sweep: f64, normals: [V3; 2]) -> bool {
-    if !(sweep > 0.0 && sweep < PI) {
+    if !(sweep > 0.0 && sweep <= FILLET_MAX_EXTENT) {
         return false;
     }
     let expected =
@@ -337,7 +340,7 @@ mod tests {
     #[test]
     fn sweep_follows_acute_right_and_obtuse_walls() {
         let tolerance = (1.0 - SMOOTH_ARC_GAP).acos();
-        for wall_degrees in [20_f64, 60., 86., 90., 94., 120., 160.] {
+        for wall_degrees in [60_f64, 86., 90., 94., 120., 160.] {
             let sweep = PI - wall_degrees.to_radians();
             let walls = [[1., 0., 0.], [sweep.cos(), sweep.sin(), 0.]];
             assert!(sweep_matches_walls(sweep, walls));
@@ -350,6 +353,15 @@ mod tests {
             for invalid in [0., -sweep, PI, 2. * PI, f64::NAN] {
                 assert!(!sweep_matches_walls(invalid, walls));
             }
+        }
+    }
+
+    #[test]
+    fn edge_rounds_stop_at_135_degrees() {
+        for degrees in [45_f64, 40., 5.879068972873341] {
+            let sweep = PI - degrees.to_radians();
+            let walls = [[1., 0., 0.], [sweep.cos(), sweep.sin(), 0.]];
+            assert_eq!(sweep_matches_walls(sweep, walls), degrees >= 45.);
         }
     }
 

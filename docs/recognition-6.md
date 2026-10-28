@@ -309,11 +309,17 @@ proof: two distinct nonparallel transverse walls, each tangent within the existi
 `length_tol(radius, 1e-7)`, an outward cylindrical material side, and an empty-space probe
 towards the round from the virtual sharp corner. Radius limits are unchanged.
 
-The cylindrical sweep must be strictly between zero and 180° and match 180° minus
+The cylindrical sweep must be greater than zero and at most 135° and match 180° minus
 the interior wall angle (the turn between outward wall normals). Direction agreement
 uses the existing `1 - dot <= SMOOTH_ARC_GAP` angular tolerance. This replaces a fixed
-extent cap: acute corners can sweep over 90°, while obtuse corners sweep less. Bores,
-parallel supports, competing walls and concave rounds remain excluded. The turned-torus
+extent cap: acute corners can sweep over 90°, while obtuse corners sweep less. The 135°
+cap keeps wall angles at least 45°: a near-half-turn between nearly parallel walls is a
+full-round groove/slot bottom, not an edge fillet. CGB202's R90 face 2074 stays a groove.
+Only planes tangent within the existing length tolerance participate in the corner query.
+Non-tangent transverse end/cut planes are ignored; the competing-corner guard still rejects
+three distinct tangent supports or distinct parallel tangent walls, while merging coplanar
+splits. This preserves NIST CTC-02 AP242's six R10, 82° rounds with a third non-tangent plane.
+Bores, parallel supports, competing tangent walls and concave rounds remain excluded. The turned-torus
 fillet proof and extent limit are unchanged. Chamfers retain their right-angle contract.
 
 The internal untagged `FilletAxis` stores a principal letter for every run passing the
