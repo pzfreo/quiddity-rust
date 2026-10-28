@@ -45,7 +45,9 @@ in [docs/alpha1.md](docs/alpha1.md).
   Sheet-metal bend skins previously misread as fillets by the axis-aligned path's missing
   tangency check are no longer fillets; their sheet-metal classification remains.
   NIST CTC-05's four R203.2 cylinders with grossly non-tangent walls are also no longer
-  fillets. Support tangency respects the STEP file's modelling precision, bounded below
+  fillets. CGB243 face 196, an R6 half-round with a 180-degree sweep, is no longer a
+  fillet: it exceeds the 135-degree edge-round cap and remains unexplained.
+  Support tangency respects the STEP file's modelling precision, bounded below
   by the kernel coordinate floor. Accepted defining claims take precedence over new
   fillets, retaining the existing gusset and circular-pattern claims on rounded faces.
 
