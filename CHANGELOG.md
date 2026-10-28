@@ -17,8 +17,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 - A near-side hole step is a spotface only at depth <= 1.0 mm and depth < 0.2 times
   its diameter, using the published rounded measurements; deeper functional recesses
-  are counterbores. For #118. Recognition schema `/6` and fingerprint format `/3`
-  stay unchanged; re-recognised affected holes change fingerprint traits within v3.
+  are counterbores. For #118. `cbore` keeps the innermost counterbore-class step;
+  optional `outer_steps` retains all larger counterbore-class steps as `{diameter,
+  depth}`, outermost first, and is absent when empty. Each depth is that cylinder's
+  own mouth-to-floor span, not cumulative from the hole opening. Hole patterns and
+  publication retain these steps and all their defining faces. Rust `HoleRecord`
+  literals need `outer_steps: Vec::new()` when absent. Recognition schema `/6` and
+  fingerprint format `/3` stay unchanged; affected hole fingerprints change traits
+  and sizes, including outer-step count and paired dimensions within v3.
 
 ### Fixed
 

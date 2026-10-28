@@ -99,7 +99,8 @@ pub enum Role {
     /// Moves with the part: positions, frame-aligned bounds, spans and points, directions, axis
     /// letters and signs. The feature's placement is its axis and its faces' centroid.
     Placement,
-    /// Read through the family's derived sizes only (`derived_sizes`): bounds whose difference
+    /// Read through the family's derived sizes only (`derived_sizes`): canonically grouped
+    /// size records (a hole's outer steps), bounds whose difference
     /// is a size (a plate's `lo` and `hi`), a section's points.
     Derived,
     /// Not a property of the design: face and body indices, sampling diagnostics, heuristic
@@ -283,6 +284,8 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("spotface", Trait),
             ("spotface.diameter", Size),
             ("spotface.depth", Size),
+            // Keep each diameter paired with its depth in canonical mouth-to-bore order.
+            ("outer_steps", Derived),
             ("csink", Trait),
             ("csink.major_diameter", Size),
             ("csink.drill_diameter", Size),
@@ -1204,8 +1207,9 @@ fn chain_lengths(points: &Value) -> Vec<f64> {
 }
 
 /// The sizes a family's [`Role::Derived`] fields give: differences of frame-aligned bounds, and
-/// distances and angles within a section, which a rigid motion leaves unchanged. Lists are kept
-/// smallest first, since the order of a section's parts follows the frame.
+/// distances and angles within a section, which a rigid motion leaves unchanged. Section lists
+/// are kept smallest first since their order follows the frame; hole outer steps retain their
+/// canonical mouth-to-bore order so diameter/depth pairs stay associated.
 fn derived_sizes(family: &str, r: &Value, sizes: &mut BTreeMap<String, f64>) {
     let number = |path: &str| at(r, path).first().and_then(|v| v.as_f64());
     let span = |lo: &str, hi: &str| Some((number(hi)? - number(lo)?).abs());
@@ -1219,6 +1223,19 @@ fn derived_sizes(family: &str, r: &Value, sizes: &mut BTreeMap<String, f64>) {
         }
     };
     match family {
+        "holes" => {
+            if let Some(steps) = r.get("outer_steps").and_then(Value::as_array) {
+                put("outer_steps.count", Some(steps.len() as f64));
+                for (i, step) in steps.iter().enumerate() {
+                    for dimension in ["diameter", "depth"] {
+                        put(
+                            &format!("outer_steps.{i}.{dimension}"),
+                            step[dimension].as_f64(),
+                        );
+                    }
+                }
+            }
+        }
         "plates" => put("thickness", span("lo", "hi")),
         "turned_steps" => put("length", span("lo", "hi")),
         "polygonal_bosses" => put("height", span("base", "top")),

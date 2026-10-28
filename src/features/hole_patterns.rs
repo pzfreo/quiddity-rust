@@ -103,6 +103,7 @@ struct HoleSpec {
     bottom: Bottom,
     cbore: Option<CounterBore>,
     spotface: Option<CounterBore>,
+    outer_steps: Vec<CounterBore>,
     csink: Option<(f64, f64)>,
 }
 
@@ -121,6 +122,7 @@ impl HoleSpec {
             bottom: h.bottom,
             cbore: h.cbore.clone(),
             spotface: h.spotface.clone(),
+            outer_steps: h.outer_steps.clone(),
             csink: h
                 .csink
                 .as_ref()

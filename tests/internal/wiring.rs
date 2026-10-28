@@ -227,6 +227,19 @@ fn families_are_wired_and_their_records_fingerprinted_field_by_field() {
             found.entry("oriented_slot_patterns".into()).or_default(),
         );
     }
+    // Multiple counterbore-class steps occur in the captured #118 stack, outside
+    // this sweep's golden/corpus inputs. Use the actual record type for its additive field.
+    let stepped_hole: features::holes::HoleRecord = serde_json::from_value(serde_json::json!({
+        "axis": [0., 0., -1.], "location": [0., 0., 20.], "diameter": 10.1,
+        "depth": 15., "bottom": "flat", "cbore": {"diameter": 18., "depth": 6.},
+        "spotface": null, "csink": null, "outer_steps": [{"diameter": 60., "depth": 5.}]
+    }))
+    .unwrap();
+    leaves(
+        &serde_json::to_value(stepped_hole).unwrap(),
+        "",
+        found.entry("holes".into()).or_default(),
+    );
     let mut used: BTreeSet<(String, &str)> = BTreeSet::new();
     for (key, paths) in &found {
         for path in paths {

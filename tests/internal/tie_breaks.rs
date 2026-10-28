@@ -30,6 +30,7 @@ fn bore_ends(h: &features::holes::HoleRecord) -> [[f64; 3]; 2] {
         .cbore
         .iter()
         .chain(&h.spotface)
+        .chain(&h.outer_steps)
         .map(|s| s.depth)
         .sum::<f64>();
     [offset, offset + h.depth]
@@ -136,6 +137,7 @@ fn crossing_equal_patterns_refuse_under_motion_and_member_permutation() {
             bottom: Bottom::Through,
             cbore: None,
             spotface: None,
+            outer_steps: Vec::new(),
             csink: None,
         })
         .into();
@@ -213,6 +215,7 @@ fn equal_pitch_grid_uses_population_to_assign_rows_under_motion() {
                 bottom: Bottom::Through,
                 cbore: None,
                 spotface: None,
+                outer_steps: Vec::new(),
                 csink: None,
             })
             .collect();
@@ -820,6 +823,7 @@ fn a_five_hundred_hole_perforated_plate_has_one_grid() {
                 bottom: Bottom::Through,
                 cbore: None,
                 spotface: None,
+                outer_steps: Vec::new(),
                 csink: None,
             })
         })

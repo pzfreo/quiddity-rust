@@ -62,8 +62,8 @@ pub enum Bottom {
 /// the opening; `diameter`/`depth` describe the bore (the narrowest segment), with `depth` from
 /// the top of the bore to the hole's deep end. `bottom` is `"through"`, `"flat"`,
 /// `"drill_point"` or `"unknown"`. For interchangeable mouths, axis/location are a
-/// presentation end gauge. Identical counterbore/spotface readings at both mouths are retained
-/// with both sets of defining faces; differing readings are omitted. Identical countersinks
+/// presentation end gauge. Identical counterbore, spotface and outer-step readings at both
+/// mouths retain both sets of defining faces; differing readings are omitted. Identical countersinks
 /// at opposite mouths retain both seats as context, presenting the seat at the gauge end.
 /// With no proved attachment,
 /// the gauge is on the bore itself. No material drilling-entry end is asserted.
@@ -76,6 +76,10 @@ pub struct HoleRecord {
     pub bottom: Bottom,
     pub cbore: Option<CounterBore>,
     pub spotface: Option<CounterBore>,
+    /// Counterbore-class enlargements outside `cbore`, outermost first. Each depth
+    /// is that cylinder's own mouth-to-floor span, not cumulative from the hole mouth.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub outer_steps: Vec<CounterBore>,
     pub csink: Option<CounterSink>,
 }
 
@@ -416,7 +420,15 @@ fn end_segment(stack: &[Segment], reach: impl Fn(&Segment) -> f64) -> usize {
 
 /// The counterbore and spotface between the opening and the bore (`_near_side_steps`). Steps
 /// must narrow inward (a wider one is a groove); lands of one diameter are unioned.
-fn near_side_steps(steps: &[Segment]) -> (Option<CounterBore>, Option<CounterBore>, Vec<usize>) {
+#[derive(Default)]
+struct NearSideSteps {
+    cbore: Option<CounterBore>,
+    spotface: Option<CounterBore>,
+    outer_steps: Vec<CounterBore>,
+    faces: Vec<usize>,
+}
+
+fn near_side_steps(steps: &[Segment]) -> NearSideSteps {
     let mut spans: Vec<(f64, f64, f64, Vec<usize>)> = Vec::new(); // key, lo, hi, faces
     let mut min_d = f64::INFINITY;
     for step in steps {
@@ -434,25 +446,26 @@ fn near_side_steps(steps: &[Segment]) -> (Option<CounterBore>, Option<CounterBor
             None => spans.push((key, step.s_lo, step.s_hi, step.faces.clone())),
         }
     }
-    let (mut cbore, mut spotface, mut faces) = (None, None, Vec::new());
+    let mut found = NearSideSteps::default();
     for (key, lo, hi, step_faces) in spans {
         let spec = CounterBore {
             diameter: key,
             depth: policy::round_measurement(hi - lo, 2),
         };
-        let slot = if spec.depth <= SPOTFACE_MAX_DEPTH_MM
-            && spec.depth < SPOTFACE_MAX_RATIO * spec.diameter
-        {
-            &mut spotface
+        if spec.depth <= SPOTFACE_MAX_DEPTH_MM && spec.depth < SPOTFACE_MAX_RATIO * spec.diameter {
+            if found.spotface.is_none() {
+                found.spotface = Some(spec);
+                found.faces.extend(step_faces);
+            }
         } else {
-            &mut cbore
-        };
-        if slot.is_none() {
-            *slot = Some(spec);
-            faces.extend(step_faces);
+            found.outer_steps.push(spec);
+            found.faces.extend(step_faces);
         }
     }
-    (cbore, spotface, faces)
+    // Spans are ordered from the opening towards the bore. Retain every counterbore
+    // wall, reserving the singular `cbore` field for the innermost enlargement (#118).
+    found.cbore = found.outer_steps.pop();
+    found
 }
 
 /// Read a stack inward from either end, putting the widest level segment first.
@@ -605,21 +618,26 @@ pub fn discover(
         let ordered = ordered_from(&stack, from_hi);
         let bore_i = py::first_min(&ordered, |s| s.diameter);
         let bore = &ordered[bore_i];
-        let (mut cbore, mut spotface, mut step_faces) = near_side_steps(&ordered[..bore_i]);
+        let NearSideSteps {
+            mut cbore,
+            mut spotface,
+            mut outer_steps,
+            faces: mut step_faces,
+        } = near_side_steps(&ordered[..bore_i]);
         if presentation {
             let opposite = ordered_from(&stack, !from_hi);
             let other_bore_i = py::first_min(&opposite, |s| s.diameter);
-            let (other_cbore, other_spotface, other_faces) =
-                near_side_steps(&opposite[..other_bore_i]);
+            let other = near_side_steps(&opposite[..other_bore_i]);
             // An end gauge cannot choose between different published readings. Identical
             // readings retain their dimensions and claim both mouths, so reversal changes
             // only the representative end, never an attachment or its supporting evidence.
-            if cbore == other_cbore && spotface == other_spotface {
-                step_faces.extend(other_faces);
+            if cbore == other.cbore && spotface == other.spotface && outer_steps == other.outer_steps {
+                step_faces.extend(other.faces);
                 step_faces.sort_unstable();
             } else {
                 cbore = None;
                 spotface = None;
+                outer_steps.clear();
                 step_faces.clear();
             }
         }
@@ -649,6 +667,7 @@ pub fn discover(
             bottom,
             cbore,
             spotface,
+            outer_steps,
             csink: None,
         };
         let mouth = HoleMouth {
@@ -792,7 +811,13 @@ mod tests {
                 external: false,
                 faces: vec![7],
             };
-            let (cbore, spotface, faces) = near_side_steps(&[step]);
+            let NearSideSteps {
+                cbore,
+                spotface,
+                outer_steps,
+                faces,
+            } = near_side_steps(&[step]);
+            assert!(outer_steps.is_empty());
             let spec = Some(CounterBore {
                 diameter,
                 depth: published_depth,
@@ -807,12 +832,6 @@ mod tests {
     /// recess at each end, with diameter 11.2 collars rising 0.7 from each floor.
     /// Only these analytic dimensions are shared with the #118 example; no STEP is read.
     fn collared_recesses() -> Part {
-        let frame = |z| Frame {
-            origin: [0., 0., z],
-            x: [1., 0., 0.],
-            y: [0., 1., 0.],
-            z: [0., 0., 1.],
-        };
         // Walk the material boundary, starting up the outside then into the top mouth.
         let rings = [
             (9.5, 0.),
@@ -828,6 +847,17 @@ mod tests {
             (8.2, 1.4),
             (8.2, 0.),
         ];
+        turned_ring(&rings)
+    }
+
+    /// Close a hand-written radial/axial profile with analytic circle and seam edges.
+    fn turned_ring(rings: &[(f64, f64)]) -> Part {
+        let frame = |z| Frame {
+            origin: [0., 0., z],
+            x: [1., 0., 0.],
+            y: [0., 1., 0.],
+            z: [0., 0., 1.],
+        };
         let mut edges: Vec<_> = rings
             .iter()
             .enumerate()
@@ -959,5 +989,180 @@ mod tests {
                 assert_eq!(collar.parameters["height"], 0.7);
             }
         }
+    }
+
+    #[test]
+    fn two_step_holes_keep_the_inner_counterbore_and_publish_the_outer_classification() {
+        let (s, c) = 0.37_f64.sin_cos();
+        for outer_depth in [5., 0.5] {
+            let floor = 30. - outer_depth;
+            let base = turned_ring(&[
+                (40., 0.),
+                (40., 30.),
+                (30., 30.),
+                (30., floor),
+                (9., floor),
+                (9., floor - 6.),
+                (5.05, floor - 6.),
+                (5.05, 0.),
+            ]);
+            assert!(base.solid_is_geometrically_valid(0));
+            for motion in [
+                IDENTITY,
+                [[c, 0., s, 123.456], [0., 1., 0., -78.9], [-s, 0., c, 41.3]],
+            ] {
+                let part = base.transformed(&motion).unwrap();
+                let found = discover(&Context::new(&part), &[]);
+                assert_eq!(found.len(), 1);
+                let hole = &found[0].record;
+                assert_eq!(
+                    hole.cbore,
+                    Some(CounterBore {
+                        diameter: 18.,
+                        depth: 6.
+                    })
+                );
+                let outer = CounterBore {
+                    diameter: 60.,
+                    depth: outer_depth,
+                };
+                if outer_depth == 5. {
+                    assert_eq!(hole.outer_steps, [outer]);
+                    assert!(hole.spotface.is_none());
+                } else {
+                    assert!(hole.outer_steps.is_empty());
+                    assert_eq!(hole.spotface, Some(outer));
+                }
+                let mut faces = found[0].defining.clone();
+                faces.sort_unstable();
+                assert_eq!(
+                    faces,
+                    [2, 4, 6],
+                    "every cylindrical step remains defining evidence"
+                );
+                let recognition = crate::correspondence::recognise(&part);
+                let doc = crate::recognition::document(&recognition, part.faces.len());
+                let record = doc.records.iter().find(|r| r.id == "holes/0").unwrap();
+                assert_eq!(
+                    record.parameters["cbore"],
+                    serde_json::json!({"diameter":18.,"depth":6.})
+                );
+                assert_eq!(record.faces, [2, 4, 6]);
+                let fp = recognition
+                    .fingerprints
+                    .features
+                    .iter()
+                    .find(|f| f.id == "holes/0")
+                    .unwrap();
+                assert_eq!(fp.sizes["cbore.depth"], 6.);
+                assert_eq!(fp.sizes["cbore.diameter"], 18.);
+                if outer_depth == 5. {
+                    assert_eq!(
+                        record.parameters["outer_steps"],
+                        serde_json::json!([{"diameter":60.,"depth":5.}])
+                    );
+                    assert_eq!(fp.sizes["outer_steps.count"], 1.);
+                    assert_eq!(fp.sizes["outer_steps.0.diameter"], 60.);
+                    assert_eq!(fp.sizes["outer_steps.0.depth"], 5.);
+                } else {
+                    assert!(record.parameters.get("outer_steps").is_none());
+                    assert!(!fp.sizes.keys().any(|k| k.starts_with("outer_steps")));
+                }
+                let encoded = serde_json::to_value(hole).unwrap();
+                let decoded: HoleRecord = serde_json::from_value(encoded.clone()).unwrap();
+                assert_eq!(*hole, decoded);
+                let mut legacy = encoded;
+                legacy.as_object_mut().unwrap().remove("outer_steps");
+                let decoded: HoleRecord = serde_json::from_value(legacy).unwrap();
+                assert!(
+                    decoded.outer_steps.is_empty(),
+                    "old records default to no outer steps"
+                );
+                assert!(
+                    serde_json::to_value(decoded)
+                        .unwrap()
+                        .get("outer_steps")
+                        .is_none()
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn multiple_outer_steps_keep_mouth_order_and_fingerprint_diameter_depth_pairs() {
+        let part = turned_ring(&[
+            (45., 0.),
+            (45., 40.),
+            (35., 40.),
+            (35., 35.),
+            (25., 35.),
+            (25., 32.),
+            (9., 32.),
+            (9., 26.),
+            (5., 26.),
+            (5., 0.),
+        ]);
+        assert!(part.solid_is_geometrically_valid(0));
+        let found = discover(&Context::new(&part), &[]);
+        assert_eq!(found.len(), 1);
+        assert_eq!(
+            found[0].record.cbore,
+            Some(CounterBore {
+                diameter: 18.,
+                depth: 6.
+            })
+        );
+        assert_eq!(
+            found[0].record.outer_steps,
+            [
+                CounterBore {
+                    diameter: 70.,
+                    depth: 5.
+                },
+                CounterBore {
+                    diameter: 50.,
+                    depth: 3.
+                }
+            ]
+        );
+        let recognition = crate::correspondence::recognise(&part);
+        let fp = recognition
+            .fingerprints
+            .features
+            .iter()
+            .find(|f| f.id == "holes/0")
+            .unwrap();
+        assert_eq!(fp.sizes["outer_steps.count"], 2.);
+        assert_eq!(fp.sizes["outer_steps.0.diameter"], 70.);
+        assert_eq!(fp.sizes["outer_steps.0.depth"], 5.);
+        assert_eq!(fp.sizes["outer_steps.1.diameter"], 50.);
+        assert_eq!(fp.sizes["outer_steps.1.depth"], 3.);
+
+        let mut holes: Vec<_> = [0., 100., 200.]
+            .into_iter()
+            .map(|x| {
+                let mut hole = found[0].record.clone();
+                hole.location = [x, 0., 40.].into();
+                hole
+            })
+            .collect();
+        let patterns = super::super::hole_patterns::recognise_hole_patterns(&holes);
+        assert_eq!(
+            patterns.len(),
+            1,
+            "equal outer steps can form a hole pattern"
+        );
+        let published = serde_json::to_value(&patterns[0]).unwrap();
+        assert_eq!(
+            published["holes"][0]["outer_steps"],
+            serde_json::json!([
+                {"diameter":70.,"depth":5.}, {"diameter":50.,"depth":3.}
+            ])
+        );
+        holes[1].outer_steps[0].depth = 4.;
+        assert!(
+            super::super::hole_patterns::recognise_hole_patterns(&holes).is_empty(),
+            "different outer-step specs must not be grouped just because the cbore matches"
+        );
     }
 }
