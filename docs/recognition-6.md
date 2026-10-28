@@ -333,3 +333,9 @@ This fits schema 6's existing axis contract, so neither version changes. Accepte
 supersede generic blends on their defining faces; family IDs, fingerprints and face
 accounting references change accordingly. Move saved selections by defining faces or
 correspondence as described above.
+
+Whole-body classifications may retain the same faces as individual features. In
+particular, a round becoming a fillet retains its `thin_wall_bodies` or
+`sheet_metal_bodies` classification, just as existing fillets, holes and blends already
+do. This co-ownership does not replace the round's geometric proof or permit a second
+claim by another individual feature family.

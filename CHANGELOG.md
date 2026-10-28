@@ -27,6 +27,8 @@ in [docs/alpha1.md](docs/alpha1.md).
   Sweeps above 135° remain groove/slot full-round bottoms rather than edge fillets.
   Only tangent walls compete as supports; non-tangent transverse cut/end planes do not
   remove an otherwise proved round. Recognition schema 6 and fingerprint format 3 are unchanged.
+  Whole-body classifications such as thin-wall and sheet-metal bodies retain their
+  existing co-ownership of faces when a round becomes a fillet.
 
 ## 0.2.1 (2026-10-27)
 
