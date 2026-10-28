@@ -26,13 +26,6 @@ in [docs/alpha1.md](docs/alpha1.md).
   fingerprint format `/3` stay unchanged; affected hole fingerprints change traits
   and sizes, including outer-step count and paired dimensions within v3.
 
-### Fixed
-
-- Recognition no longer panics on disconnected pocket wall cycles or narrow pad tops;
-  wall roles use measured geometry and refused discovery evidence remains visible in documents.
-
-### Changed
-
 - For #120, a straight constant-radius convex round between two tangent walls is a fillet
   at any wall angle and in any direction, including drafted cast walls. Its cylindrical sweep
   must match 180° minus the interior wall angle within 0.5°;
@@ -50,6 +43,11 @@ in [docs/alpha1.md](docs/alpha1.md).
   Support tangency respects the STEP file's modelling precision, bounded below
   by the kernel coordinate floor. Accepted defining claims take precedence over new
   fillets, retaining the existing gusset and circular-pattern claims on rounded faces.
+
+### Fixed
+
+- Recognition no longer panics on disconnected pocket wall cycles or narrow pad tops;
+  wall roles use measured geometry and refused discovery evidence remains visible in documents.
 
 ## 0.2.1 (2026-10-27)
 
