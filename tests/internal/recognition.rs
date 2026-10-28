@@ -1272,12 +1272,9 @@ fn a_seat_split_by_a_slot_stays_a_countersink() {
     }
 }
 
-/// #81: a different set of principal runs must not erase physical rounds. The other set
-/// remains represented by exact cylindrical blends. Cross-drilled through holes also must
-/// survive even when the six-axis chamber sampler correctly refuses its old coarse-grid claim.
-/// #91: the part's own frame is now the 13.07-degree set of its cross bores, where neither
-/// round set runs along an axis: all sixteen R1 rounds are blends there, and caller space
-/// (file axes) keeps the file-X/Y set as fillets.
+/// For #120, all sixteen tangent convex R1 rounds are fillets in caller and inferred
+/// coordinates, including runs oblique to the query axes. Cross-drilled through
+/// holes must also survive when the chamber sampler refuses its old coarse-grid claim.
 #[test]
 fn changed_query_axes_retain_physical_rounds_and_bores() {
     use quiddity::kernel::geom::{self, Surface};
@@ -1287,62 +1284,59 @@ fn changed_query_axes_retain_physical_rounds_and_bores() {
     let part = quiddity::read_step_file(&dir.join("cadgenbench_inputs/cgb217.step.gz")).unwrap();
     let framed = correspondence::recognise(&part);
     let caller = correspondence::caller_space_recognise(&part);
-    for (specific, general, faces) in [
-        (None, &framed, [177, 182, 205, 210, 233, 238, 261, 266]),
-        (None, &caller, [177, 182, 205, 210, 233, 238, 261, 266]),
-        (
-            Some(&caller),
-            &framed,
-            [191, 196, 219, 224, 247, 252, 296, 301],
-        ),
+    for face in [
+        177, 182, 205, 210, 233, 238, 261, 266, 191, 196, 219, 224, 247, 252, 296, 301,
     ] {
-        for face in faces {
-            let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
-                panic!("{face}")
-            };
-            assert_eq!(radius, 1.);
-            assert_eq!(part.frame_points_outward(face), Some(true), "{face}");
-            let planes: Vec<_> = part
-                .neighbours(face)
-                .into_iter()
-                .filter_map(|f| {
-                    let Surface::Plane { frame: plane } = part.faces[f].surface else {
-                        return None;
-                    };
-                    Some(plane)
-                })
-                .collect();
-            assert_eq!(planes.len(), 2, "{face}");
-            assert!(geom::dot(planes[0].z, planes[1].z).abs() < 1e-9, "{face}");
-            for plane in planes {
-                assert!(geom::dot(plane.z, frame.z).abs() < 1e-9, "{face}");
-                assert!(
-                    (geom::dot(geom::sub(frame.origin, plane.origin), plane.z).abs() - radius)
-                        .abs()
-                        < 1e-6,
-                    "{face}"
-                );
-            }
-            if let Some(specific) = specific {
-                let index = specific.features.defining["fillets"]
-                    .iter()
-                    .position(|f| *f == vec![face])
-                    .unwrap();
-                assert_eq!(specific.features.fillets[index].radius, radius);
-            }
-            assert!(!general.features.defining["fillets"].contains(&vec![face]));
-            let index = general.features.defining["blends"]
+        let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
+            panic!("{face}")
+        };
+        assert_eq!(radius, 1.);
+        assert_eq!(part.frame_points_outward(face), Some(true), "{face}");
+        let planes: Vec<_> = part
+            .neighbours(face)
+            .into_iter()
+            .filter_map(|f| {
+                let Surface::Plane { frame: plane } = part.faces[f].surface else {
+                    return None;
+                };
+                Some(plane)
+            })
+            .collect();
+        assert_eq!(planes.len(), 2, "{face}");
+        assert!(geom::dot(planes[0].z, planes[1].z).abs() < 1e-9, "{face}");
+        for plane in planes {
+            assert!(geom::dot(plane.z, frame.z).abs() < 1e-9, "{face}");
+            assert!(
+                (geom::dot(geom::sub(frame.origin, plane.origin), plane.z).abs() - radius).abs()
+                    < 1e-6,
+                "{face}"
+            );
+        }
+        for reading in [&framed, &caller] {
+            assert!(!reading.features.defining["blends"].contains(&vec![face]));
+            let index = reading.features.defining["fillets"]
                 .iter()
                 .position(|f| *f == vec![face])
                 .unwrap();
-            let blend = &general.features.blends[index];
-            assert_eq!(blend.radius, radius);
-            assert_eq!(blend.side, "convex");
-            let features::blends::BlendPath::Straight(path) = &blend.path else {
-                panic!("{face}")
+            let fillet = &reading.features.fillets[index];
+            assert_eq!(fillet.radius, radius);
+            assert_eq!(fillet.side, "convex");
+            assert!(!fillet.turned);
+            let direction = match fillet.axis {
+                quiddity::FilletAxis::Direction(direction) => direction,
+                quiddity::FilletAxis::Principal(axis) => {
+                    let mut direction = [0.; 3];
+                    direction[match axis {
+                        'x' => 0,
+                        'y' => 1,
+                        'z' => 2,
+                        _ => panic!("{axis}"),
+                    }] = 1.;
+                    direction
+                }
             };
             assert!(
-                geom::dot(geom::unit(path.direction).unwrap(), frame.z).abs() > 1. - 1e-9,
+                geom::dot(geom::unit(direction).unwrap(), frame.z).abs() > 1. - 1e-9,
                 "{face}"
             );
         }
@@ -1400,22 +1394,27 @@ fn changed_query_axes_retain_physical_rounds_and_bores() {
         };
         assert_eq!(measured, radius);
         assert_eq!(part.frame_points_outward(face), Some(outward));
-        let index = caller.features.defining["blends"]
-            .iter()
-            .position(|f| *f == vec![face])
-            .unwrap();
-        assert_eq!(caller.features.blends[index].side, side);
-        // Permit a future correction of the approximate fillet label; require the curve
-        // itself to remain represented with the right radius in either accepted family.
-        let found = framed.features.defining["fillets"]
-            .iter()
-            .zip(&framed.features.fillets)
-            .any(|(f, r)| *f == vec![face] && r.radius == radius)
-            || framed.features.defining["blends"]
+        // For #120, the proved R23 convex edge is a fillet in both query frames;
+        // the R20 inner bend keeps its concave blend classification.
+        for reading in [&framed, &caller] {
+            let f = &reading.features;
+            let (family, other) = if outward {
+                ("fillets", "blends")
+            } else {
+                ("blends", "fillets")
+            };
+            let index = f.defining[family]
                 .iter()
-                .zip(&framed.features.blends)
-                .any(|(f, r)| *f == vec![face] && r.radius == radius);
-        assert!(found, "lost physical cylindrical blend {face}");
+                .position(|f| *f == vec![face])
+                .unwrap();
+            let measured = if outward {
+                (f.fillets[index].radius, f.fillets[index].side)
+            } else {
+                (f.blends[index].radius, f.blends[index].side.as_str())
+            };
+            assert_eq!(measured, (radius, side));
+            assert!(!f.defining[other].contains(&vec![face]));
+        }
     }
     let normal = |f: usize| {
         let Surface::Plane { frame } = part.faces[f].surface else {
