@@ -227,19 +227,6 @@ fn families_are_wired_and_their_records_fingerprinted_field_by_field() {
             found.entry("oriented_slot_patterns".into()).or_default(),
         );
     }
-    // Multiple counterbore-class steps occur in the captured #118 stack, outside
-    // this sweep's golden/corpus inputs. Use the actual record type for its additive field.
-    let stepped_hole: features::holes::HoleRecord = serde_json::from_value(serde_json::json!({
-        "axis": [0., 0., -1.], "location": [0., 0., 20.], "diameter": 10.1,
-        "depth": 15., "bottom": "flat", "cbore": {"diameter": 18., "depth": 6.},
-        "spotface": null, "csink": null, "outer_steps": [{"diameter": 60., "depth": 5.}]
-    }))
-    .unwrap();
-    leaves(
-        &serde_json::to_value(stepped_hole).unwrap(),
-        "",
-        found.entry("holes".into()).or_default(),
-    );
     let mut used: BTreeSet<(String, &str)> = BTreeSet::new();
     for (key, paths) in &found {
         for path in paths {
@@ -270,4 +257,49 @@ fn families_are_wired_and_their_records_fingerprinted_field_by_field() {
         found.values().map(BTreeSet::len).sum::<usize>()
     );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
+}
+
+#[test]
+fn original_spotface_fixture_proves_optional_hole_fingerprint_fields() {
+    let part =
+        quiddity::read_step_file(&common::fixtures().join("spotface_outer_steps.step")).unwrap();
+    assert_eq!(part.solids.len(), 1);
+    assert!(part.solid_is_geometrically_valid(0));
+    let features = features::recognise(&part);
+    assert_eq!(features.holes.len(), 1);
+    let hole = &features.holes[0];
+    use features::holes::CounterBore;
+    assert_eq!(
+        hole.spotface,
+        Some(CounterBore {
+            diameter: 30.,
+            depth: 0.5
+        })
+    );
+    assert_eq!(
+        hole.cbore,
+        Some(CounterBore {
+            diameter: 12.,
+            depth: 3.
+        })
+    );
+    assert_eq!(
+        hole.outer_steps,
+        [CounterBore {
+            diameter: 20.,
+            depth: 2.
+        }]
+    );
+    let fingerprints = fingerprint(&part, &features);
+    let fp = fingerprints
+        .features
+        .iter()
+        .find(|fp| fp.family == "holes")
+        .unwrap();
+    assert_eq!(fp.traits["spotface"], "present");
+    assert_eq!(fp.sizes["spotface.diameter"], 30.);
+    assert_eq!(fp.sizes["spotface.depth"], 0.5);
+    assert_eq!(fp.sizes["outer_steps.count"], 1.);
+    assert_eq!(fp.sizes["outer_steps.0.diameter"], 20.);
+    assert_eq!(fp.sizes["outer_steps.0.depth"], 2.);
 }
