@@ -692,6 +692,21 @@ pub(super) fn find_section_passages(ctx: &Context<'_>) -> Checked<Vec<Found>> {
     Ok(found)
 }
 
+/// Source scope for a whole-family refusal. If proposal construction itself refused, its
+/// planar inputs are the evidence under consideration; no particular wall claim was issued.
+pub(crate) fn proposal_faces(ctx: &Context<'_>) -> Vec<usize> {
+    match section_ring_proposals(ctx) {
+        Ok(proposals) => proposals
+            .iter()
+            .flat_map(|p| p.nodes.iter().chain(&p.constituent))
+            .copied()
+            .collect(),
+        Err(_) => (0..ctx.part.faces.len())
+            .filter(|&f| super::graph::is_planar(ctx.part, f))
+            .collect(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

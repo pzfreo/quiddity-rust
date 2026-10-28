@@ -539,6 +539,7 @@ fn carry(
 ) -> crate::published_records::PublishedFeatures {
     let Features {
         run_mode,
+        discovery_refusals,
         evidence_status,
         fillets,
         chamfers,
@@ -620,6 +621,7 @@ fn carry(
     let void_count = interior_voids.len();
     let features = Features {
         run_mode,
+        discovery_refusals,
         evidence_status,
         fillets: each!("fillets", fillets, fillet),
         chamfers: each!("chamfers", chamfers, chamfer),

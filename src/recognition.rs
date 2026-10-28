@@ -136,7 +136,15 @@ impl Record {
     pub fn is_refusal(&self) -> bool {
         matches!(
             self.record_type.as_str(),
-            "SectionRecessRefusal" | "ModelledThreadRefusal" | "InteriorVoidRefusal"
+            "SectionRecessRefusal"
+                | "ModelledThreadRefusal"
+                | "InteriorVoidRefusal"
+                | "PadRefusal"
+                | "PrismaticPocketRefusal"
+                | "SectionPassageRefusal"
+                | "OrientedSlotRefusal"
+                | "ReconciliationRefusal"
+                | "PolygonalBossRefusal"
         )
     }
 }
@@ -212,10 +220,22 @@ pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("modelled_thread_refusals", &["ModelledThreadRefusal"]),
 ];
 
+/// Optional refusal families carried in `Features::discovery_refusals`, rather than
+/// ordinary feature fields. They have record types but no feature fingerprint tables.
+const DISCOVERY_REFUSAL_TYPES: &[(&str, &[&str])] = &[
+    ("pad_refusals", &["PadRefusal"]),
+    ("prismatic_pocket_refusals", &["PrismaticPocketRefusal"]),
+    ("section_passage_refusals", &["SectionPassageRefusal"]),
+    ("oriented_slot_refusals", &["OrientedSlotRefusal"]),
+    ("reconciliation_refusals", &["ReconciliationRefusal"]),
+    ("polygonal_boss_refusals", &["PolygonalBossRefusal"]),
+];
+
 /// The record class names a family's records can have.
 pub fn record_types(family: &str) -> Option<&'static [&'static str]> {
     RECORD_TYPES
         .iter()
+        .chain(DISCOVERY_REFUSAL_TYPES)
         .find(|(f, _)| *f == family)
         .map(|(_, types)| *types)
 }
@@ -347,6 +367,21 @@ pub(crate) fn working_families(features: &Features) -> Vec<(String, Vec<Value>)>
             .map(|r| serde_json::to_value(r).expect("thread refusal serialises"))
             .collect(),
     ));
+    families.extend(
+        features
+            .discovery_refusals
+            .iter()
+            .filter(|(_, r)| !r.is_empty())
+            .map(|(&family, refusals)| {
+                (
+                    family.to_owned(),
+                    refusals
+                        .iter()
+                        .map(|r| serde_json::to_value(r).expect("discovery refusal serialises"))
+                        .collect(),
+                )
+            }),
+    );
     families
 }
 
@@ -369,7 +404,9 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
                 panic!("{id} is not a record");
             };
             // Refusals describe source evidence, not recognised geometry to fingerprint.
-            let faces = if family == "interior_voids" && n >= working.interior_voids.len() {
+            let faces = if let Some(refusals) = working.discovery_refusals.get(family.as_str()) {
+                refusals[n].faces.clone()
+            } else if family == "interior_voids" && n >= working.interior_voids.len() {
                 working.interior_void_refusals[n - working.interior_voids.len()]
                     .candidate
                     .void_faces

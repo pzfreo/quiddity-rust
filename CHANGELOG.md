@@ -6,6 +6,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Fixed
+
+- Recognition no longer panics on disconnected pocket wall cycles or narrow pad tops;
+  wall roles use measured geometry and refused discovery evidence remains visible in documents.
+
 ## 0.2.1 (2026-10-27)
 
 Upgrading from 0.2.0: as for 0.2.1-alpha.1 below. Upgrading from 0.2.1-alpha.1: no library

@@ -347,7 +347,7 @@ fn blend_bridges(
     sides: &[usize],
     tol: f64,
     axis: usize,
-) -> BTreeSet<(usize, usize)> {
+) -> Result<BTreeSet<(usize, usize)>, super::discovery::DiscoveryRefusal> {
     let same_span = |a: usize, b: usize| {
         let (sa, sb) = (graph.bounds(a)[axis], graph.bounds(b)[axis]);
         (sa.0 - sb.0).abs() <= tol && (sa.1 - sb.1).abs() <= tol
@@ -372,7 +372,7 @@ fn blend_bridges(
     }
     let possible_pairs: Vec<(usize, usize)> = possible.iter().map(|&(_, p)| p).collect();
     if !contains_cycle(&possible_pairs) {
-        return BTreeSet::new();
+        return Ok(BTreeSet::new());
     }
     let cylindrical: Vec<(usize, usize)> = possible
         .iter()
@@ -384,7 +384,7 @@ fn blend_bridges(
         .map(|&(_, p)| p)
         .collect();
     if !contains_cycle(&cylindrical) {
-        return BTreeSet::new();
+        return Ok(BTreeSet::new());
     }
     let plane = |f: usize| {
         graph
@@ -419,15 +419,24 @@ fn blend_bridges(
         .flat_map(|count| support_cycle_indices(&eligible_pairs, count))
         .collect();
     if selected.is_empty() {
-        return BTreeSet::new();
+        return Ok(BTreeSet::new());
     }
     let chains: Vec<usize> = selected.iter().map(|&at| eligible[at].0).collect();
-    // Python raises on each refusal below; the selection rule (disjoint cycles of distinct
-    // pairs) makes them unreachable, so one here is a broken invariant, reported as such.
-    let bridges = graph
-        .collapsed_bridges(&chains)
-        .unwrap_or_else(|e| panic!("polygonal boss blend selection: {e}"));
     let facts = graph.blend_facts();
+    let faces: BTreeSet<_> = chains
+        .iter()
+        .flat_map(|&i| {
+            facts[i]
+                .blend_faces
+                .iter()
+                .chain(facts[i].supports.iter().flatten())
+        })
+        .copied()
+        .collect();
+    let refuse = |reason| super::discovery::DiscoveryRefusal::new(reason, faces.iter().copied());
+    // Support cycles alone do not prove that their rolling faces and original arcs are
+    // disjoint. Keep a collapse refusal as source evidence instead of trusting that graph.
+    let bridges = graph.collapsed_bridges(&chains).map_err(refuse)?;
     for &at in &selected {
         let (chain, support_pair) = eligible[at];
         let arcs: Vec<_> = bridges
@@ -435,7 +444,9 @@ fn blend_bridges(
             .filter(|b| pair(b.supports.0, b.supports.1) == support_pair)
             .collect();
         let &[bridge] = arcs.as_slice() else {
-            panic!("selected Polygonal Boss blend chain has no unique logical bridge");
+            return Err(refuse(
+                "selected Polygonal Boss blend chain has no unique logical bridge",
+            ));
         };
         let fact = &facts[chain];
         let mut expected: Vec<usize> = fact
@@ -448,10 +459,12 @@ fn blend_bridges(
         let mut boundary = fact.boundary.clone();
         boundary.sort_by_key(super::blend_view::Shared::key);
         if bridge.faces != expected || bridge.boundary != boundary {
-            panic!("selected Polygonal Boss bridge lost original provenance");
+            return Err(refuse(
+                "selected Polygonal Boss bridge lost original provenance",
+            ));
         }
     }
-    selected.iter().map(|&at| eligible[at].1).collect()
+    Ok(selected.iter().map(|&at| eligible[at].1).collect())
 }
 
 /// `_regular_ring_order`: the ring ordered by heading angle, or `None` unless the headings are
@@ -553,6 +566,7 @@ fn recognise_one(
     angle_tol: f64,
     whole_stock: bool,
     (axis, axis_name): (usize, &str),
+    refusals: &mut Vec<super::discovery::DiscoveryRefusal>,
 ) -> Vec<Proposal> {
     let part = graph.part;
     let transverse = match axis {
@@ -567,7 +581,13 @@ fn recognise_one(
     let bridges = if whole_stock {
         BTreeSet::new()
     } else {
-        blend_bridges(graph, &sides, tol, axis)
+        match blend_bridges(graph, &sides, tol, axis) {
+            Ok(bridges) => bridges,
+            Err(refusal) => {
+                refusals.push(refusal);
+                BTreeSet::new()
+            }
+        }
     };
     let shares_edge =
         |i: usize, j: usize| graph.neighbours(i).contains(&j) || bridges.contains(&pair(i, j));
@@ -706,6 +726,15 @@ internal_entry! {
 /// x then y, sorted by record. Each boss is defined by its side ring; its claim covers its free
 /// end's cap as well.
 pub fn discover(ctx: &Context<'_>, opts: &PolygonalOptions) -> Vec<Occurrence<PolygonalBoss>> {
+    analyse(ctx, opts).accepted
+}
+}
+
+pub(crate) fn analyse(
+    ctx: &Context<'_>,
+    opts: &PolygonalOptions,
+) -> super::discovery::Analysis<PolygonalBoss> {
+    let mut refusals = Vec::new();
     let part = ctx.part;
     let tol = opts.tol.unwrap_or(TOL);
     let graphs: Vec<GeometryGraph<'_>> = if part.solids.is_empty() {
@@ -719,14 +748,14 @@ pub fn discover(ctx: &Context<'_>, opts: &PolygonalOptions) -> Vec<Occurrence<Po
     for (g, graph) in graphs.iter().enumerate() {
         for axis in AXES {
             found.extend(
-                recognise_one(graph, tol, opts.angle_tol, false, axis)
+                recognise_one(graph, tol, opts.angle_tol, false, axis, &mut refusals)
                     .into_iter()
                     .map(|p| (p, g)),
             );
         }
     }
     found.sort_by(|a, b| record_order(&a.0.record, &b.0.record));
-    found
+    let accepted = found
         .into_iter()
         .map(|(p, g)| {
             let bridge = GeometryEvidence::new(&graphs[g]);
@@ -736,8 +765,8 @@ pub fn discover(ctx: &Context<'_>, opts: &PolygonalOptions) -> Vec<Occurrence<Po
             constituent.push(terminal);
             bridge.occurrence(p.record, &refs, &constituent)
         })
-        .collect()
-}
+        .collect();
+    super::discovery::Analysis { accepted, refusals }
 }
 
 /// Extend a completed inventory's boss claim with its already-consulted free-end cap, after
@@ -845,7 +874,7 @@ pub fn discover_stock(
     let graph = GeometryGraph::new(part);
     let mut proposals = Vec::new();
     for axis in AXES {
-        proposals = recognise_one(&graph, tol, opts.angle_tol, true, axis);
+        proposals = recognise_one(&graph, tol, opts.angle_tol, true, axis, &mut Vec::new());
         if !proposals.is_empty() {
             break;
         }

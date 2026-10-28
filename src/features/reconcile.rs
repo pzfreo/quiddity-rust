@@ -246,23 +246,31 @@ impl Evidence {
             ctx: &Context<'_>,
             pockets: &[Occurrence<pockets::Pocket>],
         ) -> Result<Evidence, ReconcileError> {
-            Ok(Evidence {
-                pocket_constituent: pockets
-                    .iter()
-                    .map(|o| {
-                        let mut faces: Vec<usize> =
-                            o.defining.iter().chain(&o.context).copied().collect();
-                        faces.sort_unstable();
-                        faces.dedup();
-                        faces
-                    })
-                    .collect(),
-                passage_compatibility: super::passages::compatibility_views(ctx)?,
-                risers: levels::risers_with_faces(ctx.part, &levels::RiserOptions::default())
-                    .into_iter()
-                    .map(|(_, faces)| faces)
-                    .collect(),
-            })
+            Ok(Self::with_passage_views(ctx, pockets, super::passages::compatibility_views(ctx)?))
+        }
+    }
+
+    pub(crate) fn with_passage_views(
+        ctx: &Context<'_>,
+        pockets: &[Occurrence<pockets::Pocket>],
+        passage_compatibility: Vec<PassageCompatibilityView>,
+    ) -> Evidence {
+        Evidence {
+            pocket_constituent: pockets
+                .iter()
+                .map(|o| {
+                    let mut faces: Vec<usize> =
+                        o.defining.iter().chain(&o.context).copied().collect();
+                    faces.sort_unstable();
+                    faces.dedup();
+                    faces
+                })
+                .collect(),
+            passage_compatibility,
+            risers: levels::risers_with_faces(ctx.part, &levels::RiserOptions::default())
+                .into_iter()
+                .map(|(_, faces)| faces)
+                .collect(),
         }
     }
 }
