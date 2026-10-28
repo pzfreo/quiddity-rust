@@ -17,7 +17,7 @@ use super::policy::AXIS_ALIGNED_COS;
 use super::turned;
 use crate::kernel::brep::Part;
 use crate::kernel::classify::material_at;
-use crate::kernel::geom::{self, SMOOTH_ARC_GAP, Surface, V3, dominant_axis};
+use crate::kernel::geom::{self, Surface, V3, dominant_axis};
 use crate::kernel::py;
 
 /// A minimum-evidence threshold, deliberately absolute (ADR 0008).
@@ -25,6 +25,9 @@ const MIN_RADIUS: f64 = 0.6;
 /// Nearly half-turn rounds between nearly parallel walls are groove/slot full-round
 /// bottoms, not edge fillets (#120). Keep walls at least 45° apart.
 const FILLET_MAX_EXTENT: f64 = 3.0 * PI / 4.0;
+/// Reject gross sweep mismatches (a truncated bend skin), while allowing the angular
+/// noise of modelled geometry such as CTC-03's 90.0246° round (#120).
+const FILLET_SWEEP_TOL_DEG: f64 = 0.5;
 /// A turned edge fillet is a quarter circle in section; a bead is a half or full one.
 const TURNED_FILLET_MAX_EXTENT: f64 = PI / 2.0 * 1.05;
 
@@ -226,7 +229,7 @@ fn run_axis(direction: V3) -> Option<FilletAxis> {
 }
 
 /// The outward wall normals turn through the swept arc: PI minus the interior wall
-/// angle. Use the existing parallel-direction angular tolerance, not a fixed 90° cap.
+/// angle. The sweep tolerance accommodates modelled geometry, not a truncated bend skin.
 /// The 135° cap separates edge rounds from full-round groove/slot bottoms.
 fn sweep_matches_walls(sweep: f64, normals: [V3; 2]) -> bool {
     if !(sweep > 0.0 && sweep <= FILLET_MAX_EXTENT) {
@@ -234,7 +237,7 @@ fn sweep_matches_walls(sweep: f64, normals: [V3; 2]) -> bool {
     }
     let expected =
         geom::norm(geom::cross(normals[0], normals[1])).atan2(geom::dot(normals[0], normals[1]));
-    1.0 - (sweep - expected).cos() <= SMOOTH_ARC_GAP
+    (sweep - expected).abs() <= FILLET_SWEEP_TOL_DEG.to_radians()
 }
 
 /// A short external torus: a lathe-swept edge round, proved by a coaxial external cylinder.
@@ -339,7 +342,7 @@ mod tests {
 
     #[test]
     fn sweep_follows_acute_right_and_obtuse_walls() {
-        let tolerance = (1.0 - SMOOTH_ARC_GAP).acos();
+        let tolerance = FILLET_SWEEP_TOL_DEG.to_radians();
         for wall_degrees in [60_f64, 86., 90., 94., 120., 160.] {
             let sweep = PI - wall_degrees.to_radians();
             let walls = [[1., 0., 0.], [sweep.cos(), sweep.sin(), 0.]];
@@ -354,6 +357,24 @@ mod tests {
                 assert!(!sweep_matches_walls(invalid, walls));
             }
         }
+    }
+
+    #[test]
+    fn modelled_near_quarter_rounds_pass_but_truncated_bend_skins_do_not() {
+        let walls = [[1., 0., 0.], [0., 1., 0.]];
+        // CTC-03 face 36 and sm-hanger faces 73/76, expressed as constructed sections.
+        assert!(sweep_matches_walls(
+            90.02457403831906_f64.to_radians(),
+            walls
+        ));
+        assert!(!sweep_matches_walls(
+            25.376933525173_f64.to_radians(),
+            walls
+        ));
+        assert!(sweep_matches_walls(90.499_f64.to_radians(), walls));
+        assert!(!sweep_matches_walls(90.501_f64.to_radians(), walls));
+        assert!(sweep_matches_walls(89.501_f64.to_radians(), walls));
+        assert!(!sweep_matches_walls(89.499_f64.to_radians(), walls));
     }
 
     #[test]

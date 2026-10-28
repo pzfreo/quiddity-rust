@@ -22,7 +22,7 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 - For #120, a straight constant-radius convex round between two tangent walls is a fillet
   at any wall angle and in any direction, including drafted cast walls. Its cylindrical sweep
-  must match 180° minus the interior wall angle within the existing angular tolerance;
+  must match 180° minus the interior wall angle within 0.5°;
   concave rounds and bores remain excluded. Oblique fillets carry unit-vector axes.
   Sweeps above 135° remain groove/slot full-round bottoms rather than edge fillets.
   Only tangent walls compete as supports; non-tangent transverse cut/end planes do not

@@ -362,24 +362,26 @@ fn working_faces_are_the_caller_faces_on_every_corpus_part() {
 fn axis_majorities_and_intrinsic_frames_survive_sixty_and_one_degree_motions() {
     use quiddity::{correspondence, frames::RecordFrame};
     let corpus = common::corpus_dir();
+    // For #120, tangent convex rounds at drafted wall angles and oblique runs are
+    // fillets too. The complete face audit retains every valid pre-existing fillet.
     let mut cases = vec![
         (
             common::fixtures().join("nist_ctc_02_asme1_ap242-e2.stp.gz"),
-            20,
+            53,
             0,
             0,
         ),
         (
             common::fixtures().join("nist_ftc_07_asme1_ap242-e2.stp.gz"),
-            16,
+            20,
             4,
             5,
         ),
     ];
     if let Some(dir) = corpus {
         cases.extend([
-            (dir.join("nist/nist_ctc_02_asme1_rc.stp"), 21, 0, 0),
-            (dir.join("nist/nist_ftc_07_asme1_rd.stp"), 16, 4, 5),
+            (dir.join("nist/nist_ctc_02_asme1_rc.stp"), 55, 0, 0),
+            (dir.join("nist/nist_ftc_07_asme1_rd.stp"), 20, 4, 5),
         ]);
     }
     for (path, fillets, bosses, plates) in cases {
@@ -438,9 +440,9 @@ fn axis_majorities_and_intrinsic_frames_survive_sixty_and_one_degree_motions() {
             ] {
                 assert!(faces.contains(&vec![face]), "missing AP242 fillet {face}");
             }
-            // rc's 21st fillet is its face 635, R1.092560827904 on a 2° cylinder.
+            // rc's extra small fillet is its face 635, R1.092560827904 on a 2° cylinder.
             // That small feature is absent from this AP242 geometry, whose minimum cylinder
-            // radius is 4.19 mm. Do not invent a 21st record just to match another edition.
+            // radius is 4.19 mm. Do not invent that record to match another edition.
             assert!(
                 part.faces
                     .iter()
@@ -464,12 +466,14 @@ fn majority_frame_recovers_specify_fillets_and_parallel_support_chamfer() {
         (
             "cadgenbench_inputs/cgb202.step.gz",
             "fillets",
-            279,
+            // For #120, 28 more tangent convex rounds pass the intrinsic proof.
+            307,
             vec![
                 1248, 1250, 1453, 1464, 1473, 1475, 1477, 1623, 1631, 2056, 2057,
             ],
         ),
-        ("cadgenbench_inputs/cgb207.step", "fillets", 20, vec![176]),
+        // For #120, 20 drafted/oblique tangent convex rounds join the existing twenty.
+        ("cadgenbench_inputs/cgb207.step", "fillets", 40, vec![176]),
         ("mfcadpp/10252.step", "oriented_chamfers", 1, vec![2]),
     ] {
         let part = quiddity::read_step_file(&dir.join(file)).unwrap();

@@ -313,8 +313,10 @@ The contact tolerance is `max(part.file_uncertainty(), COORD_FLOOR)`, with
 The STEP reader supplies the file uncertainty in millimetres; CTC-03 states 0.00002 mm.
 
 The cylindrical sweep must be greater than zero and at most 135° and match 180° minus
-the interior wall angle (the turn between outward wall normals). Direction agreement
-uses the existing `1 - dot <= SMOOTH_ARC_GAP` angular tolerance. This replaces a fixed
+the interior wall angle (the turn between outward wall normals), within 0.5°. This rejects
+grossly truncated bend skins without demanding exact agreement from modelled geometry:
+CTC-03's 90.0246° round passes; sm-hanger's 25.4° skins between perpendicular walls do not.
+This replaces a fixed
 extent cap: acute corners can sweep over 90°, while obtuse corners sweep less. The 135°
 cap keeps wall angles at least 45°: a near-half-turn between nearly parallel walls is a
 full-round groove/slot bottom, not an edge fillet. CGB202's R90 face 2074 stays a groove.

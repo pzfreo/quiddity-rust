@@ -1,6 +1,6 @@
 {
   "revision": "5fb1706",
-  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts. For #89, convex fillets require an outward-facing cylinder in both prismatic paths. Original fillet baselines remain; per-face material-side evidence bounds concave false-positive removals, and recovered blend counts tighten floors/allowances. For #91, the frame's roll about its leading line follows the tightest box around the material; the cgb241 and cgb217 framed fillet and step-level decreases are family changes of the same faces, each evidenced.",
+  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts. For #89, convex fillets require an outward-facing cylinder in both prismatic paths. Original fillet baselines remain; per-face material-side evidence bounds concave false-positive removals, and recovered blend counts tighten floors/allowances. For #91, the frame's roll about its leading line follows the tightest box around the material; the cgb241 and cgb217 framed fillet and step-level decreases are family changes of the same faces, each evidenced. For #120, exact blend-to-fillet promotions at arbitrary wall angles and directions have per-face evidence-backed loss allowances; the four CTC-05 false fillets have separate gross-tangency evidence. No historical baseline or comparison tolerance is lowered.",
   "files": {
     "captured/0043cf4564250883.step.gz": {
       "accepted": {
@@ -18079,9 +18079,9 @@
       "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
       "mode": "framed",
       "family": "blends",
-      "max_lost": 3,
-      "reason": "For #81, specific fillets replace some generic blend chains in the file-axis frame. For #89, removing inward-facing fillets restores three accepted concave blends (59 -> 62), tightening the old six-blend allowance to three.",
-      "evidence": "The remaining #81 family substitutions retain their defining cylindrical surfaces. The #89 raw fillet exclusions all have frame_points_outward=Some(false); reconciliation now retains three additional concave blend claims on the inward-facing cylinders. The framed baseline remains 65 and the actual count is 62; no physical blend is lost by #89."
+      "max_lost": 8,
+      "reason": "For #81, specific fillets replace some generic blend chains in the file-axis frame. For #89, removing inward-facing fillets restores three accepted concave blends (59 -> 62), tightening the old six-blend allowance to three. For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 62 -> 57. The historical baseline is retained.",
+      "evidence": "The remaining #81 family substitutions retain their defining cylindrical surfaces. The #89 raw fillet exclusions all have frame_points_outward=Some(false); reconciliation now retains three additional concave blend claims on the inward-facing cylinders. The framed baseline remains 65 and the actual count is 62; no physical blend is lost by #89. Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/16\",\"faces\":[1643]},{\"id\":\"blends/57\",\"faces\":[1459]},{\"id\":\"blends/59\",\"faces\":[1447]},{\"id\":\"blends/60\",\"faces\":[1461]},{\"id\":\"blends/61\",\"faces\":[1418]}]."
     },
     {
       "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
@@ -18714,6 +18714,398 @@
       "max_lost": 8,
       "reason": "The eight +/-45-degree R1 rounds are blends again in the part's 13.07-degree frame. (for #91)",
       "evidence": "The vote (98 distinct surfaces at 45 degrees) still settles Z; about it, the 13.07-degree basis of the R5.1/R4.25 cross bores and the largest side walls (4,119 mm2 of plane and cylinder faces whose normal or axis lies on its two horizontal lines, against 361 mm2 at 45 degrees and 370 mm2 on file axes; 93 votes) has the smallest box, 9.775e5 against 1.215e6 at 45 degrees and 1.010e6 on file axes. Neither the +/-45-degree set (faces 177,182,205,210,233,238,261,266) nor the file-X/Y set runs along an axis there, so all sixteen R1 convex rounds are accepted cylindrical blends (framed blends 37, baseline 37) and none is a tilted fillet. Caller-space recognition keeps the file-X/Y set as its 8 fillets; tests/internal/recognition.rs::changed_query_axes_retain_physical_rounds_and_bores."
+    },
+    {
+      "file": "captured/05458b4cdc569f6a.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 6,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[15]},{\"id\":\"blends/1\",\"faces\":[13]},{\"id\":\"blends/2\",\"faces\":[17]},{\"id\":\"blends/3\",\"faces\":[11]},{\"id\":\"blends/4\",\"faces\":[7]},{\"id\":\"blends/5\",\"faces\":[9]}]."
+    },
+    {
+      "file": "captured/0da956c02efb2bf5.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 6,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[11]},{\"id\":\"blends/1\",\"faces\":[13]},{\"id\":\"blends/2\",\"faces\":[9]},{\"id\":\"blends/3\",\"faces\":[15]},{\"id\":\"blends/4\",\"faces\":[7]},{\"id\":\"blends/5\",\"faces\":[17]}]."
+    },
+    {
+      "file": "captured/11ee4708f7675eb9.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 29,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 82 -> 53. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/3\",\"faces\":[234]},{\"id\":\"blends/5\",\"faces\":[257]},{\"id\":\"blends/6\",\"faces\":[258]},{\"id\":\"blends/9\",\"faces\":[285]},{\"id\":\"blends/11\",\"faces\":[276]},{\"id\":\"blends/12\",\"faces\":[259]},{\"id\":\"blends/14\",\"faces\":[284]},{\"id\":\"blends/16\",\"faces\":[44]},{\"id\":\"blends/18\",\"faces\":[2]},{\"id\":\"blends/20\",\"faces\":[0]},{\"id\":\"blends/22\",\"faces\":[43]},{\"id\":\"blends/25\",\"faces\":[96]},{\"id\":\"blends/31\",\"faces\":[260]},{\"id\":\"blends/36\",\"faces\":[419]},{\"id\":\"blends/42\",\"faces\":[417]},{\"id\":\"blends/46\",\"faces\":[415]},{\"id\":\"blends/50\",\"faces\":[172]},{\"id\":\"blends/57\",\"faces\":[106]},{\"id\":\"blends/60\",\"faces\":[432]},{\"id\":\"blends/62\",\"faces\":[6]},{\"id\":\"blends/64\",\"faces\":[4]},{\"id\":\"blends/66\",\"faces\":[431]},{\"id\":\"blends/67\",\"faces\":[386]},{\"id\":\"blends/69\",\"faces\":[173]},{\"id\":\"blends/71\",\"faces\":[378]},{\"id\":\"blends/72\",\"faces\":[385]},{\"id\":\"blends/75\",\"faces\":[175]},{\"id\":\"blends/76\",\"faces\":[174]},{\"id\":\"blends/78\",\"faces\":[163]}]."
+    },
+    {
+      "file": "captured/2e1ec1d7c72433bc.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 5,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 5 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[11]},{\"id\":\"blends/1\",\"faces\":[13]},{\"id\":\"blends/2\",\"faces\":[9]},{\"id\":\"blends/3\",\"faces\":[7]},{\"id\":\"blends/4\",\"faces\":[16]}]."
+    },
+    {
+      "file": "captured/3c6f2a24b5d6bf25.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 6,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[11]},{\"id\":\"blends/1\",\"faces\":[9]},{\"id\":\"blends/2\",\"faces\":[13]},{\"id\":\"blends/3\",\"faces\":[7]},{\"id\":\"blends/4\",\"faces\":[15]},{\"id\":\"blends/5\",\"faces\":[17]}]."
+    },
+    {
+      "file": "captured/3fc3a02729779b46.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 6,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[11]},{\"id\":\"blends/1\",\"faces\":[13]},{\"id\":\"blends/2\",\"faces\":[9]},{\"id\":\"blends/3\",\"faces\":[15]},{\"id\":\"blends/4\",\"faces\":[7]},{\"id\":\"blends/5\",\"faces\":[17]}]."
+    },
+    {
+      "file": "captured/484ee320a5f9cf1f.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 4,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 4 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[12]},{\"id\":\"blends/1\",\"faces\":[13]},{\"id\":\"blends/2\",\"faces\":[17]},{\"id\":\"blends/3\",\"faces\":[18]}]."
+    },
+    {
+      "file": "captured/6c6ba52844c46619.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 12,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 12 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[11]},{\"id\":\"blends/1\",\"faces\":[13]},{\"id\":\"blends/2\",\"faces\":[9]},{\"id\":\"blends/3\",\"faces\":[15]},{\"id\":\"blends/4\",\"faces\":[7]},{\"id\":\"blends/5\",\"faces\":[17]},{\"id\":\"blends/6\",\"faces\":[30]},{\"id\":\"blends/7\",\"faces\":[32]},{\"id\":\"blends/8\",\"faces\":[28]},{\"id\":\"blends/9\",\"faces\":[34]},{\"id\":\"blends/10\",\"faces\":[26]},{\"id\":\"blends/11\",\"faces\":[36]}]."
+    },
+    {
+      "file": "captured/834c7bff54bfb89d.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 6,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[11]},{\"id\":\"blends/1\",\"faces\":[9]},{\"id\":\"blends/2\",\"faces\":[13]},{\"id\":\"blends/3\",\"faces\":[7]},{\"id\":\"blends/4\",\"faces\":[15]},{\"id\":\"blends/5\",\"faces\":[17]}]."
+    },
+    {
+      "file": "captured/8443bc2e5a9d6ca9.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 2,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 4. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/2\",\"faces\":[39]},{\"id\":\"blends/5\",\"faces\":[47]}]."
+    },
+    {
+      "file": "captured/876837d9cf19ff05.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 10,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 22 -> 12. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[53]},{\"id\":\"blends/3\",\"faces\":[58]},{\"id\":\"blends/5\",\"faces\":[52]},{\"id\":\"blends/7\",\"faces\":[63]},{\"id\":\"blends/10\",\"faces\":[98]},{\"id\":\"blends/12\",\"faces\":[8]},{\"id\":\"blends/15\",\"faces\":[18]},{\"id\":\"blends/17\",\"faces\":[39]},{\"id\":\"blends/19\",\"faces\":[27]},{\"id\":\"blends/21\",\"faces\":[35]}]."
+    },
+    {
+      "file": "captured/89f790961fc732fc.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 1,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 1 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[2]}]."
+    },
+    {
+      "file": "captured/b04c5e16e3681399.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 6,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[9]},{\"id\":\"blends/1\",\"faces\":[11]},{\"id\":\"blends/2\",\"faces\":[7]},{\"id\":\"blends/3\",\"faces\":[13]},{\"id\":\"blends/4\",\"faces\":[17]},{\"id\":\"blends/5\",\"faces\":[15]}]."
+    },
+    {
+      "file": "captured/bbefaf69de7be527.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 6,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[13]},{\"id\":\"blends/1\",\"faces\":[15]},{\"id\":\"blends/2\",\"faces\":[11]},{\"id\":\"blends/3\",\"faces\":[17]},{\"id\":\"blends/4\",\"faces\":[9]},{\"id\":\"blends/5\",\"faces\":[7]}]."
+    },
+    {
+      "file": "captured/bf051b2a78149a64.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 1,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 1 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[2]}]."
+    },
+    {
+      "file": "captured/cdbb50ecd934508f.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 2,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 5 -> 3. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[95]},{\"id\":\"blends/3\",\"faces\":[208]}]."
+    },
+    {
+      "file": "captured/d099f35d94b357db.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 6,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[11]},{\"id\":\"blends/1\",\"faces\":[13]},{\"id\":\"blends/2\",\"faces\":[9]},{\"id\":\"blends/3\",\"faces\":[15]},{\"id\":\"blends/4\",\"faces\":[7]},{\"id\":\"blends/5\",\"faces\":[17]}]."
+    },
+    {
+      "file": "captured/d1dc7288fa585cbb.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 6,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[11]},{\"id\":\"blends/1\",\"faces\":[13]},{\"id\":\"blends/2\",\"faces\":[9]},{\"id\":\"blends/3\",\"faces\":[15]},{\"id\":\"blends/4\",\"faces\":[7]},{\"id\":\"blends/5\",\"faces\":[17]}]."
+    },
+    {
+      "file": "captured/f2ae41ef15b4e400.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 6,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[11]},{\"id\":\"blends/1\",\"faces\":[13]},{\"id\":\"blends/2\",\"faces\":[9]},{\"id\":\"blends/3\",\"faces\":[15]},{\"id\":\"blends/4\",\"faces\":[7]},{\"id\":\"blends/5\",\"faces\":[17]}]."
+    },
+    {
+      "file": "captured/f3be2aad33209d86.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 6,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[11]},{\"id\":\"blends/1\",\"faces\":[13]},{\"id\":\"blends/2\",\"faces\":[9]},{\"id\":\"blends/3\",\"faces\":[15]},{\"id\":\"blends/4\",\"faces\":[7]},{\"id\":\"blends/5\",\"faces\":[17]}]."
+    },
+    {
+      "file": "captured/fddbe1ce921ff989.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 6,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 0. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[11]},{\"id\":\"blends/1\",\"faces\":[13]},{\"id\":\"blends/2\",\"faces\":[9]},{\"id\":\"blends/3\",\"faces\":[15]},{\"id\":\"blends/4\",\"faces\":[7]},{\"id\":\"blends/5\",\"faces\":[17]}]."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 5,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 62 -> 57. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/6\",\"faces\":[1643]},{\"id\":\"blends/27\",\"faces\":[1459]},{\"id\":\"blends/29\",\"faces\":[1461]},{\"id\":\"blends/32\",\"faces\":[1447]},{\"id\":\"blends/48\",\"faces\":[1418]}]."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb207.step",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 2,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 5 -> 3. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[95]},{\"id\":\"blends/3\",\"faces\":[208]}]."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb207.step",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 2,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 5 -> 3. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[95]},{\"id\":\"blends/3\",\"faces\":[208]}]."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 8,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 29 -> 21. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/7\",\"faces\":[266]},{\"id\":\"blends/8\",\"faces\":[233]},{\"id\":\"blends/9\",\"faces\":[261]},{\"id\":\"blends/10\",\"faces\":[238]},{\"id\":\"blends/19\",\"faces\":[182]},{\"id\":\"blends/20\",\"faces\":[205]},{\"id\":\"blends/21\",\"faces\":[177]},{\"id\":\"blends/22\",\"faces\":[210]}]."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 16,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 37 -> 21. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/2\",\"faces\":[191]},{\"id\":\"blends/3\",\"faces\":[196]},{\"id\":\"blends/4\",\"faces\":[210]},{\"id\":\"blends/5\",\"faces\":[205]},{\"id\":\"blends/6\",\"faces\":[177]},{\"id\":\"blends/7\",\"faces\":[182]},{\"id\":\"blends/8\",\"faces\":[224]},{\"id\":\"blends/9\",\"faces\":[219]},{\"id\":\"blends/10\",\"faces\":[296]},{\"id\":\"blends/11\",\"faces\":[301]},{\"id\":\"blends/12\",\"faces\":[238]},{\"id\":\"blends/13\",\"faces\":[233]},{\"id\":\"blends/14\",\"faces\":[261]},{\"id\":\"blends/15\",\"faces\":[266]},{\"id\":\"blends/16\",\"faces\":[252]},{\"id\":\"blends/17\",\"faces\":[247]}]."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb241.step",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 2,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 4. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/2\",\"faces\":[39]},{\"id\":\"blends/5\",\"faces\":[47]}]."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb241.step",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 2,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 6 -> 4. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/3\",\"faces\":[47]},{\"id\":\"blends/4\",\"faces\":[39]}]."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb242.step.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 2,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 14 -> 12. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/10\",\"faces\":[862]},{\"id\":\"blends/13\",\"faces\":[843]}]."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb242.step.gz",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 2,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 14 -> 12. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/11\",\"faces\":[843]},{\"id\":\"blends/12\",\"faces\":[862]}]."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb245.step",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 29,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 82 -> 53. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/3\",\"faces\":[234]},{\"id\":\"blends/5\",\"faces\":[257]},{\"id\":\"blends/6\",\"faces\":[258]},{\"id\":\"blends/9\",\"faces\":[285]},{\"id\":\"blends/11\",\"faces\":[276]},{\"id\":\"blends/12\",\"faces\":[259]},{\"id\":\"blends/14\",\"faces\":[284]},{\"id\":\"blends/16\",\"faces\":[44]},{\"id\":\"blends/18\",\"faces\":[2]},{\"id\":\"blends/20\",\"faces\":[0]},{\"id\":\"blends/22\",\"faces\":[43]},{\"id\":\"blends/25\",\"faces\":[96]},{\"id\":\"blends/31\",\"faces\":[260]},{\"id\":\"blends/36\",\"faces\":[419]},{\"id\":\"blends/42\",\"faces\":[417]},{\"id\":\"blends/46\",\"faces\":[415]},{\"id\":\"blends/50\",\"faces\":[172]},{\"id\":\"blends/57\",\"faces\":[106]},{\"id\":\"blends/60\",\"faces\":[432]},{\"id\":\"blends/62\",\"faces\":[6]},{\"id\":\"blends/64\",\"faces\":[4]},{\"id\":\"blends/66\",\"faces\":[431]},{\"id\":\"blends/67\",\"faces\":[386]},{\"id\":\"blends/69\",\"faces\":[173]},{\"id\":\"blends/71\",\"faces\":[378]},{\"id\":\"blends/72\",\"faces\":[385]},{\"id\":\"blends/75\",\"faces\":[175]},{\"id\":\"blends/76\",\"faces\":[174]},{\"id\":\"blends/78\",\"faces\":[163]}]."
+    },
+    {
+      "file": "corpus/cadgenbench_inputs/cgb245.step",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 29,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 82 -> 53. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[96]},{\"id\":\"blends/3\",\"faces\":[106]},{\"id\":\"blends/5\",\"faces\":[0]},{\"id\":\"blends/7\",\"faces\":[4]},{\"id\":\"blends/9\",\"faces\":[2]},{\"id\":\"blends/11\",\"faces\":[6]},{\"id\":\"blends/12\",\"faces\":[259]},{\"id\":\"blends/13\",\"faces\":[260]},{\"id\":\"blends/14\",\"faces\":[172]},{\"id\":\"blends/15\",\"faces\":[173]},{\"id\":\"blends/24\",\"faces\":[43]},{\"id\":\"blends/26\",\"faces\":[431]},{\"id\":\"blends/30\",\"faces\":[44]},{\"id\":\"blends/32\",\"faces\":[432]},{\"id\":\"blends/35\",\"faces\":[257]},{\"id\":\"blends/36\",\"faces\":[175]},{\"id\":\"blends/40\",\"faces\":[234]},{\"id\":\"blends/42\",\"faces\":[163]},{\"id\":\"blends/44\",\"faces\":[419]},{\"id\":\"blends/46\",\"faces\":[415]},{\"id\":\"blends/48\",\"faces\":[417]},{\"id\":\"blends/49\",\"faces\":[258]},{\"id\":\"blends/50\",\"faces\":[174]},{\"id\":\"blends/70\",\"faces\":[285]},{\"id\":\"blends/71\",\"faces\":[284]},{\"id\":\"blends/72\",\"faces\":[386]},{\"id\":\"blends/73\",\"faces\":[385]},{\"id\":\"blends/77\",\"faces\":[276]},{\"id\":\"blends/79\",\"faces\":[378]}]."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 4,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 35 -> 31. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/12\",\"faces\":[456]},{\"id\":\"blends/14\",\"faces\":[458]},{\"id\":\"blends/22\",\"faces\":[460]},{\"id\":\"blends/25\",\"faces\":[450]}]."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_02_asme1_rc.stp",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 4,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 35 -> 31. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[456]},{\"id\":\"blends/3\",\"faces\":[458]},{\"id\":\"blends/5\",\"faces\":[460]},{\"id\":\"blends/8\",\"faces\":[450]}]."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 2,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 15 -> 13. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/13\",\"faces\":[101]},{\"id\":\"blends/14\",\"faces\":[102]}]."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 2,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 15 -> 13. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[101]},{\"id\":\"blends/1\",\"faces\":[102]}]."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 2,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 7 -> 5. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[238]},{\"id\":\"blends/6\",\"faces\":[233]}]."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_04_asme1_rd.stp",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 2,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 7 -> 5. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[238]},{\"id\":\"blends/4\",\"faces\":[233]}]."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
+      "mode": "accepted",
+      "family": "fillets",
+      "max_lost": 4,
+      "reason": "For #120, remove CTC-05 R203.2 cylinders with grossly non-tangent walls, falsely accepted by the former axis-aligned shortcut: main 12 -> 8. The historical baseline is retained.",
+      "evidence": "Faces 14,15,168,169 have support-plane tangency errors 2.54 and 133.35 mm, far above the model precision; they remain unexplained. Their removal was explicitly accepted after the full face audit. No valid pre-existing fillet is lost."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
+      "mode": "physical",
+      "family": "fillets",
+      "max_lost": 4,
+      "reason": "For #120, remove CTC-05 R203.2 cylinders with grossly non-tangent walls, falsely accepted by the former axis-aligned shortcut: main 12 -> 8. The historical baseline is retained.",
+      "evidence": "Faces 14,15,168,169 have support-plane tangency errors 2.54 and 133.35 mm, far above the model precision; they remain unexplained. Their removal was explicitly accepted after the full face audit. No valid pre-existing fillet is lost."
+    },
+    {
+      "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
+      "mode": "framed",
+      "family": "fillets",
+      "max_lost": 4,
+      "reason": "For #120, remove CTC-05 R203.2 cylinders with grossly non-tangent walls, falsely accepted by the former axis-aligned shortcut: main 12 -> 8. The historical baseline is retained.",
+      "evidence": "Faces 14,15,168,169 have support-plane tangency errors 2.54 and 133.35 mm, far above the model precision; they remain unexplained. Their removal was explicitly accepted after the full face audit. No valid pre-existing fillet is lost."
+    },
+    {
+      "file": "corpus/nist/nist_ftc_07_asme1_rd.stp",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 4,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 8 -> 4. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[66]},{\"id\":\"blends/1\",\"faces\":[80]},{\"id\":\"blends/6\",\"faces\":[59]},{\"id\":\"blends/7\",\"faces\":[72]}]."
+    },
+    {
+      "file": "corpus/nist/nist_ftc_07_asme1_rd.stp",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 4,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 8 -> 4. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/0\",\"faces\":[80]},{\"id\":\"blends/1\",\"faces\":[72]},{\"id\":\"blends/6\",\"faces\":[66]},{\"id\":\"blends/7\",\"faces\":[59]}]."
+    },
+    {
+      "file": "corpus/ttt_inputs/sm-hanger.step",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 10,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 22 -> 12. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[53]},{\"id\":\"blends/3\",\"faces\":[58]},{\"id\":\"blends/5\",\"faces\":[52]},{\"id\":\"blends/7\",\"faces\":[63]},{\"id\":\"blends/10\",\"faces\":[98]},{\"id\":\"blends/12\",\"faces\":[8]},{\"id\":\"blends/15\",\"faces\":[18]},{\"id\":\"blends/17\",\"faces\":[39]},{\"id\":\"blends/19\",\"faces\":[27]},{\"id\":\"blends/21\",\"faces\":[35]}]."
+    },
+    {
+      "file": "corpus/ttt_inputs/sm-hanger.step",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 10,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 22 -> 12. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[58]},{\"id\":\"blends/3\",\"faces\":[35]},{\"id\":\"blends/5\",\"faces\":[53]},{\"id\":\"blends/7\",\"faces\":[27]},{\"id\":\"blends/9\",\"faces\":[8]},{\"id\":\"blends/11\",\"faces\":[63]},{\"id\":\"blends/13\",\"faces\":[39]},{\"id\":\"blends/15\",\"faces\":[52]},{\"id\":\"blends/17\",\"faces\":[18]},{\"id\":\"blends/19\",\"faces\":[98]}]."
+    },
+    {
+      "file": "fixture/nist_ctc_02_asme1_ap242-e2.stp.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 4,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 34 -> 30. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/7\",\"faces\":[142]},{\"id\":\"blends/11\",\"faces\":[144]},{\"id\":\"blends/21\",\"faces\":[146]},{\"id\":\"blends/26\",\"faces\":[148]}]."
+    },
+    {
+      "file": "fixture/nist_ctc_02_asme1_ap242-e2.stp.gz",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 4,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 34 -> 30. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[142]},{\"id\":\"blends/3\",\"faces\":[144]},{\"id\":\"blends/5\",\"faces\":[146]},{\"id\":\"blends/8\",\"faces\":[148]}]."
+    },
+    {
+      "file": "fixture/nist_ftc_07_asme1_ap242-e2.stp.gz",
+      "mode": "accepted",
+      "family": "blends",
+      "max_lost": 4,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 13 -> 9. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in accepted coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[230]},{\"id\":\"blends/2\",\"faces\":[228]},{\"id\":\"blends/10\",\"faces\":[229]},{\"id\":\"blends/11\",\"faces\":[227]}]."
+    },
+    {
+      "file": "fixture/nist_ftc_07_asme1_ap242-e2.stp.gz",
+      "mode": "framed",
+      "family": "blends",
+      "max_lost": 4,
+      "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 13 -> 9. The historical baseline is retained.",
+      "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[228]},{\"id\":\"blends/2\",\"faces\":[227]},{\"id\":\"blends/10\",\"faces\":[230]},{\"id\":\"blends/11\",\"faces\":[229]}]."
     }
   ]
 }
