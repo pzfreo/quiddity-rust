@@ -97,6 +97,51 @@ fn cgb241_bends_keep_their_native_sides_and_convex_round_is_a_fillet() {
     }
 }
 
+/// #120: these outer bend skins stop at a cut, not a second tangent wall. The old
+/// axis-aligned shortcut accepted them without checking tangency or the swept angle.
+#[test]
+fn truncated_sm_hanger_bend_skins_keep_sheet_ownership_without_false_fillets() {
+    use quiddity::kernel::geom;
+    let Some(dir) = common::corpus_dir() else {
+        return;
+    };
+    let part = read_step_file(&dir.join("ttt_inputs/sm-hanger.step")).unwrap();
+    for face in [73, 76] {
+        let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
+            panic!("face {face}")
+        };
+        let Surface::Plane { frame: wall } = part.faces[64].surface else {
+            panic!("wall 64")
+        };
+        assert_eq!(radius, 7.);
+        assert!(part.neighbours(face).contains(&64));
+        let error = (geom::dot(geom::sub(frame.origin, wall.origin), wall.z).abs() - radius).abs();
+        assert!((error - 4.).abs() < 1e-9, "face {face}: {error}");
+    }
+    for degrees in [0., 5.] {
+        let moved = part.transformed(&about_y(degrees)).unwrap();
+        for reading in [
+            correspondence::recognise(&moved),
+            correspondence::caller_space_recognise(&moved),
+        ] {
+            let f = &reading.features;
+            let sheet = &f.sheet_metal_bodies[0];
+            for (bend, outer, inner) in [(6, 73, 75), (7, 76, 85)] {
+                let bend = &sheet.bends[bend];
+                assert_eq!(bend.inner_radius, 3.);
+                assert!((bend.angle_degrees - 90.).abs() < 1e-9);
+                assert!(
+                    bend.face_pairs
+                        .iter()
+                        .any(|p| { p.first_face == outer && p.second_face == inner })
+                );
+                assert!(f.defining["sheet_metal_bodies"][0].contains(&outer));
+                assert!(f.defining["fillets"].iter().all(|d| !d.contains(&outer)));
+            }
+        }
+    }
+}
+
 // #89: retain the exact face/radius/non-fillet guard in the shared motion readings.
 fn cgb202_guard(part: &Part, reading: &Recognition) {
     for face in [1215, 1219] {

@@ -339,3 +339,10 @@ particular, a round becoming a fillet retains its `thin_wall_bodies` or
 `sheet_metal_bodies` classification, just as existing fillets, holes and blends already
 do. This co-ownership does not replace the round's geometric proof or permit a second
 claim by another individual feature family.
+
+Sheet-metal bend skins must satisfy the same edge-round proof to be fillets. The old
+axis-aligned path skipped tangency and could label a skin cut short of its tangent wall
+as a fillet. For example, sm-hanger's R7 faces 73 and 76 remain the outer skins of
+sheet-metal bends 6 and 7 (inner R3, face pairs 73/75 and 76/85), but are no longer
+fillets: each has a transverse wall 4 mm away from tangency and sweeps only 25.38°
+between perpendicular walls.
