@@ -23,7 +23,8 @@
 //! (not an object, a repeated key, an `id` that is not a string or integer, a field of the wrong
 //! type, an unknown field), `missing_field`, `unknown_op`, `unreadable` (a file cannot be
 //! read), `broken_step` (the kernel refuses the STEP file: [`StepError`]'s parse, unsupported
-//! and incomplete refusals), `bad_document` (a revision without valid fingerprints, or
+//! and incomplete refusals), `broken_f3d` (Fusion conversion refused or the feature is disabled),
+//! `bad_document` (a revision without valid fingerprints, or
 //! fingerprints `correspond` refuses) and `internal` (a panic, caught per request; the server
 //! keeps serving). Blank lines are skipped.
 //!
@@ -49,6 +50,7 @@ use crate::kernel::brep::Part;
 use crate::kernel::step::{
     IDENTITY, Placement, StepError, decode_step_file_bytes, read_step_placed,
 };
+use crate::part_input;
 use crate::recognition::{self, RecognitionDocument};
 
 /// What `quiddity <file.step>` writes and `recognise` returns.
@@ -155,13 +157,22 @@ fn recognise_step_document(path: &str, placement: &Placement) -> Result<StepReco
         .iter()
         .map(|b| format!("{b:02x}"))
         .collect::<String>();
-    let step_bytes = decode_step_file_bytes(std::path::Path::new(path), bytes)
-        .map_err(|e| read_failure(path, &e))?;
+    let fusion = part_input::is_f3d(path);
+    let step_bytes = if fusion {
+        part_input::fusion_step(&bytes)
+            .map_err(|e| Failure::new("broken_f3d", format!("{path}: {e}")))?
+    } else {
+        decode_step_file_bytes(std::path::Path::new(path), bytes)
+            .map_err(|e| read_failure(path, &e))?
+    };
     let part = read_step_placed(&step_bytes, placement).map_err(|e| read_failure(path, &e))?;
     let mut recognition = correspondence::recognise(&part);
     recognition.source_sha256 = Some(source_sha256);
     let document = recognition::document(&recognition, part.faces.len());
-    let warnings = recognition_warnings(path, &part, &recognition, &document);
+    let mut warnings = recognition_warnings(path, &part, &recognition, &document);
+    if fusion {
+        warnings.insert(0, part_input::fusion_warning(path));
+    }
     Ok((part, recognition, document, warnings))
 }
 
@@ -230,7 +241,7 @@ pub fn fingerprints_value(mut value: Value, source: &str) -> Result<Fingerprints
 /// A revision's fingerprints from the file at *path*: a STEP file recognised, or a JSON file
 /// `quiddity <file.step>` wrote. With any warnings.
 pub fn fingerprints_file(path: &str) -> Result<(Fingerprints, Vec<String>), Failure> {
-    if is_step(path) {
+    if is_step(path) || part_input::is_f3d(path) {
         let (_, recognition, warnings) = recognise_step(path, &IDENTITY)?;
         return Ok((recognition.fingerprints, warnings));
     }

@@ -19,6 +19,9 @@ manufacturing features. Use haecceity directly when you need the geometry itself
 haecceity = "0.2"
 ```
 
+Enable the optional `f3d` feature for `haecceity::f3d::read_f3d_file`: visible Autodesk
+Fusion solid geometry in millimetres, including placements, with no imported PMI.
+
 ```rust
 let part = haecceity::step::read_step_file(std::path::Path::new("part.step"))?;
 for solid in 0..part.solids.len() {
