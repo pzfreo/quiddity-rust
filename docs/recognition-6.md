@@ -316,8 +316,10 @@ extent cap: acute corners can sweep over 90°, while obtuse corners sweep less. 
 parallel supports, competing walls and concave rounds remain excluded. The turned-torus
 fillet proof and extent limit are unchanged. Chamfers retain their right-angle contract.
 
-The internal untagged `FilletAxis` stores a principal letter or a full-precision unit
-vector, with the dominant component positive in the working frame. Principal records
+The internal untagged `FilletAxis` stores a principal letter for every run passing the
+existing `principal_axis` / `AXIS_ALIGNED_COS` band, including its legacy approximation.
+Only runs outside that band use a full-precision unit vector, with its dominant component
+positive in the working frame. Principal records
 retain their serialization and sort order; oblique records sort afterwards by direction
 and anchor. Publication rotates vector axes directly into file coordinates. Fingerprint
 format 3 already reads both letters and vectors as axes and retains the exact direction.

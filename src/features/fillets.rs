@@ -179,8 +179,7 @@ fn prismatic(
         return None;
     }
     // Convexity belongs to the cylinder's oriented material side, independently of the
-    // query axes. Approximate coordinate support planes can put a concave round's
-    // reconstructed sharp corner in free space, so neither corner proof suffices alone.
+    // query axes. The corner probe alone cannot prove the surface's material side.
     if part.frame_points_outward(face) != Some(true) {
         return None;
     }
@@ -204,20 +203,23 @@ fn prismatic(
     if material_at(ctx.classifier(), near) {
         return None;
     }
-    let principal = principal_axis(frame.z)
-        .filter(|&axis| (0..3).all(|j| j == axis || frame.z[j].abs() <= SMOOTH_ARC_GAP));
-    let axis = if let Some(axis) = principal {
+    let axis = run_axis(frame.z)?;
+    Some(occurrence(axis, radius, at, false, face, vec![]))
+}
+
+/// Preserve the legacy principal-direction representation, including its alignment band.
+fn run_axis(direction: V3) -> Option<FilletAxis> {
+    Some(if let Some(axis) = principal_axis(direction) {
         FilletAxis::Principal(['x', 'y', 'z'][axis])
     } else {
-        let direction = geom::unit(frame.z)?;
+        let direction = geom::unit(direction)?;
         let sign = if direction[dominant_axis(direction.map(f64::abs))] < 0.0 {
             -1.0
         } else {
             1.0
         };
         FilletAxis::Direction(geom::scale(direction, sign))
-    };
-    Some(occurrence(axis, radius, at, false, face, vec![]))
+    })
 }
 
 /// The outward wall normals turn through the swept arc: PI minus the interior wall
@@ -308,6 +310,29 @@ pub fn turned_context(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn principal_runs_keep_the_legacy_axis_letter_throughout_the_alignment_band() {
+        for degrees in [0_f64, 2.94, 5., 8.] {
+            let (s, c) = degrees.to_radians().sin_cos();
+            for (axis, direction) in [('x', [c, s, 0.]), ('y', [0., c, s]), ('z', [s, 0., c])] {
+                assert_eq!(run_axis(direction), Some(FilletAxis::Principal(axis)));
+                assert_eq!(
+                    run_axis(direction.map(|d| -d)),
+                    Some(FilletAxis::Principal(axis))
+                );
+                assert_eq!(
+                    serde_json::to_value(run_axis(direction).unwrap()).unwrap(),
+                    axis.to_string()
+                );
+            }
+        }
+        let (s, c) = 9_f64.to_radians().sin_cos();
+        assert!(matches!(
+            run_axis([c, s, 0.]),
+            Some(FilletAxis::Direction(_))
+        ));
+    }
 
     #[test]
     fn sweep_follows_acute_right_and_obtuse_walls() {
