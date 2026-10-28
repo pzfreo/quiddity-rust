@@ -795,7 +795,11 @@ pub(crate) fn inventory_in(
     let gone: BTreeSet<_> = physical.defining["fillets"]
         .iter()
         .enumerate()
-        .filter(|(_, faces)| faces.iter().any(|f| claimed.contains(f)))
+        // Existing precedence decisions already exclude these proposals and keep their
+        // reconciliation evidence. Only otherwise-surviving fillets need filtering.
+        .filter(|(i, faces)| {
+            !rejected.contains(&("fillets", *i)) && faces.iter().any(|f| claimed.contains(f))
+        })
         .map(|(i, _)| i)
         .collect();
     if !gone.is_empty() {
