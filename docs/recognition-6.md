@@ -109,6 +109,49 @@ internal. The published registry has 45 families; raw recogniser APIs retain the
 internal types. Intrinsic fingerprints use exact-motion working measurements, with
 axes resolved at extraction; no provenance-frame repair is needed by correspondence.
 
+## Spotfaces and counterbores (For #118)
+
+A near-side cylindrical step is a `spotface` only when its depth is at most 1.0 mm
+and strictly below 0.2 times its diameter; otherwise it is counterbore-class. The absolute
+limit is in quiddity's internal millimetres, like ADR 0008's other minimum-evidence
+thresholds: a spotface only cleans up a surface; deeper recesses are functional.
+Both comparisons use the published measurements, including depth rounded to two
+decimal places, preserving the ratio test's existing rounding policy. Thus a raw
+1.004 mm depth publishes as 1.00 mm and can be a spotface; 1.006 mm publishes as
+1.01 mm and is a counterbore. Depth exactly 1.0 mm qualifies only below the ratio
+limit; equality at the ratio limit is a counterbore.
+
+The innermost counterbore-class step (nearest the bore) is `cbore`. Larger outer
+counterbore-class steps are retained in optional `outer_steps`, outermost first;
+no counterbore-class step or its defining cylinder faces is dropped. A qualifying
+outer spotface remains in `spotface`, preserving spotface-plus-counterbore stacks.
+Hole-pattern members carry the same fields, and pattern grouping includes outer steps.
+Raised collars remain bosses, not additional hole steps.
+
+| Hole field | Definition |
+|---|---|
+| `cbore` | `{diameter, depth}` of the innermost counterbore-class step, or null. |
+| `spotface` | `{diameter, depth}` of the outermost qualifying spotface, or null. |
+| `outer_steps` | Optional nonempty list of `{diameter, depth}` for the remaining counterbore-class steps, outermost first. Absent when there are none; never emitted as an empty list. Old records without this field deserialize as no outer steps. |
+
+Every step depth, including `cbore`, `spotface`, and each `outer_steps` item, is
+its own cylindrical mouth-to-floor axial span in millimetres, rounded to two
+places. It is not cumulative from the hole opening. For example, outer diameter
+60 x depth 5 followed by diameter 18 x depth 6 publishes `outer_steps: [{diameter:
+60, depth: 5}]` and `cbore: {diameter: 18, depth: 6}`; the inner floor is 11 mm
+from the hole opening. Identical step readings at interchangeable mouths retain
+both sets of defining faces; differing readings are omitted, as for counterbores.
+
+Recognition schema 6 and fingerprint format 3 are unchanged; `outer_steps` is an
+additive optional field. Re-recognise affected parts. Like counterbores and
+spotfaces, outer steps describe machining geometry and belong in hole fingerprints:
+`outer_steps.count` records their number, and `outer_steps.<i>.diameter` and
+`outer_steps.<i>.depth` retain paired sizes in outermost-first order. These keys
+are absent when there are no outer steps, so unaffected fingerprints are unchanged.
+Affected fingerprints change within v3 through these sizes and the existing
+spotface/counterbore traits. Rust callers constructing `HoleRecord` literals must
+supply `outer_steps` (normally `Vec::new()`).
+
 ## Slot precision correction (for #92)
 
 The plain recess recogniser retains its legacy two-decimal positions, for stable

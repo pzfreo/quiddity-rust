@@ -258,3 +258,48 @@ fn families_are_wired_and_their_records_fingerprinted_field_by_field() {
     );
     assert!(problems.is_empty(), "{}", problems.join("\n"));
 }
+
+#[test]
+fn original_spotface_fixture_proves_optional_hole_fingerprint_fields() {
+    let part =
+        quiddity::read_step_file(&common::fixtures().join("spotface_outer_steps.step")).unwrap();
+    assert_eq!(part.solids.len(), 1);
+    assert!(part.solid_is_geometrically_valid(0));
+    let features = features::recognise(&part);
+    assert_eq!(features.holes.len(), 1);
+    let hole = &features.holes[0];
+    use features::holes::CounterBore;
+    assert_eq!(
+        hole.spotface,
+        Some(CounterBore {
+            diameter: 30.,
+            depth: 0.5
+        })
+    );
+    assert_eq!(
+        hole.cbore,
+        Some(CounterBore {
+            diameter: 12.,
+            depth: 3.
+        })
+    );
+    assert_eq!(
+        hole.outer_steps,
+        [CounterBore {
+            diameter: 20.,
+            depth: 2.
+        }]
+    );
+    let fingerprints = fingerprint(&part, &features);
+    let fp = fingerprints
+        .features
+        .iter()
+        .find(|fp| fp.family == "holes")
+        .unwrap();
+    assert_eq!(fp.traits["spotface"], "present");
+    assert_eq!(fp.sizes["spotface.diameter"], 30.);
+    assert_eq!(fp.sizes["spotface.depth"], 0.5);
+    assert_eq!(fp.sizes["outer_steps.count"], 1.);
+    assert_eq!(fp.sizes["outer_steps.0.diameter"], 20.);
+    assert_eq!(fp.sizes["outer_steps.0.depth"], 2.);
+}

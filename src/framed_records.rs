@@ -1042,6 +1042,7 @@ fn hole(out: &mut Out, r: HoleRecord) -> HoleRecord {
         bottom,
         cbore,
         spotface,
+        outer_steps,
         csink,
     } = r;
     HoleRecord {
@@ -1052,6 +1053,7 @@ fn hole(out: &mut Out, r: HoleRecord) -> HoleRecord {
         bottom,
         cbore: cbore.map(counterbore),
         spotface: spotface.map(counterbore),
+        outer_steps: outer_steps.into_iter().map(counterbore).collect(),
         csink: csink.map(|c| countersink(out, c)),
     }
 }

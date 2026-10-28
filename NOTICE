@@ -19,3 +19,7 @@ in crates/haecceity/tests/fixtures/README.md.
 Test fixture tests/fixtures/countersink_two_face.step.gz is from draftwright-rust's
 tests/fixtures/coverage-holes/countersink-two-face.step, a CC0/own build123d model
 by Paul Fremantle, supplied for issue #83.
+
+Test fixture tests/fixtures/spotface_outer_steps.step is an original Apache-2.0
+analytic construction made for #118 by tools/make_spotface_fixture.py, using only
+Python's standard library and no third-party model or external dataset.
