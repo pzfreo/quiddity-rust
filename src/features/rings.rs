@@ -146,18 +146,24 @@ pub(crate) fn cross_section(
     axis: usize,
 ) -> Option<Vec<V2>> {
     let part = ctx.part;
-    let mut order = vec![ring[0]];
-    let mut seen: BTreeSet<usize> = [ring[0]].into();
+    let first = *ring.first()?;
+    if ring.len() < 3 || members.len() != ring.len() || !members.contains(&first) {
+        return None;
+    }
+    let mut order = vec![first];
+    let mut seen: BTreeSet<usize> = [first].into();
     while order.len() < ring.len() {
-        // Every member has two in-ring neighbours and the component is connected, so there is
-        // always exactly one unvisited step (Python's bare `next`).
+        // Degree two alone also admits several disconnected cycles. A recovery region can
+        // join those cycles through its floor, without joining their wall graphs.
         let step = part
-            .neighbours(*order.last().expect("started"))
+            .neighbours(*order.last()?)
             .into_iter()
-            .find(|n| members.contains(n) && !seen.contains(n))
-            .expect("a ring member has an unvisited neighbour in the ring");
+            .find(|n| members.contains(n) && !seen.contains(n))?;
         seen.insert(step);
         order.push(step);
+    }
+    if !part.neighbours(*order.last()?).contains(&first) {
+        return None;
     }
     let [a0, a1] = others(axis);
     let corners: Vec<V2> = (0..order.len())

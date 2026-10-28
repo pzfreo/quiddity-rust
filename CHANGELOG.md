@@ -6,10 +6,17 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Added
+
 - Optional `f3d` feature in haecceity and quiddity: read visible Fusion solid geometry
   through cadmpeg 0.6.7, including placements, and use it for recognition, correspondence,
   parts, the JSON-lines service and new AP242 export with `brep --pmi`. Fusion has no imported
   PMI; `pmi read` returns an empty document and `pmi write` requires STEP input.
+
+### Fixed
+
+- Recognition no longer panics on disconnected pocket wall cycles or narrow pad tops;
+  wall roles use measured geometry and refused discovery evidence remains visible in documents.
 
 ## 0.2.1 (2026-10-27)
 
