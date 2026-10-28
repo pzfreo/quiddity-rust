@@ -235,3 +235,55 @@ fn inward_quarter_cylinders_dropped_by_89_are_not_blends() {
         (6.35, "concave")
     );
 }
+
+/// #120's supplied flange has four-degree draft on both sides. All eight cylinders are
+/// tangent to their walls, but the intrinsic corner helper requires perpendicular walls.
+/// Pin the geometry behind this conflict before changing the #91 right-angle boundary.
+#[test]
+fn cast_bearing_rounds_have_tangent_but_nonperpendicular_walls() {
+    use quiddity::features::bevel::transverse_corner;
+    use quiddity::features::fillets::fillet_anchor;
+    use quiddity::kernel::geom::{self, SMOOTH_ARC_GAP};
+    let part = read_step_file(&common::fixtures().join("cast_bearing_unit.step.gz")).unwrap();
+    let frame = quiddity::frames::infer_part_frame(&part).unwrap();
+    let working = part.transformed(&frame.normalisation()).unwrap();
+    for part in [&part, &working] {
+        for face in [14, 25, 16, 27, 24, 18, 22, 20] {
+            let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
+                panic!("face {face}: expected a cylinder")
+            };
+            assert!((radius - 1.).abs() < 1e-12);
+            assert_eq!(part.frame_points_outward(face), Some(true));
+            let normals: Vec<_> = part
+                .neighbours(face)
+                .into_iter()
+                .filter_map(|n| {
+                    let Surface::Plane { frame: wall } = part.faces[n].surface else {
+                        return None;
+                    };
+                    (geom::dot(wall.z, frame.z).abs() <= SMOOTH_ARC_GAP).then(|| {
+                        let distance =
+                            geom::dot(geom::sub(frame.origin, wall.origin), wall.z).abs();
+                        assert!(
+                            (distance - radius).abs() <= 1e-7,
+                            "face {face}, wall {n}: not tangent"
+                        );
+                        wall.z
+                    })
+                })
+                .collect();
+            assert_eq!(normals.len(), 2, "face {face}: two transverse walls");
+            let cosine = geom::dot(normals[0], normals[1]).abs();
+            assert!(
+                (cosine - 4_f64.to_radians().sin()).abs() < 1e-12,
+                "face {face}: {cosine}"
+            );
+            assert!(cosine > SMOOTH_ARC_GAP);
+            let at = fillet_anchor(part, face).unwrap();
+            assert!(
+                transverse_corner(part, face, at, frame.z).is_none(),
+                "face {face}: existing perpendicular-wall requirement"
+            );
+        }
+    }
+}
