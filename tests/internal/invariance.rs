@@ -682,6 +682,47 @@ fn correspondence_problems(
         let old = unmoved[i].as_ref().unwrap();
         let new = &moved[i][m];
         let c = correspondence::correspond(old, new).unwrap();
+        // For #127, the six new R40 inside web fillets participate in the spool's
+        // existing six-fold ambiguity. Preserve the exact 72-face bound below and
+        // require these new records to be carried coherently with that face map.
+        if name == "cadgenbench/flanged_spool_132.step"
+            && matches!(*motion, "rot_z90" | "rot_zx_moved")
+        {
+            assert!(c.alignment.symmetric);
+            assert_eq!(c.alignment.fold, Some(6));
+            let rounds: Vec<_> = old
+                .features
+                .iter()
+                .filter(|f| {
+                    f.family == "fillets" && f.traits.get("side").is_some_and(|s| s == "concave")
+                })
+                .collect();
+            assert_eq!(rounds.len(), 6);
+            for round in rounds {
+                assert_eq!(round.sizes["radius"], 40.);
+                let carried = c.features.iter().find(|e| e.old == round.id).unwrap();
+                assert_eq!(carried.class, Class::Carried);
+                assert!(carried.changes.is_empty());
+                let target = new
+                    .features
+                    .iter()
+                    .find(|f| Some(&f.id) == carried.new.as_ref())
+                    .unwrap();
+                assert_eq!(target.traits, round.traits);
+                assert_eq!(target.sizes, round.sizes);
+                let mut mapped: Vec<_> = round
+                    .faces
+                    .iter()
+                    .map(|face| {
+                        let entry = c.faces.iter().find(|e| e.old == *face).unwrap();
+                        assert_eq!(entry.class, Class::Carried);
+                        entry.new.unwrap()
+                    })
+                    .collect();
+                mapped.sort_unstable();
+                assert_eq!(mapped, target.faces);
+            }
+        }
         let mut skip: Vec<String> = invariance
             .as_array()
             .unwrap()

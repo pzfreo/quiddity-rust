@@ -363,25 +363,26 @@ fn axis_majorities_and_intrinsic_frames_survive_sixty_and_one_degree_motions() {
     use quiddity::{correspondence, frames::RecordFrame};
     let corpus = common::corpus_dir();
     // For #120, tangent convex rounds at drafted wall angles and oblique runs are
-    // fillets too. The complete face audit retains every valid pre-existing fillet.
+    // fillets too. For #127, proved concave rounds and their caps join those retained
+    // convex records; the complete face audit preserves every existing record.
     let mut cases = vec![
         (
             common::fixtures().join("nist_ctc_02_asme1_ap242-e2.stp.gz"),
-            53,
+            106,
             0,
             0,
         ),
         (
             common::fixtures().join("nist_ftc_07_asme1_ap242-e2.stp.gz"),
-            20,
+            63,
             4,
             5,
         ),
     ];
     if let Some(dir) = corpus {
         cases.extend([
-            (dir.join("nist/nist_ctc_02_asme1_rc.stp"), 55, 0, 0),
-            (dir.join("nist/nist_ftc_07_asme1_rd.stp"), 20, 4, 5),
+            (dir.join("nist/nist_ctc_02_asme1_rc.stp"), 113, 0, 0),
+            (dir.join("nist/nist_ftc_07_asme1_rd.stp"), 63, 4, 5),
         ]);
     }
     for (path, fillets, bosses, plates) in cases {
@@ -466,14 +467,14 @@ fn majority_frame_recovers_specify_fillets_and_parallel_support_chamfer() {
         (
             "cadgenbench_inputs/cgb202.step.gz",
             "fillets",
-            // For #120, 28 more tangent convex rounds pass the intrinsic proof.
-            307,
+            // For #127, 401 proved inside rounds join #120's 307 convex fillets.
+            708,
             vec![
                 1248, 1250, 1453, 1464, 1473, 1475, 1477, 1623, 1631, 2056, 2057,
             ],
         ),
-        // For #120, 20 drafted/oblique tangent convex rounds join the existing twenty.
-        ("cadgenbench_inputs/cgb207.step", "fillets", 40, vec![176]),
+        // For #127, 34 proved inside rounds join #120's forty convex fillets.
+        ("cadgenbench_inputs/cgb207.step", "fillets", 74, vec![176]),
         ("mfcadpp/10252.step", "oriented_chamfers", 1, vec![2]),
     ] {
         let part = quiddity::read_step_file(&dir.join(file)).unwrap();
@@ -496,15 +497,17 @@ fn majority_frame_recovers_specify_fillets_and_parallel_support_chamfer() {
             );
         }
         if file == "cadgenbench_inputs/cgb202.step.gz" {
-            // #89: the old 296 included 17 concave cylinders, including 13 of the
-            // #81 "recovered" faces. Pin their actual material side instead of a false
-            // convex label; the eleven genuinely convex recovered faces stay above.
+            // For #127, all seventeen inward R3 cylinders #89 excluded now pass the
+            // full inside-round proof. Pin their concave records (some carry spherical
+            // caps); the eleven genuinely convex recovered faces remain above.
             for face in [
                 29, 31, 46, 571, 657, 662, 806, 876, 890, 984, 998, 1069, 1087, 1092, 1104, 1225,
                 1346,
             ] {
                 assert_eq!(part.frame_points_outward(face), Some(false), "face {face}");
-                assert!(!found.contains(&vec![face]), "concave fillet {face}");
+                let index = found.iter().position(|fs| fs.contains(&face)).unwrap();
+                let fillet = &recognised.features.fillets[index];
+                assert_eq!((fillet.radius, fillet.side), (3., "concave"), "face {face}");
             }
         }
         if family == "oriented_chamfers" {

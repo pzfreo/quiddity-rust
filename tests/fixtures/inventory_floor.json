@@ -1,6 +1,6 @@
 {
   "revision": "5fb1706",
-  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts. For #89, convex fillets require an outward-facing cylinder in both prismatic paths. Original fillet baselines remain; per-face material-side evidence bounds concave false-positive removals, and recovered blend counts tighten floors/allowances. For #91, the frame's roll about its leading line follows the tightest box around the material; the cgb241 and cgb217 framed fillet and step-level decreases are family changes of the same faces, each evidenced. For #120, exact blend-to-fillet promotions at arbitrary wall angles and directions have per-face evidence-backed loss allowances; the four CTC-05 false fillets have separate gross-tangency evidence. No historical baseline or comparison tolerance is lowered. For #127, new concave fillets tighten accepted/framed floors and physical lower bounds; audited blend-to-fillet promotions have face-specific loss allowances. Historical baselines and tolerances remain unchanged.",
+  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts. For #89, convex fillets require an outward-facing cylinder in both prismatic paths. Original fillet baselines remain; per-face material-side evidence bounds concave false-positive removals, and recovered blend counts tighten floors/allowances. For #91, the frame's roll about its leading line follows the tightest box around the material; the cgb241 and cgb217 framed fillet and step-level decreases are family changes of the same faces, each evidenced. For #120, exact blend-to-fillet promotions at arbitrary wall angles and directions have per-face evidence-backed loss allowances; the four CTC-05 false fillets have separate gross-tangency evidence. No historical baseline or comparison tolerance is lowered. For #127, new concave fillets tighten accepted/framed floors and physical lower bounds; audited blend-to-fillet promotions have face-specific loss allowances. Historical baselines and tolerances remain unchanged. For #127, historical false-fillet loss allowances are retired wherever a higher floor now pins the current proved fillets; those new floors admit no historical loss.",
   "files": {
     "captured/0043cf4564250883.step.gz": {
       "accepted": {
@@ -18338,30 +18338,6 @@
       "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [7]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
     },
     {
-      "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
-      "mode": "accepted",
-      "family": "fillets",
-      "max_lost": 17,
-      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 296 -> 279. No outward-facing fillet is lost. (for #89)",
-      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [29, 31, 46, 571, 657, 662, 806, 876, 890, 984, 998, 1069, 1087, 1092, 1104, 1225, 1346]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
-    },
-    {
-      "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
-      "mode": "physical",
-      "family": "fillets",
-      "max_lost": 17,
-      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 296 -> 279. No outward-facing fillet is lost. (for #89)",
-      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [29, 31, 46, 571, 657, 662, 806, 876, 890, 984, 998, 1069, 1087, 1092, 1104, 1225, 1346]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
-    },
-    {
-      "file": "corpus/cadgenbench_inputs/cgb202.step.gz",
-      "mode": "framed",
-      "family": "fillets",
-      "max_lost": 17,
-      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 296 -> 279. No outward-facing fillet is lost. (for #89)",
-      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [29, 31, 46, 571, 657, 662, 806, 876, 890, 984, 998, 1069, 1087, 1092, 1104, 1225, 1346]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
-    },
-    {
       "file": "corpus/cadgenbench_inputs/cgb241.step",
       "mode": "framed",
       "family": "fillets",
@@ -18714,30 +18690,6 @@
       "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [4, 10]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
     },
     {
-      "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
-      "mode": "accepted",
-      "family": "fillets",
-      "max_lost": 6,
-      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 17 -> 11. No outward-facing fillet is lost. (for #89)",
-      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [15, 21, 25, 31, 35, 38]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
-    },
-    {
-      "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
-      "mode": "physical",
-      "family": "fillets",
-      "max_lost": 6,
-      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 17 -> 11. No outward-facing fillet is lost. (for #89)",
-      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [15, 21, 25, 31, 35, 38]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
-    },
-    {
-      "file": "corpus/nist/nist_ctc_03_asme1_rc.stp",
-      "mode": "framed",
-      "family": "fillets",
-      "max_lost": 6,
-      "reason": "Remove inward-facing cylindrical rounds wrongly labelled convex by the coordinate-corner path: 17 -> 11. No outward-facing fillet is lost. (for #89)",
-      "evidence": "On the original STEP part, frame_points_outward(face)=Some(false) for every removed raw cylinder face [15, 21, 25, 31, 35, 38]. This reads face orientation and surface-frame handedness independently of query axes. Accepted/framed losses are the surviving claims from these same raw candidates after reconciliation. The baseline count is retained; this allowance covers only the proved concave candidates."
-    },
-    {
       "file": "golden/golden_circular_blind_step.step",
       "mode": "physical",
       "family": "fillets",
@@ -18752,14 +18704,6 @@
       "max_lost": 2,
       "reason": "The two oblique planes were levels only in the former 27.4-degree frame. (for #91)",
       "evidence": "Faces 26 and 46 have file normals (-0.9036892863259753, 0.42818882958298826, 0), 2.06 degrees off the former frame's third axis (-0.8877387929690156, 0.46034751596800805, 0), so that frame read them as constant-height levels. In the part's file-axis frame (#91, box 5.450e7 against 5.790e7) they are 25.4 degrees off every axis and are neither levels nor risers; they remain thin-wall body faces. Caller-space (file-axis) recognition never had these levels (accepted step_levels 0)."
-    },
-    {
-      "file": "corpus/cadgenbench_inputs/cgb217.step.gz",
-      "mode": "framed",
-      "family": "fillets",
-      "max_lost": 8,
-      "reason": "The eight +/-45-degree R1 rounds are blends again in the part's 13.07-degree frame. (for #91)",
-      "evidence": "The vote (98 distinct surfaces at 45 degrees) still settles Z; about it, the 13.07-degree basis of the R5.1/R4.25 cross bores and the largest side walls (4,119 mm2 of plane and cylinder faces whose normal or axis lies on its two horizontal lines, against 361 mm2 at 45 degrees and 370 mm2 on file axes; 93 votes) has the smallest box, 9.775e5 against 1.215e6 at 45 degrees and 1.010e6 on file axes. Neither the +/-45-degree set (faces 177,182,205,210,233,238,261,266) nor the file-X/Y set runs along an axis there, so all sixteen R1 convex rounds are accepted cylindrical blends (framed blends 37, baseline 37) and none is a tilted fillet. Caller-space recognition keeps the file-X/Y set as its 8 fillets; tests/internal/recognition.rs::changed_query_axes_retain_physical_rounds_and_bores."
     },
     {
       "file": "captured/05458b4cdc569f6a.step.gz",
@@ -19080,30 +19024,6 @@
       "max_lost": 4,
       "reason": "For #120, tangent convex constant-radius rounds at arbitrary wall angles and directions are fillets, superseding generic blends: main 7 -> 5. The historical baseline is retained. For #127, concave constant-radius rounds between tangent walls pass the intrinsic fillet proof and supersede generic blends. The historical floor 7 is retained; 3 blends remain.",
       "evidence": "Measured at main 2b291b2 and the #120 implementation in framed coordinates. Every removed blend record is fully covered by current fillet defining faces, with tangent supports, convex material side, sweep at most 135 degrees and agreement with 180 degrees minus the wall angle within 0.5 degrees. Promoted main records: [{\"id\":\"blends/1\",\"faces\":[238]},{\"id\":\"blends/4\",\"faces\":[233]}]. Full e58d174 face/record audit: faces [2], R25.0, faces [1], R25.0. Each face becomes a concave fillet; other accepted defining claims are reserved (src/features/fillets.rs, src/features/mod.rs)."
-    },
-    {
-      "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
-      "mode": "accepted",
-      "family": "fillets",
-      "max_lost": 4,
-      "reason": "For #120, remove CTC-05 R203.2 cylinders with grossly non-tangent walls, falsely accepted by the former axis-aligned shortcut: main 12 -> 8. The historical baseline is retained.",
-      "evidence": "Faces 14,15,168,169 have support-plane tangency errors 2.54 and 133.35 mm, far above the model precision; they remain unexplained. Their removal was explicitly accepted after the full face audit. No valid pre-existing fillet is lost."
-    },
-    {
-      "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
-      "mode": "physical",
-      "family": "fillets",
-      "max_lost": 4,
-      "reason": "For #120, remove CTC-05 R203.2 cylinders with grossly non-tangent walls, falsely accepted by the former axis-aligned shortcut: main 12 -> 8. The historical baseline is retained.",
-      "evidence": "Faces 14,15,168,169 have support-plane tangency errors 2.54 and 133.35 mm, far above the model precision; they remain unexplained. Their removal was explicitly accepted after the full face audit. No valid pre-existing fillet is lost."
-    },
-    {
-      "file": "corpus/nist/nist_ctc_05_asme1_rd.stp",
-      "mode": "framed",
-      "family": "fillets",
-      "max_lost": 4,
-      "reason": "For #120, remove CTC-05 R203.2 cylinders with grossly non-tangent walls, falsely accepted by the former axis-aligned shortcut: main 12 -> 8. The historical baseline is retained.",
-      "evidence": "Faces 14,15,168,169 have support-plane tangency errors 2.54 and 133.35 mm, far above the model precision; they remain unexplained. Their removal was explicitly accepted after the full face audit. No valid pre-existing fillet is lost."
     },
     {
       "file": "corpus/nist/nist_ftc_07_asme1_rd.stp",
