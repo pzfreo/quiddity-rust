@@ -698,8 +698,22 @@ fn correspondence_problems(
                 })
                 .collect();
             assert_eq!(rounds.len(), 6);
-            for round in rounds {
+            for round in &rounds {
                 assert_eq!(round.sizes["radius"], 40.);
+            }
+            // For #127 after #128, only the six convex R10 profiles remain residual.
+            // They share this exact symmetry, without relaxing main's fillet or face pins.
+            let profiles: Vec<_> = old
+                .features
+                .iter()
+                .filter(|f| f.family == "cylindrical_profiles")
+                .collect();
+            assert_eq!(profiles.len(), 6);
+            for profile in &profiles {
+                assert_eq!(profile.sizes["radius"], 10.);
+                assert_eq!(profile.traits["side"], "convex");
+            }
+            for round in rounds.into_iter().chain(profiles) {
                 let carried = c.features.iter().find(|e| e.old == round.id).unwrap();
                 assert_eq!(carried.class, Class::Carried);
                 assert!(carried.changes.is_empty());
