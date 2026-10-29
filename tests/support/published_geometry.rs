@@ -105,7 +105,7 @@ pub fn canonical(v: &Value, family: &str) -> Value {
             }
             segments.push(p);
         }
-        segments.sort_by_key(|p| p["face"].as_u64().unwrap());
+        order(&mut segments);
         r.insert("profile".into(), json!(segments));
         let mut bores = Vec::new();
         for b in raw["bores"].as_array().unwrap() {

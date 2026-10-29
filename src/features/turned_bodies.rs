@@ -175,7 +175,15 @@ fn common_axis(part: &Part, faces: &[usize]) -> Option<(V3, V3)> {
                         .flatten()
                 })
             })
-            .unwrap_or([0., 0., 1.]);
+            .unwrap_or_else(|| {
+                faces
+                    .iter()
+                    .find_map(|&f| match support(part, f)? {
+                        Surface::Sphere { frame, .. } => geom::unit(frame.z),
+                        _ => None,
+                    })
+                    .expect("a spherical support established the centre")
+            });
         Some((origin, canonical(d)))
     })?;
     let tol = tolerance(part);
@@ -264,7 +272,11 @@ fn profile(part: &Part, faces: &[usize], origin: V3, d: V3) -> Option<Vec<Profil
         let n = part.face_normal(face, u, v)?;
         let delta = geom::sub(p, origin);
         let r = geom::sub(delta, geom::scale(d, geom::dot(delta, d)));
-        if geom::dot(n, r) < 0. {
+        let material_radial = match support {
+            Surface::Sphere {frame,..} => geom::sub(p,frame.origin),
+            _ => r,
+        };
+        if geom::dot(n, material_radial) < 0. {
             seg.side = "internal";
         }
         match support {
@@ -317,11 +329,43 @@ fn profile(part: &Part, faces: &[usize], origin: V3, d: V3) -> Option<Vec<Profil
                 major,
                 minor,
             } => {
-                seg.start = point(f.surface.value(u, v0));
-                seg.end = point(f.surface.value(u, v1));
-                seg.arc_center = Some([point(frame.origin)[0], major]);
-                seg.arc_radius = Some(minor);
-                seg.arc_sweep = Some(-geom::dot(frame.z, d).signum() * (v1 - v0));
+                // Split at axial turning points. Each arc is then a single-valued
+                // radius-versus-station branch, including both sides of a full torus.
+                let mut cuts = vec![v0];
+                let pi = std::f64::consts::PI;
+                let half_pi = std::f64::consts::FRAC_PI_2;
+                let first = ((v0 - half_pi) / pi).ceil() as i64;
+                let last = ((v1 - half_pi) / pi).floor() as i64;
+                for k in first..=last {
+                    let v = half_pi + k as f64 * pi;
+                    if v > v0 && v < v1 {
+                        cuts.push(v);
+                    }
+                }
+                cuts.push(v1);
+                for w in cuts.windows(2) {
+                    let mut arc = seg.clone();
+                    arc.start = point(f.surface.value(u, w[0]));
+                    arc.end = point(f.surface.value(u, w[1]));
+                    arc.arc_center = Some([point(frame.origin)[0], major]);
+                    arc.arc_radius = Some(minor);
+                    arc.arc_sweep = Some(-geom::dot(frame.z, d).signum() * (w[1] - w[0]));
+                    let v = (w[0] + w[1]) / 2.;
+                    let radial_point = geom::sub(f.surface.value(u, v), origin);
+                    let radial_point =
+                        geom::sub(radial_point, geom::scale(d, geom::dot(radial_point, d)));
+                    arc.side = if geom::dot(part.face_normal(face, u, v)?, radial_point) < 0. {
+                        "internal"
+                    } else {
+                        "external"
+                    };
+                    if arc.start[0] > arc.end[0] {
+                        std::mem::swap(&mut arc.start, &mut arc.end);
+                        arc.arc_sweep = arc.arc_sweep.map(|s| -s);
+                    }
+                    out.push(arc);
+                }
+                continue;
             }
             Surface::Cylinder { .. } | Surface::Cone { .. } => {
                 seg.start = point(f.surface.value(u, v0));

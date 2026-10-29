@@ -104,9 +104,24 @@ fn meridian_fingerprints_preserve_arc_geometry_under_axis_reversal() {
         "turned_body_disc.step",
         "turned_with_sphere.step",
         "golden_toroidal_blends_turned.step",
+        "full_torus.step",
     ] {
         let p = part(name);
         let raw = features::recognise(&p);
+        for segment in &raw.turned_bodies[0].profile {
+            if let (Some(c), Some(radius), Some(sweep)) =
+                (segment.arc_center, segment.arc_radius, segment.arc_sweep)
+            {
+                let theta = (segment.start[1] - c[1]).atan2(segment.start[0] - c[0]);
+                for i in 0..=8 {
+                    let s = c[0] + radius * (theta + sweep * i as f64 / 8.).cos();
+                    assert!(
+                        s >= segment.start[0] - 1e-8 && s <= segment.end[0] + 1e-8,
+                        "{name}: nonmonotone meridian"
+                    );
+                }
+            }
+        }
         let before = fingerprint(&p, &raw)
             .features
             .into_iter()

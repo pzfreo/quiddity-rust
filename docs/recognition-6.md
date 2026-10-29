@@ -458,7 +458,9 @@ whole solid. There is no principal-frame or number-of-diameters gate. The linear
 precision is `max(file_uncertainty, COORD_FLOOR)`; parallelism is tested as the sine
 of the axis angle times the body's largest intrinsic directional extent (or support
 radius, whichever is greater), against that same precision. Axis-line offsets use
-that linear precision. No recognition-policy angular tolerance is used.
+that linear precision. No recognition-policy angular tolerance is used. A complete
+sphere admits every axis through its centre; its native polar axis supplies a
+conventional representative that follows rigid motion, without limiting eligibility.
 
 `axis` is a positive principal letter or a unit vector, and `axis_point` is the
 midpoint of the axial extent on that line, published on the 1e-8 mm point grid.
@@ -474,7 +476,8 @@ in the same midpoint-based measuring system. For curved meridians, `arc_center`,
 `arc_radius` and signed `arc_sweep` describe the exact circular arc, positive from
 +axial towards +radius; otherwise these fields are null. This includes internal
 and reentrant profile surfaces as well as the outside, without creating recess
-feature records. Face splits remain separate segments. Together these describe a
+feature records. Face splits and torus axial turning points remain separate
+segments; each curved segment is monotone in axial position. Together these describe a
 half-section, including edge chamfers and plane shoulders.
 
 `body_key` follows existing body classifications. Optional `profile_key` reuses
