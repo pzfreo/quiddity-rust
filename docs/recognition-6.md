@@ -395,10 +395,53 @@ sheet-metal bends 6 and 7 (inner R3, face pairs 73/75 and 76/85), but are no lon
 fillets: each has a transverse wall 4 mm away from tangency and sweeps only 25.38°
 between perpendicular walls.
 CTC-05's R203.2 faces 14, 15, 168 and 169 also fail tangency, by 2.54 and 133.35 mm;
-they remain unexplained rather than carrying a false fillet claim.
+they are cylindrical profile faces under the residual rule for #127 below.
 
 Individual features reserve their accepted defining faces before fillets. The inventory
 uses its `kept` evidence and reconciliation dispositions, so rejected proposals do not
 reserve faces and a suppressed fillet cannot suppress its generic blend. Whole-body
 classifications and generic surface fallbacks use shared claims; derived patterns and
 section recesses retain their existing publication paths.
+
+
+## Cylindrical profile faces (for #127)
+
+| Family | Record type | Parameters |
+|---|---|---|
+| `cylindrical_profiles` | `CylindricalProfile` | `radius` (mm), `axis` (principal letter or unit vector), `axis_point` (file-coordinate point on the axis), `side` (`convex` / `concave`), `sweep` (radians), `faces` (sorted defining face indices) |
+
+The name describes a cylindrical portion of the part's profile without inferring a
+machining operation. Native cylindrical surfaces are eligible in any direction,
+convex or concave, with strictly positive angular coverage strictly below pi radians.
+There is no frame-axis gate. Connected, coaxial, equal-radius patches of the same
+oriented surface and solid form one record. Their sweep is the union of their angular
+intervals, so axial splits count once. The complete connected surface must be below
+180° before any claimed patches are removed; a bore split into narrower patches stays
+excluded. Disconnected congruent faces remain separate occurrences.
+
+This residual projection runs after reconciliation, section-recess projection and the
+completion of published defining claims. Only unclaimed faces are eligible; rejected
+proposals do not reserve faces. Existing blends and all other individual feature
+claims take precedence. Whole-body `thin_wall_bodies`, `sheet_metal_bodies`, `plates`
+and `polygonal_stock` may retain co-ownership. Refused evidence is also excluded.
+The existing cylindrical fillet proof is applied without its reporting radius limits;
+any face it accepts remains an edge round rather than becoming a profile. No fillet
+or blend predicate changes. Like projected section recesses, this family appears in
+completed recognition, rather than the inventory's physical candidates.
+
+Concave faces with radius strictly below `min(2 mm, 0.05 * smallest_box_dimension)`
+are excluded for the separate inside-round stream. Equality is eligible; convex
+faces have no radius cutoff. The box is the run's part box. This is an explicit split,
+not proof that larger concave profiles cannot later be identified more specifically.
+
+`radius` and `axis_point` follow the existing three-decimal measurement/position
+conventions. The axis point is at the middle of the defining faces' axial extent.
+Only exact principal runs use letters in discovery; oblique runs retain their unit
+vector. Publication carries both axis and point into file coordinates using the
+existing schema-6 axis contract. The optional family is absent when empty.
+Fingerprint format 3 uses radius and sweep as sizes, side as a trait, axis as axis,
+and axis point as placement. Face indices are ignored as intrinsic fields; the
+occurrence's defining faces supply the fingerprint faces, position and neighbourhood.
+
+CTC-05 faces 14, 15, 168 and 169 are four separate convex R203.2 mm profile surfaces,
+not fillets: their walls fail tangency. Existing records keep their IDs and parameters.

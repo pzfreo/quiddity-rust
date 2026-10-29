@@ -67,6 +67,7 @@ fn every_family_has_a_record_type() {
         .map(|(f, _)| *f)
         .filter(|f| {
             ![
+                "cylindrical_profiles", // Optional residual family, for #127.
                 "modelled_threads",
                 "annular_grooves",
                 "v_channels",

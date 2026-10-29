@@ -542,6 +542,7 @@ fn carry(
         discovery_refusals,
         evidence_status,
         fillets,
+        cylindrical_profiles,
         chamfers,
         bosses,
         angled_steps,
@@ -624,6 +625,11 @@ fn carry(
         discovery_refusals,
         evidence_status,
         fillets: each!("fillets", fillets, fillet),
+        cylindrical_profiles: each!(
+            "cylindrical_profiles",
+            cylindrical_profiles,
+            cylindrical_profile
+        ),
         chamfers: each!("chamfers", chamfers, chamfer),
         bosses: each!("bosses", bosses, boss),
         angled_steps: each!("angled_steps", angled_steps, angled_step),
@@ -797,6 +803,19 @@ fn fillet(out: &mut Out, r: Fillet) -> Fillet {
         turned,
         side,
     }
+}
+
+fn cylindrical_profile(
+    out: &mut Out,
+    mut r: crate::features::cylindrical_profiles::CylindricalProfile,
+) -> crate::features::cylindrical_profiles::CylindricalProfile {
+    use crate::features::cylindrical_profiles::ProfileAxis;
+    r.axis = match r.axis {
+        ProfileAxis::Principal(axis) => ProfileAxis::Principal(out.letter(axis, "axis")),
+        ProfileAxis::Direction(direction) => ProfileAxis::Direction(out.direction(direction)),
+    };
+    r.axis_point = out.placed_point(r.axis_point);
+    r
 }
 
 fn chamfer(out: &mut Out, r: Chamfer) -> Chamfer {
