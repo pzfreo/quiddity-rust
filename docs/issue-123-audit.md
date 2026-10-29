@@ -12,7 +12,7 @@ Of 111 inputs with existing `turned_steps`, **92 qualify** and **19 do not**. Al
 - A complete positive-weight NURBS control net inside the plane slab is sufficient plane proof. A sampled fit alone is not.
 - A complete sphere uses its native polar axis as a valid representative of its unconstrained axes, so the representative follows rigid motion.
 - OD-boss suppression uses raw cylinder geometry: diameter equals OD within model precision, span at least 90% of length, and each end gap at most 5% of length plus that precision. Smaller/shorter end bosses remain.
-- The clean audit gate above authorises re-recording under the unattended instruction; no maintainer answer was requested. Baseline malformed fixtures retain exactly their existing reader errors.
+- The clean audit gate above authorises re-recording under the unattended instruction; no maintainer answer was requested. Baseline unreadable/unsupported fixtures retain exactly their existing reader errors.
 - The unlicensed 608ZZ STEP remains excluded; only measured audit facts are recorded. The disc fixture was generated independently from the supplied dimensions using the repository script.
 
 ## 608ZZ
@@ -287,6 +287,13 @@ These are byte-for-byte unchanged errors from main; they were audited as refusal
 
 ## Validation and re-recording
 
-Pending completion of the full pinned-corpus snapshot producers and byte-for-byte check, workspace nextest run, formatting and clippy. Additive inventory floors name #123 and retain every historical feature baseline.
-The original moved B-rep write/read assertion passes without changing its comparison
-band: profile ordering uses the existing point grid and retains exact measurements.
+- The full pinned corpus was required throughout (`QUIDDITY_CORPUS_REQUIRED=1`).
+- Re-recorded all **2,700** Rust snapshots at source `af23e5e88966785fd4066e0a2faacba08d4d1eec`. Only `corpus.json.gz`, `recognition_evidence.json.gz`, `reconcile.json.gz` and provenance changed. The independent disc and additive inventory-floor input digests are recorded in provenance.
+- `cargo run -p snapshot-tool --release -- --check`: **all 2,700 snapshots reproduced byte for byte**.
+- `cargo nextest run --workspace --release --no-fail-fast --test-threads 4`: **798 passed across 48 binaries**, zero failures; seven pre-existing ignored tests remained skipped under the requested command's defaults.
+- `cargo fmt --all --check`: passed.
+- `cargo clippy --workspace --all-targets -- -D warnings`: passed.
+- All historical inventory floors and loss allowances are unchanged, verified by comparing their JSON to main with only the new `turned_bodies` entries and description removed. There are 252 additive turned-body pins, named for #123.
+- The original moved B-rep write/read assertion passes without changing its comparison band. Profile ordering uses the existing point grid and retains exact measurements; bore spans use analytic diameters and do not bridge axial air gaps.
+
+The 11 baseline unreadable/unsupported fixtures retain identical reader refusals, listed above. No other work remains blocked. Commits are local on `cx/turnedbodies`; no push or external post was made.
