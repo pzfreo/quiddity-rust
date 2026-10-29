@@ -3969,6 +3969,11 @@ impl<'a> PartPlan<'a> {
             let key = (rep, items);
             let member = if let Some(&m) = st.shared.get(&key) {
                 Some(m)
+            } else if let Some(m) = self.existing_owner(em, rep, &key.1)? {
+                // A face the file already identifies keeps its one usage, whichever new feature
+                // would own it: every feature on it is composed of the file's aspect (UR1).
+                st.shared.insert(key.clone(), m);
+                Some(m)
             } else if st.shared_keys.contains(&key)
                 && own == st.owners.get(&key).copied()
                 && own.is_some()
@@ -3979,8 +3984,6 @@ impl<'a> PartPlan<'a> {
                 continue;
             } else if let Some(&o) = st.owners.get(&key) {
                 Some(self.feature(em, st, pds, o)?)
-            } else if let Some(m) = self.existing_owner(em, rep, &key.1)? {
-                Some(m)
             } else if st.shared_keys.contains(&key) || several {
                 let m = em.simple(
                     "shape_aspect",
@@ -4075,8 +4078,11 @@ impl<'a> PartPlan<'a> {
                         || !is_a(doc, r, "item_identified_representation_usage")
                         || is_a(doc, r, "draughting_model_item_association")
                 })
+                // Composed of members: the relating side of a plain relationship, as this writer
+                // composes features. A subtype is not composition: a dimensional_location
+                // relates the feature it is measured from, which stays plain.
                 && !doc.referrers(owner).iter().any(|&r| {
-                    is_a(doc, r, "shape_aspect_relationship")
+                    leaf_names(doc, r) == ["shape_aspect_relationship"]
                         && attr_ref(doc, r, "shape_aspect_relationship", "relating_shape_aspect")
                             == Some(owner)
                 });
