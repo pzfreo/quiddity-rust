@@ -3024,7 +3024,7 @@
     "tests/fixtures/references/body_measurement_evidence.json": "d499c04fd0f74b6b668be4e0d45cd1cc4270f5d678a5a7748c7d0472416b711f",
     "tests/fixtures/references/body_measurements.json.gz": "4e29f03e5e6b76964d80b6a78a4fb75499d191cdc46f891469b9951e96c46f7b",
     "tests/fixtures/references/classify.json": "c18f99bdc2838c953f7b4468a75749b733a742f36509e669319efc7414416309",
-    "tests/fixtures/references/correspondence.json": "d9b0fa19648ca077a55c6f87b78b1f15eb7d893ccfdfe70f9ca5fd9c8534dea4",
+    "tests/fixtures/references/correspondence.json": "91f2f79fddc1f03772165a68508b28ffd7045c93df423cd3c73aa0abf0faa083",
     "tests/fixtures/references/ctc01-main-fingerprints.json.gz": "7c38164f7461478fff58124040f72534bd2bfd9b5694e44fb9fbf8a91c73a278",
     "tests/fixtures/references/cylindrical_proof_motion.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
     "tests/fixtures/references/cylindrical_volume_evidence.json": "7c66b1a8bc77cc058931258ece5502c96935d51dd5dd611fad14b8b1f43523fa",
@@ -5818,5 +5818,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "2ba61b4eab51538ae19b40c37523cdaf4bbf093d"
+  "source_commit": "bfc615c5209fd89a5120ec7243919b3d33ad151b"
 }
