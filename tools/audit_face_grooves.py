@@ -91,7 +91,10 @@ def main():
             overlap = sorted(claimed.intersection(record["faces"]))
             if overlap:
                 exceptions.append({"part": path, "previously_claimed": overlap})
-            grooves.append({"part": path, **record})
+            refused = [f for f in record["faces"] if old["accounting"][f]["group"] == "refused"]
+            if refused:
+                exceptions.append({"part": path, "previously_refused": refused})
+            grooves.append({"part": path, "previous_accounting": [old["accounting"][f] for f in record["faces"]], **record})
     report = {
         "baseline_revision": "42649a2",
         "inputs": len(paths),

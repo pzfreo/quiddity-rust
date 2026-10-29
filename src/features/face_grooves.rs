@@ -41,6 +41,31 @@ pub(super) fn append(ctx: &Context<'_>, features: &mut Features) {
             )
         })
         .flat_map(|(_, records)| records.iter().flatten().copied())
+        .chain(
+            features
+                .discovery_refusals
+                .values()
+                .flatten()
+                .flat_map(|r| r.faces.iter().copied()),
+        )
+        .chain(
+            features
+                .interior_void_refusals
+                .iter()
+                .flat_map(|r| r.candidate.void_faces.iter().copied()),
+        )
+        .chain(
+            features
+                .modelled_thread_refusals
+                .iter()
+                .flat_map(|r| r.faces.iter().copied()),
+        )
+        .chain(
+            features
+                .section_recess_refusals
+                .iter()
+                .flat_map(|r| r.evidence().defining_faces().iter().copied()),
+        )
         .collect();
     let found: Vec<_> = discover(ctx)
         .into_iter()
@@ -120,8 +145,9 @@ struct Wall {
 }
 
 /// Walk one meridian from floor to open land. Tori must be tangent at both ends and
-/// confined to a single quadrant; cones may also act as small floor/rim chamfers. The
-/// longest axial cylinder/cone segment defines the wall angle; a tie must agree.
+/// confined to a meridian arc shorter than a half turn; cones may also act as small
+/// floor/rim chamfers. The longest axial cylinder/cone segment defines the wall angle;
+/// a tie must agree.
 fn wall(part: &Part, floor: &BTreeSet<usize>, start: &Ring, outer: bool) -> Option<Wall> {
     let floor_axis = normal(part, *floor.first()?)?;
     let first = across(part, start, floor)?;
@@ -179,7 +205,7 @@ fn wall(part: &Part, floor: &BTreeSet<usize>, start: &Ring, outer: bool) -> Opti
                 minor,
             } if minor > tolerance && major > minor => {
                 let (_, _, lo, hi) = part.uv_bounds(face)?;
-                if hi - lo > std::f64::consts::FRAC_PI_2 + 1e-9 {
+                if hi - lo >= std::f64::consts::PI - 1e-9 {
                     return None;
                 }
                 (frame, None, true)
@@ -205,14 +231,11 @@ fn wall(part: &Part, floor: &BTreeSet<usize>, start: &Ring, outer: bool) -> Opti
         let outgoing = other_rim(part, face, &incoming, axis)?;
         let delta = geom::sub(outgoing.center, incoming.center);
         let height = geom::dot(delta, axis);
-        if height <= tolerance
-            || geom::norm(geom::cross(delta, axis)) > tolerance
-            // The mouth widens towards the open face; an undercut is not this family.
-            || (outgoing.radius - incoming.radius) * (if outer { 1. } else { -1. }) < -tolerance
-        {
+        if height <= tolerance || geom::norm(geom::cross(delta, axis)) > tolerance {
             return None;
         }
-        // Reject a long toroidal wrap or a wall that leaves its end-ring envelope.
+        // Stay between the floor and mouth levels. A toroidal corner may have a radial
+        // extremum between its ends, especially where a wall leans under the rim.
         for edge in part.face_edges(face) {
             for &p in &part.edges[edge].samples {
                 let d = geom::sub(p, incoming.center);
@@ -220,8 +243,9 @@ fn wall(part: &Part, floor: &BTreeSet<usize>, start: &Ring, outer: bool) -> Opti
                 let r = geom::norm(geom::cross(d, axis));
                 if z < -tolerance
                     || z > height + tolerance
-                    || r < incoming.radius.min(outgoing.radius) - tolerance
-                    || r > incoming.radius.max(outgoing.radius) + tolerance
+                    || (!torus
+                        && (r < incoming.radius.min(outgoing.radius) - tolerance
+                            || r > incoming.radius.max(outgoing.radius) + tolerance))
                 {
                     return None;
                 }

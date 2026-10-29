@@ -29,7 +29,9 @@ they already describe square-walled face recesses on main. Existing claims also 
 precedence over treated grooves, including generic blend and residual-profile claims.
 Body classifications may share faces. Coaxial grooves on prismatic hosts are eligible.
 Tangent toroidal corner rounds and short conical treatments join the defining faces when
-the complete floor/wall/open-plane proof holds. The rule and record contract are in
+the complete floor/wall/open-plane proof holds. Walls may lean under the rim; no
+machining-access restriction is added. Tangent floor rounds over 90° are included too.
+The rule and record contract are in
 `recognition-6.md`.
 
 The audit can be repeated with `tools/audit_face_grooves.py`, exporting the required

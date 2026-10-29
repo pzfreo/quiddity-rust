@@ -220,12 +220,14 @@ region. Internal split edges cancel; its boundary must be exactly two complete c
 circular cycles. Split circular edges must cover the circle once, without overlaps or gaps.
 Each wall is a complete cylinder or cone, possibly a chain of full coaxial bands. Both
 walls must rise towards the same open face plane, where the circular rims meet planar
-lands facing outwards. These lands can be disconnected faces of that plane. The mouth
-widens or stays square towards the opening; undercuts are refused.
+lands facing outwards. These lands can be disconnected faces of that plane. The opening
+must remain annular; walls may lean under the rim. No machining-access restriction is
+inferred.
 
 Tangent coaxial toroidal floor and rim rounds are included in `faces`, provided the
-wall/floor proof holds. Each round must occupy at most one meridian quadrant and remain
-inside its endpoint envelope. Conical floor/rim chamfers are included too. For a treated
+wall/floor proof holds. Each round must occupy less than a meridian half turn and stay
+between its endpoint axial levels; a radial extremum between the endpoints is allowed.
+Conical floor/rim chamfers are included too. For a treated
 wall, the cylinder/cone segment with the greatest axial extent supplies its wall angle;
 shorter segments are treatments, and equal longest segments must agree. A round alone
 cannot substitute for a wall. The entire floor, walls, treatments and consulted mouth
@@ -236,7 +238,8 @@ stock remain `grooves`.
 
 Publication uses the completed defining claims after existing reconciliation, section
 recesses and residual cylindrical profiles. Any defining-face overlap with another
-feature suppresses the whole new occurrence; body classifications keep co-ownership.
+feature or reserved refusal suppresses the whole new occurrence; body classifications
+keep co-ownership.
 In particular, square-walled recesses already recognised as `annular_grooves` retain
 their existing records. This additive family changes no existing feature or fingerprint.
 

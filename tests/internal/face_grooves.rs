@@ -3,7 +3,7 @@ use quiddity::features::{Context, face_grooves};
 use quiddity::kernel::brep::{Edge, Face, Loop, Part, Solid};
 use quiddity::kernel::geom::{self, Curve, Frame, Surface};
 use quiddity::kernel::step::IDENTITY;
-use std::f64::consts::{FRAC_PI_2, TAU};
+use std::f64::consts::TAU;
 
 fn frame(z: f64) -> Frame {
     Frame {
@@ -66,7 +66,7 @@ fn revolve(points: &[(f64, f64)], rounds: &[(usize, f64, f64, f64)]) -> Part {
                 let a = (z - centre).atan2(r - major);
                 let b = (t - centre).atan2(s - major);
                 let span = (b - a + std::f64::consts::PI).rem_euclid(TAU) - std::f64::consts::PI;
-                assert!((span.abs() - FRAC_PI_2).abs() < 1e-9);
+                assert!(span.abs() > 0. && span.abs() < std::f64::consts::PI);
                 let curve = Curve::Circle {
                     frame: Frame {
                         origin: [major, 0., centre],
@@ -525,19 +525,8 @@ fn tangent_floor_rounds_and_small_chamfers_are_included_in_the_proved_faces() {
 }
 
 #[test]
-fn valid_undercuts_unequal_mouth_heights_and_radial_grooves_are_not_face_grooves() {
+fn unequal_mouth_heights_and_radial_grooves_are_not_face_grooves() {
     for points in [
-        // The outer wall leans over the floor: the mouth is narrower than the recess.
-        vec![
-            (12., 0.),
-            (12., 10.),
-            (8., 10.),
-            (8.5, 6.),
-            (5., 6.),
-            (5., 10.),
-            (3., 10.),
-            (3., 0.),
-        ],
         // Both walls rise, but their lands are on different planes.
         vec![
             (12., 0.),
@@ -568,7 +557,55 @@ fn valid_undercuts_unequal_mouth_heights_and_radial_grooves_are_not_face_grooves
 }
 
 #[test]
-fn unequal_mouth_planes_undercuts_missing_ownership_and_noncoaxial_walls_are_refused() {
+fn walls_may_lean_under_the_rim_including_a_tangent_floor_round_over_ninety_degrees() {
+    // For #123, openness is established by both rims reaching the face plane;
+    // the definition imposes no machining-access or wall-slope restriction.
+    let square_floor = revolve(
+        &[
+            (12., 0.),
+            (12., 10.),
+            (8., 10.),
+            (8.5, 6.),
+            (5., 6.),
+            (5., 10.),
+            (3., 10.),
+            (3., 0.),
+        ],
+        &[],
+    );
+    assert!(square_floor.solid_is_geometrically_valid(0));
+    let raw = face_grooves::discover(&Context::new(&square_floor));
+    assert_eq!(raw.len(), 1);
+    assert_eq!(raw[0].record.outer_diameter, 16.);
+    assert_eq!(raw[0].record.inner_diameter, 10.);
+    assert_eq!(raw[0].record.depth, 4.);
+    assert!((raw[0].record.outer_wall_angle - (0.5_f64 / 4.).atan().to_degrees()).abs() < 1e-9);
+    let offset = 0.5 / std::f64::consts::SQRT_2;
+    let rounded = revolve(
+        &[
+            (12., 0.),
+            (12., 8.),
+            (5.5 + 2. * offset, 8.),
+            (7. + offset, 6.5 + offset),
+            (7., 6.),
+            (4., 6.),
+            (4., 8.),
+            (3., 8.),
+            (3., 0.),
+        ],
+        &[(3, 7., 6.5, 0.5)],
+    );
+    assert!(rounded.solid_is_geometrically_valid(0));
+    let raw = face_grooves::discover(&Context::new(&rounded));
+    assert_eq!(raw.len(), 1);
+    assert_eq!(raw[0].defining, [2, 3, 4, 5]);
+    assert!((raw[0].record.outer_wall_angle - 45.).abs() < 1e-9);
+    assert_eq!(raw[0].record.inner_wall_angle, 90.);
+    assert_eq!(raw[0].record.depth, 2.);
+}
+
+#[test]
+fn invalid_mouth_planes_reversed_material_missing_ownership_and_noncoaxial_walls_are_refused() {
     for fault in 0..4 {
         let base = two_ends();
         let mut faces = base.faces.clone();
