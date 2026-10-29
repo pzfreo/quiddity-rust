@@ -200,6 +200,59 @@ actual angular intervals must cover a complete turn. Counting overlapping arc le
 as a full rim is refused. The cylindrical walls must still each be complete; every floor
 piece is retained in the defining claim and strict ownership proof.
 
+## Face grooves (for #123)
+
+The optional `face_grooves` family publishes one `FaceGroove` per annular recess in a
+planar face. Congruent recesses remain separate, following `annular_grooves`; no pattern
+or count is inferred. The wall surfaces establish the axis intrinsically, in any direction.
+There is no frame, turned-profile or turned-body eligibility gate. A recess in a prismatic
+host counts when its walls prove the same coaxial geometry.
+
+The record fields are `axis` (unit vector pointing from floor to mouth), `axis_point`
+(mouth centre in file coordinates), `outer_diameter`, `inner_diameter` (both at the actual
+rim on the mouth plane), `depth` (mouth plane to floor), `outer_wall_angle`,
+`inner_wall_angle` (cone semi-angles in degrees to the axis; square cylindrical walls are
+reported as 90°), `floor` (sorted planar floor faces), and `faces` (all defining faces).
+The source measurements are retained without nominal-size or angle rounding.
+
+A floor is one plane square to the common wall axis, or a smoothly connected coplanar
+region. Internal split edges cancel; its boundary must be exactly two complete concentric
+circular cycles. Split circular edges must cover the circle once, without overlaps or gaps.
+Each wall is a complete cylinder or cone, possibly a chain of full coaxial bands. Both
+walls must rise towards the same open face plane, where the circular rims meet planar
+lands facing outwards. These lands can be disconnected faces of that plane. The opening
+must remain annular; walls may lean under the rim. No machining-access restriction is
+inferred.
+
+Tangent coaxial toroidal floor and rim rounds are included in `faces`, provided the
+wall/floor proof holds. Each round must occupy less than a meridian half turn and stay
+between its endpoint axial levels; a radial extremum between the endpoints is allowed.
+Conical floor/rim chamfers are included too. For a treated
+wall, the cylinder/cone segment with the greatest axial extent supplies its wall angle;
+shorter segments are treatments, and equal longest segments must agree. A round alone
+cannot substitute for a wall. The entire floor, walls, treatments and consulted mouth
+lands must have strict evidence on one valid solid. Partial/interrupted walls, extra floor
+openings, noncoaxial boundaries, unequal mouth planes and competing candidates are refused.
+A counterbore has no rising inner wall and remains a hole; radial grooves on cylindrical
+stock remain `grooves`.
+
+Publication uses the completed defining claims after existing reconciliation, section
+recesses and residual cylindrical profiles. Any defining-face overlap with another
+feature or reserved refusal suppresses the whole new occurrence; body classifications
+keep co-ownership.
+In particular, square-walled recesses already recognised as `annular_grooves` retain
+their existing records. This additive family changes no existing feature or fingerprint.
+
+Fingerprint format 3 uses the two diameters, depth and two wall angles as intrinsic sizes,
+`axis` as direction and `axis_point` as placement. `floor` and `faces` are source indices,
+ignored as parameter sizes; the usual defining-face list, centroid and neighbourhood
+provide the fingerprint's geometric evidence. Recognition remains schema 6.
+
+The local 608ZZ reproduction has floors 4 and 11 and walls 2/6 and 9/13. Its two
+records measure ⌀18.5/⌀13 at the rim, depth 0.25, with cone angles
+44.999971914041566° (approximately 45°). At the floor, the measured diameters are
+approximately ⌀18.00000049/⌀13.49999951. The reproduction is not redistributed.
+
 ## Evaluation mappings
 
 `lip_bevelled_blind_slot` selects an existing complete `edge_open_recess` geometry:
@@ -445,3 +498,63 @@ occurrence's defining faces supply the fingerprint faces, position and neighbour
 
 CTC-05 faces 14, 15, 168 and 169 are four separate convex R203.2 mm profile surfaces,
 not fillets: their walls fail tangency. Existing records keep their IDs and parameters.
+
+## Turned bodies (For #123)
+
+Optional `turned_bodies` publishes one `TurnedBody` for each valid solid whose entire
+boundary consists of analytic surfaces of revolution about one common line. A plane
+must be square to that line; cylinders, cones and tori must have that axis; sphere
+centres must lie on it (their parameter polar axes are immaterial). NURBS planes also qualify when positive weights and the complete control net
+certify the support inside the same plane-precision slab. A sampled fit alone
+cannot establish a plane. Other unsupported surfaces, flats, keyways, cross holes and offset/second revolution axes refuse the
+whole solid. There is no principal-frame or number-of-diameters gate. The linear
+precision is `max(file_uncertainty, COORD_FLOOR)`; parallelism is tested as the sine
+of the axis angle times the body's largest intrinsic directional extent (or support
+radius, whichever is greater), against that same precision. Axis-line offsets use
+that linear precision. No recognition-policy angular tolerance is used. A complete
+sphere admits every axis through its centre; its native polar axis supplies a
+conventional representative that follows rigid motion, without limiting eligibility.
+
+`axis` is a positive principal letter or a unit vector, and `axis_point` is the
+midpoint of the axial extent on that line, published on the 1e-8 mm point grid.
+`od` is the maximum transverse extent (including spherical/toroidal extrema), and
+`length` is the exact axial extent. `bores` lists internal cylinder diameters and
+`span: [lo,hi]`, signed distances from `axis_point` along `axis`; touching axial
+splits of the same diameter merge within model precision. Diameters come from the
+analytic support, and disconnected axial spans remain separate.
+
+`profile` is sorted by axial start, end and radius on the existing 1e-8 mm point
+ordering grid, then face. Measurements themselves stay exact; the ordering grid
+prevents round-off at a shared station from permuting its segments on a write/read
+round trip. Each segment gives its
+`face`, `kind` (`cylinder`, `cone`, `torus`, `sphere`, `plane_shoulder`), `side`
+(`external`, `internal`, or `shoulder`), and `start`/`end` coordinates `[axial,radius]`
+in the same midpoint-based measuring system. For curved meridians, `arc_center`,
+`arc_radius` and signed `arc_sweep` describe the exact circular arc, positive from
++axial towards +radius; otherwise these fields are null. This includes internal
+and reentrant profile surfaces as well as the outside, without creating recess
+feature records. Face splits and torus axial turning points remain separate
+segments; each curved segment is monotone in axial position. Together these describe a
+half-section, including edge chamfers and plane shoulders.
+
+`body_key` follows existing body classifications. Optional `profile_key` reuses
+`turned::TurnedProfileKey` and `profile_key_from_bands` over external cylinder bands
+when the intrinsic axis is principal, joining existing turned-step/groove records.
+Its fields follow the existing turned-profile publication contract, under
+`profile_key` instead of `profile`. Any-axis bodies use the explicit meridian
+without requiring that legacy principal-axis join. `ProfileAxis` and `Placed` are
+also reused. All faces co-own `turned_bodies/N` and their feature records; body
+claims do not reserve faces against features or residual cylindrical profiles.
+
+After all existing decisions and projections, suppress an accepted cylindrical
+boss only when its defining cylinders belong to that turned body, each raw
+diameter equals its OD within model precision, its raw axial span covers at least
+90% of the body length, and each end gap is at most 5% of that length plus model
+precision. This deliberately permits small end chamfers. Shorter/smaller end
+bosses remain. No other record is removed or changed.
+
+Fingerprints remain `/3`: axis is an axis, OD/length/bore diameters and meridian
+measurements are sizes, surface kinds and material sides are traits. Meridian
+sizes are canonicalised together over both axis senses, retaining station/radius
+associations. Points, body keys and the legacy profile join are placement;
+profile face indices are ignored in parameters and remain defining evidence.

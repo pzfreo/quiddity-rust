@@ -105,6 +105,7 @@ fn inventories_do_not_silently_shrink() {
     if !path.exists() && std::env::var_os("QUIDDITY_INVENTORY_OUTPUT").is_some() {
         return;
     }
+    // For #123, additive turned-body floors retain the historical feature baselines.
     let floor: Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
     let mut failures = Vec::new();
     for (file, expected) in floor["files"].as_object().unwrap() {

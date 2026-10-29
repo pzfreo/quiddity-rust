@@ -71,6 +71,62 @@ pub fn canonical(v: &Value, family: &str) -> Value {
             r.insert(key.into(), mass);
         }
     }
+    // For #123: compare the meridian's actual file-coordinate stations and radii.
+    // Axis sense may reverse; preserve face/kind/side and every arc measurement.
+    if family == "turned_bodies" {
+        let d = axis.unwrap();
+        let origin = point(&raw["axis_point"]);
+        let station =
+            |p: &Value| json!({"point":add(origin,d,p[0].as_f64().unwrap()),"radius":p[1]});
+        let mut segments = Vec::new();
+        for p in raw["profile"].as_array().unwrap() {
+            let mut p = p.clone();
+            let mut ends = vec![station(&p["start"]), station(&p["end"])];
+            order(&mut ends);
+            p["start"] = ends[0].clone();
+            p["end"] = ends[1].clone();
+            if !p["arc_center"].is_null() {
+                let c = &p["arc_center"];
+                let cs = c[0].as_f64().unwrap();
+                let cr = c[1].as_f64().unwrap();
+                let start = &raw["profile"][segments.len()]["start"];
+                let theta =
+                    (start[1].as_f64().unwrap() - cr).atan2(start[0].as_f64().unwrap() - cs);
+                let middle = theta + p["arc_sweep"].as_f64().unwrap() / 2.;
+                let radius = p["arc_radius"].as_f64().unwrap();
+                p["arc_midpoint"] = station(&json!([
+                    cs + radius * middle.cos(),
+                    cr + radius * middle.sin()
+                ]));
+                p["arc_center"] = station(&p["arc_center"]);
+            }
+            if let Some(sweep) = p["arc_sweep"].as_f64() {
+                p["arc_sweep"] = json!(sweep.abs());
+            }
+            segments.push(p);
+        }
+        order(&mut segments);
+        r.insert("profile".into(), json!(segments));
+        let mut bores = Vec::new();
+        for b in raw["bores"].as_array().unwrap() {
+            let mut ends: Vec<_> = b["span"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|s| json!(add(origin, d, s.as_f64().unwrap())))
+                .collect();
+            order(&mut ends);
+            bores.push(json!({"diameter":b["diameter"],"ends":ends}));
+        }
+        order(&mut bores);
+        r.insert("bores".into(), json!(bores));
+        if !raw["profile_key"].is_null() {
+            r.insert(
+                "profile_key".into(),
+                canonical(&raw["profile_key"], "profile"),
+            );
+        }
+    }
     if let Some(p) = r.get_mut("profile") {
         *p = canonical(p, "profile");
     }

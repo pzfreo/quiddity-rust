@@ -87,6 +87,7 @@ pub use features::slots::Slot;
 pub use features::thin_walls::ThinWallBody;
 pub use features::through_steps::ThroughStep;
 pub use features::turned::TurnedProfileKey;
+pub use features::turned_bodies::TurnedBody;
 pub use features::turned_steps::TurnedStep;
 pub use kernel::brep::Part;
 pub use kernel::step::{read_step, read_step_file};

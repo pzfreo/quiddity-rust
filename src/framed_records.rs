@@ -564,7 +564,9 @@ fn carry(
         turned_steps,
         grooves,
         annular_grooves,
+        face_grooves,
         plates,
+        turned_bodies,
         round_bottom_blind_slots,
         semicircular_blind_slots,
         rectangular_blind_slots,
@@ -684,7 +686,17 @@ fn carry(
                 r
             }
         ),
+        face_grooves: each!(
+            "face_grooves",
+            face_grooves,
+            |out: &mut Out, mut r: crate::features::face_grooves::FaceGroove| {
+                r.axis = out.direction(r.axis);
+                r.axis_point = out.point(r.axis_point);
+                r
+            }
+        ),
         plates: each!("plates", plates, plate),
+        turned_bodies: each!("turned_bodies", turned_bodies, turned_body),
         round_bottom_blind_slots: each!(
             "round_bottom_blind_slots",
             round_bottom_blind_slots,
@@ -802,6 +814,64 @@ fn fillet(out: &mut Out, r: Fillet) -> Fillet {
         at: out.placed_point(at),
         turned,
         side,
+    }
+}
+
+fn turned_body(
+    out: &mut Out,
+    r: crate::features::turned_bodies::TurnedBody,
+) -> crate::features::turned_bodies::TurnedBody {
+    use crate::features::turned_bodies::{self, TurnedBody};
+    let TurnedBody {
+        axis,
+        axis_point,
+        od,
+        length,
+        mut bores,
+        mut profile,
+        body_key,
+        profile_key,
+    } = r;
+    let moved = out.direction(turned_bodies::direction(axis));
+    let canonical = turned_bodies::canonical(moved);
+    if crate::kernel::geom::dot(moved, canonical) < 0. {
+        for b in &mut bores {
+            b.span = [-b.span[1], -b.span[0]];
+        }
+        for p in &mut profile {
+            let start = p.start;
+            p.start = [-p.end[0], p.end[1]];
+            p.end = [-start[0], start[1]];
+            p.arc_center = p.arc_center.map(|c| [-c[0], c[1]]);
+            // Reflection reverses the arc sense, exchanging endpoints reverses it again.
+        }
+        turned_bodies::sort_profile(&mut profile);
+        bores.sort_by(|a, b| {
+            a.diameter
+                .total_cmp(&b.diameter)
+                .then(a.span[0].total_cmp(&b.span[0]))
+        });
+    }
+    TurnedBody {
+        axis: turned_bodies::axis(canonical),
+        axis_point: out.placed_point(axis_point),
+        od,
+        length,
+        bores,
+        profile,
+        body_key: out.body_key(body_key, "body_key"),
+        profile_key: profile_key.map(|p| {
+            // Reuse the existing mapping and its pending publication paths under this field.
+            let mut nested = Out::new(out.motion, out.publish, "");
+            let p = turned_profile(&mut nested, p);
+            out.relative.extend(
+                nested
+                    .done()
+                    .into_iter()
+                    .map(|s| s.replacen("profile.", "profile_key.", 1)),
+            );
+            p
+        }),
     }
 }
 

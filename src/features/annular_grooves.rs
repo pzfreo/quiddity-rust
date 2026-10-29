@@ -25,10 +25,11 @@ pub struct AnnularGroove {
     pub depth: f64,
 }
 
-struct Ring {
-    edges: Vec<usize>,
-    center: V3,
-    radius: f64,
+#[derive(Clone)]
+pub(super) struct Ring {
+    pub(super) edges: Vec<usize>,
+    pub(super) center: V3,
+    pub(super) radius: f64,
 }
 
 /// Edge identity, not a nearest-point walk, proves disjoint closed boundary cycles. A
@@ -67,7 +68,7 @@ fn cycles(part: &Part, edges: &BTreeSet<usize>) -> Option<Vec<Vec<usize>>> {
 
 /// A whole circular rim, possibly split into arcs. Closed topology plus a one-turn arc sum
 /// proves the complete circumference; matching radii/centres alone would admit fragments.
-fn ring(part: &Part, edges: Vec<usize>, axis: V3) -> Option<Ring> {
+pub(super) fn ring(part: &Part, edges: Vec<usize>, axis: V3) -> Option<Ring> {
     let set: BTreeSet<_> = edges.iter().copied().collect();
     if set.len() != edges.len() || cycles(part, &set)?.len() != 1 {
         return None;
@@ -143,7 +144,7 @@ fn ring(part: &Part, edges: Vec<usize>, axis: V3) -> Option<Ring> {
 }
 
 /// The connected floor plane, without a preferred coordinate axis.
-fn floor_region(part: &Part, seed: usize) -> Option<BTreeSet<usize>> {
+pub(super) fn floor_region(part: &Part, seed: usize) -> Option<BTreeSet<usize>> {
     let Surface::Plane { frame } = part.faces[seed].surface else {
         return None;
     };
@@ -172,7 +173,7 @@ fn floor_region(part: &Part, seed: usize) -> Option<BTreeSet<usize>> {
     Some(found)
 }
 
-fn floor_rings(part: &Part, floor: &BTreeSet<usize>, axis: V3) -> Option<Vec<Ring>> {
+pub(super) fn floor_rings(part: &Part, floor: &BTreeSet<usize>, axis: V3) -> Option<Vec<Ring>> {
     let mut uses: BTreeMap<usize, Vec<bool>> = BTreeMap::new();
     for &face in floor {
         for lp in &part.faces[face].loops {

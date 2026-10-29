@@ -8,6 +8,17 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Added
 
+- For #123, `turned_bodies` classifies complete analytic solids of revolution in
+  any direction, including single-diameter parts, with OD, length, bores and an
+  ordered meridian profile. Body records co-own every face with existing features;
+  only a nearly full-length OD boss is suppressed on a classified body.
+- For #123, `face_grooves` recognises annular recesses in planar faces with coaxial
+  conical or cylindrical walls, in any axis direction and on prismatic hosts too.
+  Records give rim diameters, depth, each wall angle and all floor/wall/treatment faces.
+  Existing claims, including `annular_grooves`, retain precedence. The 608ZZ has two
+  grooves, measured at the rim as ⌀18.5/⌀13 × 0.25 with approximately 45° walls.
+  Recognition schema `/6` and fingerprint format `/3` are unchanged.
+
 - For #127, `cylindrical_profiles` recognises otherwise unclaimed convex and concave
   cylindrical profile surfaces under 180° in any direction, with radius, axis, axis
   point, side, sweep and defining faces. Split patches of one connected surface share

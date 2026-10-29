@@ -10,6 +10,7 @@ use serde_json::Value;
 use crate::features::Features;
 use crate::kernel::brep::{Arc, Part};
 use crate::kernel::geom::{self, Surface, V3};
+use crate::kernel::py;
 
 /// Fingerprint format version: correspondence refuses different formats.
 /// Intentional value changes within v3 are recorded in the changelog (#71, #92).
@@ -428,6 +429,22 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
         ],
     },
     FamilyFingerprint {
+        family: "face_grooves",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("axis_point", Placement),
+            ("outer_diameter", Size),
+            ("inner_diameter", Size),
+            ("depth", Size),
+            ("outer_wall_angle", Size),
+            ("inner_wall_angle", Size),
+            ("floor", Ignored),
+            ("faces", Ignored),
+        ],
+    },
+    FamilyFingerprint {
         family: "annular_grooves",
         members: None,
         variants: false,
@@ -449,6 +466,29 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
             ("diameter", Size),
             ("at", Placement),
             ("profile", Placement),
+        ],
+    },
+    FamilyFingerprint {
+        family: "turned_bodies",
+        members: None,
+        variants: false,
+        fields: &[
+            ("axis", Axis),
+            ("axis_point", Placement),
+            ("od", Size),
+            ("length", Size),
+            ("bores[].diameter", Size),
+            ("bores[].span", Derived),
+            ("profile[].kind", Trait),
+            ("profile[].side", Trait),
+            ("profile[].start", Derived),
+            ("profile[].end", Derived),
+            ("profile[].arc_center", Derived),
+            ("profile[].arc_radius", Size),
+            ("profile[].arc_sweep", Derived),
+            ("profile[].face", Ignored),
+            ("body_key", Placement),
+            ("profile_key", Placement),
         ],
     },
     FamilyFingerprint {
@@ -1247,6 +1287,97 @@ fn derived_sizes(family: &str, r: &Value, sizes: &mut BTreeMap<String, f64>) {
                         );
                     }
                 }
+            }
+        }
+        "turned_bodies" => {
+            // Relative meridian dimensions have no world origin. Compare both axis senses
+            // together, preserving diameter/station associations; face indices and splits'
+            // traversal order are not dimensions. The comparison grid chooses a sense only;
+            // published measurements and the existing numeric comparison bands stay exact.
+            let signature = |sign: f64| {
+                let mut rows = Vec::new();
+                for p in r["profile"].as_array().into_iter().flatten() {
+                    let kind = match p["kind"].as_str() {
+                        Some("cylinder") => 0.,
+                        Some("cone") => 1.,
+                        Some("torus") => 2.,
+                        Some("sphere") => 3.,
+                        _ => 4.,
+                    };
+                    let mut ends = [
+                        [
+                            sign * p["start"][0].as_f64().unwrap(),
+                            p["start"][1].as_f64().unwrap(),
+                        ],
+                        [
+                            sign * p["end"][0].as_f64().unwrap(),
+                            p["end"][1].as_f64().unwrap(),
+                        ],
+                    ];
+                    ends.sort_by(|a, b| a[0].total_cmp(&b[0]).then(a[1].total_cmp(&b[1])));
+                    let arc_midpoint = p["arc_center"]
+                        .as_array()
+                        .map(|centre| {
+                            let cs = centre[0].as_f64().unwrap();
+                            let cr = centre[1].as_f64().unwrap();
+                            let theta = (p["start"][1].as_f64().unwrap() - cr)
+                                .atan2(p["start"][0].as_f64().unwrap() - cs);
+                            let middle = theta + p["arc_sweep"].as_f64().unwrap() / 2.;
+                            let radius = p["arc_radius"].as_f64().unwrap();
+                            [
+                                sign * (cs + radius * middle.cos()),
+                                cr + radius * middle.sin(),
+                            ]
+                        })
+                        .unwrap_or([0.; 2]);
+                    rows.push(vec![
+                        kind,
+                        if p["side"] == "internal" { 1. } else { 0. },
+                        ends[0][0],
+                        ends[0][1],
+                        ends[1][0],
+                        ends[1][1],
+                        sign * p["arc_center"][0].as_f64().unwrap_or(0.),
+                        p["arc_center"][1].as_f64().unwrap_or(0.),
+                        p["arc_radius"].as_f64().unwrap_or(0.),
+                        p["arc_sweep"].as_f64().unwrap_or(0.).abs(),
+                        arc_midpoint[0],
+                        arc_midpoint[1],
+                    ]);
+                }
+                rows.sort_by(|a, b| {
+                    a.iter()
+                        .zip(b)
+                        .map(|(a, b)| py::round_to(*a, 8).total_cmp(&py::round_to(*b, 8)))
+                        .find(|o| !o.is_eq())
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                });
+                rows
+            };
+            let forward = signature(1.);
+            let reverse = signature(-1.);
+            let order = forward
+                .iter()
+                .flatten()
+                .zip(reverse.iter().flatten())
+                .map(|(a, b)| py::round_to(*a, 8).total_cmp(&py::round_to(*b, 8)))
+                .find(|o| !o.is_eq())
+                .unwrap_or(std::cmp::Ordering::Equal);
+            let rows = if order.is_gt() { reverse } else { forward };
+            for (i, row) in rows.iter().enumerate() {
+                for (j, v) in row.iter().enumerate().skip(2) {
+                    put(&format!("profile.{i}.{j}"), Some(*v));
+                }
+            }
+            let mut spans: Vec<_> = r["bores"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .map(|b| (b["span"][1].as_f64().unwrap() - b["span"][0].as_f64().unwrap()).abs())
+                .collect();
+            spans.sort_by(f64::total_cmp);
+            for (i, v) in spans.iter().enumerate() {
+                put(&format!("bores.length.{i}"), Some(*v));
             }
         }
         "plates" => put("thickness", span("lo", "hi")),
