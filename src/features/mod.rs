@@ -38,6 +38,7 @@ pub mod effective_surfaces;
 pub mod entry_treatments;
 pub mod evidence;
 pub mod experimental_geometry;
+pub mod face_grooves;
 pub mod fillets;
 pub mod flats;
 pub mod freeform_surfaces;
@@ -154,6 +155,9 @@ pub struct Features {
     /// Annular face recesses, omitted when absent for existing readers.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub annular_grooves: Vec<annular_grooves::AnnularGroove>,
+    /// Intrinsic face recesses on otherwise unclaimed faces (for #123).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub face_grooves: Vec<face_grooves::FaceGroove>,
     pub plates: Vec<plates::Plate>,
     pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -312,6 +316,7 @@ fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
         }
     }
     cylindrical_profiles::append(ctx, &mut features);
+    face_grooves::append(ctx, &mut features);
     features
 }
 
@@ -675,6 +680,7 @@ pub(crate) fn inventory_in(
                 kept(&mut defining, "annular_grooves", found)
             }
         },
+        face_grooves: Vec::new(),
         plates: kept_shared(&mut defining, "plates", plate_occurrences),
         round_bottom_blind_slots: kept(
             &mut defining,

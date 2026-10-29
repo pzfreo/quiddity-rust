@@ -148,6 +148,15 @@ fn families_are_wired_and_their_records_fingerprinted_field_by_field() {
             found.entry(key).or_default().extend(paths);
         }
     }
+    // For #123, exercise the new family even without the optional corpus or local repro.
+    let disc = super::face_grooves::two_ends();
+    let grooves = features::recognise(&disc).face_grooves;
+    assert_eq!(grooves.len(), 2);
+    leaves(
+        &serde_json::to_value(&grooves[0]).unwrap(),
+        "",
+        found.entry("face_grooves".into()).or_default(),
+    );
     // The array variant of a gusset rib pattern is in no fixture or corpus part.
     let array = gussets::GussetRibPattern::Array {
         ribs: Vec::new(),
