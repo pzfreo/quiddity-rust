@@ -810,12 +810,60 @@ pub(crate) fn inventory_in(
         // A suppressed fillet cannot defeat a blend; indices follow the filtered records.
         dispositions = reconcile::reconcile(&physical, &evidence)?;
     }
-    Ok(Some(Inventory {
+    let mut inventory = Inventory {
         physical,
         evidence,
         dispositions,
         constituent: defining.constituent,
-    }))
+    };
+    // For #127, new inside rounds also respect the complete defining claims of the
+    // section-recess projection. Those claims include cavity treatments that the seed
+    // pocket only consulted. Existing convex records retain their established ownership.
+    if inventory
+        .physical
+        .fillets
+        .iter()
+        .any(|f| f.side == "concave")
+        && let Ok(projection) = section_recess_family::section_recess_projection_in(ctx, &inventory)
+    {
+        let reserved: BTreeSet<_> = projection
+            .section_recesses
+            .iter()
+            .flat_map(|r| r.evidence().defining_faces().iter().copied())
+            .collect();
+        let gone: BTreeSet<_> = inventory
+            .physical
+            .fillets
+            .iter()
+            .enumerate()
+            .filter(|(i, f)| {
+                f.side == "concave"
+                    && inventory.physical.defining["fillets"][*i]
+                        .iter()
+                        .any(|f| reserved.contains(f))
+            })
+            .map(|(i, _)| i)
+            .collect();
+        if !gone.is_empty() {
+            drop_rejected(&mut inventory.physical.fillets, &gone);
+            drop_rejected(
+                inventory.physical.defining.get_mut("fillets").unwrap(),
+                &gone,
+            );
+            drop_rejected(
+                inventory
+                    .physical
+                    .evidence_status
+                    .get_mut("fillets")
+                    .unwrap(),
+                &gone,
+            );
+            drop_rejected(inventory.constituent.get_mut("fillets").unwrap(), &gone);
+            inventory.dispositions =
+                reconcile::reconcile(&inventory.physical, &inventory.evidence)?;
+        }
+    }
+    Ok(Some(inventory))
 }
 
 /// Defining and constituent faces by family field name, then record.

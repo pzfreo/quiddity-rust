@@ -6,6 +6,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Changed
+
+- For #127, recognise proved straight inside rounds as fillets with `side: concave`,
+  including tangent cylindrical walls and spherical corner caps shared with straight or
+  toroidal rounds. Preserve existing feature claims and the 135° edge-round limit.
+
 ## 0.2.2 (2026-10-28)
 
 Upgrading from 0.2.1: the schema stays `quiddity-rust/recognition/6` and fingerprints `/3`, but

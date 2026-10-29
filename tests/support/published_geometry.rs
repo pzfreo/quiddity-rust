@@ -16,8 +16,13 @@ fn add(o: V3, d: V3, s: f64) -> V3 {
     std::array::from_fn(|i| o[i] + d[i] * s)
 }
 fn positive(d: V3) -> (V3, f64) {
-    let w = (0..3)
-        .max_by(|&a, &b| d[a].abs().total_cmp(&d[b].abs()))
+    // For #127: axes are already compared modulo sign. At a 45-degree tie,
+    // round-off must not choose opposite representatives after a motion. Select
+    // the last tied component, preserving every component and the comparison bands.
+    let largest = d.iter().map(|v| v.abs()).fold(0., f64::max);
+    let w = d
+        .iter()
+        .rposition(|v| largest - v.abs() <= 8. * f64::EPSILON)
         .unwrap();
     let s = 1_f64.copysign(d[w]);
     (d.map(|v| v * s), s)
@@ -300,6 +305,40 @@ mod tests {
         json!({"axis":"z", "radius":4.0, "length":10.0,
             "centreline":[[0.0,0.0,0.0],[0.0,0.0,10.0]],
             "section":[[-4.0,0.0],[0.0,0.0],[0.0,4.0]]})
+    }
+
+    #[test]
+    fn unsigned_axis_ties_preserve_every_component_and_other_measurements() {
+        let q = std::f64::consts::FRAC_1_SQRT_2;
+        let base =
+            json!({"axis":[-q,0.,q],"radius":3.,"at":[1.,2.,3.],"side":"concave","turned":false});
+        for delta in [-f64::EPSILON, 0., f64::EPSILON] {
+            for sign in [-1., 1.] {
+                let d = [sign * (-q - delta), 0., sign * (q - delta)];
+                let mut r = base.clone();
+                r["axis"] = json!(d);
+                let normal = canonical(&r, "fillets");
+                let axis: V3 = point(&normal["axis"]);
+                assert!(axis[0] < 0. && axis[2] > 0.);
+                for (actual, original) in axis.iter().zip(d) {
+                    assert_eq!(actual.abs(), original.abs());
+                }
+                for key in ["radius", "at", "side", "turned"] {
+                    assert_eq!(normal[key], base[key]);
+                }
+            }
+        }
+        let expected = canonical(&base, "fillets");
+        for (key, value) in [
+            ("axis", json!([0., 0., 1.])),
+            ("radius", json!(4.)),
+            ("at", json!([2., 2., 3.])),
+            ("side", json!("convex")),
+        ] {
+            let mut changed = base.clone();
+            changed[key] = value;
+            assert_ne!(canonical(&changed, "fillets"), expected);
+        }
     }
 
     #[test]

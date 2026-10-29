@@ -181,16 +181,49 @@ fn specific_defining_claims_keep_gusset_and_pattern_rounds_out_of_fillets() {
     }
 }
 
-// #89: retain the exact face/radius/non-fillet guard in the shared motion readings.
+// #127: replace #89's side-only exclusion with the full concave-round proof in motion readings.
 fn cgb202_guard(part: &Part, reading: &Recognition) {
     for face in [1215, 1219] {
         assert_eq!(part.frame_points_outward(face), Some(false));
         assert!(
             matches!(part.faces[face].surface, Surface::Cylinder { radius, .. } if (radius - 3.).abs() < 1e-9)
         );
-        assert!(
-            !reading.features.defining["fillets"].contains(&vec![face]),
-            "face {face}"
+        // For #127, these formerly unexplained inside rounds pass the same intrinsic
+        // tangent-wall/sweep proof as the convex rounds, including after rotation.
+        let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
+            unreachable!()
+        };
+        let at = quiddity::features::fillets::fillet_anchor(part, face).unwrap();
+        let corner = quiddity::features::bevel::tangent_cylinder_corner(
+            part,
+            face,
+            at,
+            frame.z,
+            frame.origin,
+            radius,
+        )
+        .unwrap();
+        let (u0, u1, _, _) = part.uv_bounds(face).unwrap();
+        let expected = quiddity::kernel::geom::norm(quiddity::kernel::geom::cross(
+            corner.normals[0],
+            corner.normals[1],
+        ))
+        .atan2(quiddity::kernel::geom::dot(
+            corner.normals[0],
+            corner.normals[1],
+        ));
+        assert!((u1 - u0 - expected).abs() <= 0.5_f64.to_radians());
+        assert!(u1 - u0 <= 3. * std::f64::consts::PI / 4.);
+        let i = reading.features.defining["fillets"]
+            .iter()
+            .position(|d| *d == vec![face])
+            .unwrap();
+        assert_eq!(
+            (
+                reading.features.fillets[i].radius,
+                reading.features.fillets[i].side
+            ),
+            (3., "concave")
         );
     }
     check_cylinder_sides(part, reading);
