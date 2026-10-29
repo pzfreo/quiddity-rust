@@ -4995,3 +4995,66 @@ fn occt_reads_supported_targets_without_moving_the_controlled_feature() {
         }
     }
 }
+
+/// PMI added (or written again) on faces a location dimension of the file is measured from
+/// shares that feature's usage, as on any other face: a `dimensional_location` relating the
+/// feature is not a composition of it. With a toleranced location or one with its nominal alone
+/// (under the general tolerance, specify-core-rust#63) alike, no face is identified twice
+/// (item_identified_representation_usage.UR1).
+#[test]
+fn a_location_dimensions_reference_feature_is_shared() {
+    let f = spool();
+    let pmi = |tolerance: DimTolerance| PartPmi {
+        features: vec![faces(&[0]), faces(&[1])],
+        dimensions: vec![
+            size(0, "8.", tolerance.clone()),
+            Dimension {
+                kind: DimensionKind::Location {
+                    from: FeatureId(1),
+                    to: FeatureId(0),
+                    kind: LocationKind::LinearDistance,
+                    path: None,
+                    directed: false,
+                    angle: None,
+                },
+                nominal: Some(mm("10.")),
+                tolerance,
+                qualifier: None,
+                modifiers: Vec::new(),
+                principle: None,
+            },
+        ],
+        ..PartPmi::default()
+    };
+    let other = PartPmi {
+        features: vec![faces(&[0]), faces(&[1])],
+        dimensions: vec![size(
+            0,
+            "8.",
+            DimTolerance::Deviations(bounds("0.1", "-0.1")),
+        )],
+        tolerances: vec![tolerance(
+            ToleranceKind::Flatness,
+            ToleranceTarget::Feature(FeatureId(1)),
+            "0.02",
+        )],
+        ..PartPmi::default()
+    };
+    for (case, first) in [
+        (
+            "toleranced",
+            pmi(DimTolerance::Deviations(bounds("0.3", "-0.3"))),
+        ),
+        ("nominal only", pmi(DimTolerance::None)),
+    ] {
+        let w = write(&f, &[(PartId(0), first.clone())], Mode::Replace).unwrap();
+        assert_reads_back(&w, PartId(0), &first);
+        let g = open_bytes(w.doc.bytes().to_vec());
+        for mode in [Mode::Add, Mode::Replace] {
+            let w2 = write(&g, &[(PartId(0), other.clone())], mode)
+                .unwrap_or_else(|e| panic!("{case} {mode:?}: {e}"));
+            let v = new_violations(&g.doc, &w2.doc);
+            assert!(v.is_empty(), "{case} {mode:?}: {v:#?}");
+        }
+    }
+}
