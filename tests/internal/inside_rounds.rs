@@ -432,15 +432,22 @@ fn ctc05_inside_rounds_and_spherical_corners_are_claimed() {
     }
     // Exact axis/support geometry must still be proved independently of STEP's tilted
     // spring lines. A grossly displaced cylindrical wall is not a tangent support.
-    let mut faces = part.faces.clone();
-    let Surface::Cylinder { frame, radius } = faces[10].surface else {
+    // Preserve the file precision in fresh copies: Part::new would discard it and
+    // could reject the already imperfect spring lines before testing the wall fault.
+    let copied = part.transformed(&quiddity::kernel::step::IDENTITY).unwrap();
+    let control = fillets::discover(&Context::new(&copied), &Default::default());
+    for face in [11, 76] {
+        assert!(control.iter().any(|o| o.defining.contains(&face)));
+    }
+    let mut damaged = part.transformed(&quiddity::kernel::step::IDENTITY).unwrap();
+    assert_eq!(damaged.file_uncertainty(), part.file_uncertainty());
+    let Surface::Cylinder { frame, radius } = damaged.faces[10].surface else {
         unreachable!()
     };
-    faces[10].surface = Surface::Cylinder {
+    damaged.faces[10].surface = Surface::Cylinder {
         frame,
         radius: radius + 1.,
     };
-    let damaged = Part::new(faces, part.edges.clone(), part.solids.clone());
     assert!(
         fillets::discover(&Context::new(&damaged), &Default::default())
             .iter()
