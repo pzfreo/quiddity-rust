@@ -6,6 +6,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Fixed
+
+- haecceity: PMI added beside a file's location dimensions no longer breaks
+  `item_identified_representation_usage.UR1`. A `dimensional_location` relating the feature it
+  is measured from is not a composition of that feature, so the feature's usage is shared; and a
+  face the file already identifies keeps its one usage whichever new feature would own it
+  (#132, for pzfreo/specify-core-rust#63).
+
 ## 0.2.3 (2026-10-29)
 
 Upgrading from 0.2.2: the schema stays `quiddity-rust/recognition/6` and fingerprints `/3`.
