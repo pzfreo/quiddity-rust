@@ -8,7 +8,7 @@ also matches the features of two revisions of a part, and reads and writes AP242
 It works from the B-rep geometry alone, with no CAD system, feature tree or OpenCascade.
 Everything is pure Rust, and the same input always gives the same output.
 
-Status: **0.2.2** (2026-10-28). See [CHANGELOG.md](CHANGELOG.md).
+Status: **0.2.3** (2026-10-29). See [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
@@ -95,12 +95,12 @@ for record in document.records.iter().filter(|r| r.family == "holes") {
 |---|---|
 | Holes | `holes` (through, blind, counterbored, countersunk, spotfaced), `countersinks`, `hole_patterns`, `double_d_bores`, `modelled_threads` |
 | Pockets and slots | `pockets`, `prismatic_pockets`, `edge_open_circular_pockets`, `edge_open_prismatic_recesses`, `pocket_patterns`, `slots`, `rectangular_blind_slots`, `round_bottom_blind_slots`, `semicircular_blind_slots`, `slot_patterns`, `rectangular_through_notches` |
-| Channels and grooves | `channels`, `v_channels`, `grooves`, `annular_grooves` |
+| Channels and grooves | `channels`, `v_channels`, `grooves`, `annular_grooves`, `face_grooves` |
 | Steps and levels | `through_steps`, `angled_steps`, `oblique_through_steps`, `paired_ramp_steps`, `circular_blind_steps`, `step_levels`, `risers` |
 | Raised features | `bosses`, `polygonal_bosses`, `pads`, `gusset_ribs`, `gusset_rib_patterns` |
 | Edges | `fillets`, `blends`, `chamfers` |
-| Turned parts | `turned_steps`, `repeating_radial_profiles`, `circular_face_patterns` |
-| Body | `plates`, `polygonal_stock`, `sheet_metal_bodies`, `thin_wall_bodies`, `flats`, `interior_voids`, `freeform_surfaces` |
+| Turned parts | `turned_bodies`, `turned_steps`, `repeating_radial_profiles`, `circular_face_patterns` |
+| Body | `plates`, `polygonal_stock`, `sheet_metal_bodies`, `thin_wall_bodies`, `flats`, `interior_voids`, `cylindrical_profiles`, `freeform_surfaces` |
 | Sections | `section_passages`, `section_recesses` |
 
 ## Compare two revisions
