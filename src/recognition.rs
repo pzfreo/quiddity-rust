@@ -153,6 +153,7 @@ impl Record {
 /// per variant of an untagged family ([`record_type`] picks it).
 pub const RECORD_TYPES: &[(&str, &[&str])] = &[
     ("fillets", &["Fillet"]),
+    ("cylindrical_profiles", &["CylindricalProfile"]),
     ("chamfers", &["Chamfer"]),
     ("bosses", &["BossRecord"]),
     ("angled_steps", &["AngledStep"]),

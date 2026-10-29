@@ -28,6 +28,7 @@ pub mod cylindrical_channels;
 pub mod cylindrical_end_surface;
 pub mod cylindrical_passages;
 pub mod cylindrical_pockets;
+pub mod cylindrical_profiles;
 pub mod cylindrical_seats;
 pub mod discovery;
 pub mod edge_open;
@@ -125,6 +126,9 @@ pub struct Features {
     #[serde(skip)]
     pub evidence_status: BTreeMap<&'static str, Vec<evidence::EvidenceStatus>>,
     pub fillets: Vec<fillets::Fillet>,
+    /// Residual surface projection after all accepted claims (#127), omitted when absent.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub cylindrical_profiles: Vec<cylindrical_profiles::CylindricalProfile>,
     pub chamfers: Vec<chamfers::Chamfer>,
     pub bosses: Vec<bosses::BossRecord>,
     pub angled_steps: Vec<angled_steps::AngledStep>,
@@ -307,6 +311,7 @@ fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
             polygonal_bosses::claim_terminal_cap(ctx.part, record, faces, constituent);
         }
     }
+    cylindrical_profiles::append(ctx, &mut features);
     features
 }
 
@@ -613,6 +618,7 @@ pub(crate) fn inventory_in(
         } else {
             evidence::RunMode::Strict
         },
+        cylindrical_profiles: Vec::new(),
         chamfers: kept(
             &mut defining,
             "chamfers",

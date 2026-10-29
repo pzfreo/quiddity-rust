@@ -6,6 +6,16 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Added
+
+- For #127, `cylindrical_profiles` recognises otherwise unclaimed convex and concave
+  cylindrical profile surfaces under 180° in any direction, with radius, axis, axis
+  point, side, sweep and defining faces. Split patches of one connected surface share
+  one record. Holes, bores, proved edge rounds and existing feature claims are excluded;
+  concave radii below `min(2 mm, 5% of the smallest part-box dimension)` remain available
+  for inside-round recognition. CTC-05's four R203.2 surfaces now carry profile records.
+  Recognition schema `/6` and fingerprint format `/3` are unchanged.
+
 ### Changed
 
 - For #127, recognise proved straight inside rounds as fillets with `side: concave`,

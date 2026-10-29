@@ -142,6 +142,19 @@ pub const FAMILIES: &[FamilyFingerprint] = &[
         ],
     },
     FamilyFingerprint {
+        family: "cylindrical_profiles",
+        members: None,
+        variants: false,
+        fields: &[
+            ("radius", Size),
+            ("axis", Axis),
+            ("axis_point", Placement),
+            ("side", Trait),
+            ("sweep", Size),
+            ("faces", Ignored),
+        ],
+    },
+    FamilyFingerprint {
         family: "chamfers",
         members: None,
         variants: false,

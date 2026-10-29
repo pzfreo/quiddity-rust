@@ -10,6 +10,8 @@ mod captured;
 mod corpus;
 #[path = "correspondence.rs"]
 mod correspondence;
+#[path = "cylindrical_profiles.rs"]
+mod cylindrical_profiles;
 #[path = "effective_surfaces.rs"]
 mod effective_surfaces;
 #[path = "evidence.rs"]

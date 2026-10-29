@@ -475,8 +475,8 @@ fn ctc05_inside_rounds_and_spherical_corners_are_claimed() {
     competing.faces[17].reversed = wall.reversed;
     assert!(fillets::curved_wall_corner(&competing, 11, at, run.z, run.origin, radius).is_none());
     for (reading, unexplained) in [
-        (quiddity::correspondence::recognise(&part), 36),
-        (quiddity::correspondence::caller_space_recognise(&part), 25),
+        (quiddity::correspondence::recognise(&part), 31),
+        (quiddity::correspondence::caller_space_recognise(&part), 20),
     ] {
         let d = quiddity::recognition::document(&reading, part.faces.len());
         // For #127, a projected pocket's complete claim reserves its treatment 147.
@@ -505,6 +505,16 @@ fn ctc05_inside_rounds_and_spherical_corners_are_claimed() {
                     .any(|r| r.family == "fillets" && r.faces.contains(&face))
             );
         }
+        // For #127 after #128, five formerly unexplained convex cylinders are
+        // profiles: four non-tangent R203.2 surfaces and the R127 surface 87.
+        // Keep every round claim above and pin the exact five-face accounting change.
+        let profile_faces: std::collections::BTreeSet<_> = d
+            .records
+            .iter()
+            .filter(|r| r.family == "cylindrical_profiles")
+            .flat_map(|r| r.faces.iter().copied())
+            .collect();
+        assert_eq!(profile_faces, [14, 15, 87, 168, 169].into_iter().collect());
         assert_eq!(
             d.face_accounting
                 .unwrap()
