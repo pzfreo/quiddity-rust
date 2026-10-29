@@ -223,7 +223,7 @@ fn prismatic(
 /// Use its tangent plane at the shared straight spring line. Both analytic cylinders
 /// must contain that line at model precision and their oriented normals must agree.
 /// Planar-wall rounds retain #120's existing support path unchanged.
-fn curved_wall_corner(
+pub(crate) fn curved_wall_corner(
     part: &Part,
     face: usize,
     at: V3,
@@ -305,7 +305,9 @@ fn curved_wall_corner(
             .iter()
             .find(|(_, n)| geom::dot(*n, normal).abs() >= 1. - geom::SMOOTH_ARC_GAP)
         {
-            if geom::dot(geom::sub(*p, point), *n).abs() > tol {
+            // Keep #120's ambiguity guard: model precision admits contact, not
+            // distinct competing parallel walls.
+            if geom::dot(geom::sub(*p, point), *n).abs() > geom::COORD_FLOOR {
                 return None;
             }
         } else {

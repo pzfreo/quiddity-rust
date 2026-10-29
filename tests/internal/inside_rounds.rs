@@ -453,6 +453,27 @@ fn ctc05_inside_rounds_and_spherical_corners_are_claimed() {
             .iter()
             .all(|o| !o.defining.contains(&11) && !o.defining.contains(&76))
     );
+    // A nearby, distinct parallel support remains competing even when its offset
+    // falls inside the file's larger tangency precision (#120, #127).
+    let mut competing = part.transformed(&quiddity::kernel::step::IDENTITY).unwrap();
+    let Surface::Cylinder { frame: run, radius } = competing.faces[11].surface else {
+        unreachable!()
+    };
+    let at = fillets::fillet_anchor(&competing, 11).unwrap();
+    assert!(fillets::curved_wall_corner(&competing, 11, at, run.z, run.origin, radius).is_some());
+    let mut wall = competing.faces[13].clone();
+    let Surface::Plane { mut frame } = wall.surface else {
+        unreachable!()
+    };
+    let offset = 0.01;
+    assert!(offset < part.file_uncertainty().unwrap());
+    frame.origin = geom::add(frame.origin, geom::scale(frame.z, offset));
+    wall.surface = Surface::Plane { frame };
+    // Use the terminal neighbour's incidence; query the local support proof directly,
+    // so an intentionally inconsistent solid cannot make the negative test vacuous.
+    competing.faces[17].surface = wall.surface;
+    competing.faces[17].reversed = wall.reversed;
+    assert!(fillets::curved_wall_corner(&competing, 11, at, run.z, run.origin, radius).is_none());
     for (reading, unexplained) in [
         (quiddity::correspondence::recognise(&part), 36),
         (quiddity::correspondence::caller_space_recognise(&part), 25),
