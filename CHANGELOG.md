@@ -6,6 +6,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.2.4 (2026-10-29)
+
+Upgrading from 0.2.3: recognition and its schema (`quiddity-rust/recognition/6`, fingerprints
+`/3`) are unchanged. Only haecceity's PMI writer changes: adding PMI to a file with location
+dimensions now writes, where it was refused.
+
 ### Fixed
 
 - haecceity: PMI added beside a file's location dimensions no longer breaks
