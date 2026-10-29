@@ -293,16 +293,28 @@ fn sm_hanger_is_mapped_in_the_files_axes() {
         .fold(0.0, f64::max);
     assert!(off > 0.0 && off < 3e-9, "{frame:?}");
     // For #120: ten proved rounds join the four retained fillets; bend skins 73/76
-    // lose their former false fillet claims. All fourteen publish on file axes.
-    assert_eq!(r.features.fillets.len(), 14);
+    // lose their former false fillet claims. For #127, twelve proved R3 inside
+    // rounds join those fourteen; all twenty-six publish on file axes.
+    assert_eq!(r.features.fillets.len(), 26);
     let defining = &r.features.defining["fillets"];
     let mut faces: Vec<_> = defining.iter().flatten().copied().collect();
     faces.sort_unstable();
     assert_eq!(
         faces,
-        [8, 18, 22, 24, 27, 35, 39, 52, 53, 57, 58, 59, 63, 98]
+        [
+            3, 8, 14, 18, 22, 24, 27, 28, 30, 31, 35, 39, 43, 46, 52, 53, 54, 57, 58, 59, 63, 75,
+            85, 87, 91, 98
+        ]
     );
     for (fillet, faces) in r.features.fillets.iter().zip(defining) {
+        assert_eq!(
+            fillet.side,
+            if part.frame_points_outward(faces[0]) == Some(true) {
+                "convex"
+            } else {
+                "concave"
+            }
+        );
         let Surface::Cylinder { frame: cyl, .. } = &part.faces[faces[0]].surface else {
             panic!("a fillet is a cylinder");
         };

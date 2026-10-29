@@ -16,6 +16,12 @@ in [docs/alpha1.md](docs/alpha1.md).
   for inside-round recognition. CTC-05's four R203.2 surfaces now carry profile records.
   Recognition schema `/6` and fingerprint format `/3` are unchanged.
 
+### Changed
+
+- For #127, recognise proved straight inside rounds as fillets with `side: concave`,
+  including tangent cylindrical walls and spherical corner caps shared with straight or
+  toroidal rounds. Preserve existing feature claims and the 135° edge-round limit.
+
 ## 0.2.2 (2026-10-28)
 
 Upgrading from 0.2.1: the schema stays `quiddity-rust/recognition/6` and fingerprints `/3`, but

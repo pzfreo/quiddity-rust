@@ -1,6 +1,6 @@
-//! External edge fillet recognition (`quiddity.fillets`).
+//! Edge fillet recognition (`quiddity.fillets`).
 //!
-//! A prismatic fillet is a partial cylinder rounding a convex edge between two tangent
+//! A prismatic fillet is a partial cylinder rounding a convex or concave edge between two tangent
 //! walls; a turned fillet is a short external torus meeting a coaxial external cylinder.
 
 use std::collections::BTreeMap;
@@ -160,6 +160,7 @@ pub fn discover(ctx: &Context<'_>, opts: &FilletOptions) -> Vec<Occurrence<Fille
             out.push(found);
         }
     }
+    attach_spherical_corners(part, &mut out);
     out.sort_by(|a, b| {
         let key = |o: &Occurrence<Fillet>| (o.record.axis, o.record.at);
         let (ka, kb) = (key(a), key(b));
@@ -169,7 +170,7 @@ pub fn discover(ctx: &Context<'_>, opts: &FilletOptions) -> Vec<Occurrence<Fille
 }
 }
 
-/// A partial cylinder rounding a convex edge between two tangent walls, in any direction.
+/// A partial cylinder rounding a convex or concave edge between two tangent walls, in any direction.
 fn prismatic(
     ctx: &Context<'_>,
     face: usize,
@@ -186,11 +187,14 @@ fn prismatic(
     }
     // Convexity belongs to the cylinder's oriented material side, independently of the
     // query axes. The corner probe alone cannot prove the surface's material side.
-    if part.frame_points_outward(face) != Some(true) {
-        return None;
-    }
+    let outward = part.frame_points_outward(face)?;
     let at = fillet_anchor(part, face)?;
-    let corner = tangent_cylinder_corner(part, face, at, frame.z, frame.origin, radius)?;
+    let corner =
+        tangent_cylinder_corner(part, face, at, frame.z, frame.origin, radius).or_else(|| {
+            (!outward)
+                .then(|| curved_wall_corner(part, face, at, frame.z, frame.origin, radius))
+                .flatten()
+        })?;
     // The planes must be tangent to this cylinder, not unrelated nearby walls.
     if corner.normals.iter().any(|&n| {
         (geom::dot(geom::sub(frame.origin, corner.point), n).abs() - radius).abs()
@@ -206,11 +210,258 @@ fn prismatic(
             super::policy::INTERIOR_PROBE_FRAC,
         ),
     );
-    if material_at(ctx.classifier(), near) {
+    if material_at(ctx.classifier(), near) == outward {
         return None;
     }
     let axis = run_axis(frame.z)?;
-    Some(occurrence(axis, radius, at, false, face, vec![]))
+    let mut found = occurrence(axis, radius, at, false, face, vec![]);
+    found.record.side = if outward { "convex" } else { "concave" };
+    Some(found)
+}
+
+/// A straight inside round can also spring from a parallel cylindrical wall (#127).
+/// Use its tangent plane at the shared straight spring line. Both analytic cylinders
+/// must contain that line at model precision and their oriented normals must agree.
+/// Planar-wall rounds retain #120's existing support path unchanged.
+pub(crate) fn curved_wall_corner(
+    part: &Part,
+    face: usize,
+    at: V3,
+    run: V3,
+    origin: V3,
+    radius: f64,
+) -> Option<super::bevel::TransverseCorner> {
+    let tol = cylinder_support_tolerance(part);
+    let mut supports: Vec<(V3, V3)> = Vec::new();
+    let mut curved = false;
+    for n in part.neighbours(face) {
+        let (point, normal) = match part.faces[n].surface {
+            Surface::Plane { frame } => (frame.origin, super::planes::unit_plane_normal(part, n)?),
+            Surface::Cylinder {
+                frame,
+                radius: wall_radius,
+            } => {
+                if geom::norm(geom::cross(frame.z, run)) > geom::SMOOTH_ARC_GAP
+                    || part.arc(face, n) != Some(crate::kernel::brep::Arc::Smooth)
+                {
+                    continue;
+                }
+                let delta = geom::sub(frame.origin, origin);
+                let transverse = geom::sub(delta, geom::scale(run, geom::dot(delta, run)));
+                let direction = geom::unit(transverse)?;
+                let station = geom::add(
+                    origin,
+                    geom::scale(run, geom::dot(geom::sub(at, origin), run)),
+                );
+                let shared = part.shared_edges(face, n);
+                if shared.is_empty() {
+                    return None;
+                }
+                let mut contact = None;
+                for sign in [-1., 1.] {
+                    let point = geom::add(station, geom::scale(direction, sign * radius));
+                    if (geom::norm(geom::cross(geom::sub(point, frame.origin), frame.z))
+                        - wall_radius)
+                        .abs()
+                        > tol
+                    {
+                        continue;
+                    }
+                    let (u, v) = part.faces[n].surface.parameters(point, None)?;
+                    let normal = part.face_normal(n, u, v)?;
+                    let (u, v) = part.faces[face].surface.parameters(point, None)?;
+                    if geom::norm(geom::sub(normal, part.face_normal(face, u, v)?))
+                        > geom::SMOOTH_ARC_GAP
+                    {
+                        continue;
+                    }
+                    // Native axes prove parallelism. STEP spring lines may be slightly
+                    // tilted within modelling precision: test their whole trimmed length
+                    // against the analytic tangent generator, without an angular allowance.
+                    if shared.iter().any(|&e| {
+                        !matches!(part.edges[e].curve, crate::kernel::geom::Curve::Line { .. })
+                            || [part.edges[e].start, part.edges[e].end]
+                                .iter()
+                                .any(|&p| geom::norm(geom::cross(geom::sub(p, point), run)) > tol)
+                    }) {
+                        continue;
+                    }
+                    if contact.is_some() {
+                        return None;
+                    }
+                    contact = Some((point, normal));
+                }
+                curved = true;
+                contact?
+            }
+            _ => continue,
+        };
+        if geom::dot(normal, run).abs() > geom::SMOOTH_ARC_GAP
+            || (geom::dot(geom::sub(origin, point), normal).abs() - radius).abs() > tol
+        {
+            continue;
+        }
+        if let Some((p, n)) = supports
+            .iter()
+            .find(|(_, n)| geom::dot(*n, normal).abs() >= 1. - geom::SMOOTH_ARC_GAP)
+        {
+            // Keep #120's ambiguity guard: model precision admits contact, not
+            // distinct competing parallel walls.
+            if geom::dot(geom::sub(*p, point), *n).abs() > geom::COORD_FLOOR {
+                return None;
+            }
+        } else {
+            supports.push((point, normal));
+        }
+    }
+    let [(pa, a), (pb, b)] = supports.as_slice() else {
+        return None;
+    };
+    if !curved {
+        return None;
+    }
+    let d = geom::dot(*a, *b);
+    let da = geom::dot(geom::sub(*pa, at), *a);
+    let db = geom::dot(geom::sub(*pb, at), *b);
+    Some(super::bevel::TransverseCorner {
+        point: geom::add(
+            at,
+            geom::add(
+                geom::scale(*a, (da - d * db) / (1. - d * d)),
+                geom::scale(*b, (db - d * da) / (1. - d * d)),
+            ),
+        ),
+        normals: [*a, *b],
+        areas: [0.; 2],
+    })
+}
+
+/// A spherical corner has no straight/circular rolling path of its own. Keep the existing
+/// fillet record and include the cap in one of the three rounds it closes: straight runs
+/// or a toroidal continuation (#127). The lowest defining cylinder index owns it;
+/// the other rounds are consulted evidence.
+/// This is geometric incidence, independent of the query frame or rounded record values.
+fn attach_spherical_corners(part: &Part, found: &mut [Occurrence<Fillet>]) {
+    let cylinders: BTreeMap<usize, usize> = found
+        .iter()
+        .enumerate()
+        .filter(|(_, o)| !o.record.turned && o.record.side == "concave")
+        .map(|(i, o)| (o.defining[0], i))
+        .collect();
+    for face in 0..part.faces.len() {
+        let Some(rounds) = spherical_corner(part, face, &cylinders) else {
+            continue;
+        };
+        let owner = cylinders[&rounds[0]];
+        found[owner].defining.push(face);
+        found[owner].defining.sort_unstable();
+        for round in part
+            .neighbours(face)
+            .into_iter()
+            .filter(|&n| n != rounds[0])
+        {
+            if !found[owner].context.contains(&round) {
+                found[owner].context.push(round);
+            }
+        }
+    }
+}
+
+fn spherical_corner(
+    part: &Part,
+    face: usize,
+    cylinders: &BTreeMap<usize, usize>,
+) -> Option<Vec<usize>> {
+    let Surface::Sphere { frame, radius } = part.faces[face].surface else {
+        return None;
+    };
+    if part.frame_points_outward(face) != Some(false) {
+        return None;
+    }
+    let mut neighbours = part.neighbours(face);
+    neighbours.sort_unstable();
+    let rounds: [usize; 3] = neighbours.try_into().ok()?;
+    let tol = cylinder_support_tolerance(part);
+    let mut axes = BTreeMap::new();
+    let mut straight = Vec::new();
+    for &n in &rounds {
+        let run = match part.faces[n].surface {
+            Surface::Cylinder {
+                frame: run,
+                radius: r,
+            } => {
+                cylinders.get(&n)?;
+                if (radius - r).abs() > tol
+                    || geom::norm(geom::cross(geom::sub(frame.origin, run.origin), run.z)) > tol
+                {
+                    return None;
+                }
+                straight.push(n);
+                run.z
+            }
+            Surface::Torus {
+                frame: ring,
+                major,
+                minor,
+            } => {
+                let relative = geom::sub(frame.origin, ring.origin);
+                if (radius - minor).abs() > tol
+                    || geom::dot(relative, ring.z).abs() > tol
+                    || (geom::norm(relative) - major).abs() > tol
+                {
+                    return None;
+                }
+                geom::unit(geom::cross(ring.z, relative))?
+            }
+            _ => return None,
+        };
+        if part.arc(face, n) != Some(crate::kernel::brep::Arc::Smooth) {
+            return None;
+        }
+        axes.insert(n, run);
+    }
+    if straight.len() < 2 {
+        return None;
+    }
+    // Three independent runs close a corner; a split single run or a band does not.
+    if geom::dot(
+        axes[&rounds[0]],
+        geom::cross(axes[&rounds[1]], axes[&rounds[2]]),
+    )
+    .abs()
+        <= crate::kernel::geom::SMOOTH_ARC_GAP
+    {
+        return None;
+    }
+    let edges = part.face_edges(face);
+    if edges.is_empty() {
+        return None;
+    }
+    for edge in edges {
+        let owners = &part.edge_faces()[edge];
+        if owners.len() != 2 {
+            return None;
+        }
+        let n = *owners.iter().find(|&&n| n != face)?;
+        if !rounds.contains(&n) {
+            return None;
+        }
+        let run = axes[&n];
+        let crate::kernel::geom::Curve::Circle {
+            frame: arc,
+            radius: r,
+        } = part.edges[edge].curve
+        else {
+            return None;
+        };
+        if (r - radius).abs() > tol
+            || geom::norm(geom::sub(arc.origin, frame.origin)) > tol
+            || geom::norm(geom::cross(arc.z, run)) > crate::kernel::geom::SMOOTH_ARC_GAP
+        {
+            return None;
+        }
+    }
+    Some(straight)
 }
 
 /// Preserve the legacy principal-direction representation, including its alignment band.

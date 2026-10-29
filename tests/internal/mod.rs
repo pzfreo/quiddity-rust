@@ -20,6 +20,8 @@ mod evidence;
 mod fillet_convexity;
 #[path = "frames.rs"]
 mod frames;
+#[path = "inside_rounds.rs"]
+mod inside_rounds;
 #[path = "invariance.rs"]
 mod invariance;
 #[path = "inventory_floor.rs"]

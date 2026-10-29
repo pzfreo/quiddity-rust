@@ -281,8 +281,8 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
     }
     near(part.face_bounds(104).min[2], 50.);
     // Each through-notch owns its bottom and both side walls; the existing step-level
-    // evidence on four side walls stays beside it, and the R10 corner rounds remain blends
-    // records, as a rectangular slot's corners do.
+    // evidence on four side walls stays beside it. For #127, the R10 corner rounds
+    // now have the full concave-fillet proof, including the V-notch rounds 12/16.
     for (f, ids) in [
         (31, &["rectangular_through_notches/0", "step_levels/3"][..]),
         (33, &["rectangular_through_notches/0"][..]),
@@ -334,15 +334,95 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
     let new = &output.recognition.fingerprints;
     assert_eq!(new.fingerprint_version, "quiddity-rust/fingerprint/3");
     let by_id = |id: &str| new.features.iter().find(|f| f.id == id);
-    // The claims are platform independent: only the boss changes faces (its top), and
-    // the two V channels and two notches are new; every other record keeps its id.
+    // For #127, every old blend is an audited, fully proved concave-fillet move,
+    // not an ordinal shift. Pin the exact old/new ids, face and radius against the
+    // old-main fingerprints; the existing convex fillets keep ids 0..6.
+    let promoted = [
+        ("blends/0", "fillets/21", 67, 10.0),
+        ("blends/1", "fillets/22", 66, 10.0),
+        ("blends/2", "fillets/27", 68, 10.0),
+        ("blends/3", "fillets/28", 65, 10.0),
+        ("blends/4", "fillets/29", 69, 10.0),
+        ("blends/5", "fillets/30", 64, 10.0),
+        ("blends/6", "fillets/23", 70, 10.0),
+        ("blends/7", "fillets/24", 63, 10.0),
+        ("blends/8", "fillets/7", 19, 25.0),
+        ("blends/9", "fillets/8", 9, 25.0),
+        ("blends/10", "fillets/9", 29, 25.0),
+        ("blends/11", "fillets/10", 43, 25.0),
+        ("blends/12", "fillets/11", 16, 10.0),
+        ("blends/13", "fillets/12", 12, 10.0),
+        ("blends/14", "fillets/13", 85, 10.0),
+        ("blends/15", "fillets/14", 83, 10.0),
+        ("blends/16", "fillets/15", 87, 10.0),
+        ("blends/17", "fillets/16", 81, 10.0),
+        ("blends/18", "fillets/17", 32, 10.0),
+        ("blends/19", "fillets/18", 34, 10.0),
+        ("blends/20", "fillets/19", 38, 10.0),
+        ("blends/21", "fillets/20", 40, 10.0),
+        ("blends/22", "fillets/31", 102, 5.0),
+        ("blends/23", "fillets/33", 101, 5.0),
+        ("blends/24", "fillets/25", 103, 5.0),
+        ("blends/25", "fillets/26", 100, 5.0),
+        ("blends/26", "fillets/34", 98, 5.0),
+        ("blends/27", "fillets/32", 99, 5.0),
+    ];
+    for (old_id, new_id, face, radius) in promoted {
+        let a = old.features.iter().find(|f| f.id == old_id).unwrap();
+        let b = by_id(new_id).unwrap();
+        assert!(by_id(old_id).is_none(), "{old_id}");
+        assert_eq!(a.family, "blends");
+        assert_eq!(b.family, "fillets");
+        assert_eq!(a.faces, [face], "{old_id}");
+        assert_eq!(b.faces, a.faces, "{new_id}");
+        assert_eq!(a.sizes["radius"], radius, "{old_id}");
+        assert_eq!(b.sizes, a.sizes, "{new_id}");
+        assert_eq!(a.traits["side"], "concave");
+        assert_eq!(b.traits["side"], "concave");
+        assert_eq!(b.traits["turned"], "false");
+    }
+    // The boss additionally gains its top; the two V channels and two notches are
+    // new. Every other old record keeps its id and complete fingerprint.
     let changed: Vec<_> = old
         .features
         .iter()
         .filter(|a| by_id(&a.id).is_none_or(|b| a.faces != b.faces))
         .map(|a| a.id.as_str())
         .collect();
-    assert_eq!(changed, ["polygonal_bosses/0"]);
+    assert_eq!(
+        changed,
+        [
+            "blends/0",
+            "blends/1",
+            "blends/2",
+            "blends/3",
+            "blends/4",
+            "blends/5",
+            "blends/6",
+            "blends/7",
+            "blends/8",
+            "blends/9",
+            "blends/10",
+            "blends/11",
+            "blends/12",
+            "blends/13",
+            "blends/14",
+            "blends/15",
+            "blends/16",
+            "blends/17",
+            "blends/18",
+            "blends/19",
+            "blends/20",
+            "blends/21",
+            "blends/22",
+            "blends/23",
+            "blends/24",
+            "blends/25",
+            "blends/26",
+            "blends/27",
+            "polygonal_bosses/0"
+        ]
+    );
     let added: Vec<_> = new
         .features
         .iter()
@@ -352,6 +432,34 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
     assert_eq!(
         added,
         [
+            "fillets/7",
+            "fillets/8",
+            "fillets/9",
+            "fillets/10",
+            "fillets/11",
+            "fillets/12",
+            "fillets/13",
+            "fillets/14",
+            "fillets/15",
+            "fillets/16",
+            "fillets/17",
+            "fillets/18",
+            "fillets/19",
+            "fillets/20",
+            "fillets/21",
+            "fillets/22",
+            "fillets/23",
+            "fillets/24",
+            "fillets/25",
+            "fillets/26",
+            "fillets/27",
+            "fillets/28",
+            "fillets/29",
+            "fillets/30",
+            "fillets/31",
+            "fillets/32",
+            "fillets/33",
+            "fillets/34",
             "rectangular_through_notches/0",
             "rectangular_through_notches/1",
             "v_channels/0",
@@ -363,7 +471,7 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
     let differing: Vec<_> = old
         .features
         .iter()
-        .filter(|a| !same(*a, by_id(&a.id).unwrap()))
+        .filter(|a| by_id(&a.id).is_none_or(|b| !same(*a, b)))
         .map(|a| a.id.as_str())
         .collect();
     assert_eq!(differing, changed);
@@ -373,10 +481,20 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
     for (a, b) in old.faces.iter().zip(&new.faces) {
         assert!(same(a, b), "{a:?}\n{b:?}");
     }
-    assert_eq!(old.features.len() + added.len(), new.features.len());
+    assert_eq!(
+        old.features.len() + added.len(),
+        new.features.len() + promoted.len()
+    );
     let correspondence = correspondence::correspond(&old, new).unwrap();
     for entry in &correspondence.features {
-        assert_eq!(entry.new.as_deref(), Some(entry.old.as_str()), "{entry:?}");
+        // #127 moves between families: correspondence orphans the exact old
+        // blends and reports their proved fillet replacements as new features.
+        if promoted.iter().any(|(id, _, _, _)| *id == entry.old) {
+            assert!(entry.new.is_none(), "{entry:?}");
+            assert_eq!(entry.class, correspondence::Class::Orphaned, "{entry:?}");
+        } else {
+            assert_eq!(entry.new.as_deref(), Some(entry.old.as_str()), "{entry:?}");
+        }
         assert!(entry.candidates.is_empty());
     }
     let mut unmatched: Vec<_> = correspondence
@@ -385,7 +503,9 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
         .map(String::as_str)
         .collect();
     unmatched.sort_unstable();
-    assert_eq!(unmatched, added);
+    let mut expected_unmatched = added.clone();
+    expected_unmatched.sort_unstable();
+    assert_eq!(unmatched, expected_unmatched);
     let (sz, cz) = 17_f64.to_radians().sin_cos();
     let (sx, cx) = 23_f64.to_radians().sin_cos();
     let motion = [
