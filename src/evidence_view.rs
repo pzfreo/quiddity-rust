@@ -52,7 +52,7 @@ use crate::{PlanarOuterProfileEvidence, RefusedPlanarOuterProfile};
 
 /// Physical families in Python's registry order (`PHYSICAL_DEFINITIONS`), followed by the
 /// native measured-thread extension.
-pub const PHYSICAL_FAMILIES: [&str; 41] = [
+pub const PHYSICAL_FAMILIES: [&str; 42] = [
     "countersinks",
     "holes",
     "double_d_bores",
@@ -89,6 +89,7 @@ pub const PHYSICAL_FAMILIES: [&str; 41] = [
     "blends",
     "fillets",
     "plates",
+    "turned_bodies",
     "thin_wall_bodies",
     "interior_voids",
     "freeform_surfaces",
@@ -268,10 +269,10 @@ fn faces(part: &Part, inventory: &Inventory) -> Result<Faces, EvidenceViewError>
         let found: Vec<Vec<usize>> = match family {
             // Not a candidate family: the projection's records carry their own evidence.
             "section_recesses" => Vec::new(),
-            "modelled_threads" => inventory
+            family @ ("modelled_threads" | "turned_bodies") => inventory
                 .physical
                 .defining
-                .get("modelled_threads")
+                .get(family)
                 .cloned()
                 .unwrap_or_default(),
             other => inventory

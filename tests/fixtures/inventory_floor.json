@@ -1,6 +1,6 @@
 {
   "revision": "5fb1706",
-  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts. For #89, convex fillets require an outward-facing cylinder in both prismatic paths. Original fillet baselines remain; per-face material-side evidence bounds concave false-positive removals, and recovered blend counts tighten floors/allowances. For #91, the frame's roll about its leading line follows the tightest box around the material; the cgb241 and cgb217 framed fillet and step-level decreases are family changes of the same faces, each evidenced. For #120, exact blend-to-fillet promotions at arbitrary wall angles and directions have per-face evidence-backed loss allowances; the four CTC-05 false fillets have separate gross-tangency evidence. No historical baseline or comparison tolerance is lowered. For #127, new concave fillets tighten accepted/framed floors and physical lower bounds; audited blend-to-fillet promotions have face-specific loss allowances. Historical baselines and tolerances remain unchanged. For #127, historical false-fillet loss allowances are retired wherever a higher floor now pins the current proved fillets; those new floors admit no historical loss. For #127, residual cylindrical-profile framed floors are re-recorded after #128 against c41241f2: only unexplained or body-only faces are added, with every existing record and tightened fillet floor preserved. Raw and reconciled candidate inventories precede this residual projection.",
+  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts. For #89, convex fillets require an outward-facing cylinder in both prismatic paths. Original fillet baselines remain; per-face material-side evidence bounds concave false-positive removals, and recovered blend counts tighten floors/allowances. For #91, the frame's roll about its leading line follows the tightest box around the material; the cgb241 and cgb217 framed fillet and step-level decreases are family changes of the same faces, each evidenced. For #120, exact blend-to-fillet promotions at arbitrary wall angles and directions have per-face evidence-backed loss allowances; the four CTC-05 false fillets have separate gross-tangency evidence. No historical baseline or comparison tolerance is lowered. For #127, new concave fillets tighten accepted/framed floors and physical lower bounds; audited blend-to-fillet promotions have face-specific loss allowances. Historical baselines and tolerances remain unchanged. For #127, historical false-fillet loss allowances are retired wherever a higher floor now pins the current proved fillets; those new floors admit no historical loss. For #127, residual cylindrical-profile framed floors are re-recorded after #128 against c41241f2: only unexplained or body-only faces are added, with every existing record and tightened fillet floor preserved. Raw and reconciled candidate inventories precede this residual projection. For #123, whole-solid turned-body counts tighten physical, accepted and framed floors wherever the new complete-boundary proof succeeds; historical feature baselines and tolerances remain unchanged. OD-boss suppressions are audited separately against 42649a2.",
   "files": {
     "captured/0043cf4564250883.step.gz": {
       "accepted": {
@@ -33,12 +33,14 @@
     "captured/00f9e4395566750f.step.gz": {
       "accepted": {
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/01162fc8fee7ae05.step.gz": {
@@ -461,13 +463,15 @@
       "accepted": {
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/0a5c01a208ad2a60.step.gz": {
@@ -552,13 +556,15 @@
       "accepted": {
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/0bd732969a334661.step.gz": {
@@ -578,14 +584,16 @@
         "risers": 1,
         "step_levels": 2,
         "through_steps": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "risers": 1,
         "step_levels": 2,
         "through_steps": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/0c9b348627fc0c70.step.gz": {
@@ -773,12 +781,14 @@
       "accepted": {
         "bosses": 3,
         "chamfers": 2,
-        "grooves": 1
+        "grooves": 1,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "chamfers": 2,
-        "grooves": 1
+        "grooves": 1,
+        "turned_bodies": 1
       }
     },
     "captured/106c089b135fadd5.step.gz": {
@@ -972,12 +982,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/132b7ebb428fafd8.step.gz": {
@@ -1113,12 +1125,14 @@
     "captured/1590cfd2fcde58fd.step.gz": {
       "accepted": {
         "freeform_surfaces": 6,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       },
       "physical": {
         "bosses": 4,
         "freeform_surfaces": 6,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       }
     },
     "captured/161f30d0e6511ef6.step.gz": {
@@ -1254,13 +1268,15 @@
       "accepted": {
         "holes": 1,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "holes": 1,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/19cee8465fc5e7b7.step.gz": {
@@ -1369,13 +1385,15 @@
       "accepted": {
         "grooves": 1,
         "step_levels": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 4,
         "grooves": 1,
         "step_levels": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       }
     },
     "captured/1bee67bc5b2e985f.step.gz": {
@@ -1503,13 +1521,15 @@
       "accepted": {
         "holes": 1,
         "step_levels": 2,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "holes": 1,
         "step_levels": 2,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/1eaf0ba20902f742.step.gz": {
@@ -1653,12 +1673,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/236ea4cc9bd6bfe4.step.gz": {
@@ -1742,14 +1764,16 @@
         "hole_patterns": 1,
         "holes": 3,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 5,
         "hole_patterns": 1,
         "holes": 3,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/2490d365d9111d76.step.gz": {
@@ -1919,20 +1943,24 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/2733401823bf7439.step.gz": {
       "accepted": {
-        "bosses": 2
+        "bosses": 2,
+        "turned_bodies": 2
       },
       "physical": {
-        "bosses": 2
+        "bosses": 2,
+        "turned_bodies": 2
       }
     },
     "captured/27b5240d7e67e68a.step.gz": {
@@ -2060,12 +2088,14 @@
     "captured/29588a55e9ed48bc.step.gz": {
       "accepted": {
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/2966405ffb1e0584.step.gz": {
@@ -2208,12 +2238,14 @@
     "captured/2bc1f6aedaf3beef.step.gz": {
       "accepted": {
         "risers": 2,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       },
       "physical": {
         "bosses": 4,
         "risers": 2,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       }
     },
     "captured/2be4cc0ca59b6522.step.gz": {
@@ -2245,10 +2277,12 @@
     },
     "captured/2c8ff38cf754d67e.step.gz": {
       "accepted": {
-        "bosses": 2
+        "bosses": 2,
+        "turned_bodies": 2
       },
       "physical": {
-        "bosses": 2
+        "bosses": 2,
+        "turned_bodies": 2
       }
     },
     "captured/2c9e92b68c748015.step.gz": {
@@ -2379,13 +2413,15 @@
       "accepted": {
         "holes": 1,
         "step_levels": 2,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "holes": 1,
         "step_levels": 2,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/2e976b10b66eb8dc.step.gz": {
@@ -2658,12 +2694,14 @@
     "captured/33da79af1a2c7e2f.step.gz": {
       "accepted": {
         "risers": 2,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       },
       "physical": {
         "bosses": 4,
         "risers": 2,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       }
     },
     "captured/33e5f52789ab009f.step.gz": {
@@ -2870,14 +2908,16 @@
         "hole_patterns": 1,
         "holes": 3,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 5,
         "hole_patterns": 1,
         "holes": 3,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/37e80d3b71729163.step.gz": {
@@ -2898,12 +2938,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/380a0eba25ac5f3d.step.gz": {
@@ -2924,12 +2966,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/38659633507761d3.step.gz": {
@@ -2990,24 +3034,28 @@
     "captured/39337755971cc7e4.step.gz": {
       "accepted": {
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/394986f0159b18c2.step.gz": {
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/39780f30ee21349d.step.gz": {
@@ -3056,10 +3104,12 @@
     },
     "captured/3aa8de56630d5a8f.step.gz": {
       "accepted": {
-        "bosses": 3
+        "bosses": 3,
+        "turned_bodies": 3
       },
       "physical": {
-        "bosses": 3
+        "bosses": 3,
+        "turned_bodies": 3
       }
     },
     "captured/3ab1f879c0dc4a04.step.gz": {
@@ -3230,14 +3280,16 @@
         "grooves": 1,
         "holes": 1,
         "step_levels": 5,
-        "turned_steps": 6
+        "turned_steps": 6,
+        "turned_bodies": 2
       },
       "physical": {
         "bosses": 6,
         "grooves": 1,
         "holes": 1,
         "step_levels": 5,
-        "turned_steps": 6
+        "turned_steps": 6,
+        "turned_bodies": 2
       }
     },
     "captured/3d8f47f3ff2a9312.step.gz": {
@@ -3426,10 +3478,12 @@
     },
     "captured/40574cca69345a01.step.gz": {
       "accepted": {
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/40756b99a905e727.step.gz": {
@@ -3981,13 +4035,15 @@
       "accepted": {
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/4a1a6d2cc57f1d8e.step.gz": {
@@ -4048,10 +4104,12 @@
     },
     "captured/4a8a743698bc98d6.step.gz": {
       "accepted": {
-        "bosses": 1
+        "bosses": 1,
+        "turned_bodies": 1
       },
       "physical": {
-        "bosses": 1
+        "bosses": 1,
+        "turned_bodies": 1
       }
     },
     "captured/4a8ae07a003c4266.step.gz": {
@@ -4097,12 +4155,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/4b5ecc0632f59b82.step.gz": {
@@ -4608,13 +4668,15 @@
       "accepted": {
         "grooves": 1,
         "step_levels": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 4,
         "grooves": 1,
         "step_levels": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       }
     },
     "captured/53623b4d1c477565.step.gz": {
@@ -4644,14 +4706,16 @@
         "grooves": 1,
         "holes": 1,
         "step_levels": 5,
-        "turned_steps": 6
+        "turned_steps": 6,
+        "turned_bodies": 2
       },
       "physical": {
         "bosses": 6,
         "grooves": 1,
         "holes": 1,
         "step_levels": 5,
-        "turned_steps": 6
+        "turned_steps": 6,
+        "turned_bodies": 2
       }
     },
     "captured/539fef4a44201ec8.step.gz": {
@@ -4694,12 +4758,14 @@
     "captured/5415d7192b9ace39.step.gz": {
       "accepted": {
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/54950d08519e41c1.step.gz": {
@@ -4768,13 +4834,15 @@
       "accepted": {
         "grooves": 1,
         "risers": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 4,
         "grooves": 1,
         "risers": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       }
     },
     "captured/56f3b082443569bc.step.gz": {
@@ -4826,13 +4894,15 @@
       "accepted": {
         "grooves": 1,
         "risers": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 4,
         "grooves": 1,
         "risers": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       }
     },
     "captured/581daf47333b9c8f.step.gz": {
@@ -4848,11 +4918,13 @@
     "captured/5825e2f70daa9e6b.step.gz": {
       "accepted": {
         "bosses": 1,
-        "step_levels": 1
+        "step_levels": 1,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 1,
-        "step_levels": 1
+        "step_levels": 1,
+        "turned_bodies": 1
       }
     },
     "captured/5874769ad5cf56ef.step.gz": {
@@ -4891,13 +4963,15 @@
       "accepted": {
         "holes": 1,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "holes": 1,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/58c22af7ad2b517b.step.gz": {
@@ -4979,12 +5053,14 @@
       "accepted": {
         "bosses": 3,
         "chamfers": 2,
-        "grooves": 1
+        "grooves": 1,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "chamfers": 2,
-        "grooves": 1
+        "grooves": 1,
+        "turned_bodies": 1
       }
     },
     "captured/5a30bebb2ebfc23c.step.gz": {
@@ -5016,13 +5092,15 @@
       "accepted": {
         "plates": 1,
         "risers": 1,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "plates": 1,
         "risers": 1,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/5ae051018344b100.step.gz": {
@@ -5090,13 +5168,15 @@
       "accepted": {
         "blends": 4,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/5cb6c0230bb38bd0.step.gz": {
@@ -5198,14 +5278,16 @@
         "hole_patterns": 1,
         "holes": 3,
         "risers": 4,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 5,
         "hole_patterns": 1,
         "holes": 3,
         "risers": 4,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/5d9e7f003366ca28.step.gz": {
@@ -5239,13 +5321,15 @@
       "accepted": {
         "holes": 1,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "holes": 1,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/5e3304a19ab3a49c.step.gz": {
@@ -5415,13 +5499,15 @@
       "accepted": {
         "grooves": 2,
         "step_levels": 6,
-        "turned_steps": 8
+        "turned_steps": 8,
+        "turned_bodies": 2
       },
       "physical": {
         "bosses": 8,
         "grooves": 2,
         "step_levels": 6,
-        "turned_steps": 8
+        "turned_steps": 8,
+        "turned_bodies": 2
       }
     },
     "captured/60275841a02f03b9.step.gz": {
@@ -5566,25 +5652,29 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/61dfa6676b478242.step.gz": {
       "accepted": {
         "grooves": 1,
         "step_levels": 1,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "grooves": 1,
         "step_levels": 1,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/62b5868951cfa60a.step.gz": {
@@ -5674,12 +5764,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/63dd55fe7ff214f4.step.gz": {
@@ -6364,13 +6456,15 @@
       "accepted": {
         "holes": 1,
         "step_levels": 2,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "holes": 1,
         "step_levels": 2,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/6fcd408087103ae2.step.gz": {
@@ -6503,12 +6597,14 @@
     "captured/71ddf8cdbddc0bf6.step.gz": {
       "accepted": {
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/71e02f64db706a7b.step.gz": {
@@ -6601,12 +6697,14 @@
     "captured/736989458c598fbd.step.gz": {
       "accepted": {
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/737b51bb608a3189.step.gz": {
@@ -6738,12 +6836,14 @@
     "captured/75c9a38a5f509c16.step.gz": {
       "accepted": {
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/762710e6a9e266f2.step.gz": {
@@ -7017,14 +7117,16 @@
       "accepted": {
         "fillets": 4,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
         "fillets": 4,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/7a6e02791e5755eb.step.gz": {
@@ -7134,12 +7236,14 @@
     "captured/7cfea63cff81bbdb.step.gz": {
       "accepted": {
         "risers": 2,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       },
       "physical": {
         "bosses": 4,
         "risers": 2,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       }
     },
     "captured/7d29299b8b1289a7.step.gz": {
@@ -7221,14 +7325,16 @@
       "accepted": {
         "fillets": 8,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 8,
         "bosses": 2,
         "fillets": 8,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/7e238043061d0be7.step.gz": {
@@ -7330,13 +7436,15 @@
       "accepted": {
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/80961f9cb9004e3f.step.gz": {
@@ -7359,13 +7467,15 @@
       "accepted": {
         "holes": 1,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "holes": 1,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/8108e4b7d4e65c19.step.gz": {
@@ -7382,10 +7492,12 @@
     },
     "captured/817857f3c72ff64a.step.gz": {
       "accepted": {
-        "holes": 1
+        "holes": 1,
+        "turned_bodies": 1
       },
       "physical": {
-        "holes": 1
+        "holes": 1,
+        "turned_bodies": 1
       }
     },
     "captured/81935b1f9d8e5a32.step.gz": {
@@ -7400,12 +7512,14 @@
       "accepted": {
         "bosses": 3,
         "chamfers": 2,
-        "grooves": 1
+        "grooves": 1,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "chamfers": 2,
-        "grooves": 1
+        "grooves": 1,
+        "turned_bodies": 1
       }
     },
     "captured/81d52b240e672e9f.step.gz": {
@@ -7455,13 +7569,15 @@
       "accepted": {
         "grooves": 1,
         "risers": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 4,
         "grooves": 1,
         "risers": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       }
     },
     "captured/83245e1700a86045.step.gz": {
@@ -7513,12 +7629,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/83ba2c37c00b754f.step.gz": {
@@ -7532,10 +7650,12 @@
     },
     "captured/83bd0bbbd4ce54f1.step.gz": {
       "accepted": {
-        "bosses": 2
+        "bosses": 2,
+        "turned_bodies": 1
       },
       "physical": {
-        "bosses": 2
+        "bosses": 2,
+        "turned_bodies": 1
       }
     },
     "captured/83e45d3a076c818a.step.gz": {
@@ -7827,24 +7947,28 @@
     "captured/8adc2bd9a63bf156.step.gz": {
       "accepted": {
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/8adc57b328863b43.step.gz": {
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/8afe9b0f4d27f162.step.gz": {
@@ -7929,8 +8053,12 @@
       }
     },
     "captured/8cd5c2e86c7a8c9c.step.gz": {
-      "accepted": {},
-      "physical": {}
+      "accepted": {
+        "turned_bodies": 1
+      },
+      "physical": {
+        "turned_bodies": 1
+      }
     },
     "captured/8cec7c07b9da8929.step.gz": {
       "accepted": {
@@ -7964,13 +8092,15 @@
       "accepted": {
         "grooves": 2,
         "step_levels": 6,
-        "turned_steps": 8
+        "turned_steps": 8,
+        "turned_bodies": 2
       },
       "physical": {
         "bosses": 8,
         "grooves": 2,
         "step_levels": 6,
-        "turned_steps": 8
+        "turned_steps": 8,
+        "turned_bodies": 2
       }
     },
     "captured/8dd59e85c01fe099.step.gz": {
@@ -8002,12 +8132,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/8de6687d1b147e2e.step.gz": {
@@ -8046,13 +8178,15 @@
       "accepted": {
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/8e8c441c3860c9de.step.gz": {
@@ -8082,12 +8216,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/8f54543dec08d720.step.gz": {
@@ -8152,12 +8288,14 @@
     "captured/91a001e2edbe17aa.step.gz": {
       "accepted": {
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/91b9f22786103ef0.step.gz": {
@@ -8273,13 +8411,15 @@
         "bosses": 1,
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/93d93a4ff5a93d06.step.gz": {
@@ -8365,12 +8505,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/956a7b6b1961b55c.step.gz": {
@@ -8548,10 +8690,12 @@
     },
     "captured/9808e56042d8be45.step.gz": {
       "accepted": {
-        "bosses": 1
+        "bosses": 1,
+        "turned_bodies": 1
       },
       "physical": {
-        "bosses": 1
+        "bosses": 1,
+        "turned_bodies": 1
       }
     },
     "captured/9829f248a9b40f87.step.gz": {
@@ -8595,13 +8739,15 @@
       "accepted": {
         "chamfers": 4,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "chamfers": 4,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/992c483db538da62.step.gz": {
@@ -8682,12 +8828,14 @@
     "captured/9af1f99c3f98ddff.step.gz": {
       "accepted": {
         "freeform_surfaces": 3,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "freeform_surfaces": 3,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/9b1bf6f5960644af.step.gz": {
@@ -8718,12 +8866,14 @@
     "captured/9b41e43165338e4b.step.gz": {
       "accepted": {
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/9b56901f786aa251.step.gz": {
@@ -8988,12 +9138,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/a098cf2cab038309.step.gz": {
@@ -9083,12 +9235,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/a2980e3fddadbb35.step.gz": {
@@ -9730,12 +9884,14 @@
     "captured/af713cf458681f8c.step.gz": {
       "accepted": {
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/af93a8f2db245e8a.step.gz": {
@@ -9923,13 +10079,15 @@
       "accepted": {
         "holes": 1,
         "step_levels": 2,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "holes": 1,
         "step_levels": 2,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/b2c516a36814f44c.step.gz": {
@@ -10181,25 +10339,29 @@
     "captured/b8f731787296773a.step.gz": {
       "accepted": {
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/b9503ffca5dae973.step.gz": {
       "accepted": {
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/b95bc0f00d1503e4.step.gz": {
@@ -10468,12 +10630,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/be6b5f9eebea62e5.step.gz": {
@@ -10572,12 +10736,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/c21919e2fc787939.step.gz": {
@@ -10649,11 +10815,13 @@
     "captured/c2eaf70c9c04bbb6.step.gz": {
       "accepted": {
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/c31caa7ecbb2d309.step.gz": {
@@ -10811,12 +10979,14 @@
     "captured/c5946271f97e763b.step.gz": {
       "accepted": {
         "risers": 2,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       },
       "physical": {
         "bosses": 4,
         "risers": 2,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       }
     },
     "captured/c5c7b78a023a9a81.step.gz": {
@@ -10906,12 +11076,14 @@
     "captured/c71ff37912b52ee7.step.gz": {
       "accepted": {
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/c743263f103bdcb8.step.gz": {
@@ -10947,13 +11119,15 @@
       "accepted": {
         "grooves": 2,
         "step_levels": 4,
-        "turned_steps": 5
+        "turned_steps": 5,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 5,
         "grooves": 2,
         "step_levels": 4,
-        "turned_steps": 5
+        "turned_steps": 5,
+        "turned_bodies": 1
       }
     },
     "captured/c7ee6c53ea0011e7.step.gz": {
@@ -11100,12 +11274,14 @@
     "captured/c946861a441710cf.step.gz": {
       "accepted": {
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/c94ee9af24e16bb1.step.gz": {
@@ -11155,12 +11331,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/c9d13e11f90ea7c9.step.gz": {
@@ -11188,24 +11366,28 @@
       "accepted": {
         "grooves": 1,
         "step_levels": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 4,
         "grooves": 1,
         "step_levels": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       }
     },
     "captured/cab1441eeee094f5.step.gz": {
       "accepted": {
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/cabd73fa138dde77.step.gz": {
@@ -11321,12 +11503,14 @@
       "accepted": {
         "bosses": 3,
         "chamfers": 2,
-        "step_levels": 1
+        "step_levels": 1,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "chamfers": 2,
-        "step_levels": 1
+        "step_levels": 1,
+        "turned_bodies": 1
       }
     },
     "captured/ccac6394030703ac.step.gz": {
@@ -11431,13 +11615,15 @@
       "accepted": {
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/cdf3d2784d7581ee.step.gz": {
@@ -11491,12 +11677,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/ce65b50d724311fd.step.gz": {
@@ -11709,25 +11897,29 @@
       "accepted": {
         "chamfers": 4,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "chamfers": 4,
         "step_levels": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/d15574a5c527a905.step.gz": {
       "accepted": {
         "bosses": 3,
         "chamfers": 2,
-        "grooves": 1
+        "grooves": 1,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "chamfers": 2,
-        "grooves": 1
+        "grooves": 1,
+        "turned_bodies": 1
       }
     },
     "captured/d169456507168815.step.gz": {
@@ -11925,12 +12117,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/d4c63d2148af0afe.step.gz": {
@@ -12008,12 +12202,14 @@
       "accepted": {
         "bosses": 3,
         "chamfers": 2,
-        "step_levels": 1
+        "step_levels": 1,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "chamfers": 2,
-        "step_levels": 1
+        "step_levels": 1,
+        "turned_bodies": 1
       }
     },
     "captured/d63e2906484f5bcc.step.gz": {
@@ -12119,12 +12315,14 @@
     "captured/d7ccf94127c3a549.step.gz": {
       "accepted": {
         "risers": 2,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       },
       "physical": {
         "bosses": 4,
         "risers": 2,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       }
     },
     "captured/d7e12d357bf95b47.step.gz": {
@@ -12202,37 +12400,43 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/d9885689394340c0.step.gz": {
       "accepted": {
         "chamfers": 4,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "chamfers": 4,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/d9a4dc264fe391c8.step.gz": {
       "accepted": {
         "fillets": 4,
         "step_levels": 2,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
         "fillets": 4,
         "step_levels": 2,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/d9b1ae01d2144729.step.gz": {
@@ -12350,10 +12554,12 @@
     },
     "captured/dac73da9ba85ba08.step.gz": {
       "accepted": {
-        "bosses": 3
+        "bosses": 3,
+        "turned_bodies": 3
       },
       "physical": {
-        "bosses": 3
+        "bosses": 3,
+        "turned_bodies": 3
       }
     },
     "captured/dae7db8bb9388d01.step.gz": {
@@ -12490,13 +12696,15 @@
       "accepted": {
         "grooves": 1,
         "risers": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 4,
         "grooves": 1,
         "risers": 3,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       }
     },
     "captured/dd687caa046e2014.step.gz": {
@@ -12757,10 +12965,12 @@
     },
     "captured/e2f5c1981d76f9a1.step.gz": {
       "accepted": {
-        "bosses": 2
+        "bosses": 2,
+        "turned_bodies": 2
       },
       "physical": {
-        "bosses": 2
+        "bosses": 2,
+        "turned_bodies": 2
       }
     },
     "captured/e3026e87b5d6292f.step.gz": {
@@ -12822,13 +13032,15 @@
       "accepted": {
         "holes": 1,
         "step_levels": 2,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "holes": 1,
         "step_levels": 2,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/e40cce3d8f714572.step.gz": {
@@ -12859,12 +13071,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/e4f0e01256e9a828.step.gz": {
@@ -12907,7 +13121,8 @@
         "fillets": 2,
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 2,
@@ -12915,7 +13130,8 @@
         "fillets": 2,
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/e6f0e4688b8f8deb.step.gz": {
@@ -12967,11 +13183,13 @@
     "captured/e7e55b939aebc230.step.gz": {
       "accepted": {
         "bosses": 1,
-        "holes": 1
+        "holes": 1,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 1,
-        "holes": 1
+        "holes": 1,
+        "turned_bodies": 1
       }
     },
     "captured/e82469e92f2d26ba.step.gz": {
@@ -13002,12 +13220,14 @@
     "captured/e8c5d34a39d57ed7.step.gz": {
       "accepted": {
         "risers": 2,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       },
       "physical": {
         "bosses": 4,
         "risers": 2,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 2
       }
     },
     "captured/e909724a64065006.step.gz": {
@@ -13066,13 +13286,15 @@
       "accepted": {
         "holes": 1,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "holes": 1,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/eaea9b3e567d92b4.step.gz": {
@@ -13324,10 +13546,12 @@
     },
     "captured/eea1b44e77612c35.step.gz": {
       "accepted": {
-        "bosses": 1
+        "bosses": 1,
+        "turned_bodies": 1
       },
       "physical": {
-        "bosses": 1
+        "bosses": 1,
+        "turned_bodies": 1
       }
     },
     "captured/ef2eb61dd104b2b8.step.gz": {
@@ -13353,14 +13577,16 @@
         "risers": 1,
         "step_levels": 2,
         "through_steps": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "risers": 1,
         "step_levels": 2,
         "through_steps": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/ef892d1a5bf4e67d.step.gz": {
@@ -13388,12 +13614,14 @@
     "captured/f059038539ab738d.step.gz": {
       "accepted": {
         "holes": 1,
-        "thin_wall_bodies": 1
+        "thin_wall_bodies": 1,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 1,
         "holes": 1,
-        "thin_wall_bodies": 1
+        "thin_wall_bodies": 1,
+        "turned_bodies": 1
       }
     },
     "captured/f06cde0b95497c3e.step.gz": {
@@ -13527,12 +13755,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/f2bf9901c0b5b39c.step.gz": {
@@ -13569,13 +13799,15 @@
       "accepted": {
         "grooves": 2,
         "step_levels": 6,
-        "turned_steps": 8
+        "turned_steps": 8,
+        "turned_bodies": 2
       },
       "physical": {
         "bosses": 8,
         "grooves": 2,
         "step_levels": 6,
-        "turned_steps": 8
+        "turned_steps": 8,
+        "turned_bodies": 2
       }
     },
     "captured/f35abefa40137f32.step.gz": {
@@ -13632,10 +13864,12 @@
     },
     "captured/f3e0d1bbcf335b03.step.gz": {
       "accepted": {
-        "bosses": 1
+        "bosses": 1,
+        "turned_bodies": 1
       },
       "physical": {
-        "bosses": 1
+        "bosses": 1,
+        "turned_bodies": 1
       }
     },
     "captured/f3f903a30d746e5a.step.gz": {
@@ -13694,12 +13928,14 @@
     "captured/f4c93b1c9a48ce65.step.gz": {
       "accepted": {
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 2,
         "risers": 1,
-        "turned_steps": 2
+        "turned_steps": 2,
+        "turned_bodies": 1
       }
     },
     "captured/f4cc78b57255f962.step.gz": {
@@ -13718,12 +13954,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/f50dae34cc98adbb.step.gz": {
@@ -13739,10 +13977,12 @@
     },
     "captured/f5225cd3ba76f1d2.step.gz": {
       "accepted": {
-        "bosses": 1
+        "bosses": 1,
+        "turned_bodies": 1
       },
       "physical": {
-        "bosses": 1
+        "bosses": 1,
+        "turned_bodies": 1
       }
     },
     "captured/f52fc7a169301814.step.gz": {
@@ -13976,23 +14216,27 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "captured/f96812b6fb223d9d.step.gz": {
       "accepted": {
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "captured/f9a8967b3160db90.step.gz": {
@@ -14812,7 +15056,8 @@
         "holes": 1,
         "plates": 1,
         "risers": 1,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 4,
@@ -14820,32 +15065,37 @@
         "holes": 1,
         "plates": 1,
         "risers": 1,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       },
       "framed": {
         "chamfers": 3,
         "holes": 1,
         "plates": 1,
         "risers": 1,
-        "turned_steps": 4
+        "turned_steps": 4,
+        "turned_bodies": 1
       }
     },
     "corpus/gramel/GRM-05_depth_lock_bolt.step": {
       "accepted": {
         "chamfers": 2,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "chamfers": 2,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "framed": {
         "chamfers": 2,
         "risers": 1,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     },
     "corpus/gramel/string_post.step": {
@@ -17925,12 +18175,14 @@
       "accepted": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       },
       "physical": {
         "blends": 4,
         "bosses": 2,
-        "risers": 2
+        "risers": 2,
+        "turned_bodies": 1
       }
     },
     "golden/golden_traversal_order.step": {
@@ -17961,13 +18213,15 @@
       "accepted": {
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       },
       "physical": {
         "bosses": 3,
         "grooves": 1,
         "step_levels": 2,
-        "turned_steps": 3
+        "turned_steps": 3,
+        "turned_bodies": 1
       }
     }
   },
