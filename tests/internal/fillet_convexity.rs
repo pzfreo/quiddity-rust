@@ -50,8 +50,8 @@ fn check_cylinder_sides(part: &Part, reading: &Recognition) {
 }
 
 /// #120 supersedes #91's right-angle boundary: the R23 face 47 rounds an 87.94°
-/// convex edge between tangent walls and is now a fillet. The inner R20 face 27 stays
-/// a concave blend. Both query frames must agree on these material sides and families.
+/// convex edge between tangent walls and is now a fillet. For #127, the inner R20
+/// face 27 passes the same proof as a concave fillet. Both frames agree on the sides.
 #[test]
 fn cgb241_bends_keep_their_native_sides_and_convex_round_is_a_fillet() {
     use quiddity::kernel::geom;
@@ -82,18 +82,15 @@ fn cgb241_bends_keep_their_native_sides_and_convex_round_is_a_fillet() {
             (23., "convex")
         );
         assert!(f.defining["blends"].iter().all(|d| !d.contains(&47)));
-        assert!(!f.defining["fillets"].iter().any(|d| d.contains(&27)));
-        let blend = |face: usize| {
-            let i = f.defining["blends"]
-                .iter()
-                .position(|d| *d == vec![face])
-                .unwrap_or_else(|| panic!("face {face} is not a blend"));
-            &f.blends[i]
-        };
+        let inner = f.defining["fillets"]
+            .iter()
+            .position(|d| *d == vec![27])
+            .unwrap();
         assert_eq!(
-            (blend(27).radius, blend(27).side.as_str()),
+            (f.fillets[inner].radius, f.fillets[inner].side),
             (20., "concave")
         );
+        assert!(!f.defining["blends"].iter().any(|d| d.contains(&27)));
     }
 }
 
@@ -250,8 +247,9 @@ fn every_round_keeps_its_sense_on_rotated_cgb241_cgb202_and_ctc02_ap242() {
 /// beside the cylinder's arc pass through its axis, and no plane beside it is tangent: a
 /// quarter-round corner cut, with no support for a ball to roll on. CTC-03's face 35 (R6.35) is tangent to both its planes, but
 /// its edge with face 7 stops 0.0035 mm short of the tangent line, a 0.032-degree convex kink,
-/// so the exact smooth-join proof every blend needs refuses it; its mirror, face 38, joins
-/// both planes smoothly and is a concave blend.
+/// so the exact smooth-join proof every blend needs refuses it. For #127, both it and
+/// its smooth mirror 38 pass the fillet proof: tangent planes at model precision and a
+/// sweep within #120's unchanged 0.5° band. The through-axis cuts remain excluded.
 #[test]
 fn inward_quarter_cylinders_dropped_by_89_are_not_blends() {
     use quiddity::kernel::brep::Arc;
@@ -314,16 +312,15 @@ fn inward_quarter_cylinders_dropped_by_89_are_not_blends() {
     assert_eq!(part.arc(38, 7), Some(Arc::Smooth));
     assert_eq!(part.arc(38, 14), Some(Arc::Smooth));
     let reading = correspondence::recognise(&part);
-    assert!(!rounds(&reading, 35));
     let f = &reading.features;
-    let i = f.defining["blends"]
-        .iter()
-        .position(|d| *d == vec![38])
-        .unwrap();
-    assert_eq!(
-        (f.blends[i].radius, f.blends[i].side.as_str()),
-        (6.35, "concave")
-    );
+    for face in [35, 38] {
+        let i = f.defining["fillets"]
+            .iter()
+            .position(|d| *d == vec![face])
+            .unwrap();
+        assert_eq!((f.fillets[i].radius, f.fillets[i].side), (6.35, "concave"));
+        assert!(!f.defining["blends"].contains(&vec![face]));
+    }
 }
 
 /// #120: drafted tangent walls prove the same R1 fillets on both mirrored flange sides.
