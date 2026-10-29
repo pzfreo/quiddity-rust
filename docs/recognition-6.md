@@ -200,6 +200,59 @@ actual angular intervals must cover a complete turn. Counting overlapping arc le
 as a full rim is refused. The cylindrical walls must still each be complete; every floor
 piece is retained in the defining claim and strict ownership proof.
 
+## Face grooves (for #123)
+
+The optional `face_grooves` family publishes one `FaceGroove` per annular recess in a
+planar face. Congruent recesses remain separate, following `annular_grooves`; no pattern
+or count is inferred. The wall surfaces establish the axis intrinsically, in any direction.
+There is no frame, turned-profile or turned-body eligibility gate. A recess in a prismatic
+host counts when its walls prove the same coaxial geometry.
+
+The record fields are `axis` (unit vector pointing from floor to mouth), `axis_point`
+(mouth centre in file coordinates), `outer_diameter`, `inner_diameter` (both at the actual
+rim on the mouth plane), `depth` (mouth plane to floor), `outer_wall_angle`,
+`inner_wall_angle` (cone semi-angles in degrees to the axis; square cylindrical walls are
+reported as 90°), `floor` (sorted planar floor faces), and `faces` (all defining faces).
+The source measurements are retained without nominal-size or angle rounding.
+
+A floor is one plane square to the common wall axis, or a smoothly connected coplanar
+region. Internal split edges cancel; its boundary must be exactly two complete concentric
+circular cycles. Split circular edges must cover the circle once, without overlaps or gaps.
+Each wall is a complete cylinder or cone, possibly a chain of full coaxial bands. Both
+walls must rise towards the same open face plane, where the circular rims meet planar
+lands facing outwards. These lands can be disconnected faces of that plane. The opening
+must remain annular; walls may lean under the rim. No machining-access restriction is
+inferred.
+
+Tangent coaxial toroidal floor and rim rounds are included in `faces`, provided the
+wall/floor proof holds. Each round must occupy less than a meridian half turn and stay
+between its endpoint axial levels; a radial extremum between the endpoints is allowed.
+Conical floor/rim chamfers are included too. For a treated
+wall, the cylinder/cone segment with the greatest axial extent supplies its wall angle;
+shorter segments are treatments, and equal longest segments must agree. A round alone
+cannot substitute for a wall. The entire floor, walls, treatments and consulted mouth
+lands must have strict evidence on one valid solid. Partial/interrupted walls, extra floor
+openings, noncoaxial boundaries, unequal mouth planes and competing candidates are refused.
+A counterbore has no rising inner wall and remains a hole; radial grooves on cylindrical
+stock remain `grooves`.
+
+Publication uses the completed defining claims after existing reconciliation, section
+recesses and residual cylindrical profiles. Any defining-face overlap with another
+feature or reserved refusal suppresses the whole new occurrence; body classifications
+keep co-ownership.
+In particular, square-walled recesses already recognised as `annular_grooves` retain
+their existing records. This additive family changes no existing feature or fingerprint.
+
+Fingerprint format 3 uses the two diameters, depth and two wall angles as intrinsic sizes,
+`axis` as direction and `axis_point` as placement. `floor` and `faces` are source indices,
+ignored as parameter sizes; the usual defining-face list, centroid and neighbourhood
+provide the fingerprint's geometric evidence. Recognition remains schema 6.
+
+The local 608ZZ reproduction has floors 4 and 11 and walls 2/6 and 9/13. Its two
+records measure ⌀18.5/⌀13 at the rim, depth 0.25, with cone angles
+44.999971914041566° (approximately 45°). At the floor, the measured diameters are
+approximately ⌀18.00000049/⌀13.49999951. The reproduction is not redistributed.
+
 ## Evaluation mappings
 
 `lip_bevelled_blind_slot` selects an existing complete `edge_open_recess` geometry:

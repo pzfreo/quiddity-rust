@@ -71,6 +71,7 @@ fn every_family_has_a_record_type() {
                 "turned_bodies",        // Optional whole-solid classification, for #123.
                 "modelled_threads",
                 "annular_grooves",
+                "face_grooves", // Optional intrinsic face-recess family, for #123.
                 "v_channels",
                 "semicircular_blind_slots",
                 "rectangular_through_notches",
