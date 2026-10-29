@@ -6,6 +6,15 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.2.3 (2026-10-29)
+
+Upgrading from 0.2.2: the schema stays `quiddity-rust/recognition/6` and fingerprints `/3`.
+Three families are new (`turned_bodies`, `face_grooves`, `cylindrical_profiles`), so faces that
+were unexplained now belong to records. Concave inside rounds are now `fillets` with
+`side: concave`, and some former `blends` become concave fillets (#127). On a turned body,
+a full-length OD cylinder is no longer reported as a `boss` (#123). Consumers that list every
+family, or that expect the OD of a turned part as a boss, need updating.
+
 ### Added
 
 - For #123, `turned_bodies` classifies complete analytic solids of revolution in
