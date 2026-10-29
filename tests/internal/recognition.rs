@@ -68,6 +68,7 @@ fn every_family_has_a_record_type() {
         .filter(|f| {
             ![
                 "cylindrical_profiles", // Optional residual family, for #127.
+                "turned_bodies",        // Optional whole-solid classification, for #123.
                 "modelled_threads",
                 "annular_grooves",
                 "v_channels",

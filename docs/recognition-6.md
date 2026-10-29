@@ -445,3 +445,56 @@ occurrence's defining faces supply the fingerprint faces, position and neighbour
 
 CTC-05 faces 14, 15, 168 and 169 are four separate convex R203.2 mm profile surfaces,
 not fillets: their walls fail tangency. Existing records keep their IDs and parameters.
+
+## Turned bodies (For #123)
+
+Optional `turned_bodies` publishes one `TurnedBody` for each valid solid whose entire
+boundary consists of analytic surfaces of revolution about one common line. A plane
+must be square to that line; cylinders, cones and tori must have that axis; sphere
+centres must lie on it (their parameter polar axes are immaterial). NURBS planes also qualify when positive weights and the complete control net
+certify the support inside the same plane-precision slab. A sampled fit alone
+cannot establish a plane. Other unsupported surfaces, flats, keyways, cross holes and offset/second revolution axes refuse the
+whole solid. There is no principal-frame or number-of-diameters gate. The linear
+precision is `max(file_uncertainty, COORD_FLOOR)`; parallelism is tested as the sine
+of the axis angle times the body's largest intrinsic directional extent (or support
+radius, whichever is greater), against that same precision. Axis-line offsets use
+that linear precision. No recognition-policy angular tolerance is used.
+
+`axis` is a positive principal letter or a unit vector, and `axis_point` is the
+midpoint of the axial extent on that line, published on the 1e-8 mm point grid.
+`od` is the maximum transverse extent (including spherical/toroidal extrema), and
+`length` is the exact axial extent. `bores` lists internal cylinder diameters and
+`span: [lo,hi]`, signed distances from `axis_point` along `axis`; touching axial
+splits of the same diameter merge within model precision.
+
+`profile` is sorted by axial start, end, radius and face. Each segment gives its
+`face`, `kind` (`cylinder`, `cone`, `torus`, `sphere`, `plane_shoulder`), `side`
+(`external`, `internal`, or `shoulder`), and `start`/`end` coordinates `[axial,radius]`
+in the same midpoint-based measuring system. For curved meridians, `arc_center`,
+`arc_radius` and signed `arc_sweep` describe the exact circular arc, positive from
++axial towards +radius; otherwise these fields are null. This includes internal
+and reentrant profile surfaces as well as the outside, without creating recess
+feature records. Face splits remain separate segments. Together these describe a
+half-section, including edge chamfers and plane shoulders.
+
+`body_key` follows existing body classifications. Optional `profile_key` reuses
+`turned::TurnedProfileKey` and `profile_key_from_bands` over external cylinder bands
+when the intrinsic axis is principal, joining existing turned-step/groove records.
+Its fields follow the existing turned-profile publication contract, under
+`profile_key` instead of `profile`. Any-axis bodies use the explicit meridian
+without requiring that legacy principal-axis join. `ProfileAxis` and `Placed` are
+also reused. All faces co-own `turned_bodies/N` and their feature records; body
+claims do not reserve faces against features or residual cylindrical profiles.
+
+After all existing decisions and projections, suppress an accepted cylindrical
+boss only when its defining cylinders belong to that turned body, each raw
+diameter equals its OD within model precision, its raw axial span covers at least
+90% of the body length, and each end gap is at most 5% of that length plus model
+precision. This deliberately permits small end chamfers. Shorter/smaller end
+bosses remain. No other record is removed or changed.
+
+Fingerprints remain `/3`: axis is an axis, OD/length/bore diameters and meridian
+measurements are sizes, surface kinds and material sides are traits. Meridian
+sizes are canonicalised together over both axis senses, retaining station/radius
+associations. Points, body keys and the legacy profile join are placement;
+profile face indices are ignored in parameters and remain defining evidence.

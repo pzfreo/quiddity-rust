@@ -8,6 +8,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Added
 
+- For #123, `turned_bodies` classifies complete analytic solids of revolution in
+  any direction, including single-diameter parts, with OD, length, bores and an
+  ordered meridian profile. Body records co-own every face with existing features;
+  only a nearly full-length OD boss is suppressed on a classified body.
+
 - For #127, `cylindrical_profiles` recognises otherwise unclaimed convex and concave
   cylindrical profile surfaces under 180° in any direction, with radius, axis, axis
   point, side, sweep and defining faces. Split patches of one connected surface share

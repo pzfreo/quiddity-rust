@@ -97,6 +97,7 @@ pub mod support_patches;
 pub mod thin_walls;
 pub mod through_steps;
 pub mod turned;
+pub mod turned_bodies;
 pub mod turned_steps;
 pub mod volume_probe;
 pub mod wire_seed;
@@ -155,6 +156,9 @@ pub struct Features {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub annular_grooves: Vec<annular_grooves::AnnularGroove>,
     pub plates: Vec<plates::Plate>,
+    /// Complete analytic turned solids (#123), co-owning faces with their features.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub turned_bodies: Vec<turned_bodies::TurnedBody>,
     pub round_bottom_blind_slots: Vec<round_bottom_slots::RoundBottomBlindSlot>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub semicircular_blind_slots: Vec<semicircular_blind_slots::SemicircularBlindSlot>,
@@ -312,6 +316,7 @@ fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
         }
     }
     cylindrical_profiles::append(ctx, &mut features);
+    turned_bodies::suppress_od_bosses(ctx.part, &mut features);
     features
 }
 
@@ -676,6 +681,14 @@ pub(crate) fn inventory_in(
             }
         },
         plates: kept_shared(&mut defining, "plates", plate_occurrences),
+        turned_bodies: {
+            let found = turned_bodies::discover(ctx);
+            if found.is_empty() {
+                Vec::new()
+            } else {
+                kept_shared(&mut defining, "turned_bodies", found)
+            }
+        },
         round_bottom_blind_slots: kept(
             &mut defining,
             "round_bottom_blind_slots",

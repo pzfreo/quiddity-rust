@@ -55,7 +55,11 @@ pub(super) fn append(ctx: &Context<'_>, features: &mut Features) {
         .filter(|(family, _)| {
             !matches!(
                 **family,
-                "thin_wall_bodies" | "sheet_metal_bodies" | "plates" | "polygonal_stock"
+                "thin_wall_bodies"
+                    | "sheet_metal_bodies"
+                    | "plates"
+                    | "polygonal_stock"
+                    | "turned_bodies"
             )
         })
         .flat_map(|(_, records)| records.iter().flatten().copied())
