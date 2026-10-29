@@ -233,12 +233,20 @@ fn common_axis(part: &Part, faces: &[usize]) -> Option<(V3, V3)> {
 }
 
 pub(crate) fn sort_profile(profile: &mut [ProfileSegment]) {
+    // Ordering uses the existing point-publication grid only. Keep every exact
+    // meridian measurement: round-off at one shared station must not permute
+    // otherwise distinct segments when a placed part is written and read again.
+    let key = |p: &ProfileSegment| {
+        [p.start[0], p.end[0], p.start[1], p.end[1]]
+            .map(|v| crate::kernel::py::without_negative_zero(crate::kernel::py::round_to(v, 8)))
+    };
     profile.sort_by(|a, b| {
-        a.start[0]
-            .total_cmp(&b.start[0])
-            .then(a.end[0].total_cmp(&b.end[0]))
-            .then(a.start[1].total_cmp(&b.start[1]))
-            .then(a.end[1].total_cmp(&b.end[1]))
+        key(a)
+            .iter()
+            .zip(key(b))
+            .map(|(a, b)| a.total_cmp(&b))
+            .find(|o| !o.is_eq())
+            .unwrap_or(std::cmp::Ordering::Equal)
             .then(a.face.cmp(&b.face))
     });
 }
@@ -383,6 +391,36 @@ fn profile(part: &Part, faces: &[usize], origin: V3, d: V3) -> Option<Vec<Profil
     Some(out)
 }
 
+fn merge_bores(mut bores: Vec<Bore>, tol: f64) -> Vec<Bore> {
+    bores.sort_by(|a, b| {
+        a.diameter
+            .total_cmp(&b.diameter)
+            .then(a.span[0].total_cmp(&b.span[0]))
+    });
+    let mut merged: Vec<Bore> = Vec::new();
+    for mut bore in bores {
+        while let Some(i) = merged.iter().position(|other| {
+            (other.diameter - bore.diameter).abs() <= tol
+                && bore.span[0] <= other.span[1] + tol
+                && other.span[0] <= bore.span[1] + tol
+        }) {
+            let other = merged.remove(i);
+            bore.diameter = bore.diameter.min(other.diameter);
+            bore.span = [
+                bore.span[0].min(other.span[0]),
+                bore.span[1].max(other.span[1]),
+            ];
+        }
+        merged.push(bore);
+    }
+    merged.sort_by(|a, b| {
+        a.diameter
+            .total_cmp(&b.diameter)
+            .then(a.span[0].total_cmp(&b.span[0]))
+    });
+    merged
+}
+
 internal_entry! {
 /// One record per qualifying valid solid, co-owning its complete boundary.
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<TurnedBody>> {
@@ -396,17 +434,12 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<TurnedBody>> {
         let mid = (lo + hi) / 2.;
         let origin = geom::add(origin, geom::scale(d, mid - geom::dot(origin, d)));
         let Some(profile) = profile(part, &solid.faces, origin, d) else { continue };
-        let mut bores: Vec<Bore> = profile.iter().filter(|p| p.kind == "cylinder" && p.side == "internal")
-            .map(|p| Bore { diameter: 2. * p.start[1], span: [p.start[0], p.end[0]] }).collect();
-        bores.sort_by(|a, b| a.diameter.total_cmp(&b.diameter).then(a.span[0].total_cmp(&b.span[0])));
-        let mut merged: Vec<Bore> = Vec::new();
-        for b in bores {
-            if let Some(last) = merged.last_mut()
-                && (last.diameter - b.diameter).abs() <= tolerance(part)
-                && b.span[0] <= last.span[1] + tolerance(part) {
-                last.span[1] = last.span[1].max(b.span[1]);
-            } else { merged.push(b); }
-        }
+        let bores = merge_bores(profile.iter()
+            .filter(|p| p.kind == "cylinder" && p.side == "internal")
+            .map(|p| {
+                let Surface::Cylinder {radius,..} = part.faces[p.face].surface else {unreachable!("cylindrical meridian")};
+                Bore {diameter:2.*radius, span:[p.start[0],p.end[0]]}
+            }).collect(), tolerance(part));
         // A full revolution's transverse extent is its diameter, including torus/sphere
         // interior extrema; do not sample a meridian or use the world bounding box.
         let transverse = geom::unit(geom::cross(d, geom::default_x_axis(d))).unwrap();
@@ -420,7 +453,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<TurnedBody>> {
         };
         out.push(Occurrence {
             record: TurnedBody { axis: axis(d), axis_point: Placed::new(origin, Grid::Decimals(8)),
-                od: rhi - rlo, length: hi - lo, bores: merged, profile,
+                od: rhi - rlo, length: hi - lo, bores, profile,
                 body_key: keys[s].clone(), profile_key },
             defining: solid.faces.clone(), context: Vec::new(),
         });
@@ -465,6 +498,24 @@ pub(super) fn suppress_od_bosses(part: &Part, f: &mut Features) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn bore_splits_union_overlaps_without_filling_an_axial_air_gap() {
+        let b = |diameter, lo, hi| Bore {
+            diameter,
+            span: [lo, hi],
+        };
+        let result = merge_bores(
+            vec![
+                b(8., 0., 5.),
+                b(8. + 1e-9, -10., -5.),
+                b(8. + 2e-9, -5., 0.),
+                b(8., 10., 15.),
+            ],
+            COORD_FLOOR,
+        );
+        assert_eq!(result, vec![b(8., -10., 5.), b(8., 10., 15.)]);
+    }
+
     #[test]
     fn supports_must_agree_within_model_precision_not_a_frame_angle_gate() {
         let p = crate::read_step_file(

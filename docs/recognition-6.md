@@ -467,9 +467,13 @@ midpoint of the axial extent on that line, published on the 1e-8 mm point grid.
 `od` is the maximum transverse extent (including spherical/toroidal extrema), and
 `length` is the exact axial extent. `bores` lists internal cylinder diameters and
 `span: [lo,hi]`, signed distances from `axis_point` along `axis`; touching axial
-splits of the same diameter merge within model precision.
+splits of the same diameter merge within model precision. Diameters come from the
+analytic support, and disconnected axial spans remain separate.
 
-`profile` is sorted by axial start, end, radius and face. Each segment gives its
+`profile` is sorted by axial start, end and radius on the existing 1e-8 mm point
+ordering grid, then face. Measurements themselves stay exact; the ordering grid
+prevents round-off at a shared station from permuting its segments on a write/read
+round trip. Each segment gives its
 `face`, `kind` (`cylinder`, `cone`, `torus`, `sphere`, `plane_shoulder`), `side`
 (`external`, `internal`, or `shoulder`), and `start`/`end` coordinates `[axial,radius]`
 in the same midpoint-based measuring system. For curved meridians, `arc_center`,

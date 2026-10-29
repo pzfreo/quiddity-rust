@@ -288,3 +288,5 @@ These are byte-for-byte unchanged errors from main; they were audited as refusal
 ## Validation and re-recording
 
 Pending completion of the full pinned-corpus snapshot producers and byte-for-byte check, workspace nextest run, formatting and clippy. Additive inventory floors name #123 and retain every historical feature baseline.
+The original moved B-rep write/read assertion passes without changing its comparison
+band: profile ordering uses the existing point grid and retains exact measurements.
