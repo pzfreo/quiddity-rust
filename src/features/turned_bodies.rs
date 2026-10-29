@@ -273,7 +273,7 @@ fn profile(part: &Part, faces: &[usize], origin: V3, d: V3) -> Option<Vec<Profil
         let delta = geom::sub(p, origin);
         let r = geom::sub(delta, geom::scale(d, geom::dot(delta, d)));
         let material_radial = match support {
-            Surface::Sphere {frame,..} => geom::sub(p,frame.origin),
+            Surface::Sphere { frame, .. } => geom::sub(p, frame.origin),
             _ => r,
         };
         if geom::dot(n, material_radial) < 0. {
