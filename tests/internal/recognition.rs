@@ -1394,18 +1394,26 @@ fn changed_query_axes_retain_physical_rounds_and_bores() {
         };
         assert_eq!(measured, radius);
         assert_eq!(part.frame_points_outward(face), Some(outward));
-        // For #127, both inner and outer tangent rounds pass the intrinsic fillet proof.
+        // For #120, the proved R23 convex edge is a fillet in both query frames;
+        // the R20 inner bend keeps its concave blend classification.
         for reading in [&framed, &caller] {
             let f = &reading.features;
-            let index = f.defining["fillets"]
+            let (family, other) = if outward {
+                ("fillets", "blends")
+            } else {
+                ("blends", "fillets")
+            };
+            let index = f.defining[family]
                 .iter()
                 .position(|f| *f == vec![face])
                 .unwrap();
-            assert_eq!(
-                (f.fillets[index].radius, f.fillets[index].side),
-                (radius, side)
-            );
-            assert!(!f.defining["blends"].contains(&vec![face]));
+            let measured = if outward {
+                (f.fillets[index].radius, f.fillets[index].side)
+            } else {
+                (f.blends[index].radius, f.blends[index].side.as_str())
+            };
+            assert_eq!(measured, (radius, side));
+            assert!(!f.defining[other].contains(&vec![face]));
         }
     }
     let normal = |f: usize| {

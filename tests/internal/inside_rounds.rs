@@ -451,6 +451,32 @@ fn ctc05_inside_rounds_and_spherical_corners_are_claimed() {
         (quiddity::correspondence::caller_space_recognise(&part), 25),
     ] {
         let d = quiddity::recognition::document(&reading, part.faces.len());
+        // For #127, a projected pocket's complete claim reserves its treatment 147.
+        // The existing convex fillet 151 keeps its established recess co-ownership.
+        for (face, round_family) in [(147, "blends"), (151, "fillets")] {
+            assert!(
+                d.records
+                    .iter()
+                    .any(|r| r.family == round_family && r.faces.contains(&face))
+            );
+            assert!(
+                d.records
+                    .iter()
+                    .any(|r| r.family == "section_recesses" && r.faces.contains(&face))
+            );
+        }
+        assert!(
+            !d.records
+                .iter()
+                .any(|r| r.family == "fillets" && r.faces.contains(&147))
+        );
+        for face in [11, 71, 72, 74, 75, 76, 172, 173, 175, 176, 179, 181] {
+            assert!(
+                d.records
+                    .iter()
+                    .any(|r| r.family == "fillets" && r.faces.contains(&face))
+            );
+        }
         assert_eq!(
             d.face_accounting
                 .unwrap()

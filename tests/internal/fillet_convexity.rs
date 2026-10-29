@@ -50,8 +50,8 @@ fn check_cylinder_sides(part: &Part, reading: &Recognition) {
 }
 
 /// #120 supersedes #91's right-angle boundary: the R23 face 47 rounds an 87.94°
-/// convex edge between tangent walls and is now a fillet. For #127, the inner R20
-/// face 27 passes the same proof as a concave fillet. Both frames agree on the sides.
+/// convex edge between tangent walls and is now a fillet. The inner R20 face 27 stays
+/// a concave blend. Both query frames must agree on these material sides and families.
 #[test]
 fn cgb241_bends_keep_their_native_sides_and_convex_round_is_a_fillet() {
     use quiddity::kernel::geom;
@@ -82,15 +82,18 @@ fn cgb241_bends_keep_their_native_sides_and_convex_round_is_a_fillet() {
             (23., "convex")
         );
         assert!(f.defining["blends"].iter().all(|d| !d.contains(&47)));
-        let inner = f.defining["fillets"]
-            .iter()
-            .position(|d| *d == vec![27])
-            .unwrap();
+        assert!(!f.defining["fillets"].iter().any(|d| d.contains(&27)));
+        let blend = |face: usize| {
+            let i = f.defining["blends"]
+                .iter()
+                .position(|d| *d == vec![face])
+                .unwrap_or_else(|| panic!("face {face} is not a blend"));
+            &f.blends[i]
+        };
         assert_eq!(
-            (f.fillets[inner].radius, f.fillets[inner].side),
+            (blend(27).radius, blend(27).side.as_str()),
             (20., "concave")
         );
-        assert!(!f.defining["blends"].iter().any(|d| d.contains(&27)));
     }
 }
 
@@ -178,16 +181,49 @@ fn specific_defining_claims_keep_gusset_and_pattern_rounds_out_of_fillets() {
     }
 }
 
-// #89: retain the exact face/radius/non-fillet guard in the shared motion readings.
+// #127: replace #89's side-only exclusion with the full concave-round proof in motion readings.
 fn cgb202_guard(part: &Part, reading: &Recognition) {
     for face in [1215, 1219] {
         assert_eq!(part.frame_points_outward(face), Some(false));
         assert!(
             matches!(part.faces[face].surface, Surface::Cylinder { radius, .. } if (radius - 3.).abs() < 1e-9)
         );
-        assert!(
-            !reading.features.defining["fillets"].contains(&vec![face]),
-            "face {face}"
+        // For #127, these formerly unexplained inside rounds pass the same intrinsic
+        // tangent-wall/sweep proof as the convex rounds, including after rotation.
+        let Surface::Cylinder { frame, radius } = part.faces[face].surface else {
+            unreachable!()
+        };
+        let at = quiddity::features::fillets::fillet_anchor(part, face).unwrap();
+        let corner = quiddity::features::bevel::tangent_cylinder_corner(
+            part,
+            face,
+            at,
+            frame.z,
+            frame.origin,
+            radius,
+        )
+        .unwrap();
+        let (u0, u1, _, _) = part.uv_bounds(face).unwrap();
+        let expected = quiddity::kernel::geom::norm(quiddity::kernel::geom::cross(
+            corner.normals[0],
+            corner.normals[1],
+        ))
+        .atan2(quiddity::kernel::geom::dot(
+            corner.normals[0],
+            corner.normals[1],
+        ));
+        assert!((u1 - u0 - expected).abs() <= 0.5_f64.to_radians());
+        assert!(u1 - u0 <= 3. * std::f64::consts::PI / 4.);
+        let i = reading.features.defining["fillets"]
+            .iter()
+            .position(|d| *d == vec![face])
+            .unwrap();
+        assert_eq!(
+            (
+                reading.features.fillets[i].radius,
+                reading.features.fillets[i].side
+            ),
+            (3., "concave")
         );
     }
     check_cylinder_sides(part, reading);
@@ -247,9 +283,8 @@ fn every_round_keeps_its_sense_on_rotated_cgb241_cgb202_and_ctc02_ap242() {
 /// beside the cylinder's arc pass through its axis, and no plane beside it is tangent: a
 /// quarter-round corner cut, with no support for a ball to roll on. CTC-03's face 35 (R6.35) is tangent to both its planes, but
 /// its edge with face 7 stops 0.0035 mm short of the tangent line, a 0.032-degree convex kink,
-/// so the exact smooth-join proof every blend needs refuses it. For #127, both it and
-/// its smooth mirror 38 pass the fillet proof: tangent planes at model precision and a
-/// sweep within #120's unchanged 0.5° band. The through-axis cuts remain excluded.
+/// so the exact smooth-join proof every blend needs refuses it; its mirror, face 38, joins
+/// both planes smoothly and is a concave blend.
 #[test]
 fn inward_quarter_cylinders_dropped_by_89_are_not_blends() {
     use quiddity::kernel::brep::Arc;
@@ -312,15 +347,16 @@ fn inward_quarter_cylinders_dropped_by_89_are_not_blends() {
     assert_eq!(part.arc(38, 7), Some(Arc::Smooth));
     assert_eq!(part.arc(38, 14), Some(Arc::Smooth));
     let reading = correspondence::recognise(&part);
+    assert!(!rounds(&reading, 35));
     let f = &reading.features;
-    for face in [35, 38] {
-        let i = f.defining["fillets"]
-            .iter()
-            .position(|d| *d == vec![face])
-            .unwrap();
-        assert_eq!((f.fillets[i].radius, f.fillets[i].side), (6.35, "concave"));
-        assert!(!f.defining["blends"].contains(&vec![face]));
-    }
+    let i = f.defining["blends"]
+        .iter()
+        .position(|d| *d == vec![38])
+        .unwrap();
+    assert_eq!(
+        (f.blends[i].radius, f.blends[i].side.as_str()),
+        (6.35, "concave")
+    );
 }
 
 /// #120: drafted tangent walls prove the same R1 fillets on both mirrored flange sides.
