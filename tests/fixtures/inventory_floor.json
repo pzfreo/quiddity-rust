@@ -1,6 +1,6 @@
 {
   "revision": "5fb1706",
-  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts. For #89, convex fillets require an outward-facing cylinder in both prismatic paths. Original fillet baselines remain; per-face material-side evidence bounds concave false-positive removals, and recovered blend counts tighten floors/allowances. For #91, the frame's roll about its leading line follows the tightest box around the material; the cgb241 and cgb217 framed fillet and step-level decreases are family changes of the same faces, each evidenced. For #120, exact blend-to-fillet promotions at arbitrary wall angles and directions have per-face evidence-backed loss allowances; the four CTC-05 false fillets have separate gross-tangency evidence. No historical baseline or comparison tolerance is lowered.",
+  "description": "Per-file raw physical candidates (patterns derived over raw members) and reconciled public aggregate, including unified section-recess records and patterns, at 5fb1706. For #81, framed accepted-feature counts (excluding document Refusal classes) over the 100 corpus documents start at origin/main and only rise; explicit analytic direction/family evidence accompanies every allowed framed decrease. AP242 fixture floors pin the recovered counts. For #89, convex fillets require an outward-facing cylinder in both prismatic paths. Original fillet baselines remain; per-face material-side evidence bounds concave false-positive removals, and recovered blend counts tighten floors/allowances. For #91, the frame's roll about its leading line follows the tightest box around the material; the cgb241 and cgb217 framed fillet and step-level decreases are family changes of the same faces, each evidenced. For #120, exact blend-to-fillet promotions at arbitrary wall angles and directions have per-face evidence-backed loss allowances; the four CTC-05 false fillets have separate gross-tangency evidence. No historical baseline or comparison tolerance is lowered. For #127, framed cylindrical-profile floors pin the residual records after all existing claims; every newly claimed face was unexplained or body-only at e58d174, and existing records and fingerprints were unchanged across the full available-input audit.",
   "files": {
     "captured/0043cf4564250883.step.gz": {
       "accepted": {
@@ -14455,6 +14455,7 @@
       },
       "framed": {
         "chamfers": 16,
+        "cylindrical_profiles": 12,
         "fillets": 2,
         "hole_patterns": 3,
         "holes": 31,
@@ -14492,6 +14493,7 @@
         "blends": 1,
         "bosses": 5,
         "chamfers": 1,
+        "cylindrical_profiles": 36,
         "fillets": 1,
         "flats": 1,
         "freeform_surfaces": 4,
@@ -14527,6 +14529,7 @@
       "framed": {
         "blends": 65,
         "bosses": 14,
+        "cylindrical_profiles": 412,
         "fillets": 296,
         "flats": 4,
         "freeform_surfaces": 576,
@@ -14580,6 +14583,7 @@
       },
       "framed": {
         "blends": 5,
+        "cylindrical_profiles": 30,
         "fillets": 20,
         "freeform_surfaces": 88,
         "holes": 6,
@@ -14613,6 +14617,7 @@
       "framed": {
         "blends": 37,
         "bosses": 5,
+        "cylindrical_profiles": 32,
         "fillets": 14,
         "freeform_surfaces": 80,
         "hole_patterns": 1,
@@ -14638,6 +14643,7 @@
       },
       "framed": {
         "blends": 6,
+        "cylindrical_profiles": 4,
         "fillets": 2,
         "freeform_surfaces": 10,
         "holes": 3,
@@ -14667,6 +14673,7 @@
       "framed": {
         "blends": 14,
         "bosses": 9,
+        "cylindrical_profiles": 129,
         "fillets": 130,
         "flats": 5,
         "freeform_surfaces": 190,
@@ -14706,6 +14713,7 @@
         "blends": 10,
         "bosses": 5,
         "chamfers": 38,
+        "cylindrical_profiles": 39,
         "fillets": 22,
         "flats": 2,
         "freeform_surfaces": 66,
@@ -14741,6 +14749,7 @@
       },
       "framed": {
         "blends": 82,
+        "cylindrical_profiles": 7,
         "fillets": 42,
         "freeform_surfaces": 4,
         "hole_patterns": 1,
@@ -14869,6 +14878,7 @@
       },
       "framed": {
         "channels": 1,
+        "cylindrical_profiles": 1,
         "fillets": 1,
         "plates": 1,
         "pockets": 1,
@@ -14998,6 +15008,7 @@
       },
       "framed": {
         "chamfers": 2,
+        "cylindrical_profiles": 1,
         "fillets": 1,
         "plates": 1,
         "prismatic_pockets": 1,
@@ -15348,6 +15359,7 @@
         "step_levels": 2
       },
       "framed": {
+        "cylindrical_profiles": 1,
         "holes": 2,
         "paired_ramp_steps": 1,
         "plates": 1,
@@ -15644,6 +15656,7 @@
         "step_levels": 4
       },
       "framed": {
+        "cylindrical_profiles": 1,
         "holes": 1,
         "oblique_through_steps": 1,
         "plates": 1,
@@ -15671,6 +15684,7 @@
       },
       "framed": {
         "circular_blind_steps": 1,
+        "cylindrical_profiles": 1,
         "fillets": 1,
         "holes": 1,
         "section_passages": 1,
@@ -15696,6 +15710,7 @@
       },
       "framed": {
         "chamfers": 1,
+        "cylindrical_profiles": 1,
         "fillets": 1,
         "holes": 2,
         "pockets": 1,
@@ -15783,6 +15798,7 @@
       "framed": {
         "bosses": 2,
         "chamfers": 1,
+        "cylindrical_profiles": 1,
         "holes": 1,
         "prismatic_pockets": 1,
         "risers": 2,
@@ -15813,6 +15829,7 @@
       },
       "framed": {
         "bosses": 1,
+        "cylindrical_profiles": 2,
         "holes": 2,
         "pockets": 2,
         "prismatic_pockets": 1,
@@ -16180,6 +16197,7 @@
       "framed": {
         "blends": 1,
         "circular_blind_steps": 1,
+        "cylindrical_profiles": 1,
         "fillets": 1,
         "step_levels": 2
       }
@@ -16587,6 +16605,7 @@
         "through_steps": 1
       },
       "framed": {
+        "cylindrical_profiles": 1,
         "fillets": 1,
         "holes": 1,
         "plates": 2,
@@ -16685,6 +16704,7 @@
       "framed": {
         "channels": 1,
         "circular_blind_steps": 1,
+        "cylindrical_profiles": 2,
         "edge_open_prismatic_recesses": 1,
         "fillets": 2,
         "holes": 1,
@@ -16956,6 +16976,7 @@
       },
       "framed": {
         "circular_blind_steps": 2,
+        "cylindrical_profiles": 1,
         "risers": 2,
         "round_bottom_blind_slots": 1,
         "section_passages": 1,
@@ -17100,6 +17121,7 @@
       },
       "framed": {
         "blends": 35,
+        "cylindrical_profiles": 30,
         "fillets": 21,
         "freeform_surfaces": 34,
         "hole_patterns": 13,
@@ -17139,6 +17161,7 @@
       "framed": {
         "blends": 15,
         "chamfers": 6,
+        "cylindrical_profiles": 1,
         "fillets": 17,
         "hole_patterns": 3,
         "holes": 15,
@@ -17181,6 +17204,7 @@
       "framed": {
         "blends": 7,
         "chamfers": 8,
+        "cylindrical_profiles": 70,
         "fillets": 48,
         "hole_patterns": 12,
         "holes": 56,
@@ -17222,6 +17246,7 @@
       "framed": {
         "blends": 10,
         "chamfers": 4,
+        "cylindrical_profiles": 13,
         "fillets": 12,
         "flats": 4,
         "freeform_surfaces": 9,
@@ -17264,6 +17289,7 @@
         "blends": 5,
         "bosses": 8,
         "chamfers": 7,
+        "cylindrical_profiles": 14,
         "fillets": 9,
         "hole_patterns": 2,
         "holes": 12,
@@ -17296,6 +17322,7 @@
       },
       "framed": {
         "blends": 8,
+        "cylindrical_profiles": 4,
         "fillets": 16,
         "freeform_surfaces": 20,
         "hole_patterns": 5,
@@ -17329,6 +17356,7 @@
       },
       "framed": {
         "blends": 13,
+        "cylindrical_profiles": 51,
         "fillets": 21,
         "hole_patterns": 3,
         "holes": 21,
@@ -17394,6 +17422,7 @@
         "step_levels": 10
       },
       "framed": {
+        "cylindrical_profiles": 20,
         "fillets": 41,
         "freeform_surfaces": 1,
         "hole_patterns": 7,
@@ -17426,6 +17455,7 @@
       },
       "framed": {
         "blends": 22,
+        "cylindrical_profiles": 10,
         "fillets": 6,
         "holes": 2,
         "plates": 1,
@@ -17447,6 +17477,7 @@
       },
       "framed": {
         "blends": 34,
+        "cylindrical_profiles": 29,
         "fillets": 20,
         "freeform_surfaces": 34,
         "hole_patterns": 13,
