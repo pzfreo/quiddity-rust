@@ -119,56 +119,86 @@ impl Layout {
         self.occupied.push(bounds);
         Some(placed)
     }
-    /// Front-facing notes below/right of all completed ink. Advance on one fixed
-    /// diagonal until all seven principal/isometric projections have a clear gap.
-    /// Reserve full leaders/extensions too; X separation alone fails in oblique views.
+    /// Front-facing notes at one of a fixed set of outside-box stations. Choose
+    /// the most compact clear station; double the gap only if none clears all
+    /// seven views. Full leaders/extensions reserve space, not only text boxes.
     pub fn notes(&mut self, c: &Callout) -> Placed {
         let scale = self.height / 3.;
+        let local = c.polylines();
+        let mut ink = Bounds::empty();
+        for p in local.iter().flatten() {
+            ink.add([p[0] * scale, 0., p[1] * scale]);
+        }
+        let half = geom::scale(geom::sub(ink.max, ink.min), 0.5);
         let mut occupied = self.bounds;
         for b in &self.occupied {
             occupied.add(b.min);
             occupied.add(b.max);
         }
-        let local = c.polylines();
-        let at = |origin: V3| {
-            local
-                .iter()
-                .map(|l| {
-                    l.iter()
-                        .map(|p| {
-                            [
-                                origin[0] + p[0] * scale,
-                                origin[1],
-                                origin[2] + p[1] * scale,
-                            ]
-                        })
-                        .collect()
-                })
-                .collect::<Vec<Vec<V3>>>()
-        };
+        let centre = occupied.centre();
         let gap = 2. * self.height;
         let mut distance = gap;
-        let (origin, lines) = loop {
-            let origin = [
-                occupied.max[0] + distance,
-                self.bounds.min[1],
-                occupied.min[2] - c.size[1] * scale - distance,
-            ];
-            let lines = at(origin);
-            let mut bounds = Bounds::empty();
-            for &point in lines.iter().flatten() {
-                bounds.add(point);
+        let origin = loop {
+            let stations: [[f64; 3]; 3] = std::array::from_fn(|k| {
+                [
+                    occupied.min[k] - half[k] - distance,
+                    centre[k],
+                    occupied.max[k] + half[k] + distance,
+                ]
+            });
+            let mut best: Option<(f64, f64, V3)> = None;
+            for x in stations[0] {
+                for y in stations[1] {
+                    for z in stations[2] {
+                        let centre = [x, y, z];
+                        let bounds = Bounds {
+                            min: geom::sub(centre, half),
+                            max: geom::add(centre, half),
+                        };
+                        if !std::iter::once(&self.bounds)
+                            .chain(&self.occupied)
+                            .all(|other| {
+                                super::linear::VIEWS.into_iter().all(|view| {
+                                    projected_bounds_clearance(bounds, *other, view) >= gap
+                                })
+                            })
+                        {
+                            continue;
+                        }
+                        let mut combined = occupied;
+                        combined.add(bounds.min);
+                        combined.add(bounds.max);
+                        let fit = combined.max_extent();
+                        let reach = geom::dist(centre, self.bounds.centre());
+                        if best.as_ref().is_none_or(|(f, r, _)| {
+                            fit.total_cmp(f).then(reach.total_cmp(r)).is_lt()
+                        }) {
+                            best = Some((fit, reach, geom::sub(centre, ink.centre())));
+                        }
+                    }
+                }
             }
-            if super::linear::VIEWS
-                .into_iter()
-                .all(|view| projected_bounds_clearance(bounds, occupied, view) >= gap)
-            {
-                break (origin, lines);
+            if let Some((_, _, origin)) = best {
+                break origin;
             }
-            // The fixed diagonal is parallel to none of the seven views, so a
-            // finite occupied extent always clears. Doubling bounds the search.
+            // Stations offset on two axes are parallel to none of the seven
+            // views, so a finite occupied extent always has a clear outer layer.
             distance *= 2.;
         };
+        let lines = local
+            .iter()
+            .map(|line| {
+                line.iter()
+                    .map(|p| {
+                        [
+                            origin[0] + p[0] * scale,
+                            origin[1],
+                            origin[2] + p[1] * scale,
+                        ]
+                    })
+                    .collect()
+            })
+            .collect::<Vec<Vec<V3>>>();
         self.reserve(&lines);
         Placed {
             anchor: origin,
@@ -450,7 +480,7 @@ mod tests {
             .flatten()
             .zip(c.polylines().iter().flatten())
         {
-            assert_eq!(actual[1], -4.);
+            assert_eq!(actual[1], placed.origin[1]);
             assert!(
                 (actual[0] - placed.origin[0] - expected[0] * layout.text_height() / 3.).abs()
                     < 1e-12

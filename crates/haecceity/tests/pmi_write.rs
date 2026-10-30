@@ -6783,7 +6783,6 @@ fn written_settings_have_one_notes_block_and_face_texture_symbols_with_valid_lin
     let up = geom::cross(normal, along);
     let physical = haecceity::step::read_part(f.doc.bytes(), &f.parts[0]).unwrap();
     let scale = presentation::placement::text_height(physical.bounds().max_extent()) / 3.;
-    let mut note_points = Vec::new();
     let mut properties = BTreeSet::new();
     for occurrence in occurrences {
         let set = *refs_of(&w.doc, occurrence).last().unwrap();
@@ -6862,34 +6861,11 @@ fn written_settings_have_one_notes_block_and_face_texture_symbols_with_valid_lin
             );
         }
         properties.insert(ids[0]);
-        let curves = refs_of(&w.doc, set)[0];
-        let coords = refs_of(&w.doc, curves)[0];
-        let Some(Attribute::List(points)) =
-            test_attribute(&w.doc, coords, "coordinates_list", "position_coords")
-        else {
-            panic!("coordinates")
-        };
-        for point in points {
-            let Attribute::List(xyz) = point else {
-                panic!("point")
-            };
-            let Attribute::Real(x) = xyz[0] else {
-                panic!("real")
-            };
-            note_points.push(x);
-        }
     }
     assert_eq!(properties.len(), 8);
-    let note_left = note_points.into_iter().fold(f64::INFINITY, f64::min);
-    for &callout in callouts.iter().filter(|&&id| id != note) {
-        assert!(
-            graphic_lines(&w.doc, callout)
-                .iter()
-                .flatten()
-                .all(|q| q[0] < note_left),
-            "notes must be clear of all other callout ink and leaders"
-        );
-    }
+    // The placement can use any outside station; require clearance in all views
+    // rather than prescribing the right-hand side alone.
+    assert_notes_clear(&w.doc);
     let texture = *callouts
         .iter()
         .find(|&&id| w.text(id).contains("Ra 0.8 Rz 4"))

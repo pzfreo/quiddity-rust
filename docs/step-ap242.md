@@ -192,14 +192,18 @@ model has no lay field; no lay or process requirement is inferred from geometry.
 The general-notes callout, occurrence and annotation-plane names are `General notes`
 for the viewer tree. The full block wording remains on its tessellated curve sets;
 the geometric-set annotation type remains `note`, and the drawn text is unchanged.
-A part with written settings gets one front-facing `GENERAL NOTES` block below/right of
+A part with written settings gets one front-facing `GENERAL NOTES` block outside
 the part and all callout ink/extension lines, including kept foreign tessellated/polyline
 annotations (repositioned tessellated sets are transformed when reserving their space).
 Round 8 replaces X-only separation, which did not survive isometric projection. The
-writer collects the complete occupied bounds and advances the notes on one fixed X/Z
-diagonal (doubling its offset) until separating-axis clearance is at least two text heights
-in every principal and isometric projection. Text size, front-facing plane and all other
-callouts are unchanged. The serialized tests independently project convex hulls of all
+writer reserves each callout's complete occupied bounds and tries 27 fixed stations
+(left/centre/right, behind/centre/front, below/centre/above). Among stations with at least
+two text heights of separating-axis clearance in every principal/isometric projection,
+it chooses the smallest combined maximum extent, then the shortest distance to the part.
+If no station clears, double the outside gap and repeat. This is a deterministic rule for
+one notes block; no sheet layout or callout rearrangement is introduced. It avoids the
+excessive empty space of a single fixed diagonal. Text size, front-facing plane and all
+other callouts are unchanged. The serialized tests independently project convex hulls of all
 actual strokes, including leaders/extensions, and assert positive notes-to-callout clearance
 for every annotation type in all seven views, even edge-on. Existing dimension-to-dimension
 text/line checks remain. A blanket all-pairs full-extent assertion would reject intentional
@@ -256,8 +260,10 @@ presentation folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture featur
 
 
 Round-8 golden changes use the same eight feature-on STEP/OCP pairs listed for round 7:
-only general-notes coordinates and annotation-plane origins move below/right to clear all
-projections. All non-notes entities, note wording/size, properties, styles and associations
+only general-notes coordinates and annotation-plane origins move to a clear outside station
+for all projections. The settings test's right-hand-side-only assertion is replaced by the
+stronger seven-view full-ink clearance assertion, permitting clear left/behind stations.
+All non-notes entities, note wording/size, properties, styles and associations
 are identical; matching OCP capture hashes are refreshed. All sixteen feature-off pairs
 remain byte-identical. No snapshot payload expectation changes.
 
