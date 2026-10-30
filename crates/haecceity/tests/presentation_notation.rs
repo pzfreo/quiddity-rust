@@ -105,3 +105,32 @@ fn deviations_in_another_unit_use_the_nominals_unit_even_at_zero() {
     d.nominal = Some(mm("0.0"));
     assert_eq!(presentation::dimension_text(&d), "⌀0.0 +1.0 0");
 }
+
+#[test]
+fn names_use_full_notation_without_steps_terminal_decimal_point() {
+    let mut d = dimension(DimTolerance::Deviations(
+        Bounds::new(mm("0.1"), mm("-0.1")).unwrap(),
+    ));
+    d.kind = DimensionKind::Size {
+        feature: FeatureId(0),
+        kind: SizeKind::Thickness,
+        path: None,
+        angle: None,
+    };
+    d.nominal = Some(mm("3."));
+    assert_eq!(presentation::dimension(&d).notation(), "3 ±0.1");
+    d.nominal = Some(mm("5."));
+    d.tolerance = DimTolerance::None;
+    assert_eq!(presentation::dimension(&d).notation(), "5");
+    d.kind = dimension(DimTolerance::None).kind;
+    d.nominal = Some(mm("3.3"));
+    d.tolerance = DimTolerance::Fit {
+        class: Iso286Class {
+            deviation: FundamentalDeviation::parse("H").unwrap(),
+            grade: ToleranceGrade::It11,
+        },
+        limits: None,
+    };
+    assert_eq!(presentation::dimension(&d).notation(), "⌀3.3 H11");
+    assert_eq!(presentation::tolerance::number(&decimal("3.E2")), "3E2");
+}

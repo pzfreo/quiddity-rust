@@ -27,7 +27,7 @@ shape is inherited (see [Anti-requirements](#anti-requirements)).
 
 `haecceity::presentation` owns requirement notation and local 2D callout geometry, ported
 at the copyright owner's direction from Draftwright aaa7a73 (`dims/tolerance.rs`,
-`dims/gdt.rs`, `text.rs`). Drawing precision, sheet layout, strips, lanes, authored wording,
+`dims/gdt.rs`; the initial `text.rs` outline port is replaced by Hershey strokes). Drawing precision, sheet layout, strips, lanes, authored wording,
 and Spec-authored controls remain in Draftwright; no Draftwright dependency is introduced.
 The `presentation` Cargo feature is **default-on** in haecceity and quiddity: Specify's
 ordinary writes must carry visible PMI. `default-features = false` retains semantic-only
@@ -37,10 +37,19 @@ bytes; append never redraws foreign PMI or its presentation.
 Every newly written dimension and geometric tolerance gets real drawn content: dimension
 values, signed deviations (unsigned zero per ISO 129-1), limits or an ISO 286 class; control
 frame cells, characteristic strokes, diameter/spherical zone signs, material rings and
-ordered datum letters. IBM Plex Mono outlines (full 135,580-byte OFL font, `ttf-parser`
-without unused layout/variable-font features) are tessellated as closed curves, with no
-fill triangles. Datums use the same outline renderer. The pre-existing simple datum
-placement/feature extension is reused, with no sheet layout engine.
+ordered datum letters. Public-domain Hershey Futura Light single strokes and explicit ISO
+symbols are tessellated as open curves; no font parser, outline fonts or fill triangles.
+Unsupported characters are an explicit writer error, with coverage tests for every notation
+symbol. Datums use the same renderer. Callout names use the same full notation as the text,
+with STEP's terminal decimal point removed and stated fractional precision preserved.
+
+Planes start from a vertex on the semantic feature's face/edge. A short leader reaches a
+label just outside the closest narrow bounding-box side. Rotary features use their dominant
+axis as the text direction; other features use the part's long axis. Text height is 0.8% of
+the largest part extent (less for very wide labels). A bounded deterministic row/column
+stagger avoids neighbouring labels without accumulating a long row along the part. No
+sheet layout engine is imported. Sample-part regressions bound every drawn point and plane
+origin to less than half a part length from the feature anchor, across all three re-test parts.
 
 The graph is `COORDINATES_LIST` → `TESSELLATED_CURVE_SET` →
 `TESSELLATED_GEOMETRIC_SET` (CAx-IF type name, e.g. `diameter dimension`, `position`,
@@ -60,15 +69,21 @@ violations, the writer uses a per-callout `SYMBOL_REPRESENTATION` (classified as
 callout) for the feature association. The semantic association uses the part draughting
 model unless a datum has already used that definition, in which case it also gets its
 own symbol representation. The callout still appears only once in the part draughting
-model. No rule is skipped or exempted. This necessary difference from the hand-tested
-recipe needs the maintainer's Solid Edge re-test.
+model. No rule is skipped or exempted. The maintainer's Solid Edge 2026 re-test accepts this structure.
 
-Typed Dimensions/GD&T versus Symbolic PMI remains open for that re-test. Composite aspects,
-repositioned sets, set/tolerance names were already ruled out; no `MBD_0` characterized
-object or mechanical-design/draughting saved-view relationship is added.
+Solid Edge 2026 types the spindle's diameter (when its face has a circular edge), datum A
+and both position tolerances. Linear distances remain symbolic, as with NIST's own files.
+Datum B remains an importer question: it spans two coplanar faces, both with circular edges,
+whereas A uses one cylindrical face. Both have callout/plane/feature links; only A is
+referenced by geometric tolerances. No semantic writer defect has been established, so B's
+valid multi-face association is retained for re-test. No `MBD_0` characterized object or
+mechanical-design/draughting saved-view relationship is added.
 
 Feature-on writer goldens and fresh OpenCascade captures live in
 `tests/fixtures/ap242/write-presentation/`; `write/` retains feature-off goldens unchanged.
+The round-1 feature-on goldens change only graphics (Hershey strokes, local placement and
+proportional style width) and full-notation names. The Plex font-specific outline oracle is
+retired; stroke metrics, scaling and exhaustive notation glyph checks replace it.
 `export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the new
 folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture the legacy folder.
 The feature-on `references/pmi_write-presentation.json` retains every verdict and comparison,

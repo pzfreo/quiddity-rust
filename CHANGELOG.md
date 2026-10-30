@@ -9,10 +9,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 ### Added
 
 - For #137, default-on `haecceity::presentation` shares Draftwright's requirement notation,
-  frame/symbol geometry and IBM Plex text outlines. Every newly written dimension and
+  frame/symbol geometry and Hershey single-stroke lettering. Every newly written dimension and
   geometric tolerance has a styled tessellated callout, an annotation plane and semantic/
   feature associations in the part's shared presentation path. No-PMI bytes and appended
-  foreign presentation are preserved. The feature can be disabled for semantic-only output.
+  foreign presentation are preserved. Planes sit beside their features with part-scaled text
+  and a short deterministic stagger; names carry full requirement notation. The feature
+  can be disabled for semantic-only output.
 
 ## 0.2.5 (2026-10-30)
 

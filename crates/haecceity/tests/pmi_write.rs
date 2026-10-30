@@ -5156,13 +5156,13 @@ fn every_requirement_has_a_callout() {
         .map(|d| {
             (
                 presentation::dimension_type(d),
-                presentation::dimension(d).cells.join(" | "),
+                presentation::dimension(d).notation(),
             )
         })
         .chain(p.tolerances.iter().map(|t| {
             (
                 presentation::tolerance_type(t),
-                presentation::tolerance(t, &p).cells.join(" | "),
+                presentation::tolerance(t, &p).notation(),
             )
         }))
         .collect();
@@ -5335,5 +5335,173 @@ fn callouts_and_their_auxiliary_representations_follow_replace_and_remove() {
                 );
             }
         }
+    }
+}
+
+#[cfg(feature = "presentation")]
+fn sample_placement(doc: &Document, bounds: haecceity::geom::Bounds, expected: usize) {
+    let number = |a: &Attribute| match a {
+        Attribute::Real(x) => *x,
+        Attribute::Integer(x) => *x as f64,
+        _ => panic!("not a coordinate: {a:?}"),
+    };
+    let xyz = |a: &Attribute| {
+        let Attribute::List(v) = a else {
+            panic!("not a point")
+        };
+        assert_eq!(v.len(), 3);
+        [number(&v[0]), number(&v[1]), number(&v[2])]
+    };
+    let distance = |a: [f64; 3], b: [f64; 3]| {
+        a.into_iter()
+            .zip(b)
+            .map(|(a, b)| (a - b).powi(2))
+            .sum::<f64>()
+            .sqrt()
+    };
+    let mut count = 0;
+    let mut largest: f64 = 0.;
+    for callout in doc.ids().filter(|&id| matches!(doc.get(id), Some(RawEntity::Simple {name,..}) if name.eq_ignore_ascii_case("draughting_callout"))) {
+        count += 1;
+        let occurrence = refs_of(doc, callout)[0];
+        let set = *refs_of(doc, occurrence).last().unwrap();
+        let curves = refs_of(doc, set)[0];
+        let coords = refs_of(doc, curves)[0];
+        let Some(Attribute::List(points)) = test_attribute(doc, coords, "coordinates_list", "position_coords") else { panic!("coordinates") };
+        let points: Vec<_> = points.iter().map(xyz).collect();
+        let Some(Attribute::List(strips)) = test_attribute(doc, curves, "tessellated_curve_set", "line_strips") else { panic!("strips") };
+        let Attribute::List(leader) = strips.last().unwrap() else { panic!("leader") };
+        assert_eq!(leader.len(), 2);
+        let anchor = points[number(&leader[0]) as usize - 1];
+        for k in 0..3 {
+            assert!(anchor[k] >= bounds.min[k]-1e-5 && anchor[k] <= bounds.max[k]+1e-5, "anchor outside part: {anchor:?}, {bounds:?}");
+        }
+        let plane = doc.ids().find(|&id| matches!(doc.get(id),Some(RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("annotation_plane")) && refs_of(doc,id).contains(&callout)).unwrap();
+        let geometric_plane = refs_of(doc, plane)[1];
+        let placement = refs_of(doc, geometric_plane)[0];
+        let origin_id = refs_of(doc, placement)[0];
+        let origin = xyz(test_attribute(doc,origin_id,"cartesian_point","coordinates").unwrap());
+        let mut farthest = distance(anchor, origin);
+        for &point in &points { farthest = farthest.max(distance(anchor,point)); }
+        let ratio = farthest / bounds.max_extent();
+        assert!(ratio < 0.5, "callout #{callout} extends {ratio:.3} part lengths from feature {anchor:?}; origin {origin:?}");
+        largest = largest.max(ratio);
+        let name = test_attribute(doc, callout,"representation_item","name").unwrap();
+        println!("{name:?}: anchor={anchor:?} plane={origin:?} max={ratio:.4}x");
+    }
+    assert_eq!(count, expected);
+    println!("bbox={bounds:?}; {count} callouts; largest feature distance={largest:.5}x");
+}
+
+#[cfg(feature = "presentation")]
+#[test]
+fn all_three_specify_samples_stay_beside_their_features() {
+    for (name, dims, tols, count) in [
+        ("spindle", 9, 2, 13),
+        ("plate", 21, 2, 26),
+        ("corners-flatness", 12, 2, 17),
+    ] {
+        println!("sample {name}");
+        let f = fixture(&format!("ap242/presentation-placement/{name}.step.gz"));
+        let read = pmi::read(&f.doc, &f.parts).unwrap();
+        let p = &read.parts[0];
+        assert_eq!(p.dimensions.len(), dims);
+        assert_eq!(p.tolerances.len(), tols);
+        let bounds = haecceity::step::read_step(f.doc.bytes()).unwrap().bounds();
+        sample_placement(&f.doc, bounds, count);
+        let w = written(&f, p);
+        assert_verified(&f, &w, p);
+        assert!(new_violations(&f.doc, &w.doc).is_empty());
+        sample_placement(&w.doc, bounds, count);
+    }
+}
+
+/// Round-1 Solid Edge evidence: B is not missing presentation or circular edges. It is
+/// a two-face planar datum unused by GD&T; A is a one-face cylinder used by both controls.
+/// Preserve those semantics rather than guessing an importer-specific rewrite.
+#[cfg(feature = "presentation")]
+#[test]
+fn spindle_datums_have_complete_links_and_circular_edges() {
+    let f = fixture("ap242/presentation-placement/spindle.step.gz");
+    let read = pmi::read(&f.doc, &f.parts).unwrap();
+    let p = &read.parts[0];
+    let w = written(&f, p);
+    assert_eq!(datum_symbols(&w), ["A", "B"]);
+    let is_a = |id, kind| w.names(id).iter().any(|n| express::is_a(n, kind));
+    let mut b_planes = Vec::new();
+    for (label, face_count, surface_kind, references) in
+        [("A", 1, "cylindrical_surface", 2), ("B", 2, "plane", 0)]
+    {
+        let index = w.read.parts[0]
+            .datums
+            .iter()
+            .position(|d| d.label().as_str() == label)
+            .unwrap();
+        let datum = &w.read.parts[0].datums[index];
+        let Feature::Items(items) = &w.read.parts[0].features[datum.feature().unwrap().0] else {
+            panic!("face datum")
+        };
+        assert_eq!(items.len(), face_count);
+        for item in items {
+            let Anchor::Face(face) = item else {
+                panic!("face")
+            };
+            let face = f.parts[0].faces[face.0];
+            let Attribute::EntityRef(surface) =
+                test_attribute(&w.doc, face, "face_surface", "face_geometry").unwrap()
+            else {
+                panic!("surface")
+            };
+            assert!(is_a(*surface, surface_kind));
+            if label == "B" {
+                let Attribute::EntityRef(pos) =
+                    test_attribute(&w.doc, *surface, "elementary_surface", "position").unwrap()
+                else {
+                    panic!("plane position")
+                };
+                let ids = refs_of(&w.doc, *pos);
+                // Plane origins and normal directions (reference directions may differ).
+                b_planes.push((
+                    test_attribute(&w.doc, ids[0], "cartesian_point", "coordinates").unwrap(),
+                    test_attribute(&w.doc, ids[1], "direction", "direction_ratios").unwrap(),
+                ));
+            }
+            let mut visited = BTreeSet::new();
+            let mut stack = vec![face];
+            while let Some(id) = stack.pop() {
+                if visited.insert(id) {
+                    stack.extend(refs_of(&w.doc, id));
+                }
+            }
+            assert!(
+                visited.iter().any(|&id| is_a(id, "circle")),
+                "{label}: face #{face} has no circular edge"
+            );
+        }
+        let used = w.read.parts[0]
+            .tolerances
+            .iter()
+            .filter(|t| {
+                t.datums
+                    .iter()
+                    .flat_map(|s| s.compartments())
+                    .flat_map(|c| &c.references)
+                    .any(|r| r.datum.0 == index)
+            })
+            .count();
+        assert_eq!(used, references);
+    }
+    assert_eq!(b_planes.len(), 2);
+    assert_eq!(
+        b_planes[0], b_planes[1],
+        "B's member faces must be coplanar"
+    );
+    for text in ["3", "5", "⌀3.3 H11", "⌖ ⌀0.2 A", "⌖ ⌀0.3Ⓜ A"] {
+        assert!(
+            w.doc.ids().any(|id| is_a(id, "draughting_callout")
+                && test_attribute(&w.doc, id, "representation_item", "name")
+                    == Some(&Attribute::String(text.into()))),
+            "missing full notation {text}"
+        );
     }
 }

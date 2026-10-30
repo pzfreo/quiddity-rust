@@ -3,12 +3,13 @@
 //! Ported from pzfreo/draftwright-rust at aaa7a73: `src/dims/tolerance.rs`,
 //! `src/dims/gdt.rs`, and `src/text.rs` (Paul Fremantle; port authorized by the copyright owner for #137, same project family).
 //! Sheet layout, leaders, lanes, authored wording and drawn-precision rounding stay in
-//! Draftwright. Values here retain requirement precision. IBM Plex outlines are OFL licensed
-//! (see `fonts/`); characteristic symbols are explicit strokes, independent of font coverage.
+//! Draftwright. Values here retain requirement precision. Text uses public-domain Hershey
+//! strokes plus explicit ISO symbols; no font parser or embedded outline font is needed.
 
 use crate::pmi::*;
 
 mod gdt;
+pub mod placement;
 pub mod text;
 pub mod tolerance;
 
@@ -33,51 +34,33 @@ pub struct Callout {
     pub size: [f64; 2],
 }
 
-#[allow(
-    clippy::expect_used,
-    reason = "the embedded, tested IBM Plex font is immutable"
-)]
 pub fn font() -> &'static text::Font {
-    static FONT: std::sync::OnceLock<text::Font> = std::sync::OnceLock::new();
-    FONT.get_or_init(|| {
-        text::Font::new(include_bytes!("../../fonts/IBMPlexMono-Regular.ttf").to_vec())
-            .expect("bundled IBM Plex Mono parses")
-    })
+    &text::Font
 }
 
 impl Callout {
-    /// Outline-only tessellation: closed glyph contours, frame strokes, symbol arcs.
-    /// No text fill surfaces are needed. Curves use 32 chords per Bézier / 72 per circle.
+    /// Full, readable notation, shared by presentation names and drawing clients.
+    pub fn notation(&self) -> String {
+        self.cells.join(" ")
+    }
+
+    /// Single-stroke text, frame lines and explicit symbol arcs; no filled text surfaces.
     pub fn polylines(&self) -> Vec<Vec<[f64; 2]>> {
         let mut lines: Vec<_> = self.strokes.iter().map(|s| s.to_vec()).collect();
         for &[x, y, r, a, b] in &self.arcs {
             lines.push(
-                (0..=72)
+                (0..=32)
                     .map(|i| {
-                        let t = (a + (b - a) * i as f64 / 72.0).to_radians();
+                        let t = (a + (b - a) * i as f64 / 32.).to_radians();
                         [x + r * t.cos(), y + r * t.sin()]
                     })
                     .collect(),
             );
         }
         for t in &self.letters {
-            // Plex uses ø for the diameter glyph, as Draftwright's spherical zone does.
-            let ink = t.text.replace('⌀', "ø");
-            for c in font().text(&ink, t.size).contours {
-                let mut pts = Vec::new();
-                for s in c {
-                    let n = if matches!(s, text::Segment::Line(..)) {
-                        1
-                    } else {
-                        32
-                    };
-                    if pts.is_empty() {
-                        pts.push(s.at(0.0));
-                    }
-                    pts.extend((1..=n).map(|i| s.at(i as f64 / n as f64)));
-                }
+            for line in font().text(&t.text, t.size).lines {
                 lines.push(
-                    pts.into_iter()
+                    line.into_iter()
                         .map(|p| [p[0] + t.at[0], p[1] + t.at[1]])
                         .collect(),
                 );
@@ -88,7 +71,7 @@ impl Callout {
 }
 
 fn decimal(v: &Value) -> String {
-    v.decimal().as_str().to_string()
+    tolerance::number(v.decimal())
 }
 
 // Convert only when the requirement actually uses different units, never to sheet precision.
@@ -216,7 +199,7 @@ pub fn dimension(d: &Dimension) -> Callout {
 }
 
 pub fn label(value: &str) -> Callout {
-    let ink = font().text(&value.replace('⌀', "ø"), 3.0);
+    let ink = font().text(value, 3.0);
     let size = [ink.max[0] - ink.min[0] + 3.6, 6.0];
     let text = Text {
         text: value.into(),

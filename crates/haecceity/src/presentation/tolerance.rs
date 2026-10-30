@@ -201,3 +201,14 @@ mod tests {
         }
     }
 }
+
+/// A requirement decimal as notation: strip a STEP-required terminal decimal point, never
+/// round digits or turn an exact requirement into a Rust float's Debug spelling.
+pub fn number(d: &crate::pmi::Decimal) -> String {
+    let s = d.as_str();
+    if let Some((mantissa, exponent)) = s.split_once(['e', 'E']) {
+        format!("{}E{exponent}", mantissa.trim_end_matches('.'))
+    } else {
+        s.trim_end_matches('.').to_string()
+    }
+}
