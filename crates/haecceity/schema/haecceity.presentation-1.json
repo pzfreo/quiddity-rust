@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pzfreo.github.io/quiddity-rust/schema/haecceity.presentation-1.json",
+  "title": "haecceity.presentation/1",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "haecceity.presentation/1"
+    },
+    "length_unit": {
+      "const": "millimetre"
+    },
+    "items": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/Graphic"
+        }
+      }
+    },
+    "unlinked": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Graphic"
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "length_unit",
+    "items",
+    "unlinked"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Graphic": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "enum": [
+            "generated",
+            "file"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "polylines": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 3,
+              "maxItems": 3
+            }
+          }
+        },
+        "triangles": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "minItems": 3,
+            "maxItems": 3
+          }
+        },
+        "text": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "step_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "unsupported": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "source",
+        "name",
+        "polylines",
+        "triangles",
+        "text",
+        "step_ids",
+        "unsupported"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

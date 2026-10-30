@@ -1,0 +1,3719 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pzfreo.github.io/quiddity-rust/schema/haecceity.pmi-1.json",
+  "title": "haecceity.pmi/1",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "haecceity.pmi/1"
+    },
+    "units": {
+      "type": "object",
+      "properties": {
+        "length": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LengthUnitDefinition"
+          }
+        },
+        "angle": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AngleUnitDefinition"
+          }
+        }
+      },
+      "required": [
+        "length",
+        "angle"
+      ],
+      "additionalProperties": false
+    },
+    "pmi": {
+      "$ref": "#/$defs/PartPmi"
+    }
+  },
+  "required": [
+    "schema",
+    "units",
+    "pmi"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Decimal": {
+      "type": "string",
+      "pattern": "^[+-]?[0-9]+(?:\\.[0-9]*)?(?:[Ee][+-]?[0-9]+)?$"
+    },
+    "LengthUnit": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "AngleUnit": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "Length": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/Decimal"
+        },
+        "unit": {
+          "$ref": "#/$defs/LengthUnit"
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "additionalProperties": false
+    },
+    "Angle": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/Decimal"
+        },
+        "unit": {
+          "$ref": "#/$defs/AngleUnit"
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "additionalProperties": false
+    },
+    "Quantity": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "length": {
+              "$ref": "#/$defs/Length"
+            }
+          },
+          "required": [
+            "length"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "angle": {
+              "$ref": "#/$defs/Angle"
+            }
+          },
+          "required": [
+            "angle"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Value": {
+      "type": "object",
+      "properties": {
+        "quantity": {
+          "$ref": "#/$defs/Quantity"
+        },
+        "decimal_places": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "quantity",
+        "decimal_places"
+      ],
+      "additionalProperties": false
+    },
+    "Ratio": {
+      "$ref": "#/$defs/Decimal"
+    },
+    "Count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
+    "Bounds": {
+      "type": "object",
+      "properties": {
+        "upper": {
+          "$ref": "#/$defs/Value"
+        },
+        "lower": {
+          "$ref": "#/$defs/Value"
+        }
+      },
+      "required": [
+        "upper",
+        "lower"
+      ],
+      "additionalProperties": false
+    },
+    "Anchor": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "face": {
+              "$ref": "#/$defs/FaceIndex"
+            }
+          },
+          "required": [
+            "face"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "edge": {
+              "$ref": "#/$defs/EdgeIndex"
+            }
+          },
+          "required": [
+            "edge"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "geometry": {
+              "$ref": "#/$defs/GeometryId"
+            }
+          },
+          "required": [
+            "geometry"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Geometry": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/GeometryItem"
+        },
+        "length_unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LengthUnit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "item",
+        "length_unit"
+      ],
+      "additionalProperties": false
+    },
+    "GeometryItem": {
+      "type": "object",
+      "properties": {
+        "leaves": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/GeometryValue"
+                }
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      },
+      "required": [
+        "leaves"
+      ],
+      "additionalProperties": false
+    },
+    "GeometryValue": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "real": {
+              "$ref": "#/$defs/Decimal"
+            }
+          },
+          "required": [
+            "real"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "integer": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "integer"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "enum": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "enum"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "binary": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "binary"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "item": {
+              "$ref": "#/$defs/GeometryItem"
+            }
+          },
+          "required": [
+            "item"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "list": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/GeometryValue"
+              }
+            }
+          },
+          "required": [
+            "list"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "typed": {
+              "type": "object",
+              "properties": {
+                "type_name": {
+                  "type": "string"
+                },
+                "value": {
+                  "$ref": "#/$defs/GeometryValue"
+                }
+              },
+              "required": [
+                "type_name",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "typed"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "const": "unset"
+        },
+        {
+          "const": "derived"
+        }
+      ]
+    },
+    "Feature": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Anchor"
+              }
+            }
+          },
+          "required": [
+            "items"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "group": {
+              "type": "object",
+              "properties": {
+                "members": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/FeatureId"
+                  }
+                },
+                "kind": {
+                  "$ref": "#/$defs/GroupKind"
+                }
+              },
+              "required": [
+                "members",
+                "kind"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "group"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "derived": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "$ref": "#/$defs/DerivedKind"
+                },
+                "from": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/FeatureId"
+                  }
+                },
+                "geometry": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/DerivedGeometryId"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "from",
+                "geometry"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "derived"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "DerivedGeometry": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/DerivedGeometryKind"
+        },
+        "deriving_faces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FaceIndex"
+          }
+        },
+        "point": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Length"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "direction": {
+          "$ref": "#/$defs/Direction"
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Length"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "supplemental": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GeometryId"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "deriving_faces",
+        "point",
+        "direction",
+        "radius",
+        "supplemental"
+      ],
+      "additionalProperties": false
+    },
+    "DerivedGeometryKind": {
+      "oneOf": [
+        {
+          "const": "axis"
+        },
+        {
+          "const": "median_plane"
+        }
+      ]
+    },
+    "GroupKind": {
+      "oneOf": [
+        {
+          "const": "multiple_elements"
+        },
+        {
+          "const": "pattern_of_features"
+        },
+        {
+          "const": "all_around"
+        },
+        {
+          "const": "between"
+        },
+        {
+          "const": "unstated"
+        }
+      ]
+    },
+    "DerivedKind": {
+      "oneOf": [
+        {
+          "const": "derived"
+        },
+        {
+          "const": "apex"
+        },
+        {
+          "const": "centre_of_symmetry"
+        },
+        {
+          "const": "geometric_alignment"
+        },
+        {
+          "const": "perpendicular_to"
+        },
+        {
+          "const": "extension"
+        },
+        {
+          "const": "tangent"
+        },
+        {
+          "const": "parallel_offset"
+        }
+      ]
+    },
+    "DatumLabel": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "Datum": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/DatumLabel"
+        },
+        "feature": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FeatureId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DatumTargetId"
+          }
+        }
+      },
+      "required": [
+        "label",
+        "feature",
+        "targets"
+      ],
+      "additionalProperties": false
+    },
+    "Placement": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Length"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "axis": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Direction"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ref_direction": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Direction"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "origin",
+        "axis",
+        "ref_direction"
+      ],
+      "additionalProperties": false
+    },
+    "Direction": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Decimal"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "TargetShape": {
+      "oneOf": [
+        {
+          "const": "point"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "line": {
+              "type": "object",
+              "properties": {
+                "length": {
+                  "$ref": "#/$defs/Length"
+                }
+              },
+              "required": [
+                "length"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "line"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "rectangle": {
+              "type": "object",
+              "properties": {
+                "length": {
+                  "$ref": "#/$defs/Length"
+                },
+                "width": {
+                  "$ref": "#/$defs/Length"
+                }
+              },
+              "required": [
+                "length",
+                "width"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "rectangle"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "circle": {
+              "type": "object",
+              "properties": {
+                "diameter": {
+                  "$ref": "#/$defs/Length"
+                }
+              },
+              "required": [
+                "diameter"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "circle"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "circular_curve": {
+              "type": "object",
+              "properties": {
+                "diameter": {
+                  "$ref": "#/$defs/Length"
+                }
+              },
+              "required": [
+                "diameter"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "circular_curve"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "area": {
+              "$ref": "#/$defs/FeatureId"
+            }
+          },
+          "required": [
+            "area"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "curve": {
+              "$ref": "#/$defs/FeatureId"
+            }
+          },
+          "required": [
+            "curve"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "DatumTarget": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "shape": {
+          "$ref": "#/$defs/TargetShape"
+        },
+        "placement": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Placement"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "movable": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Direction"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "on": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FeatureId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "number",
+        "shape",
+        "placement",
+        "movable",
+        "on"
+      ],
+      "additionalProperties": false
+    },
+    "DatumModifier": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "simple": {
+              "$ref": "#/$defs/SimpleDatumModifier"
+            }
+          },
+          "required": [
+            "simple"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "with_value": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "$ref": "#/$defs/DatumModifierType"
+                },
+                "value": {
+                  "$ref": "#/$defs/Value"
+                }
+              },
+              "required": [
+                "kind",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "with_value"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "SimpleDatumModifier": {
+      "oneOf": [
+        {
+          "const": "free_state"
+        },
+        {
+          "const": "basic"
+        },
+        {
+          "const": "translation"
+        },
+        {
+          "const": "least_material_requirement"
+        },
+        {
+          "const": "maximum_material_requirement"
+        },
+        {
+          "const": "point"
+        },
+        {
+          "const": "line"
+        },
+        {
+          "const": "plane"
+        },
+        {
+          "const": "orientation"
+        },
+        {
+          "const": "any_cross_section"
+        },
+        {
+          "const": "any_longitudinal_section"
+        },
+        {
+          "const": "contacting_feature"
+        },
+        {
+          "const": "distance_variable"
+        },
+        {
+          "const": "degree_of_freedom_constraint_x"
+        },
+        {
+          "const": "degree_of_freedom_constraint_y"
+        },
+        {
+          "const": "degree_of_freedom_constraint_z"
+        },
+        {
+          "const": "degree_of_freedom_constraint_u"
+        },
+        {
+          "const": "degree_of_freedom_constraint_v"
+        },
+        {
+          "const": "degree_of_freedom_constraint_w"
+        },
+        {
+          "const": "minor_diameter"
+        },
+        {
+          "const": "major_diameter"
+        },
+        {
+          "const": "pitch_diameter"
+        }
+      ]
+    },
+    "DatumModifierType": {
+      "oneOf": [
+        {
+          "const": "circular_or_cylindrical"
+        },
+        {
+          "const": "spherical"
+        },
+        {
+          "const": "distance"
+        },
+        {
+          "const": "projected"
+        }
+      ]
+    },
+    "DatumReference": {
+      "type": "object",
+      "properties": {
+        "datum": {
+          "$ref": "#/$defs/DatumId"
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DatumModifier"
+          }
+        }
+      },
+      "required": [
+        "datum",
+        "modifiers"
+      ],
+      "additionalProperties": false
+    },
+    "Compartment": {
+      "type": "object",
+      "properties": {
+        "references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DatumReference"
+          }
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DatumModifier"
+          }
+        }
+      },
+      "required": [
+        "references",
+        "modifiers"
+      ],
+      "additionalProperties": false
+    },
+    "DatumSystem": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Compartment"
+      }
+    },
+    "Dimension": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/DimensionKind"
+        },
+        "nominal": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Value"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tolerance": {
+          "$ref": "#/$defs/DimTolerance"
+        },
+        "qualifier": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Qualifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DimensionModifier"
+          }
+        },
+        "principle": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Principle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "nominal",
+        "tolerance",
+        "qualifier",
+        "modifiers",
+        "principle"
+      ],
+      "additionalProperties": false
+    },
+    "DimensionKind": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "object",
+              "properties": {
+                "feature": {
+                  "$ref": "#/$defs/FeatureId"
+                },
+                "kind": {
+                  "$ref": "#/$defs/SizeKind"
+                },
+                "path": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/FeatureId"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "angle": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/AngleSelection"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "feature",
+                "kind",
+                "path",
+                "angle"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "size"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "location": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "$ref": "#/$defs/FeatureId"
+                },
+                "to": {
+                  "$ref": "#/$defs/FeatureId"
+                },
+                "kind": {
+                  "$ref": "#/$defs/LocationKind"
+                },
+                "path": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/FeatureId"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "directed": {
+                  "type": "boolean"
+                },
+                "angle": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/AngleSelection"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "from",
+                "to",
+                "kind",
+                "path",
+                "directed",
+                "angle"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "location"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "AngleSelection": {
+      "oneOf": [
+        {
+          "const": "equal"
+        },
+        {
+          "const": "large"
+        },
+        {
+          "const": "small"
+        }
+      ]
+    },
+    "SizeKind": {
+      "oneOf": [
+        {
+          "const": "curve length"
+        },
+        {
+          "const": "diameter"
+        },
+        {
+          "const": "spherical diameter"
+        },
+        {
+          "const": "radius"
+        },
+        {
+          "const": "spherical radius"
+        },
+        {
+          "const": "toroidal minor diameter"
+        },
+        {
+          "const": "toroidal major diameter"
+        },
+        {
+          "const": "toroidal minor radius"
+        },
+        {
+          "const": "toroidal major radius"
+        },
+        {
+          "const": "toroidal high major diameter"
+        },
+        {
+          "const": "toroidal low major diameter"
+        },
+        {
+          "const": "toroidal high major radius"
+        },
+        {
+          "const": "toroidal low major radius"
+        },
+        {
+          "const": "thickness"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "other": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "other"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "LocationKind": {
+      "oneOf": [
+        {
+          "const": "curved distance"
+        },
+        {
+          "const": "linear distance"
+        },
+        {
+          "const": "linear distance centre outer"
+        },
+        {
+          "const": "linear distance centre inner"
+        },
+        {
+          "const": "linear distance outer centre"
+        },
+        {
+          "const": "linear distance outer outer"
+        },
+        {
+          "const": "linear distance outer inner"
+        },
+        {
+          "const": "linear distance inner centre"
+        },
+        {
+          "const": "linear distance inner outer"
+        },
+        {
+          "const": "linear distance inner inner"
+        },
+        {
+          "const": "linear distance centre"
+        },
+        {
+          "const": "linear distance inner"
+        },
+        {
+          "const": "linear distance outer"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "other": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "other"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "DimTolerance": {
+      "oneOf": [
+        {
+          "const": "none"
+        },
+        {
+          "const": "basic"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "deviations": {
+              "$ref": "#/$defs/Bounds"
+            }
+          },
+          "required": [
+            "deviations"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "limits": {
+              "$ref": "#/$defs/Bounds"
+            }
+          },
+          "required": [
+            "limits"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fit": {
+              "type": "object",
+              "properties": {
+                "class": {
+                  "$ref": "#/$defs/Iso286Class"
+                },
+                "limits": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/Bounds"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "class",
+                "limits"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "fit"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Principle": {
+      "oneOf": [
+        {
+          "const": "independency"
+        },
+        {
+          "const": "envelope_requirement"
+        }
+      ]
+    },
+    "Qualifier": {
+      "oneOf": [
+        {
+          "const": "maximum"
+        },
+        {
+          "const": "minimum"
+        },
+        {
+          "const": "average"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "other": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "other"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "DimensionModifier": {
+      "oneOf": [
+        {
+          "const": "reference"
+        },
+        {
+          "const": "controlled radius"
+        },
+        {
+          "const": "square"
+        },
+        {
+          "const": "statistical"
+        },
+        {
+          "const": "continuous feature"
+        },
+        {
+          "const": "two point size"
+        },
+        {
+          "const": "local size defined by a sphere"
+        },
+        {
+          "const": "least squares association criteria"
+        },
+        {
+          "const": "maximum inscribed association criteria"
+        },
+        {
+          "const": "minimum circumscribed association criteria"
+        },
+        {
+          "const": "circumference diameter calculated size"
+        },
+        {
+          "const": "area diameter calculated size"
+        },
+        {
+          "const": "volume diameter calculated size"
+        },
+        {
+          "const": "maximum rank order size"
+        },
+        {
+          "const": "minimum rank order size"
+        },
+        {
+          "const": "average rank order size"
+        },
+        {
+          "const": "median rank order size"
+        },
+        {
+          "const": "mid range rank order size"
+        },
+        {
+          "const": "range rank order size"
+        },
+        {
+          "const": "any part of the feature"
+        },
+        {
+          "const": "any cross section"
+        },
+        {
+          "const": "specific fixed cross section"
+        },
+        {
+          "const": "common tolerance"
+        },
+        {
+          "const": "free state condition"
+        },
+        {
+          "const": "united feature of size"
+        }
+      ]
+    },
+    "Iso286Class": {
+      "type": "object",
+      "properties": {
+        "deviation": {
+          "$ref": "#/$defs/FundamentalDeviation"
+        },
+        "grade": {
+          "$ref": "#/$defs/ToleranceGrade"
+        }
+      },
+      "required": [
+        "deviation",
+        "grade"
+      ],
+      "additionalProperties": false
+    },
+    "FundamentalDeviation": {
+      "type": "object",
+      "properties": {
+        "letter": {
+          "$ref": "#/$defs/DeviationLetter"
+        },
+        "of": {
+          "$ref": "#/$defs/FitFeature"
+        }
+      },
+      "required": [
+        "letter",
+        "of"
+      ],
+      "additionalProperties": false
+    },
+    "FitFeature": {
+      "oneOf": [
+        {
+          "const": "hole"
+        },
+        {
+          "const": "shaft"
+        }
+      ]
+    },
+    "DeviationLetter": {
+      "oneOf": [
+        {
+          "const": "a"
+        },
+        {
+          "const": "b"
+        },
+        {
+          "const": "c"
+        },
+        {
+          "const": "cd"
+        },
+        {
+          "const": "d"
+        },
+        {
+          "const": "e"
+        },
+        {
+          "const": "ef"
+        },
+        {
+          "const": "f"
+        },
+        {
+          "const": "fg"
+        },
+        {
+          "const": "g"
+        },
+        {
+          "const": "h"
+        },
+        {
+          "const": "js"
+        },
+        {
+          "const": "j"
+        },
+        {
+          "const": "k"
+        },
+        {
+          "const": "m"
+        },
+        {
+          "const": "n"
+        },
+        {
+          "const": "p"
+        },
+        {
+          "const": "r"
+        },
+        {
+          "const": "s"
+        },
+        {
+          "const": "t"
+        },
+        {
+          "const": "u"
+        },
+        {
+          "const": "v"
+        },
+        {
+          "const": "x"
+        },
+        {
+          "const": "y"
+        },
+        {
+          "const": "z"
+        },
+        {
+          "const": "za"
+        },
+        {
+          "const": "zb"
+        },
+        {
+          "const": "zc"
+        }
+      ]
+    },
+    "ToleranceGrade": {
+      "oneOf": [
+        {
+          "const": "01"
+        },
+        {
+          "const": "0"
+        },
+        {
+          "const": "1"
+        },
+        {
+          "const": "2"
+        },
+        {
+          "const": "3"
+        },
+        {
+          "const": "4"
+        },
+        {
+          "const": "5"
+        },
+        {
+          "const": "6"
+        },
+        {
+          "const": "7"
+        },
+        {
+          "const": "8"
+        },
+        {
+          "const": "9"
+        },
+        {
+          "const": "10"
+        },
+        {
+          "const": "11"
+        },
+        {
+          "const": "12"
+        },
+        {
+          "const": "13"
+        },
+        {
+          "const": "14"
+        },
+        {
+          "const": "15"
+        },
+        {
+          "const": "16"
+        },
+        {
+          "const": "17"
+        },
+        {
+          "const": "18"
+        }
+      ]
+    },
+    "GeometricTolerance": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/ToleranceKind"
+        },
+        "target": {
+          "$ref": "#/$defs/ToleranceTarget"
+        },
+        "magnitude": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Value"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "zone": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Zone"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ToleranceModifier"
+          }
+        },
+        "unit_basis": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UnitBasis"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maximum": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Value"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unequal": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Value"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "datums": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DatumSystem"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "auxiliary": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AuxiliaryClassification"
+          }
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "target",
+        "magnitude",
+        "zone",
+        "modifiers",
+        "unit_basis",
+        "maximum",
+        "unequal",
+        "datums",
+        "auxiliary",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "ToleranceKind": {
+      "oneOf": [
+        {
+          "const": "angularity_tolerance"
+        },
+        {
+          "const": "circular_runout_tolerance"
+        },
+        {
+          "const": "coaxiality_tolerance"
+        },
+        {
+          "const": "concentricity_tolerance"
+        },
+        {
+          "const": "cylindricity_tolerance"
+        },
+        {
+          "const": "flatness_tolerance"
+        },
+        {
+          "const": "line_profile_tolerance"
+        },
+        {
+          "const": "parallelism_tolerance"
+        },
+        {
+          "const": "perpendicularity_tolerance"
+        },
+        {
+          "const": "position_tolerance"
+        },
+        {
+          "const": "roundness_tolerance"
+        },
+        {
+          "const": "straightness_tolerance"
+        },
+        {
+          "const": "surface_profile_tolerance"
+        },
+        {
+          "const": "symmetry_tolerance"
+        },
+        {
+          "const": "total_runout_tolerance"
+        }
+      ]
+    },
+    "DatumRequirement": {
+      "oneOf": [
+        {
+          "const": "required"
+        },
+        {
+          "const": "optional"
+        },
+        {
+          "const": "forbidden"
+        }
+      ]
+    },
+    "ToleranceTarget": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "feature": {
+              "$ref": "#/$defs/FeatureId"
+            }
+          },
+          "required": [
+            "feature"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "dimension": {
+              "$ref": "#/$defs/DimensionId"
+            }
+          },
+          "required": [
+            "dimension"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "relation": {
+              "type": "object",
+              "properties": {
+                "relating": {
+                  "$ref": "#/$defs/FeatureId"
+                },
+                "related": {
+                  "$ref": "#/$defs/FeatureId"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "relating",
+                "related",
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "relation"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "const": "whole_part"
+        }
+      ]
+    },
+    "Zone": {
+      "type": "object",
+      "properties": {
+        "form": {
+          "$ref": "#/$defs/ZoneForm"
+        },
+        "projected": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProjectedZone"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "non_uniform": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/FeatureId"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runout_angle": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Value"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "affected_plane": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FeatureId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "affected_plane_kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AffectedPlaneKind"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "form",
+        "projected",
+        "non_uniform",
+        "runout_angle",
+        "affected_plane",
+        "affected_plane_kind"
+      ],
+      "additionalProperties": false
+    },
+    "AffectedPlaneKind": {
+      "oneOf": [
+        {
+          "const": "intersection_line"
+        },
+        {
+          "const": "intersection_plane"
+        },
+        {
+          "const": "orientation_plane"
+        }
+      ]
+    },
+    "ProjectedZone": {
+      "type": "object",
+      "properties": {
+        "end": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FeatureId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "length": {
+          "$ref": "#/$defs/Value"
+        }
+      },
+      "required": [
+        "end",
+        "length"
+      ],
+      "additionalProperties": false
+    },
+    "ZoneForm": {
+      "oneOf": [
+        {
+          "const": "within a circle"
+        },
+        {
+          "const": "within a cylinder"
+        },
+        {
+          "const": "cylindrical or circular"
+        },
+        {
+          "const": "spherical"
+        },
+        {
+          "const": "within a sphere"
+        },
+        {
+          "const": "between two concentric circles"
+        },
+        {
+          "const": "between two equidistant curves"
+        },
+        {
+          "const": "between two coaxial cylinders"
+        },
+        {
+          "const": "between two equidistant surfaces"
+        },
+        {
+          "const": "non uniform"
+        },
+        {
+          "const": "between two parallel circles on a conical surface"
+        },
+        {
+          "const": "between two parallel circles of the same diameter"
+        },
+        {
+          "const": "between two equidistant complex lines or two parallel straight lines"
+        },
+        {
+          "const": "between two non-equidistant complex lines or two non-parallel straight lines"
+        },
+        {
+          "const": "within a cone"
+        },
+        {
+          "const": "within a single complex surface"
+        },
+        {
+          "const": "between two equidistant complex surfaces or two parallel planes"
+        },
+        {
+          "const": "between two non-equidistant complex surfaces or two non-parallel planes"
+        },
+        {
+          "const": "unknown"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "other": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "other"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ToleranceModifier": {
+      "oneOf": [
+        {
+          "const": "any_cross_section"
+        },
+        {
+          "const": "associated_least_square_feature"
+        },
+        {
+          "const": "associated_maximum_inscribed_feature"
+        },
+        {
+          "const": "associated_minimum_inscribed_feature"
+        },
+        {
+          "const": "associated_minmax_feature"
+        },
+        {
+          "const": "associated_tangent_feature"
+        },
+        {
+          "const": "circle_a"
+        },
+        {
+          "const": "common_zone"
+        },
+        {
+          "const": "continuous_features"
+        },
+        {
+          "const": "derived_feature"
+        },
+        {
+          "const": "each_element"
+        },
+        {
+          "const": "each_radial_element"
+        },
+        {
+          "const": "free_state"
+        },
+        {
+          "const": "individually"
+        },
+        {
+          "const": "least_material_requirement"
+        },
+        {
+          "const": "line_element"
+        },
+        {
+          "const": "major_diameter"
+        },
+        {
+          "const": "maximum_material_requirement"
+        },
+        {
+          "const": "minor_diameter"
+        },
+        {
+          "const": "not_convex"
+        },
+        {
+          "const": "offset_zone"
+        },
+        {
+          "const": "peak_height"
+        },
+        {
+          "const": "pitch_diameter"
+        },
+        {
+          "const": "reciprocity_requirement"
+        },
+        {
+          "const": "reference_least_square_feature_with_external_material_constraint"
+        },
+        {
+          "const": "reference_least_square_feature_with_internal_material_constraint"
+        },
+        {
+          "const": "reference_least_square_feature_without_constraint"
+        },
+        {
+          "const": "reference_maximum_inscribed_feature"
+        },
+        {
+          "const": "reference_minimax_feature_with_external_material_constraint"
+        },
+        {
+          "const": "reference_minimax_feature_with_internal_material_constraint"
+        },
+        {
+          "const": "reference_minimax_feature_without_constraint"
+        },
+        {
+          "const": "reference_minimum_circumscribed_feature"
+        },
+        {
+          "const": "separate_requirement"
+        },
+        {
+          "const": "separate_zones"
+        },
+        {
+          "const": "standard_deviation"
+        },
+        {
+          "const": "statistical_tolerance"
+        },
+        {
+          "const": "stock"
+        },
+        {
+          "const": "tangent_plane"
+        },
+        {
+          "const": "total_range_deviations"
+        },
+        {
+          "const": "united_feature"
+        },
+        {
+          "const": "unspecified_angular_tolerance_zone_offset"
+        },
+        {
+          "const": "unspecified_linear_tolerance_zone_offset"
+        },
+        {
+          "const": "valley_depth"
+        },
+        {
+          "const": "variable_angle"
+        }
+      ]
+    },
+    "UnitBasis": {
+      "type": "object",
+      "properties": {
+        "size": {
+          "$ref": "#/$defs/Value"
+        },
+        "area": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UnitArea"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "size",
+        "area"
+      ],
+      "additionalProperties": false
+    },
+    "UnitArea": {
+      "type": "object",
+      "properties": {
+        "shape": {
+          "$ref": "#/$defs/AreaShape"
+        },
+        "second": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Value"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "shape",
+        "second"
+      ],
+      "additionalProperties": false
+    },
+    "AreaShape": {
+      "oneOf": [
+        {
+          "const": "circular"
+        },
+        {
+          "const": "square"
+        },
+        {
+          "const": "rectangular"
+        },
+        {
+          "const": "cylindrical"
+        },
+        {
+          "const": "spherical"
+        }
+      ]
+    },
+    "AuxiliaryClassification": {
+      "oneOf": [
+        {
+          "const": "all_over"
+        },
+        {
+          "const": "unless_otherwise_specified"
+        }
+      ]
+    },
+    "ToleranceRelation": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/RelationKind"
+        },
+        "relating": {
+          "$ref": "#/$defs/ToleranceId"
+        },
+        "related": {
+          "$ref": "#/$defs/ToleranceId"
+        }
+      },
+      "required": [
+        "kind",
+        "relating",
+        "related"
+      ],
+      "additionalProperties": false
+    },
+    "RelationKind": {
+      "oneOf": [
+        {
+          "const": "composite"
+        },
+        {
+          "const": "precedence"
+        },
+        {
+          "const": "simultaneity"
+        }
+      ]
+    },
+    "Standard": {
+      "type": "object",
+      "properties": {
+        "document": {
+          "type": "string"
+        },
+        "edition": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "body": {
+          "$ref": "#/$defs/StandardBody"
+        }
+      },
+      "required": [
+        "document",
+        "edition",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "StandardBody": {
+      "oneOf": [
+        {
+          "const": "asme"
+        },
+        {
+          "const": "iso"
+        },
+        {
+          "const": "other"
+        }
+      ]
+    },
+    "GeneralTolerance": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "class": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "standard": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/crate::pmi::standards::Iso2768"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "text",
+                "standard"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "class"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "table": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "cells": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/ToleranceCell"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "cells"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "table"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ToleranceCell": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/CellValue"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "CellValue": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "$ref": "#/$defs/Value"
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "count": {
+              "$ref": "#/$defs/Decimal"
+            }
+          },
+          "required": [
+            "count"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Thread": {
+      "type": "object",
+      "properties": {
+        "feature": {
+          "$ref": "#/$defs/FeatureId"
+        },
+        "partial_area": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FeatureId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "side": {
+          "$ref": "#/$defs/ThreadSide"
+        },
+        "major_diameter": {
+          "$ref": "#/$defs/Length"
+        },
+        "minor_diameter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Length"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pitch_diameter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Length"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "number_of_threads": {
+          "$ref": "#/$defs/Ratio"
+        },
+        "form": {
+          "type": "string"
+        },
+        "fit_class": {
+          "type": "string"
+        },
+        "fit_class_2": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hand": {
+          "$ref": "#/$defs/Hand"
+        },
+        "crest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Length"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "qualifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nominal_size": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Length"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runout": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FeatureId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "feature",
+        "partial_area",
+        "side",
+        "major_diameter",
+        "minor_diameter",
+        "pitch_diameter",
+        "number_of_threads",
+        "form",
+        "fit_class",
+        "fit_class_2",
+        "hand",
+        "crest",
+        "qualifier",
+        "nominal_size",
+        "runout"
+      ],
+      "additionalProperties": false
+    },
+    "ThreadSide": {
+      "oneOf": [
+        {
+          "const": "internal"
+        },
+        {
+          "const": "external"
+        }
+      ]
+    },
+    "Hand": {
+      "oneOf": [
+        {
+          "const": "left"
+        },
+        {
+          "const": "right"
+        }
+      ]
+    },
+    "Knurl": {
+      "type": "object",
+      "properties": {
+        "feature": {
+          "$ref": "#/$defs/FeatureId"
+        },
+        "pattern": {
+          "$ref": "#/$defs/KnurlPattern"
+        },
+        "major_diameter": {
+          "$ref": "#/$defs/Length"
+        },
+        "nominal_diameter": {
+          "$ref": "#/$defs/Length"
+        },
+        "diametral_pitch": {
+          "$ref": "#/$defs/Length"
+        },
+        "number_of_teeth": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Count"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tooth_depth": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Length"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "root_fillet": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Length"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "helix_angle": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Angle"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "helix_hand": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Hand"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "feature",
+        "pattern",
+        "major_diameter",
+        "nominal_diameter",
+        "diametral_pitch",
+        "number_of_teeth",
+        "tooth_depth",
+        "root_fillet",
+        "helix_angle",
+        "helix_hand"
+      ],
+      "additionalProperties": false
+    },
+    "KnurlPattern": {
+      "oneOf": [
+        {
+          "const": "diamond"
+        },
+        {
+          "const": "diagonal"
+        },
+        {
+          "const": "straight"
+        }
+      ]
+    },
+    "Hole": {
+      "type": "object",
+      "properties": {
+        "feature": {
+          "$ref": "#/$defs/FeatureId"
+        },
+        "definition": {
+          "$ref": "#/$defs/RoundHole"
+        },
+        "placement": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Placement"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "feature",
+        "definition",
+        "placement"
+      ],
+      "additionalProperties": false
+    },
+    "RoundHole": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "diameter": {
+          "$ref": "#/$defs/Length"
+        },
+        "diameter_tolerance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Bounds"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "depth": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Length"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "depth_tolerance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Bounds"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "through": {
+          "type": "boolean"
+        },
+        "placement": {
+          "$ref": "#/$defs/Placement"
+        }
+      },
+      "required": [
+        "name",
+        "diameter",
+        "diameter_tolerance",
+        "depth",
+        "depth_tolerance",
+        "through",
+        "placement"
+      ],
+      "additionalProperties": false
+    },
+    "Material": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "density": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Density"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "density"
+      ],
+      "additionalProperties": false
+    },
+    "Density": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/Decimal"
+        },
+        "unit": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/Decimal"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "additionalProperties": false
+    },
+    "Note": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "on": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NoteOwner"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "callouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Callout"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "text",
+        "on",
+        "callouts"
+      ],
+      "additionalProperties": false
+    },
+    "Callout": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FeatureId"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "features"
+      ],
+      "additionalProperties": false
+    },
+    "NoteOwner": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "feature": {
+              "$ref": "#/$defs/FeatureId"
+            }
+          },
+          "required": [
+            "feature"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "dimension": {
+              "$ref": "#/$defs/DimensionId"
+            }
+          },
+          "required": [
+            "dimension"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "tolerance": {
+              "$ref": "#/$defs/ToleranceId"
+            }
+          },
+          "required": [
+            "tolerance"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "datum_target": {
+              "$ref": "#/$defs/DatumTargetId"
+            }
+          },
+          "required": [
+            "datum_target"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "SurfaceTexture": {
+      "type": "object",
+      "properties": {
+        "on": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FeatureId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "material_removal": {
+          "$ref": "#/$defs/MaterialRemoval"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SurfaceTextureParameter"
+          }
+        }
+      },
+      "required": [
+        "on",
+        "material_removal",
+        "parameters"
+      ],
+      "additionalProperties": false
+    },
+    "MaterialRemoval": {
+      "oneOf": [
+        {
+          "const": "any_process_allowed"
+        },
+        {
+          "const": "required"
+        },
+        {
+          "const": "not_allowed"
+        }
+      ]
+    },
+    "SurfaceTextureParameter": {
+      "type": "object",
+      "properties": {
+        "characteristic": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/Length"
+        }
+      },
+      "required": [
+        "characteristic",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "AttributeSet": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "on": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NoteOwner"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/$defs/AttributeValue"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "general_property": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeneralProperty"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "on",
+        "items",
+        "description",
+        "general_property"
+      ],
+      "additionalProperties": false
+    },
+    "GeneralProperty": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "AttributeValue": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "integer": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "integer"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "real": {
+              "$ref": "#/$defs/Decimal"
+            }
+          },
+          "required": [
+            "real"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "boolean": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "boolean"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "measure": {
+              "$ref": "#/$defs/Value"
+            }
+          },
+          "required": [
+            "measure"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "other_measure": {
+              "type": "object",
+              "properties": {
+                "measure": {
+                  "type": "string"
+                },
+                "value": {
+                  "$ref": "#/$defs/Decimal"
+                },
+                "unit": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "measure",
+                "value",
+                "unit"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "other_measure"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "PartPmi": {
+      "type": "object",
+      "properties": {
+        "standards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Standard"
+          }
+        },
+        "decimal_places": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/Feature"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "datum_targets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/DatumTarget"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "datums": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/Datum"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "dimensions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/Dimension"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "tolerances": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/GeometricTolerance"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "tolerance_relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/ToleranceRelation"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "general": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/GeneralTolerance"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "threads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/Thread"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "knurls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/Knurl"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "holes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/Hole"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "material": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Material"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/Note"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "surface_textures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/SurfaceTexture"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/AttributeSet"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "geometry": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/Geometry"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "derived_geometry": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/DerivedGeometry"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "standards",
+        "decimal_places",
+        "features",
+        "datum_targets",
+        "datums",
+        "dimensions",
+        "tolerances",
+        "tolerance_relations",
+        "general",
+        "threads",
+        "knurls",
+        "holes",
+        "material",
+        "notes",
+        "surface_textures",
+        "attributes",
+        "geometry",
+        "derived_geometry"
+      ],
+      "additionalProperties": false
+    },
+    "PartId": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "FaceIndex": {
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fingerprint": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "fingerprint"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "EdgeIndex": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "FeatureId": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "DatumId": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "DatumTargetId": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "DimensionId": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ToleranceId": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "GeometryId": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "DerivedGeometryId": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "LengthUnitDefinition": {
+      "oneOf": [
+        {
+          "const": "millimetre"
+        },
+        {
+          "const": "micrometre"
+        },
+        {
+          "const": "centimetre"
+        },
+        {
+          "const": "metre"
+        },
+        {
+          "const": "inch"
+        },
+        {
+          "const": "foot"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "other": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "metres": {
+                  "$ref": "#/$defs/Decimal"
+                }
+              },
+              "required": [
+                "name",
+                "metres"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "other"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "AngleUnitDefinition": {
+      "oneOf": [
+        {
+          "const": "radian"
+        },
+        {
+          "const": "degree"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "other": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "radians": {
+                  "$ref": "#/$defs/Decimal"
+                }
+              },
+              "required": [
+                "name",
+                "radians"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "other"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}
