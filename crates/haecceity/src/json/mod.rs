@@ -11,6 +11,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::sync::OnceLock;
 
 pub(crate) mod invariants;
+/// The file's As Drawn graphics and generated notation, keyed by semantic id.
+pub mod presentation;
 mod schema;
 
 pub const PMI_SCHEMA: &str = include_str!("../../schema/haecceity.pmi-1.json");
