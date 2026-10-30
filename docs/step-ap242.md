@@ -258,7 +258,9 @@ folder remain byte-identical. Fresh OCCT captures retain every existing typed da
 tolerance assertion; every capture field except its STEP hash is identical. The
 `pmi_notes` inspection/semantic-text property-chain IDs move 6677/6683 → 6675/6681
 because the redundant carrier is removed; the description/general-property assertions
-are unchanged. The semantic-edge witness test now obtains the outward direction
+are unchanged. The existing OCCT H7 nominal-value comparison in
+`references/pmi_write.json` renumbers its diagnostic entity 6617 → 6615; its values,
+comparison and verdict are unchanged. The semantic-edge witness test now obtains the outward direction
 from the final extension segment: an earlier segment can travel from the real foot to the
 ladder's common plane. Its exact-edge assertion remains unchanged.
 

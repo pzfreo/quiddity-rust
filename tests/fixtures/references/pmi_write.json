@@ -407,7 +407,7 @@
  },
  "occt": [
   {
-   "detail": "#6617: value 20.0105 vs 20. Millimetre (different)",
+   "detail": "#6615: value 20.0105 vs 20. Millimetre (different)",
    "key": "every_kind occt dimension 0:1:4:3",
    "verdict": "rust-correct",
    "reason": "The dimension is Ø20 H7 with its limits stated beside the class (20.000/20.021, §5.2.5: 'upper limit'/'lower limit' items beside 'nominal value' and LIMITS_AND_FITS). OpenCascade gives the value as the middle of the stated limits (20.0105) instead of the 'nominal value' item (20.); haecceity reads the nominal, the class and the limits as written."
