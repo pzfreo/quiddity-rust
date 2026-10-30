@@ -2958,7 +2958,8 @@ impl<'a> PartPlan<'a> {
             }
             st.datums.insert(i, datum);
         }
-        self.datum_symbols(em, &symbols, report)?;
+        #[cfg(not(feature = "presentation"))]
+        self.datum_symbols(em, &symbols, &st, report)?;
         for i in 0..p.dimensions.len() {
             self.dimension(em, &mut st, pds, i)?;
         }
@@ -2967,6 +2968,8 @@ impl<'a> PartPlan<'a> {
             let r = self.tolerance(em, &mut st, pds, t, &mut names)?;
             st.tolerances.insert(i, r);
         }
+        #[cfg(feature = "presentation")]
+        self.datum_symbols(em, &symbols, &st, report)?;
         for r in &p.tolerance_relations {
             let name = match r.kind {
                 RelationKind::Composite => "composite",
@@ -3343,9 +3346,13 @@ impl<'a> PartPlan<'a> {
         &self,
         em: &mut Emitter<'_>,
         symbols: &[(R, Vec<String>, usize)],
+        _st: &Emitted,
         report: &mut WriteReport,
     ) -> Result<(), WriteError> {
-        if symbols.is_empty() {
+        if symbols.is_empty()
+            && !(cfg!(feature = "presentation")
+                && (!self.pmi.dimensions.is_empty() || !self.pmi.tolerances.is_empty()))
+        {
             return Ok(());
         }
         let mut tips = Vec::new();
@@ -3360,6 +3367,70 @@ impl<'a> PartPlan<'a> {
         let mut points = vertices(self.doc, &self.def.faces);
         points.extend(tips.iter().copied());
         let mut layout = SymbolLayout::new(&points);
+        let mut graphics = Vec::new();
+        for ((feature, labels, _), tip) in symbols.iter().zip(&tips) {
+            let label = labels.join(",");
+            let (plane, lines) = layout.draw(*tip, &label);
+            graphics.push((
+                vec![*feature],
+                "datum",
+                format!("Datum {label}"),
+                plane,
+                lines,
+            ));
+            report.datum_symbols.push((self.id, label));
+        }
+        #[cfg(feature = "presentation")]
+        {
+            use crate::presentation;
+            let feature_of_dimension = |d: &Dimension| match d.kind {
+                DimensionKind::Size { feature, .. } => feature,
+                DimensionKind::Location { from, .. } => from,
+            };
+            let feature_ref = |f: FeatureId| _st.features[&self.canonical[f.0]];
+            for (i, d) in self.pmi.dimensions.iter().enumerate() {
+                let f = feature_of_dimension(d);
+                let tip = self
+                    .feature_point(f.0)
+                    .unwrap_or(points.first().copied().unwrap_or([0.; 3]));
+                let c = presentation::dimension(d);
+                let name = c.cells.join(" | ");
+                let (plane, lines) = layout.callout(tip, &c);
+                graphics.push((
+                    vec![_st.dimensions[&i], feature_ref(f)],
+                    presentation::dimension_type(d),
+                    name,
+                    plane,
+                    lines,
+                ));
+            }
+            for (i, t) in self.pmi.tolerances.iter().enumerate() {
+                let (f, target) = match &t.target {
+                    ToleranceTarget::Feature(f) => (Some(*f), feature_ref(*f)),
+                    ToleranceTarget::Dimension(d) => (
+                        Some(feature_of_dimension(&self.pmi.dimensions[d.0])),
+                        _st.dimensions[&d.0],
+                    ),
+                    ToleranceTarget::Relation { relating, .. } => {
+                        (Some(*relating), _st.tolerance_targets[&i])
+                    }
+                    ToleranceTarget::WholePart => (None, em.reference(self.def.shape)?),
+                };
+                let tip = f
+                    .and_then(|f| self.feature_point(f.0))
+                    .unwrap_or(points.first().copied().unwrap_or([0.; 3]));
+                let c = presentation::tolerance(t, self.pmi);
+                let name = c.cells.join(" | ");
+                let (plane, lines) = layout.callout(tip, &c);
+                graphics.push((
+                    vec![_st.tolerances[&i], target],
+                    presentation::tolerance_type(t),
+                    name,
+                    plane,
+                    lines,
+                ));
+            }
+        }
         let context = em.reference(self.context)?;
         let font = em.simple(
             "draughting_pre_defined_curve_font",
@@ -3415,10 +3486,7 @@ impl<'a> PartPlan<'a> {
         };
         let mut planes = Vec::new();
         let mut callouts = Vec::new();
-        for ((feature, labels, _), tip) in symbols.iter().zip(&tips) {
-            let label = labels.join(",");
-            let name = format!("Datum {label}");
-            let ([origin, normal, along], lines) = layout.draw(*tip, &label);
+        for (definitions, annotation_type, name, [origin, normal, along], lines) in graphics {
             let coordinates: Vec<A> = lines
                 .iter()
                 .flatten()
@@ -3443,14 +3511,14 @@ impl<'a> PartPlan<'a> {
             let curves = em.simple(
                 "tessellated_curve_set",
                 &[
-                    ("name", s("datum")),
+                    ("name", s(annotation_type)),
                     ("coordinates", list.a()),
                     ("line_strips", A::List(strips)),
                 ],
             )?;
             let set = em.simple(
                 "tessellated_geometric_set",
-                &[("name", s("datum")), ("children", refs([curves]))],
+                &[("name", s(annotation_type)), ("children", refs([curves]))],
             )?;
             let occurrence = em.simple(
                 "tessellated_annotation_occurrence",
@@ -3489,13 +3557,19 @@ impl<'a> PartPlan<'a> {
                 ],
             )?;
             planes.push(annotation_plane);
-            callouts.push((*feature, callout));
-            report.datum_symbols.push((self.id, label));
+            callouts.push((definitions, callout));
         }
         let model = em.simple(
             "draughting_model",
             &[
-                ("name", s("datum feature symbols")),
+                (
+                    "name",
+                    s(if cfg!(feature = "presentation") {
+                        "PMI callouts"
+                    } else {
+                        "datum feature symbols"
+                    }),
+                ),
                 ("items", refs(planes)),
                 ("context_of_items", context.a()),
             ],
@@ -3504,17 +3578,37 @@ impl<'a> PartPlan<'a> {
         // shape representation (maintainer decision, 2026-10-09): specify-core's OpenCascade
         // loader crashed on every file with one (docs/step-ap242.md gives the cause); the
         // associations below link each symbol.
-        for (feature, callout) in callouts {
-            em.simple(
-                "draughting_model_item_association",
-                &[
-                    ("name", s("PMI representation to presentation link")),
-                    ("description", s("")),
-                    ("definition", feature.a()),
-                    ("used_representation", model.a()),
-                    ("identified_item", callout.a()),
-                ],
-            )?;
+        let mut model_definitions = BTreeSet::new();
+        for (definitions, callout) in callouts {
+            for (index, feature) in definitions.into_iter().enumerate() {
+                // IIRU UR1 forbids the same (representation, callout) twice; UR2 also
+                // forbids presenting a shared feature twice in one representation. Keep the
+                // semantic association in the part's one draughting model and the feature
+                // association in a per-callout symbol representation (an allowed annotation
+                // representation with the same 3D context). No validation exemptions.
+                let used = if index == 0 && model_definitions.insert(feature) {
+                    model
+                } else {
+                    em.simple(
+                        "symbol_representation",
+                        &[
+                            ("name", s("PMI feature association")),
+                            ("items", refs([callout])),
+                            ("context_of_items", context.a()),
+                        ],
+                    )?
+                };
+                em.simple(
+                    "draughting_model_item_association",
+                    &[
+                        ("name", s("PMI representation to presentation link")),
+                        ("description", s("")),
+                        ("definition", feature.a()),
+                        ("used_representation", used.a()),
+                        ("identified_item", callout.a()),
+                    ],
+                )?;
+            }
         }
         Ok(())
     }
@@ -4366,6 +4460,7 @@ impl<'a> PartPlan<'a> {
                 )?
             }
         };
+        st.tolerance_targets.insert(st.tolerances.len(), target);
         let system = match &t.datums {
             Some(ds) => Some(self.datum_system(em, st, pds, ds, names)?),
             None => None,
@@ -5177,6 +5272,7 @@ struct Emitted {
     dimensions: BTreeMap<usize, R>,
     dimension_values: BTreeSet<usize>,
     tolerances: BTreeMap<usize, R>,
+    tolerance_targets: BTreeMap<usize, R>,
     systems: BTreeMap<String, R>,
     /// Usage keys (representation, items) several features need: each one shape aspect.
     shared_keys: BTreeSet<(R, Vec<R>)>,
@@ -5309,6 +5405,7 @@ fn geometry_item(
 /// format of the font data was originally created by James Hurt, Cognition, Inc., 900
 /// Technology Park Drive, Billerica, MA 01821. AP242 presentation carries no characters, only
 /// geometry, so a datum letter is drawn as polylines.
+#[cfg(not(feature = "presentation"))]
 const HERSHEY_FUTURAL: &str = r#"12345  1JZ
 12345  9MWRFRT RRYQZR[SZRY
 12345  6JZNFNM RVFVM
@@ -5408,11 +5505,13 @@ const HERSHEY_FUTURAL: &str = r#"12345  1JZ
 "#;
 
 /// One glyph: its advance and its strokes, in font units (capital height 21, baseline 0).
+#[cfg(not(feature = "presentation"))]
 type Glyph = (f64, Vec<Vec<(f64, f64)>>);
 
 /// Character → glyph for ASCII 32 to 126: a 5-character number, a 3-character vertex count,
 /// then pairs of characters each offset from 'R' (the left and right bearings, then x, y, with
 /// " R" lifting the pen).
+#[cfg(not(feature = "presentation"))]
 fn hershey_glyphs() -> Vec<Glyph> {
     let raw: Vec<u8> = HERSHEY_FUTURAL.bytes().filter(|&b| b != b'\n').collect();
     let mut glyphs = Vec::new();
@@ -5447,6 +5546,7 @@ fn hershey_glyphs() -> Vec<Glyph> {
 
 /// The strokes of `text` at capital `height`, from x = 0 on the baseline, and its width; a
 /// character the font lacks is drawn as '?'.
+#[cfg(not(feature = "presentation"))]
 fn lettering(text: &str, height: f64) -> (Vec<Vec<(f64, f64)>>, f64) {
     let glyphs = hershey_glyphs();
     let scale = height / 21.0;
@@ -5617,6 +5717,38 @@ impl SymbolLayout {
         }
     }
 
+    #[cfg(feature = "presentation")]
+    #[allow(clippy::type_complexity)]
+    fn callout(
+        &mut self,
+        tip: [f64; 3],
+        c: &crate::presentation::Callout,
+    ) -> ([[f64; 3]; 3], Vec<Vec<[f64; 3]>>) {
+        let (u, v, h) = (self.u, self.v, self.height);
+        let scale = h / 3.0;
+        let left = tip[u].max(self.right + h);
+        let bottom = self.hi[v].max(tip[v]) + 2.0 * h;
+        self.right = left + c.size[0] * scale;
+        let at = |p: [f64; 2]| {
+            let mut xyz = tip;
+            xyz[u] = left + p[0] * scale;
+            xyz[v] = bottom + p[1] * scale;
+            xyz.map(|x| (x * 1e6).round() / 1e6 + 0.0)
+        };
+        let mut lines: Vec<_> = c
+            .polylines()
+            .iter()
+            .map(|l| l.iter().map(|&p| at(p)).collect())
+            .collect();
+        // Same simple feature-to-label extension used for datum symbols, no sheet routing.
+        lines.push(vec![tip, at([0., c.size[1] / 2.0])]);
+        let mut normal = [0.; 3];
+        normal[3 - u - v] = if (u + 1) % 3 == v { 1.0 } else { -1.0 };
+        let mut along = [0.; 3];
+        along[u] = 1.;
+        ([at([0., 0.]), normal, along], lines)
+    }
+
     /// The symbol's plane (origin, normal, direction in it) and its polylines: the label boxed,
     /// a stem down to a triangle whose apex is `tip`.
     #[allow(clippy::type_complexity)]
@@ -5628,23 +5760,55 @@ impl SymbolLayout {
             p[v] = b;
             p
         };
-        let (strokes, width) = lettering(label, h);
-        let size = 1.6 * h;
-        let frame = size.max(width + 0.6 * h);
-        let left = (tip[u] - frame / 2.0).max(self.right + size / 2.0);
-        self.right = left + frame;
-        let bottom = self.hi[v].max(tip[v]) + size;
-        let mut lines = vec![vec![
-            at(left, bottom),
-            at(left + frame, bottom),
-            at(left + frame, bottom + size),
-            at(left, bottom + size),
-            at(left, bottom),
-        ]];
-        let (a, b) = (left + (frame - width) / 2.0, bottom + (size - h) / 2.0);
-        for s in &strokes {
-            lines.push(s.iter().map(|(x, y)| at(a + x, b + y)).collect());
-        }
+        #[cfg(not(feature = "presentation"))]
+        let (mut lines, frame, left, bottom) = {
+            let (strokes, width) = lettering(label, h);
+            let size = 1.6 * h;
+            let frame = size.max(width + 0.6 * h);
+            let left = (tip[u] - frame / 2.0).max(self.right + size / 2.0);
+            self.right = left + frame;
+            let bottom = self.hi[v].max(tip[v]) + size;
+            let mut lines = vec![vec![
+                at(left, bottom),
+                at(left + frame, bottom),
+                at(left + frame, bottom + size),
+                at(left, bottom + size),
+                at(left, bottom),
+            ]];
+            let (a, b) = (left + (frame - width) / 2.0, bottom + (size - h) / 2.0);
+            for s in &strokes {
+                lines.push(s.iter().map(|(x, y)| at(a + x, b + y)).collect());
+            }
+            (lines, frame, left, bottom)
+        };
+        #[cfg(feature = "presentation")]
+        let (mut lines, frame, left, bottom) = {
+            let c = crate::presentation::datum(label);
+            let scale = h / 3.0;
+            let ink = crate::presentation::font().text(label, 3.0);
+            let frame = (2.0 * h).max((ink.max[0] - ink.min[0] + 1.8) * scale);
+            let left = (tip[u] - frame / 2.0).max(self.right + h);
+            self.right = left + frame;
+            let bottom = self.hi[v].max(tip[v]) + 2.0 * h;
+            let mut lines = vec![vec![
+                at(left, bottom),
+                at(left + frame, bottom),
+                at(left + frame, bottom + 2.0 * h),
+                at(left, bottom + 2.0 * h),
+                at(left, bottom),
+            ]];
+            // Use the shared datum's text, with the existing feature-contact stem/triangle.
+            let text_only = crate::presentation::Callout {
+                strokes: vec![],
+                ..c
+            };
+            lines.extend(text_only.polylines().iter().map(|l| {
+                l.iter()
+                    .map(|p| at(left + frame / 2.0 + p[0] * scale, bottom + h + p[1] * scale))
+                    .collect()
+            }));
+            (lines, frame, left, bottom)
+        };
         let half = h / 2.0;
         let (tu, tv) = (tip[u], tip[v]);
         let triangle = vec![

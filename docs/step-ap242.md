@@ -23,6 +23,55 @@ OpenCascade XCAF (`STEPCAFControl`) is a cross-check with a verdict for every di
 specify-core's current PMI handling is shaped by OpenCascade's round-trip defects; none of that
 shape is inherited (see [Anti-requirements](#anti-requirements)).
 
+## Graphical callouts (#137)
+
+`haecceity::presentation` owns requirement notation and local 2D callout geometry, ported
+at the copyright owner's direction from Draftwright aaa7a73 (`dims/tolerance.rs`,
+`dims/gdt.rs`, `text.rs`). Drawing precision, sheet layout, strips, lanes, authored wording,
+and Spec-authored controls remain in Draftwright; no Draftwright dependency is introduced.
+The `presentation` Cargo feature is **default-on** in haecceity and quiddity: Specify's
+ordinary writes must carry visible PMI. `default-features = false` retains semantic-only
+size/location/tolerance writing and the old datum graphics. No-PMI writes retain their
+bytes; append never redraws foreign PMI or its presentation.
+
+Every newly written dimension and geometric tolerance gets real drawn content: dimension
+values, signed deviations (unsigned zero per ISO 129-1), limits or an ISO 286 class; control
+frame cells, characteristic strokes, diameter/spherical zone signs, material rings and
+ordered datum letters. IBM Plex Mono outlines (full 135,580-byte OFL font, `ttf-parser`
+without unused layout/variable-font features) are tessellated as closed curves, with no
+fill triangles. Datums use the same outline renderer. The pre-existing simple datum
+placement/feature extension is reused, with no sheet layout engine.
+
+The graph is `COORDINATES_LIST` → `TESSELLATED_CURVE_SET` →
+`TESSELLATED_GEOMETRIC_SET` (CAx-IF type name, e.g. `diameter dimension`, `position`,
+`profile of surface`) → styled `TESSELLATED_ANNOTATION_OCCURRENCE` → `DRAUGHTING_CALLOUT`.
+Each callout is in an `ANNOTATION_PLANE`, placed near the feature. All planes belong to
+one part draughting model. The wrapper and the feature association are necessary for
+Solid Edge 2026 to retain the annotation; the plane prevents misplaced graphics.
+
+Each dimension/tolerance callout has **two** `DRAUGHTING_MODEL_ITEM_ASSOCIATION`s: to its
+semantic entity (`PMI representation to presentation link`) and to its semantic target
+(`applies_to`, location's relating aspect, or `toleranced_shape_aspect`). There is an
+EXPRESS conflict in the hand-tested NIST-style recipe: inherited
+`item_identified_representation_usage.UR1` prohibits two associations with the same
+representation and callout; UR2 prohibits reusing a definition in a representation.
+NIST CTC-01 itself uses that duplicate pair. To meet the requirement of no new rule
+violations, the writer uses a per-callout `SYMBOL_REPRESENTATION` (same 3D context and
+callout) for the feature association. The semantic association uses the part draughting
+model unless a datum has already used that definition, in which case it also gets its
+own symbol representation. The callout still appears only once in the part draughting
+model. No rule is skipped or exempted. This necessary difference from the hand-tested
+recipe needs the maintainer's Solid Edge re-test.
+
+Typed Dimensions/GD&T versus Symbolic PMI remains open for that re-test. Composite aspects,
+repositioned sets, set/tolerance names were already ruled out; no `MBD_0` characterized
+object or mechanical-design/draughting saved-view relationship is added.
+
+Feature-on writer goldens and fresh OpenCascade captures live in
+`tests/fixtures/ap242/write-presentation/`; `write/` retains feature-off goldens unchanged.
+`export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the new
+folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture the legacy folder.
+
 ## Maintainer decisions (2026-10-08)
 
 These override anything below and any stream brief that says otherwise.

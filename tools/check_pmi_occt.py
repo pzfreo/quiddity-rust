@@ -42,6 +42,7 @@ XCAF transfer, safe label walking and the semantic capture still run.
 
 from __future__ import annotations
 
+import os
 import gzip
 import importlib.util
 import json
@@ -145,7 +146,7 @@ class WrittenCapture(Capture):
 
 capture_pmi_occt.Capture = WrittenCapture
 
-WRITE = Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "ap242" / "write"
+WRITE = Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "ap242" / os.environ.get("QUIDDITY_PMI_WRITE_FIXTURES", "write-presentation")
 
 
 def child(mode: str, path: str) -> None:

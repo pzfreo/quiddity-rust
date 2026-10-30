@@ -14,12 +14,13 @@ categories = ["science", "parser-implementations"]
 include = ["/src", "/README.md", "/CHANGELOG.md", "/LICENSE", "/NOTICE"]
 
 [features]
-default = []
+default = ["presentation"]
+presentation = ["haecceity/presentation"]
 f3d = ["haecceity/f3d"]
 
 [dependencies]
 flate2 = "1.1.10"
-haecceity = { path = "crates/haecceity", version = "=0.2.5" }
+haecceity = { path = "crates/haecceity", version = "=0.2.5", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = { version = "1.0.151", features = ["float_roundtrip"] }
 sha2 = "0.11.0"

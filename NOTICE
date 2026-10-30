@@ -32,3 +32,11 @@ The tests/fixtures/revisions/gramil_shaft.* STEP revisions and generator recipe
 are Paul Fremantle's gramil shaft (https://github.com/pzfreo/gramil, 9171ef6),
 supplied for #134 under Open Community License v1. Their separate licence is
 included as tests/fixtures/revisions/LICENSE-gramil.
+
+For #137, presentation notation, frame geometry, text outlines and their tests are ported
+from pzfreo/draftwright-rust at aaa7a73 (src/dims/tolerance.rs, src/dims/gdt.rs, src/text.rs,
+tests/spec_gdt.rs, tests/text.rs and its oracle), Copyright 2026 Paul Fremantle, at the
+copyright owner's direction for this Apache-2.0 project. The IBM Plex fonts in
+crates/haecceity/fonts are SIL Open Font License 1.1; their copyright notices and licenses
+are retained beside the font files. Only IBM Plex Mono is embedded in writer output code;
+Sans Condensed is used by the ported outline regression test.

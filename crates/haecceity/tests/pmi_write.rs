@@ -797,6 +797,13 @@ fn datum_symbols(w: &Written) -> Vec<String> {
         let [feature, model, callout] = refs_of(&w.doc, id)[..] else {
             panic!("#{id}: {}", w.text(id));
         };
+        // This helper checks datum symbols only. Other PMI's complete graph is checked by
+        // every_requirement_has_a_callout below, including associations to datum features.
+        let occurrence = refs_of(&w.doc, callout)[0];
+        let set = *refs_of(&w.doc, occurrence).last().unwrap();
+        if !w.text(set).contains("TESSELLATED_GEOMETRIC_SET('datum'") {
+            continue;
+        }
         assert!(
             w.text(id)
                 .contains("'PMI representation to presentation link'")
@@ -3809,7 +3816,11 @@ fn written_cases() -> Vec<(String, Option<Vec<u8>>)> {
 }
 
 fn write_dir() -> PathBuf {
-    common::fixtures().join("ap242/write")
+    common::fixtures().join(if cfg!(feature = "presentation") {
+        "ap242/write-presentation"
+    } else {
+        "ap242/write"
+    })
 }
 
 /// Development aid: writes the written cases to `tests/fixtures/ap242/write/`
@@ -5056,5 +5067,228 @@ fn a_location_dimensions_reference_feature_is_shared() {
             let v = new_violations(&g.doc, &w2.doc);
             assert!(v.is_empty(), "{case} {mode:?}: {v:#?}");
         }
+    }
+}
+
+#[cfg(feature = "presentation")]
+#[test]
+fn every_requirement_has_a_callout() {
+    use haecceity::presentation;
+    let f = spool();
+    let mut p = four_datums();
+    p.dimensions = vec![
+        size(0, "10.0", DimTolerance::Deviations(bounds("0.0762", "0.0"))),
+        size(
+            1,
+            "20.0",
+            DimTolerance::Fit {
+                class: fit("H7"),
+                limits: None,
+            },
+        ),
+        size(2, "12.0", DimTolerance::Limits(bounds("12.1", "11.9"))),
+        Dimension {
+            kind: DimensionKind::Location {
+                from: FeatureId(0),
+                to: FeatureId(1),
+                kind: LocationKind::LinearDistance,
+                path: None,
+                directed: false,
+                angle: None,
+            },
+            nominal: Some(mm("30.0")),
+            tolerance: DimTolerance::Basic,
+            qualifier: None,
+            modifiers: vec![],
+            principle: None,
+        },
+    ];
+    for (_, kind) in ToleranceKind::ALL {
+        let mut t = tolerance(kind, ToleranceTarget::Feature(FeatureId(0)), "0.0254");
+        if kind.datums() == DatumRequirement::Required {
+            t.datums = Some(system(&[0, 1]));
+        }
+        p.tolerances.push(t);
+    }
+    // Also cover a semantic dimension as the tolerance's target, shared target features,
+    // and the ringed material and cylindrical zone symbols.
+    p.tolerances[9].target = ToleranceTarget::Dimension(DimensionId(0));
+    p.tolerances[9].zone = Some(Zone {
+        form: ZoneForm::WithinACylinder,
+        projected: None,
+        non_uniform: None,
+        runout_angle: None,
+        affected_plane: None,
+        affected_plane_kind: None,
+    });
+    p.tolerances[9]
+        .modifiers
+        .push(ToleranceModifier::MaximumMaterialRequirement);
+    p.tolerances[9].datums = Some(system(&[0, 1, 2]));
+    let w = written(&f, &p);
+    assert_verified(&f, &w, &p);
+    assert!(new_violations(&f.doc, &w.doc).is_empty());
+    let of = |name: &str| {
+        w.added()
+            .into_iter()
+            .filter(|&id| w.names(id).iter().any(|n| express::is_a(n, name)))
+            .collect::<Vec<_>>()
+    };
+    let callouts = of("draughting_callout");
+    assert_eq!(
+        callouts.len(),
+        p.datums.len() + p.dimensions.len() + p.tolerances.len()
+    );
+    assert_eq!(of("annotation_plane").len(), callouts.len());
+    assert_eq!(of("draughting_model").len(), 1);
+    assert_eq!(
+        of("draughting_model_item_association").len(),
+        p.datums.len() + 2 * (p.dimensions.len() + p.tolerances.len())
+    );
+    let expected: Vec<_> = p
+        .dimensions
+        .iter()
+        .map(|d| {
+            (
+                presentation::dimension_type(d),
+                presentation::dimension(d).cells.join(" | "),
+            )
+        })
+        .chain(p.tolerances.iter().map(|t| {
+            (
+                presentation::tolerance_type(t),
+                presentation::tolerance(t, &p).cells.join(" | "),
+            )
+        }))
+        .collect();
+    for (kind, text) in expected {
+        let callout = *callouts.iter().find(|&&id| {
+            let occurrence=refs_of(&w.doc,id)[0];
+            let set=*refs_of(&w.doc,occurrence).last().unwrap();
+            matches!(w.doc.get(id),Some(RawEntity::Simple { attributes,.. }) if attributes[0] == Attribute::String(text.clone())) &&
+                matches!(w.doc.get(set),Some(RawEntity::Simple { attributes,.. }) if attributes[0] == Attribute::String(kind.into()))
+        }).unwrap_or_else(|| panic!("missing {kind}: {text}"));
+        let occurrence = refs_of(&w.doc, callout)[0];
+        assert_eq!(w.names(occurrence), ["tessellated_annotation_occurrence"]);
+        let occurrence_refs = refs_of(&w.doc, occurrence);
+        assert_eq!(
+            w.names(occurrence_refs[0]),
+            ["presentation_style_assignment"]
+        );
+        let set = *occurrence_refs.last().unwrap();
+        assert!(
+            w.text(set)
+                .starts_with(&format!("TESSELLATED_GEOMETRIC_SET('{kind}'"))
+                || w.text(set)
+                    .contains(&format!("=TESSELLATED_GEOMETRIC_SET('{kind}'"))
+        );
+        let curves = refs_of(&w.doc, set)[0];
+        assert_eq!(w.names(curves), ["tessellated_curve_set"]);
+        let coordinates = refs_of(&w.doc, curves)[0];
+        // Real text and symbols, rather than one placeholder segment.
+        assert!(w.text(coordinates).len() > 200);
+        let links: Vec<_> = of("draughting_model_item_association")
+            .into_iter()
+            .filter(|&id| refs_of(&w.doc, id).last() == Some(&callout))
+            .collect();
+        assert_eq!(links.len(), 2, "{text}");
+        let a = refs_of(&w.doc, links[0]);
+        let b = refs_of(&w.doc, links[1]);
+        assert!(
+            w.names(a[1]) == ["draughting_model"] || w.names(a[1]) == ["symbol_representation"]
+        );
+        if w.names(a[1]) == ["symbol_representation"] {
+            assert_eq!(refs_of(&w.doc, a[1])[0], callout);
+        }
+        assert_eq!(w.names(b[1]), ["symbol_representation"]);
+        assert_eq!(refs_of(&w.doc, b[1])[0], callout);
+        assert!(
+            w.names(a[0])
+                .iter()
+                .any(|n| express::is_a(n, "dimensional_size")
+                    || express::is_a(n, "dimensional_location")
+                    || express::is_a(n, "geometric_tolerance"))
+        );
+        // Get the exact semantic endpoint, including complex tolerance instances.
+        let target = if w
+            .names(a[0])
+            .iter()
+            .any(|n| express::is_a(n, "dimensional_size"))
+        {
+            test_attribute(&w.doc, a[0], "dimensional_size", "applies_to")
+        } else if w
+            .names(a[0])
+            .iter()
+            .any(|n| express::is_a(n, "dimensional_location"))
+        {
+            test_attribute(
+                &w.doc,
+                a[0],
+                "shape_aspect_relationship",
+                "relating_shape_aspect",
+            )
+        } else {
+            test_attribute(
+                &w.doc,
+                a[0],
+                "geometric_tolerance",
+                "toleranced_shape_aspect",
+            )
+        };
+        assert_eq!(target, Some(&Attribute::EntityRef(b[0])), "{text}");
+        let plane = of("annotation_plane")
+            .into_iter()
+            .find(|&id| refs_of(&w.doc, id).contains(&callout))
+            .unwrap();
+        assert!(refs_of(&w.doc, of("draughting_model")[0]).contains(&plane));
+    }
+    let before = haecceity::step::read_step(f.doc.bytes()).unwrap();
+    let after = haecceity::step::read_step(w.doc.bytes()).unwrap();
+    assert_eq!(before.solids.len(), after.solids.len());
+    for i in 0..before.solids.len() {
+        assert_eq!(before.bad_faces(i), after.bad_faces(i));
+        assert_eq!(before.solid_is_valid(i), after.solid_is_valid(i));
+    }
+}
+
+#[cfg(feature = "presentation")]
+fn test_attribute<'d>(
+    doc: &'d Document,
+    id: u64,
+    entity: &str,
+    name: &str,
+) -> Option<&'d Attribute> {
+    match doc.get(id)? {
+        RawEntity::Simple {
+            name: kind,
+            attributes,
+            ..
+        } => {
+            let slots = express::TARGET.explicit_attributes(kind)?;
+            attributes.get(
+                slots
+                    .iter()
+                    .position(|a| a.entity == entity && a.name == name)?,
+            )
+        }
+        RawEntity::Complex { parts, .. } => {
+            let part = parts.iter().find(|p| p.name.eq_ignore_ascii_case(entity))?;
+            let decl = express::TARGET.entity(entity)?;
+            part.attributes
+                .get(decl.attributes.iter().position(|a| a.name == name)?)
+        }
+    }
+}
+
+#[test]
+fn an_empty_add_is_byte_identical_even_with_foreign_presentation() {
+    for file in [
+        "ap242/nist/nist_ctc_01_asme1_ap242-e1.stp.gz",
+        "ap242/specify/spool_fits.step.gz",
+        "golden_oriented_slots.step",
+    ] {
+        let f = fixture(file);
+        let w = write(&f, &[(PartId(0), PartPmi::default())], Mode::Add).unwrap();
+        assert_eq!(f.doc.bytes(), w.doc.bytes(), "{file}");
     }
 }
