@@ -222,6 +222,45 @@ pub fn datum_frame(letter: &str) -> Laid {
     laid
 }
 
+/// Standalone text-layer coverage for every characteristic the frame renderer emits.
+pub(super) fn glyph(c: char) -> Option<(f64, Vec<Vec<P2>>)> {
+    let name = match c {
+        '⏤' => "straightness",
+        '⏥' => "flatness",
+        '○' => "circularity",
+        '⌭' => "cylindricity",
+        '⌒' => "profile_line",
+        '⌓' => "profile_surface",
+        '∠' => "angularity",
+        '⟂' => "perpendicularity",
+        '∥' => "parallelism",
+        '⌖' => "position",
+        '◎' => "concentricity",
+        '⌯' => "symmetry",
+        '↗' => "circular_runout",
+        '⌰' => "total_runout",
+        _ => return None,
+    };
+    let mut laid = Laid::default();
+    characteristic(name, [1.5, 1.5], &mut laid);
+    let mut lines: Vec<_> = laid.strokes.iter().map(|s| s.to_vec()).collect();
+    for [x, y, r, a, b] in laid.arcs {
+        lines.push(
+            (0..=32)
+                .map(|i| {
+                    let t = (a + (b - a) * i as f64 / 32.).to_radians();
+                    [x + r * t.cos(), y + r * t.sin()]
+                })
+                .collect(),
+        );
+    }
+    for p in lines.iter_mut().flatten() {
+        p[0] *= 7.;
+        p[1] *= 7.;
+    }
+    Some((24., lines))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -273,43 +312,4 @@ mod tests {
         assert_eq!(frame.letters[1].text, "M");
         assert_eq!(frame.arcs.len(), 2); // Position and material rings.
     }
-}
-
-/// Standalone text-layer coverage for every characteristic the frame renderer emits.
-pub(super) fn glyph(c: char) -> Option<(f64, Vec<Vec<P2>>)> {
-    let name = match c {
-        '⏤' => "straightness",
-        '⏥' => "flatness",
-        '○' => "circularity",
-        '⌭' => "cylindricity",
-        '⌒' => "profile_line",
-        '⌓' => "profile_surface",
-        '∠' => "angularity",
-        '⟂' => "perpendicularity",
-        '∥' => "parallelism",
-        '⌖' => "position",
-        '◎' => "concentricity",
-        '⌯' => "symmetry",
-        '↗' => "circular_runout",
-        '⌰' => "total_runout",
-        _ => return None,
-    };
-    let mut laid = Laid::default();
-    characteristic(name, [1.5, 1.5], &mut laid);
-    let mut lines: Vec<_> = laid.strokes.iter().map(|s| s.to_vec()).collect();
-    for [x, y, r, a, b] in laid.arcs {
-        lines.push(
-            (0..=32)
-                .map(|i| {
-                    let t = (a + (b - a) * i as f64 / 32.).to_radians();
-                    [x + r * t.cos(), y + r * t.sin()]
-                })
-                .collect(),
-        );
-    }
-    for p in lines.iter_mut().flatten() {
-        p[0] *= 7.;
-        p[1] *= 7.;
-    }
-    Some((24., lines))
 }

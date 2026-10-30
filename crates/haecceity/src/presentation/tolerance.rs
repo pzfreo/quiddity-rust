@@ -161,6 +161,17 @@ pub fn band_text(upper: &crate::pmi::Decimal, lower: &crate::pmi::Decimal) -> St
     }
 }
 
+/// A requirement decimal as notation: strip a STEP-required terminal decimal point, never
+/// round digits or turn an exact requirement into a Rust float's Debug spelling.
+pub fn number(d: &crate::pmi::Decimal) -> String {
+    let s = d.as_str();
+    if let Some((mantissa, exponent)) = s.split_once(['e', 'E']) {
+        format!("{}E{exponent}", mantissa.trim_end_matches('.'))
+    } else {
+        s.trim_end_matches('.').to_string()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -199,16 +210,5 @@ mod tests {
         for bad in ["H4", "H12", "K7", "N7", "x6", "7", "H", "H 7", "Hh7"] {
             assert!(fit(bad).is_err(), "{bad}");
         }
-    }
-}
-
-/// A requirement decimal as notation: strip a STEP-required terminal decimal point, never
-/// round digits or turn an exact requirement into a Rust float's Debug spelling.
-pub fn number(d: &crate::pmi::Decimal) -> String {
-    let s = d.as_str();
-    if let Some((mantissa, exponent)) = s.split_once(['e', 'E']) {
-        format!("{}E{exponent}", mantissa.trim_end_matches('.'))
-    } else {
-        s.trim_end_matches('.').to_string()
     }
 }
