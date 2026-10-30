@@ -6556,13 +6556,8 @@ fn written_settings_have_one_notes_block_and_face_texture_symbols_with_valid_lin
         .iter()
         .find(|&&id| w.text(id).contains("GENERAL NOTES"))
         .unwrap();
-    let expected = std::iter::once("GENERAL NOTES".to_owned())
-        .chain(
-            presentation::notes::general_notes(&p)
-                .iter()
-                .map(|r| r.text.clone()),
-        )
-        .collect::<Vec<_>>()
+    let expected = presentation::notes::notes_block(&presentation::notes::general_notes(&p))
+        .cells
         .join("\n");
     assert_eq!(
         test_attribute(&w.doc, note, "representation_item", "name"),
@@ -6723,7 +6718,7 @@ fn absent_settings_add_no_notes_and_append_does_not_restate_foreign_settings() {
     assert_eq!(new_notes.len(), 1);
     assert_eq!(
         test_attribute(&w.doc, new_notes[0], "representation_item", "name"),
-        Some(&Attribute::String("GENERAL NOTES\nAdded only".into()))
+        Some(&Attribute::String("GENERAL NOTES\n1  Added only".into()))
     );
     let blank = written(&f, &PartPmi::default());
     assert!(

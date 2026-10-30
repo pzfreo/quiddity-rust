@@ -196,7 +196,8 @@ free `general note` values sorted by their explicit `note index` (stable input o
 otherwise). Material/general-tolerance title cells become `MATERIAL: …` and
 `GENERAL TOLERANCES …`; a default becomes `SURFACE FINISH … UNLESS OTHERWISE STATED`.
 Draftwright's process wording is retained: qualify bare values with `Coating:` or
-`Heat treatment:`, but preserve authored process prose. Free notes retain their text.
+`Heat treatment:`, but preserve authored process prose. Process/free rows use Draftwright’s `1  …` numbering and indented continuation lines;
+their underlying requirement text is unchanged.
 General-tolerance tables remain semantic tables, not invented class descriptions.
 All strings and symbol geometry are public through `haecceity::presentation::notes`.
 No settings means no block; lossless append does not restate carried properties.

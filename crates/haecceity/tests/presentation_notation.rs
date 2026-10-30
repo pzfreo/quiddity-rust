@@ -484,6 +484,9 @@ fn part_settings_have_shared_wording_and_indexed_general_notes() {
     let block = notes::notes_block(&rows);
     assert_eq!(block.runs[0].text, "GENERAL NOTES");
     assert_eq!(block.runs.len(), rows.len() + 1);
+    assert_eq!(block.runs[4].text, "1  Break sharp edges 0.2 max");
+    assert_eq!(block.runs[7].text, "4  First note");
+    assert_eq!(block.runs[8].text, "5  Second note");
     for (kind, text, expected) in [
         ("surface treatment", "Anodise black", "Anodise black"),
         ("surface treatment", "Zinc plated", "Zinc plated"),
@@ -497,6 +500,20 @@ fn part_settings_have_shared_wording_and_indexed_general_notes() {
         assert_eq!(notes::part_note_text(kind, text), expected);
     }
     assert!(notes::general_notes(&PartPmi::default()).is_empty());
+    let aliases = PartPmi {
+        attributes: vec![
+            attribute("coating", "Black", 0),
+            attribute("edges", "Deburr", 0),
+        ],
+        ..PartPmi::default()
+    };
+    assert_eq!(
+        notes::general_notes(&aliases)
+            .iter()
+            .map(|r| r.text.as_str())
+            .collect::<Vec<_>>(),
+        ["Deburr", "Coating: Black"]
+    );
     let mut p = p;
     for a in &mut p.attributes {
         a.on = Some(NoteOwner::Feature(FeatureId(0)));
@@ -518,4 +535,30 @@ fn editable_note_accents_and_micrometre_units_are_drawn() {
         presentation::text::glyph('é').unwrap().1.len()
             > presentation::text::glyph('e').unwrap().1.len()
     );
+}
+
+#[test]
+fn multiline_general_notes_keep_their_lines_and_clear_neighboring_rows() {
+    use presentation::notes::{self, Row, Source};
+    let rows = [
+        Row {
+            source: Source::Attribute(0),
+            text: "First line\nSecond line".into(),
+        },
+        Row {
+            source: Source::Attribute(1),
+            text: "café".into(),
+        },
+    ];
+    let block = notes::notes_block(&rows);
+    assert_eq!(block.runs[1].text, "1  First line\n   Second line");
+    for pair in block.letters.windows(2) {
+        let a = presentation::font().text(&pair[0].text, pair[0].size);
+        let b = presentation::font().text(&pair[1].text, pair[1].size);
+        assert!(pair[0].at[1] + a.min[1] > pair[1].at[1] + b.max[1]);
+        assert!(
+            (pair[0].at[0] + a.min[0] - (pair[1].at[0] + b.min[0])).abs() < 1e-12,
+            "left alignment"
+        );
+    }
 }

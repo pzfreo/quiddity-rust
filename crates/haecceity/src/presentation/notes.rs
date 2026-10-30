@@ -121,9 +121,12 @@ pub fn general_notes(p: &PartPmi) -> Vec<Row> {
                 })
                 .unwrap_or(i as i64);
             for (k, v) in &a.items {
-                if k == kind
-                    && let AttributeValue::Text(text) = v
-                {
+                let matches = k == kind
+                    || matches!(
+                        (kind, k.as_str()),
+                        ("edge condition", "edges") | ("surface treatment", "coating")
+                    );
+                if matches && let AttributeValue::Text(text) = v {
                     items.push((index, i, part_note_text(kind, text)));
                 }
             }
@@ -141,24 +144,53 @@ pub fn general_notes(p: &PartPmi) -> Vec<Row> {
 
 /// Left-aligned rows at the same capital height as dimensions, headed as Draftwright's table.
 pub fn notes_block(rows: &[Row]) -> Callout {
+    let mut number = 0;
     let lines: Vec<_> = std::iter::once("GENERAL NOTES".to_owned())
-        .chain(rows.iter().map(|r| r.text.clone()))
+        .chain(rows.iter().map(|r| {
+            if matches!(r.source, Source::Attribute(_)) {
+                number += 1;
+                // Draftwright notes.rs::rows: first line numbered, continuations indented.
+                r.text
+                    .lines()
+                    .enumerate()
+                    .map(|(i, line)| {
+                        if i == 0 {
+                            format!("{number}  {line}")
+                        } else {
+                            format!("   {line}")
+                        }
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            } else {
+                r.text.clone()
+            }
+        }))
         .collect();
     let mut c = Callout::default();
     let height = 3.;
     let block_width = lines.iter().map(|l| width(l, height)).fold(0., f64::max);
-    c.size = [block_width + 3.6, lines.len() as f64 * 1.6 * height + 3.6];
-    for (i, line) in lines.iter().enumerate() {
+    let heights: Vec<_> = lines
+        .iter()
+        .map(|l| {
+            let ink = font().text(l, height);
+            (ink.max[1] - ink.min[1]).max(height)
+        })
+        .collect();
+    c.size = [
+        block_width + 3.6,
+        heights.iter().sum::<f64>() + (lines.len() - 1) as f64 * 0.6 * height + 3.6,
+    ];
+    let mut top = c.size[1] - 1.8;
+    for (line, row_height) in lines.iter().zip(heights) {
         let text = Text {
             text: line.clone(),
-            at: [
-                1.8 + width(line, height) / 2.,
-                c.size[1] - 1.8 - height / 2. - i as f64 * 1.6 * height,
-            ],
+            at: [1.8 + width(line, height) / 2., top - row_height / 2.],
             size: height,
         };
         c.letters.push(text.clone());
         c.runs.push(text);
+        top -= row_height + 0.6 * height;
     }
     c.cells = lines;
     c
