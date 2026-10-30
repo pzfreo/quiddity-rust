@@ -157,7 +157,11 @@ rules (all copies passed SFA 5.41):
 - A `DIMENSIONAL_LOCATION` never directly references a `DATUM_FEATURE`. Each such endpoint
   gets a private `DIMENSION` aspect on the same faces. Shared plain per-face GISU carriers
   avoid duplicating (representation, item) usages and preserve IIRU UR1/UR2. Tolerances still
-  share the datum feature. On lossless append, an immutable foreign datum's existing carrier
+  share the datum feature. OCCT also requires a datum with component-carried geometry
+  to be composite when it has only one face; otherwise its datum and a flatness tolerance
+  on it disappear from OCCT's semantic reading. Its geometry-component and datum-establishment
+  relationships satisfy the composite inverse cardinality. Regression keeps all pre-existing
+  OCCT comparisons without new exceptions. On lossless append, an immutable foreign datum's existing carrier
   is reached through composition without editing its entities or duplicating its GISU.
 - A datum annotation plane must contain its face normal, rather than be coplanar with the
   face; its leader starts inside that face, not at a shared corner vertex.
@@ -199,7 +203,7 @@ shortest stagger and ladder clearance. A dash means the pair is byte-identical.
 | `pmi_gaps` | P | — |
 | `pmi_gaps_gram` | P | — |
 | `spool_fits_intent` | C, D, P | C, D |
-| `string_post_tapped_intent` | L, D, P | L, D |
+| `string_post_tapped_intent` | C, L, D, P | C, L, D |
 | `thumbwheel_notes_add` | P | — |
 | `thumbwheel_thread_knurl_intent` | D, P | D |
 
@@ -208,6 +212,15 @@ configurations. `thumbwheel_notes_add` keeps all foreign datums/notes and their 
 only its newly added flatness callout changes. Fresh OCP captures confirm the same semantic
 counts and preserve every comparison/verdict. The no-new-PMI cases retain their original
 STEP captures rather than replacing them solely for the available Python loader's status.
+
+The `pmi_notes` property-chain expectation follows `write/every_kind` renumbering:
+inspection #6673 → #6677 and semantic text #6679 → #6683, from the new location aspect and
+shared carrier. Description and `GENERAL_PROPERTY` equality assertions are unchanged.
+Sample geometry expectations replace the old bitwise comparison with independent interior,
+normal, frame-distance and text-height checks; leaders may include a short normal-first bend.
+The existing OCCT fit-mean diagnostic follows renumbering only: feature-on #6558 → #6560
+and feature-off #6615 → #6617. Its value comparison, verdict and explanation are unchanged;
+no missing-datum/tolerance exception is added.
 
 ## Maintainer decisions (2026-10-08)
 

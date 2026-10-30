@@ -5420,9 +5420,9 @@ fn all_three_specify_samples_have_real_linear_dimensions_and_local_callouts() {
     }
 }
 
-/// Round-1 Solid Edge evidence: B is not missing presentation or circular edges. It is
-/// a two-face planar datum unused by GD&T; A is a one-face cylinder used by both controls.
-/// Preserve those semantics rather than guessing an importer-specific rewrite.
+/// Keep the measured faces, circular edges and datum references: B is a two-face
+/// planar datum unused by GD&T; A is a one-face cylinder used by both controls.
+/// Round 4 changes the aggregate's entity type and location endpoints, not those facts.
 #[cfg(feature = "presentation")]
 #[test]
 fn spindle_datums_have_complete_links_and_circular_edges() {
@@ -6223,15 +6223,14 @@ fn composite_features_and_locations_have_non_datum_geometry_carriers() {
                 if test_attribute(doc, r, "item_identified_representation_usage", "definition")
                     == Some(&Attribute::EntityRef(id))
                     && matches!(doc.get(r),Some(RawEntity::Simple{name,..})if name.eq_ignore_ascii_case("geometric_item_specific_usage"))
-                {
-                    if let Some(Attribute::EntityRef(face)) = test_attribute(
+                    && let Some(Attribute::EntityRef(face)) = test_attribute(
                         doc,
                         r,
                         "item_identified_representation_usage",
                         "identified_item",
-                    ) {
-                        faces.insert(*face);
-                    }
+                    )
+                {
+                    faces.insert(*face);
                 }
                 if matches!(doc.get(r),Some(RawEntity::Simple{name,..})if name.eq_ignore_ascii_case("shape_aspect_relationship"))
                     && test_attribute(doc, r, "shape_aspect_relationship", "relating_shape_aspect")
@@ -6253,6 +6252,24 @@ fn composite_features_and_locations_have_non_datum_geometry_carriers() {
                 let mut face_set = BTreeSet::new();
                 geometry(&w.doc, id, 0, &mut face_set);
                 face_set.retain(|id| f.parts[0].faces.contains(id));
+                if is(id, "datum_feature")
+                    && !face_set.is_empty()
+                    && !w.doc.referrers(id).iter().any(|&r| {
+                        w.names(r) == ["geometric_item_specific_usage"]
+                            && test_attribute(
+                                &w.doc,
+                                r,
+                                "item_identified_representation_usage",
+                                "definition",
+                            ) == Some(&Attribute::EntityRef(id))
+                    })
+                {
+                    assert!(
+                        is(id, "composite_shape_aspect"),
+                        "a datum with shared component geometry must be composite for OCCT: {}",
+                        w.text(id)
+                    );
+                }
                 if face_set.len() > 1 {
                     assert!(
                         is(id, "composite_shape_aspect"),
@@ -6349,4 +6366,52 @@ fn a_multi_face_area_target_is_composite_with_per_face_usages() {
             .count(),
         2
     );
+}
+
+#[test]
+fn a_location_on_a_datum_group_shares_its_datum_members_geometry_once() {
+    let f = spool();
+    let mut d = size(0, "10.", DimTolerance::Basic);
+    d.kind = DimensionKind::Location {
+        from: FeatureId(2),
+        to: FeatureId(3),
+        kind: LocationKind::LinearDistance,
+        path: None,
+        directed: false,
+        angle: None,
+    };
+    let p = PartPmi {
+        features: vec![
+            faces(&[0]),
+            faces(&[1]),
+            Feature::Group {
+                members: vec![FeatureId(0), FeatureId(1)],
+                kind: GroupKind::PatternOfFeatures,
+            },
+            faces(&[2]),
+        ],
+        datums: vec![datum("A", 0), datum("B", 1), datum("C", 2)],
+        dimensions: vec![d],
+        ..PartPmi::default()
+    };
+    let w = written(&f, &p);
+    assert_verified(&f, &w, &p);
+    assert!(new_violations(&f.doc, &w.doc).is_empty());
+    let loc = root(
+        &w.doc,
+        &w.read.provenance.parts[0].dimensions[0],
+        &["dimensional_location"],
+    );
+    for field in ["relating_shape_aspect", "related_shape_aspect"] {
+        let Some(Attribute::EntityRef(id)) =
+            test_attribute(&w.doc, loc, "shape_aspect_relationship", field)
+        else {
+            panic!("endpoint")
+        };
+        assert!(
+            !w.names(*id)
+                .iter()
+                .any(|n| express::is_a(n, "datum_feature"))
+        );
+    }
 }

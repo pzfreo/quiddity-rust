@@ -71,7 +71,7 @@ impl Layout {
         if geom::dominant_axis(view) == 1 {
             view = geom::scale(view, -1.);
         }
-        self.draw(anchor, along, outward, view, c, false, None)
+        self.draw(anchor, [along, outward, view], c, false, None)
     }
     /// The datum's plane contains its face normal, and the leader leaves the face normally.
     pub fn on_face(&mut self, anchor: V3, outward: V3, c: &Callout) -> Placed {
@@ -89,27 +89,32 @@ impl Layout {
             else {
                 continue;
             };
-            let mut normal = geom::unit(geom::cross(along, outward)).unwrap();
+            let Some(mut normal) = geom::unit(geom::cross(along, outward)) else {
+                continue;
+            };
             let axis = geom::dominant_axis(normal);
             if (axis == 1 && normal[axis] > 0.) || (axis != 1 && normal[axis] < 0.) {
                 normal = geom::scale(normal, -1.);
             }
             let mut candidate = self.clone();
-            let p = candidate.draw(anchor, along, outward, normal, c, true, Some(extent));
+            let p = candidate.draw(anchor, [along, outward, normal], c, true, Some(extent));
             let reach = p
                 .lines
                 .last()
-                .unwrap()
-                .iter()
+                .into_iter()
+                .flatten()
                 .map(|q| geom::dist(anchor, *q))
                 .fold(0., f64::max);
             if best.as_ref().is_none_or(|(r, _, _)| reach < *r) {
                 best = Some((reach, p, candidate));
             }
         }
-        let (_, p, layout) = best.unwrap();
-        *self = layout;
-        p
+        if let Some((_, p, layout)) = best {
+            *self = layout;
+            p
+        } else {
+            self.face_callout(anchor, outward, c, Some(extent))
+        }
     }
     fn face_callout(
         &mut self,
@@ -125,18 +130,17 @@ impl Layout {
         if (k == 1 && view[k] > 0.) || (k != 1 && view[k] < 0.) {
             view = geom::scale(view, -1.);
         }
-        self.draw(anchor, along, outward, view, c, true, extent)
+        self.draw(anchor, [along, outward, view], c, true, extent)
     }
     fn draw(
         &mut self,
         anchor: V3,
-        along: V3,
-        outward: V3,
-        normal: V3,
+        basis: [V3; 3],
         c: &Callout,
         face: bool,
         feature_extent: Option<f64>,
     ) -> Placed {
+        let [along, outward, normal] = basis;
         let h = self.height;
         let scale = (h / 3.).min(0.32 * self.bounds.max_extent().max(h) / c.size[0].max(1.));
         let width = c.size[0] * scale;

@@ -2911,13 +2911,24 @@ impl<'a> PartPlan<'a> {
         for d in &p.dimensions {
             if let DimensionKind::Location { from, to, .. } = d.kind {
                 for f in [from, to] {
-                    let c = self.canonical[f.0];
-                    if self.is_datum_aspect(c)
-                        && let Feature::Items(items) = &p.features[c]
-                    {
-                        for k in self.usage_keys(em, &st, items)? {
-                            *keys.entry(k.clone()).or_insert(0) += 1;
-                            location_datum_keys.insert(k);
+                    let mut pending = vec![f.0];
+                    let mut visited = BTreeSet::new();
+                    while let Some(f) = pending.pop() {
+                        let c = self.canonical[f];
+                        if !visited.insert(c) || !self.is_datum_aspect(c) {
+                            continue;
+                        }
+                        match &p.features[c] {
+                            Feature::Items(items) => {
+                                for k in self.usage_keys(em, &st, items)? {
+                                    *keys.entry(k.clone()).or_insert(0) += 1;
+                                    location_datum_keys.insert(k);
+                                }
+                            }
+                            Feature::Group { members, .. } => {
+                                pending.extend(members.iter().map(|f| f.0))
+                            }
+                            Feature::Derived { .. } => {}
                         }
                     }
                 }
@@ -3997,9 +4008,19 @@ impl<'a> PartPlan<'a> {
         let r = match &self.pmi.features[c] {
             Feature::Items(items) => {
                 let role = self.roles.get(&c).copied().unwrap_or(Role::Plain);
+                // OCCT follows a datum's component carriers only when it is composite.
+                // A single-face datum sharing a location carrier also has two outgoing
+                // relationships (geometry and datum establishment), satisfying CSA's
+                // inverse cardinality without duplicating a GISU or relaxing UR1.
+                let composite = items.iter().copied().collect::<BTreeSet<_>>().len() > 1
+                    || (self.is_datum_aspect(c)
+                        && self
+                            .usage_keys(em, st, items)?
+                            .iter()
+                            .any(|k| st.shared_keys.contains(k) && st.owners.get(k) != Some(&c)));
                 let types = |ty| {
                     let mut types = vec![ty];
-                    if items.iter().copied().collect::<BTreeSet<_>>().len() > 1 {
+                    if composite {
                         types.push("composite_shape_aspect");
                     }
                     types
