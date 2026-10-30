@@ -477,13 +477,16 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
     // For #134 the supporting plate contracts its convex edge treatments. Shared
     // supporting-plane Green moments replace surface quadrature for the planar
     // skins: this also corrects ~1e-7 mm of numerical error in its centroid.
-    // Pin that value explicitly, retaining the existing 1e-9 comparison tolerance;
-    // faces and sizes stay identical.
+    // The centroid moves by under 1e-6 mm (exact digits differ by platform libm);
+    // faces and sizes stay identical under the existing 1e-9 comparison.
     let a = old.features.iter().find(|f| f.id == "plates/0").unwrap();
     let b = by_id("plates/0").unwrap();
+    let (pa, pb) = (a.position.unwrap(), b.position.unwrap());
+    let moved = (0..3).map(|i| (pa[i] - pb[i]).powi(2)).sum::<f64>().sqrt();
+    assert!(moved < 1e-6, "#134: plates/0 centroid moved {moved} mm");
     let mut restored = a.clone();
     restored.neighbourhood = b.neighbourhood.clone();
-    restored.position = Some([-1.3336865523326236, -1.2085523834149816, -22.01884665992659]);
+    restored.position = b.position;
     assert!(
         same(&restored, b),
         "#134: shared supporting-plane moments and contracted treatments"
