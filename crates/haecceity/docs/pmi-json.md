@@ -6,13 +6,21 @@
 representations of EXPRESS schemas and data, including EXPRESS-to-XSD mapping;
 it is not a JSON binding. Its XML exchange structure is an entity graph.
 
-AP242 edition 4 includes the edition 5 domain model, ISO/TS 10303-4442:2025.
+AP242 edition 4 includes the edition 5 domain model,
+[ISO/TS 10303-4442:2025](https://www.iso.org/standard/91590.html), whose published
+scope explicitly names the domain-object XML Schema.
 The [ISO domain-model XSD location](https://standards.iso.org/iso/ts/10303/-4442/ed-5/tech/xml-schema/domain_model/)
 and [MBx-IF ed4 Domain Model XML practice](https://www.mbx-if.org/home/wp-content/uploads/2025/10/rec_prac_ap242xml_assy_struct_v4.0.pdf)
 identify XML as the implemented domain-model binding. The
 [AP242 ed4 project](https://atlas.afnet.fr/en/iso-step-ap242-edition-4/)
 also lists web services using JSON. That is evidence of JSON work, not enough to
 claim an available normative JSON encoding of all EXPRESS or semantic PMI.
+
+Related ISO JSON does exist: [ISO/TS 10303-4443:2022](https://www.iso.org/standard/83491.html)
+includes a domain-object OpenAPI JSON Schema for AP243/MoSSEC. That is a
+published, domain-specific API model; it supplies neither a generic EXPRESS
+instance encoding nor AP242 PMI objects to reuse here. It must not be mistaken
+for the AP242 -4442 XML domain model.
 
 A public [experimental EXPRESS JSON encoding, v1.0.0.0, 2026-03-10](https://spatialcompute3d.com/blogs/express_json/express_json.html)
 exists. It maps Part 21 entity instances and SELECTs to JSON arrays. It calls
