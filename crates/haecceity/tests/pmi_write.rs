@@ -6441,6 +6441,13 @@ fn composite_features_and_locations_have_non_datum_geometry_carriers() {
                 let mut face_set = BTreeSet::new();
                 geometry(&w.doc, id, 0, &mut face_set);
                 face_set.retain(|id| f.parts[0].faces.contains(id));
+                if face_set.len() == 1 {
+                    assert!(
+                        !is(id, "composite_shape_aspect"),
+                        "a single face cannot be composite: {}",
+                        w.text(id)
+                    );
+                }
                 if is(id, "datum_feature") && face_set.len() == 1 {
                     assert!(
                         !is(id, "composite_shape_aspect"),
@@ -6496,12 +6503,9 @@ fn composite_features_and_locations_have_non_datum_geometry_carriers() {
             }
         }
         assert!(
-            locations > 0,
-            "sample must exercise private location endpoints"
+            composites > 0 && locations > 0,
+            "sample must exercise both multi-face aspects and private location endpoints"
         );
-        if name != "plate" {
-            assert!(composites > 0, "sample must exercise multi-face aspects");
-        }
         assert_composite_components(&w.doc);
         assert_eq!(w.read.parts[0].datums.len(), count);
         sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
