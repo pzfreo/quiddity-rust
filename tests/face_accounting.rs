@@ -474,13 +474,20 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
         .filter(|a| by_id(&a.id).is_none_or(|b| !same(*a, b)))
         .map(|a| a.id.as_str())
         .collect();
-    // For #134 the supporting plate contracts its convex edge treatments. Its
-    // faces, placement and sizes stay identical; only that neighbourhood changes.
+    // For #134 the supporting plate contracts its convex edge treatments. Shared
+    // supporting-plane Green moments replace surface quadrature for the planar
+    // skins: this also corrects ~1e-7 mm of numerical error in its centroid.
+    // Pin that value explicitly, retaining the existing 1e-9 comparison tolerance;
+    // faces and sizes stay identical.
     let a = old.features.iter().find(|f| f.id == "plates/0").unwrap();
     let b = by_id("plates/0").unwrap();
     let mut restored = a.clone();
     restored.neighbourhood = b.neighbourhood.clone();
-    assert!(same(&restored, b));
+    restored.position = Some([-1.3336865523326236, -1.2085523834149816, -22.01884665992659]);
+    assert!(
+        same(&restored, b),
+        "#134: shared supporting-plane moments and contracted treatments"
+    );
     let count = |f: &correspondence::FeatureFingerprint, text: &str| {
         f.neighbourhood
             .iter()
