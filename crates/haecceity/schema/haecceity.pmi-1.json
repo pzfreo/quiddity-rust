@@ -2361,7 +2361,7 @@
                 "standard": {
                   "anyOf": [
                     {
-                      "$ref": "#/$defs/crate::pmi::standards::Iso2768"
+                      "$ref": "#/$defs/Iso2768"
                     },
                     {
                       "type": "null"
@@ -3413,21 +3413,7 @@
         "holes": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "value": {
-                "$ref": "#/$defs/Hole"
-              }
-            },
-            "required": [
-              "id",
-              "value"
-            ],
-            "additionalProperties": false
+            "$ref": "#/$defs/Hole"
           }
         },
         "material": {
@@ -3503,41 +3489,13 @@
         "geometry": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "value": {
-                "$ref": "#/$defs/Geometry"
-              }
-            },
-            "required": [
-              "id",
-              "value"
-            ],
-            "additionalProperties": false
+            "$ref": "#/$defs/Geometry"
           }
         },
         "derived_geometry": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "value": {
-                "$ref": "#/$defs/DerivedGeometry"
-              }
-            },
-            "required": [
-              "id",
-              "value"
-            ],
-            "additionalProperties": false
+            "$ref": "#/$defs/DerivedGeometry"
           }
         }
       },
@@ -3590,8 +3548,15 @@
           "type": "object",
           "properties": {
             "fingerprint": {
-              "type": "string",
-              "minLength": 1
+              "oneOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "$ref": "#/$defs/SupportKey"
+                }
+              ]
             }
           },
           "required": [
@@ -3714,6 +3679,74 @@
           "additionalProperties": false
         }
       ]
+    },
+    "LinearClass": {
+      "enum": [
+        "f",
+        "m",
+        "c",
+        "v"
+      ]
+    },
+    "GeometricClass": {
+      "enum": [
+        "H",
+        "K",
+        "L"
+      ]
+    },
+    "Iso2768": {
+      "type": "object",
+      "properties": {
+        "linear": {
+          "$ref": "#/$defs/LinearClass"
+        },
+        "geometric": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeometricClass"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "linear",
+        "geometric"
+      ],
+      "additionalProperties": false
+    },
+    "SupportKey": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "enum": [
+            1,
+            2
+          ]
+        },
+        "faces": {
+          "type": "string",
+          "minLength": 1
+        },
+        "support": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "minItems": 1,
+          "maxItems": 1
+        }
+      },
+      "required": [
+        "schema",
+        "faces",
+        "support"
+      ],
+      "additionalProperties": false
     }
   }
 }

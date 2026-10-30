@@ -13,9 +13,12 @@ description = "An exact B-rep geometry kernel in pure Rust: STEP import, rays, c
 [features]
 default = ["presentation"]
 presentation = []
+json = ["dep:serde", "dep:serde_json"]
 f3d = ["dep:cadmpeg-codec-f3d", "dep:cadmpeg-codec-step", "dep:cadmpeg-core", "dep:cadmpeg-ir"]
 
 [dependencies]
+serde = { version = "1.0.229", features = ["derive"], optional = true }
+serde_json = { version = "1.0.151", optional = true }
 cadmpeg-codec-f3d = { version = "=0.6.7", optional = true }
 cadmpeg-codec-step = { version = "=0.6.7", optional = true }
 cadmpeg-core = { version = "=0.6.7", optional = true }

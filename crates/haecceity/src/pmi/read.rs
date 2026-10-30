@@ -71,6 +71,8 @@ pub fn read(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadErr
         provenance,
         identifiers,
         accounting,
+        #[cfg(feature = "json")]
+        json_carriers: r.json_carriers,
     })
 }
 
@@ -128,6 +130,8 @@ impl MeasureError {
 }
 
 struct Reader<'a> {
+    #[cfg(feature = "json")]
+    json_carriers: BTreeMap<(PartId, String, usize), u64>,
     doc: &'a Document,
     parts: &'a [PartDefinition],
     edition: &'static Edition,
@@ -345,6 +349,8 @@ impl<'a> Reader<'a> {
             .map(|(i, p)| (p.shape, i))
             .collect();
         Reader {
+            #[cfg(feature = "json")]
+            json_carriers: BTreeMap::new(),
             doc,
             parts,
             edition,
@@ -520,6 +526,19 @@ impl<'a> Reader<'a> {
     /// `id_attribute`s naming `id` (§5.1 Figure 4): part of the item's construct.
     fn id_attributes(&mut self, id: u64) -> Vec<u64> {
         self.referrers_by(id, "id_attribute", "id_attribute", "identified_item")
+    }
+
+    fn item_identifier(
+        &mut self,
+        part: PartId,
+        _collection: &str,
+        _index: usize,
+        id: u64,
+    ) -> Option<String> {
+        #[cfg(feature = "json")]
+        self.json_carriers
+            .insert((part, _collection.to_string(), _index), id);
+        self.identifier(part, id)
     }
 
     fn identifier(&mut self, part: PartId, id: u64) -> Option<String> {
@@ -1368,7 +1387,12 @@ impl<'a> Reader<'a> {
                 let fid = FeatureId(st.pmi.features.len());
                 st.pmi.features.push(f);
                 st.prov.features.push(ids(prov));
-                st.identifiers.features.push(self.identifier(st.id, id));
+                st.identifiers.features.push(self.item_identifier(
+                    st.id,
+                    "features",
+                    st.pmi.features.len() - 1,
+                    id,
+                ));
                 if let Some((definition, placement)) = st.holes.remove(&id) {
                     st.pmi.holes.push(Hole {
                         feature: fid,
@@ -2268,7 +2292,12 @@ impl<'a> Reader<'a> {
                     let id = DatumId(st.pmi.datums.len());
                     st.pmi.datums.push(datum);
                     st.prov.datums.push(ids(prov));
-                    st.identifiers.datums.push(self.identifier(st.id, d));
+                    st.identifiers.datums.push(self.item_identifier(
+                        st.id,
+                        "datums",
+                        st.pmi.datums.len() - 1,
+                        d,
+                    ));
                     st.datums.insert(d, id);
                 }
                 Err(e) => self.find(FindingKind::Nonconformance, part, d, &[], e.0),
@@ -2311,9 +2340,12 @@ impl<'a> Reader<'a> {
         let fid = FeatureId(st.pmi.features.len());
         st.pmi.features.push(Feature::Items(dedup_anchors(anchors)));
         st.prov.features.push(ids(prov));
-        st.identifiers
-            .features
-            .push(self.identifier(st.id, feature));
+        st.identifiers.features.push(self.item_identifier(
+            st.id,
+            "features",
+            st.pmi.features.len() - 1,
+            feature,
+        ));
         st.features.insert(feature, Some(fid));
     }
 
@@ -2542,9 +2574,12 @@ impl<'a> Reader<'a> {
                 let tid = DatumTargetId(st.pmi.datum_targets.len());
                 st.pmi.datum_targets.push(t);
                 st.prov.datum_targets.push(ids(prov));
-                st.identifiers
-                    .datum_targets
-                    .push(self.identifier(st.id, id));
+                st.identifiers.datum_targets.push(self.item_identifier(
+                    st.id,
+                    "datum_targets",
+                    st.pmi.datum_targets.len() - 1,
+                    id,
+                ));
                 Some(tid)
             }
             Err(e) => {
@@ -3148,7 +3183,12 @@ impl<'a> Reader<'a> {
             principle,
         });
         st.prov.dimensions.push(ids(prov));
-        st.identifiers.dimensions.push(self.identifier(st.id, id));
+        st.identifiers.dimensions.push(self.item_identifier(
+            st.id,
+            "dimensions",
+            st.pmi.dimensions.len() - 1,
+            id,
+        ));
         Some(did)
     }
 
@@ -3630,7 +3670,12 @@ impl<'a> Reader<'a> {
             description,
         });
         st.prov.tolerances.push(ids(prov));
-        st.identifiers.tolerances.push(self.identifier(st.id, id));
+        st.identifiers.tolerances.push(self.item_identifier(
+            st.id,
+            "tolerances",
+            st.pmi.tolerances.len() - 1,
+            id,
+        ));
         Some(tid)
     }
 
@@ -4184,7 +4229,12 @@ impl<'a> Reader<'a> {
             st.prov.tolerance_relations.push(ids(prov));
             st.identifiers
                 .tolerance_relations
-                .push(self.identifier(st.id, r));
+                .push(self.item_identifier(
+                    st.id,
+                    "tolerance_relations",
+                    st.pmi.tolerance_relations.len() - 1,
+                    r,
+                ));
         }
     }
 
@@ -4390,16 +4440,22 @@ impl<'a> Reader<'a> {
                             Item::Thread(t) => {
                                 st.pmi.threads.push(t);
                                 st.prov.threads.push(ids(prov));
-                                st.identifiers
-                                    .threads
-                                    .push(self.identifier(st.id, def_shape));
+                                st.identifiers.threads.push(self.item_identifier(
+                                    st.id,
+                                    "threads",
+                                    st.pmi.threads.len() - 1,
+                                    def_shape,
+                                ));
                             }
                             Item::Knurl(k) => {
                                 st.pmi.knurls.push(k);
                                 st.prov.knurls.push(ids(prov));
-                                st.identifiers
-                                    .knurls
-                                    .push(self.identifier(st.id, def_shape));
+                                st.identifiers.knurls.push(self.item_identifier(
+                                    st.id,
+                                    "knurls",
+                                    st.pmi.knurls.len() - 1,
+                                    def_shape,
+                                ));
                             }
                         }
                     }
@@ -4842,7 +4898,12 @@ impl<'a> Reader<'a> {
             general_property,
         });
         st.prov.attributes.push(ids(prov));
-        st.identifiers.attributes.push(self.identifier(st.id, pdef));
+        st.identifiers.attributes.push(self.item_identifier(
+            st.id,
+            "attributes",
+            st.pmi.attributes.len() - 1,
+            pdef,
+        ));
     }
 
     /// The `general_property` an attribute's property definition is associated with by its
@@ -4929,7 +4990,12 @@ impl<'a> Reader<'a> {
                     let mut p = base.clone();
                     p.push(item);
                     st.prov.general.push(ids(p));
-                    st.identifiers.general.push(self.identifier(st.id, pdef));
+                    st.identifiers.general.push(self.item_identifier(
+                        st.id,
+                        "general",
+                        st.pmi.general.len() - 1,
+                        pdef,
+                    ));
                     read_any = true;
                 } else {
                     self.find(
@@ -5031,7 +5097,12 @@ impl<'a> Reader<'a> {
                         .general
                         .push(GeneralTolerance::Table { name: tname, cells });
                     st.prov.general.push(ids(p));
-                    st.identifiers.general.push(self.identifier(st.id, table));
+                    st.identifiers.general.push(self.item_identifier(
+                        st.id,
+                        "general",
+                        st.pmi.general.len() - 1,
+                        table,
+                    ));
                 }
                 read_any = true;
             }
@@ -5247,7 +5318,12 @@ impl<'a> Reader<'a> {
             callouts: Vec::new(),
         });
         st.prov.notes.push(ids(prov));
-        st.identifiers.notes.push(self.identifier(st.id, pdef));
+        st.identifiers.notes.push(self.item_identifier(
+            st.id,
+            "notes",
+            st.pmi.notes.len() - 1,
+            pdef,
+        ));
     }
 
     /// Whether a 'surface texture parameter' is related from a 'surface texture' property
@@ -5504,9 +5580,12 @@ impl<'a> Reader<'a> {
             parameters,
         });
         st.prov.surface_textures.push(ids(prov));
-        st.identifiers
-            .surface_textures
-            .push(self.identifier(st.id, pdef));
+        st.identifiers.surface_textures.push(self.item_identifier(
+            st.id,
+            "surface_textures",
+            st.pmi.surface_textures.len() - 1,
+            pdef,
+        ));
     }
 
     // --- accounting -----------------------------------------------------------------------

@@ -32,6 +32,9 @@ pub use write::{Mode, write};
 /// The result of reading a file's PMI.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PmiRead {
+    /// Own entity of each independently identified item, used by JSON presentation links.
+    #[cfg(feature = "json")]
+    pub json_carriers: std::collections::BTreeMap<(PartId, String, usize), u64>,
     /// One per part of `read_part_definitions`, in its order (`PartId` is the index).
     pub parts: Vec<PartPmi>,
     /// What was not read, or was read through a nonconformance, in a deterministic order.

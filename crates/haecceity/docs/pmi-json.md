@@ -43,7 +43,7 @@ constants under the opt-in `json` feature, independent of `presentation`.
 A document is `{ "schema": "haecceity.pmi/1", "units": { "length": [...],
 "angle": [...] }, "pmi": { ... } }`. The machine-readable schemas use JSON
 Schema 2020-12. Every model field is explicit, including null optionals and empty
-arrays. Unknown properties are errors. Each member of the model's indexed
+arrays. Unknown properties are errors. Each member of the independently identified semantic
 collections is `{ "id": "caller string", "value": <typed value> }`.
 One dimension or geometric tolerance is one such item, with all its semantic
 content together. References within `pmi` are zero-based indices into the named
@@ -104,14 +104,14 @@ not AP242 entities.
 | `Iso286Class`, `FundamentalDeviation`, `FitFeature`, `DeviationLetter`, `ToleranceGrade` | limits_and_fits | PMI §5.2.3; ISO 286 |
 | `GeometricTolerance`, `ToleranceKind`, `DatumRequirement`, `ToleranceTarget` | geometric_tolerance and the 15 characteristic subtypes, geometric_tolerance_with_datum_reference, toleranced_shape_aspect | PMI §§6.7–6.9, Table 12 (DatumRequirement is the model validation classification) |
 | `Zone`, `AffectedPlaneKind`, `ProjectedZone`, `ZoneForm`, `ToleranceModifier`, `UnitBasis`, `UnitArea`, `AreaShape`, `AuxiliaryClassification` | tolerance_zone, tolerance_zone_form, projected_zone_definition, runout_zone_definition, non_uniform_zone_definition, geometric_tolerance_with_modifiers, geometric_tolerance_with_defined_unit, geometric_tolerance_with_maximum_tolerance, unequally_disposed_geometric_tolerance, geometric_tolerance_auxiliary_classification | PMI §§6.9.1–6.9.6, Tables 13–14 |
-| `ToleranceRelation`, `RelationKind` | geometric_tolerance_relationship | PMI §6.10 |
+| `ToleranceRelation`, `RelationKind` | geometric_tolerance_relationship | PMI §6.9.9 |
 | `Standard`, `StandardBody`, `GeneralTolerance`, `ToleranceCell`, `CellValue` | applied_document_reference, document, general_property, property_definition, representation, compound_representation_item | PMI §§4–4.1, Figures 1–3 |
-| `Thread`, `ThreadSide`, `Hand` | externally_defined_general_property, thread, applied_shape, property_definition, measure_representation_item | PMI §8 (threads) |
-| `Knurl`, `KnurlPattern` | knurl, applied_shape, property_definition, measure_representation_item | PMI §8 (knurls) |
-| `Hole`, `RoundHole` | basic_round_hole, round_hole, shape_aspect, axis2_placement_3d | PMI §8 (hole definitions; model reader extension) |
-| `Material`, `Density` | material_designation, material_property_representation, descriptive_representation_item, mass_density_measure, derived_unit | Material practice; PMI §4 (part properties) |
+| `Thread`, `ThreadSide`, `Hand` | thread, product_definition_shape, shape_aspect, shape_representation_with_parameters, property_definition, measure_representation_item | No thread section in PMI v4.1; AP242 thread WR1–WR16 (existing model extension) |
+| `Knurl`, `KnurlPattern` | turned_knurl, product_definition_shape, shape_representation_with_parameters, property_definition, measure_representation_item | No knurl section in PMI v4.1; AP242 turned_knurl WR1–WR12 (existing model extension) |
+| `Hole`, `RoundHole` | basic_round_hole, round_hole, shape_aspect, axis2_placement_3d | No hole-definition section in PMI v4.1; AP242 ed4 basic_round_hole / basic_round_hole_occurrence (reader extension) |
+| `Material`, `Density` | property_definition, representation, descriptive_representation_item, measure_representation_item, positive_ratio_measure, derived_unit | Material Identification and Density R2.1 §§4.1–4.2 |
 | `Note`, `Callout`, `NoteOwner` | property_definition, descriptive_representation_item, draughting_callout, draughting_model_item_association | PMI §§7.3–7.4; UDA |
-| `SurfaceTexture`, `MaterialRemoval`, `SurfaceTextureParameter` | surface_texture_requirement, surface_texture_parameter, machining_allowance, surface_condition_callout | PMI surface texture notation; Surface conditions model extension documented in step-ap242.md |
+| `SurfaceTexture`, `MaterialRemoval`, `SurfaceTextureParameter` | property_definition, general_property, surface_texture_representation, measure_representation_item | No surface-texture section in PMI v4.1; ISO 10303-1110 Surface_texture / Standard_surface_texture_parameter, with existing model decisions in step-ap242.md |
 | `AttributeSet`, `GeneralProperty`, `AttributeValue` | property_definition, general_property, general_property_association, representation, descriptive_representation_item, measure_representation_item, compound_representation_item | PMI §7.4; UDA §§4–5 |
 | `PartPmi`, `PartId`, `FaceIndex`, `EdgeIndex`, `FeatureId`, `DatumId`, `DatumTargetId`, `DimensionId`, `ToleranceId`, `GeometryId`, `DerivedGeometryId` | product_definition, product_definition_shape (part aggregate); references to the types above | PMI §3.8; JSON indexing convention |
 
@@ -138,3 +138,18 @@ and is not implemented in version 1; semantic JSON writing uses haecceity's
 existing generated presentation. A semantic association may point to several
 items, and each associated item keeps the graphic. Unassociated graphics remain
 in `unlinked`.
+
+ISO table helper types `Iso2768`, `LinearClass` (`f`, `m`, `c`, `v`) and
+`GeometricClass` (`H`, `K`, `L`) map the `limits_and_fits`/general-tolerance
+classification (PMI §4.1, ISO 2768). Supplemental `geometry`, computed
+`derived_geometry` and `holes` remain plain arrays: they have no independently
+identified requirement entity in `PartIdentifiers`; their owning feature has
+an external id. All other indexed semantic collections carry `{id,value}`.
+
+`SupportKey` maps the verified geometric namespace used by Specify #65/#77:
+`{"fingerprint":{"schema":2,"faces":"<verified face hash>","support":[0]}}`.
+It is a JSON support convention over AP242 shape-aspect topology (PMI §3.8), not
+an EXPRESS entity. A face anchor has one support face; a feature can contain
+several such anchors. `Anchors::bind_support` binds a consumer-verified namespace.
+Opaque string support keys are also accepted through `Anchors.fingerprints`.
+No new fingerprint algorithm or hash dependency is introduced.

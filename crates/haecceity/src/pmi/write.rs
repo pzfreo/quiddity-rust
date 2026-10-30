@@ -440,6 +440,37 @@ pub fn write(
     mode: Mode,
     policy: PresentationPolicy,
 ) -> Result<(Edit, WriteReport), WriteError> {
+    write_inner(
+        doc,
+        parts,
+        pmi,
+        mode,
+        policy,
+        #[cfg(feature = "json")]
+        None,
+    )
+}
+
+/// The JSON path supplies item ids; the ordinary writer always supplies None.
+#[cfg(feature = "json")]
+pub(crate) fn write_identified(
+    doc: &Document,
+    parts: &[PartDefinition],
+    pmi: &[(PartId, PartPmi)],
+    ids: &BTreeMap<PartId, BTreeMap<String, Vec<String>>>,
+    policy: PresentationPolicy,
+) -> Result<(Edit, WriteReport), WriteError> {
+    write_inner(doc, parts, pmi, Mode::Replace, policy, Some(ids))
+}
+
+fn write_inner(
+    doc: &Document,
+    parts: &[PartDefinition],
+    pmi: &[(PartId, PartPmi)],
+    mode: Mode,
+    policy: PresentationPolicy,
+    #[cfg(feature = "json")] identifiers: Option<&BTreeMap<PartId, BTreeMap<String, Vec<String>>>>,
+) -> Result<(Edit, WriteReport), WriteError> {
     // Validate the input before migration (in particular every note's owner).
     for (part, p) in pmi {
         p.validate().map_err(|errors| WriteError::Invalid {
@@ -493,6 +524,11 @@ pub fn write(
     let mut plans = Vec::new();
     for (p, part_pmi) in &order {
         let plan = PartPlan::new(doc, &parts[p.0], *p, part_pmi, &read, mode)?;
+        #[cfg(feature = "json")]
+        let plan = PartPlan {
+            identifiers: identifiers.and_then(|ids| ids.get(p)),
+            ..plan
+        };
         let original = &pmi
             .iter()
             .find(|(id, _)| id == p)
@@ -1823,6 +1859,8 @@ enum Role {
 }
 
 struct PartPlan<'a> {
+    #[cfg(feature = "json")]
+    identifiers: Option<&'a BTreeMap<String, Vec<String>>>,
     doc: &'a Document,
     def: &'a PartDefinition,
     id: PartId,
@@ -1849,6 +1887,28 @@ struct PartPlan<'a> {
 }
 
 impl<'a> PartPlan<'a> {
+    #[cfg(feature = "json")]
+    fn identify(
+        &self,
+        em: &mut Emitter<'_>,
+        collection: &str,
+        index: usize,
+        carrier: R,
+    ) -> Result<(), WriteError> {
+        let Some(ids) = self.identifiers else {
+            return Ok(());
+        };
+        let id = ids
+            .get(collection)
+            .and_then(|v| v.get(index))
+            .ok_or_else(|| WriteError::Internal(format!("missing JSON id {collection}/{index}")))?;
+        em.simple(
+            "id_attribute",
+            &[("attribute_value", s(id)), ("identified_item", carrier.a())],
+        )?;
+        Ok(())
+    }
+
     fn new(
         doc: &'a Document,
         def: &'a PartDefinition,
@@ -1882,6 +1942,8 @@ impl<'a> PartPlan<'a> {
                 WriteError::Parts(format!("shape representation #{shape_rep} has no context"))
             })?;
         let mut plan = PartPlan {
+            #[cfg(feature = "json")]
+            identifiers: None,
             doc,
             def,
             id,
@@ -3027,13 +3089,13 @@ impl<'a> PartPlan<'a> {
             let r = self.tolerance(em, &mut st, pds, t, &mut names)?;
             st.tolerances.insert(i, r);
         }
-        for r in &p.tolerance_relations {
+        for (_i, r) in p.tolerance_relations.iter().enumerate() {
             let name = match r.kind {
                 RelationKind::Composite => "composite",
                 RelationKind::Precedence => "precedence",
                 RelationKind::Simultaneity => "simultaneity",
             };
-            em.simple(
+            let _carrier = em.simple(
                 "geometric_tolerance_relationship",
                 &[
                     ("name", s(name)),
@@ -3048,15 +3110,19 @@ impl<'a> PartPlan<'a> {
                     ),
                 ],
             )?;
+            #[cfg(feature = "json")]
+            self.identify(em, "tolerance_relations", _i, _carrier)?;
         }
         let general = p.general.iter();
-        #[cfg(feature = "presentation")]
+        #[cfg(any(feature = "presentation", feature = "json"))]
         let general = general.enumerate();
-        #[cfg(not(feature = "presentation"))]
+        #[cfg(not(any(feature = "presentation", feature = "json")))]
         let general = general.map(|item| ((), item));
         for (_i, g) in general {
             if let GeneralTolerance::Table { name, cells } = g {
-                self.tolerance_table(em, pds, name, cells)?;
+                let _table = self.tolerance_table(em, pds, name, cells)?;
+                #[cfg(feature = "json")]
+                self.identify(em, "general", _i, _table)?;
             }
             if let GeneralTolerance::Class { text, .. } = g {
                 let item = em.simple(
@@ -3071,6 +3137,8 @@ impl<'a> PartPlan<'a> {
                     "default tolerances",
                     &[item],
                 )?;
+                #[cfg(feature = "json")]
+                self.identify(em, "general", _i, _property)?;
                 #[cfg(feature = "presentation")]
                 st.properties
                     .insert(crate::presentation::notes::Source::General(_i), _property);
@@ -3080,11 +3148,25 @@ impl<'a> PartPlan<'a> {
             && !p.general.iter().any(|g| matches!(g, GeneralTolerance::Table { cells, .. } if cells.iter().any(|c| c.items.iter().any(|(n,_)| n == "number of decimal places")))) {
             self.tolerance_table(em, pds, "", &[ToleranceCell { items: vec![("number of decimal places".into(), CellValue::Count(Decimal::parse(&places.to_string()).map_err(|e| WriteError::Internal(e.0))?))] }])?;
         }
-        for t in &p.threads {
-            self.thread(em, &mut st, pds, t)?;
+        for (_i, t) in p.threads.iter().enumerate() {
+            self.thread(
+                em,
+                &mut st,
+                pds,
+                t,
+                #[cfg(feature = "json")]
+                _i,
+            )?;
         }
-        for k in &p.knurls {
-            self.knurl(em, &mut st, pds, k)?;
+        for (_i, k) in p.knurls.iter().enumerate() {
+            self.knurl(
+                em,
+                &mut st,
+                pds,
+                k,
+                #[cfg(feature = "json")]
+                _i,
+            )?;
         }
         if let Some(m) = &p.material {
             let item = em.simple(
@@ -3148,26 +3230,44 @@ impl<'a> PartPlan<'a> {
             self.property(em, pd, "material property", "density", "density", &[item])?;
         }
         let attributes = p.attributes.iter();
-        #[cfg(feature = "presentation")]
+        #[cfg(any(feature = "presentation", feature = "json"))]
         let attributes = attributes.enumerate();
-        #[cfg(not(feature = "presentation"))]
+        #[cfg(not(any(feature = "presentation", feature = "json")))]
         let attributes = attributes.map(|item| ((), item));
         for (_i, a) in attributes {
             let _property = self.attribute_set(em, &mut st, pd, pds, a)?;
+            #[cfg(feature = "json")]
+            self.identify(em, "attributes", _i, _property)?;
             #[cfg(feature = "presentation")]
             st.properties
                 .insert(crate::presentation::notes::Source::Attribute(_i), _property);
         }
         let surface_textures = p.surface_textures.iter();
-        #[cfg(feature = "presentation")]
+        #[cfg(any(feature = "presentation", feature = "json"))]
         let surface_textures = surface_textures.enumerate();
-        #[cfg(not(feature = "presentation"))]
+        #[cfg(not(any(feature = "presentation", feature = "json")))]
         let surface_textures = surface_textures.map(|item| ((), item));
         for (_i, t) in surface_textures {
             let _property = self.surface_texture(em, &mut st, pds, t)?;
+            #[cfg(feature = "json")]
+            self.identify(em, "surface_textures", _i, _property)?;
             #[cfg(feature = "presentation")]
             st.properties
                 .insert(crate::presentation::notes::Source::Texture(_i), _property);
+        }
+        #[cfg(feature = "json")]
+        if self.identifiers.is_some() {
+            for (collection, refs) in [
+                ("features", &st.features),
+                ("datum_targets", &st.targets),
+                ("datums", &st.datums),
+                ("dimensions", &st.dimensions),
+                ("tolerances", &st.tolerances),
+            ] {
+                for (&i, &carrier) in refs {
+                    self.identify(em, collection, i, carrier)?;
+                }
+            }
         }
         #[cfg(feature = "presentation")]
         self.datum_symbols(em, &symbols, &st, report, presentation_reader)?;
@@ -3313,7 +3413,7 @@ impl<'a> PartPlan<'a> {
         pds: R,
         name: &str,
         cells: &[ToleranceCell],
-    ) -> Result<(), WriteError> {
+    ) -> Result<R, WriteError> {
         let context = em.simple(
             "representation_context",
             &[
@@ -3402,7 +3502,7 @@ impl<'a> PartPlan<'a> {
                 ("rep_2", rep.a()),
             ],
         )?;
-        Ok(())
+        Ok(table)
     }
 
     /// A point of feature `f` in the part's coordinates: of its first face, edge or
@@ -5385,9 +5485,12 @@ impl<'a> PartPlan<'a> {
         st: &mut Emitted,
         pds: R,
         t: &Thread,
+        #[cfg(feature = "json")] index: usize,
     ) -> Result<(), WriteError> {
         let def = em.simple("thread", &[("name", s("")), ("description", s(""))])?;
         let shape = self.applied(em, st, pds, def, t.feature)?;
+        #[cfg(feature = "json")]
+        self.identify(em, "threads", index, shape)?;
         let area = match t.partial_area {
             Some(f) => Some(self.role_instance(em, st, pds, f, Role::AppliedArea)?),
             None => None,
@@ -5489,6 +5592,7 @@ impl<'a> PartPlan<'a> {
         st: &mut Emitted,
         pds: R,
         k: &Knurl,
+        #[cfg(feature = "json")] index: usize,
     ) -> Result<(), WriteError> {
         let pattern = match k.pattern {
             KnurlPattern::Diamond => "diamond",
@@ -5500,6 +5604,8 @@ impl<'a> PartPlan<'a> {
             &[("name", s("")), ("description", s(pattern))],
         )?;
         let shape = self.applied(em, st, pds, def, k.feature)?;
+        #[cfg(feature = "json")]
+        self.identify(em, "knurls", index, shape)?;
         let area = self.role_instance(em, st, pds, k.feature, Role::AppliedArea)?;
         // turned_knurl WR11 (as thread WR12): exactly one 'partial area occurrence' with one
         // 'applied area usage' from an applied_area: the knurled faces themselves (the model
