@@ -31,7 +31,8 @@ at the copyright owner's direction from Draftwright aaa7a73 (`dims/tolerance.rs`
 and Spec-authored controls remain in Draftwright; no Draftwright dependency is introduced.
 The `presentation` Cargo feature is **default-on** in haecceity and quiddity: Specify's
 ordinary writes must carry visible PMI. `default-features = false` retains semantic-only
-size/location/tolerance writing and the old datum graphics. No-PMI writes retain their
+size/location/tolerance writing and legacy datum lettering (with the same face-interior
+placement rule). No-PMI writes retain their
 bytes; append never redraws foreign PMI or its presentation.
 
 Every newly written dimension and geometric tolerance gets real drawn content: dimension
@@ -173,13 +174,40 @@ Feature-on writer goldens and fresh OpenCascade captures live in
 `tests/fixtures/ap242/write-presentation/`; `write/` holds feature-off output.
 Round 4 intentionally updates PMI semantics in **both** folders: multi-face composite types
 and private non-datum location endpoints. Both also update datum anchors/planes. Feature-on
-files additionally change text height, frames and resulting ladder clearance. Every changed
-STEP/OCP pair is listed below after regeneration; OCP captures are tied to the exact STEP
+files additionally change text height, frames and resulting ladder clearance. The changed
+STEP/OCP pairs are listed below; OCP captures are tied to the exact STEP
 hashes. No-PMI output and foreign append bytes retain their equality assertions. Feature-off
 reference comparisons retain all verdicts; diagnostic IDs may follow entity renumbering.
 `export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the
 presentation folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture feature-off output.
 
+
+Round-4 golden changes (each name denotes its `.step.gz` and matching `.occt.json.gz`):
+**C** = composite multi-face aspect; **L** = private location endpoint; **D** = face-interior
+normal datum leader/plane and physical height; **P** = feature-on text height, frame attachment,
+shortest stagger and ladder clearance. A dash means the pair is byte-identical.
+
+| Pair | Feature on | Feature off |
+| --- | --- | --- |
+| `assembly_plate_pin_intent` | C, L, D, P | C, L, D |
+| `datum_targets` | P | — |
+| `datum_targets_shared_support` | P | — |
+| `editor_assembly_pin_alone` | D, P | D |
+| `every_kind` | C, L, D, P | C, L, D |
+| `nist_ctc_02_targets` | P | — |
+| `nist_ftc_10_targets` | D, P | D |
+| `pmi_gaps` | P | — |
+| `pmi_gaps_gram` | P | — |
+| `spool_fits_intent` | C, D, P | C, D |
+| `string_post_tapped_intent` | L, D, P | L, D |
+| `thumbwheel_notes_add` | P | — |
+| `thumbwheel_thread_knurl_intent` | D, P | D |
+
+`decimal_default`, `thread_removed` and `thread_replaced` remain byte-identical in both
+configurations. `thumbwheel_notes_add` keeps all foreign datums/notes and their graphics;
+only its newly added flatness callout changes. Fresh OCP captures confirm the same semantic
+counts and preserve every comparison/verdict. The no-new-PMI cases retain their original
+STEP captures rather than replacing them solely for the available Python loader's status.
 
 ## Maintainer decisions (2026-10-08)
 
