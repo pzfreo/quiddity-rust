@@ -2457,9 +2457,7 @@ pub fn read_part(bytes: &[u8], part: &PartDefinition) -> Result<Part, StepError>
 
 /// Parsed geometry shared by all callout-bearing parts of one PMI write. Unlike StepFile,
 /// the caller already has checked part definitions, so no placed assembly is rebuilt.
-#[cfg(feature = "presentation")]
 pub(crate) struct PartReader(Parsed);
-#[cfg(feature = "presentation")]
 impl PartReader {
     pub(crate) fn read(bytes: &[u8]) -> Result<Self, StepError> {
         Parsed::new(bytes).map(Self)

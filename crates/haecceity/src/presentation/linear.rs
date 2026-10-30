@@ -504,7 +504,7 @@ impl Ladder {
         }
         let up = geom::cross(normal, d);
         let length = m.length();
-        let h = self.bounds.max_extent() / 125.;
+        let h = super::placement::text_height(self.bounds.max_extent());
         let scale = (h / 3.).min(length * 0.65 / c.size[0].max(1.));
         let arrow = (0.9 * h).min(length / 8.);
         let half = arrow / 6.;
@@ -532,9 +532,10 @@ impl Ladder {
                 }
             }
             let padding = h / 5.;
-            let overlap = self.labels.iter().any(|b| {
-                (0..3).all(|k| bb.min[k] < b.max[k] + padding && bb.max[k] + padding > b.min[k])
-            });
+            let overlap = self
+                .labels
+                .iter()
+                .any(|b| super::placement::boxes_overlap(bb, *b, padding));
             rung += 1;
             if !overlap {
                 break (centre, offset, bb);
@@ -742,7 +743,7 @@ mod tests {
         let tail = geom::scale(geom::add(a, b), 0.5);
         assert!((geom::dist(a, b) / geom::dist(tip, tail) - 1. / 3.).abs() < 1e-12);
         let up = geom::cross(p.placed.normal, d);
-        let scale = (20_f64 / 125. / 3.).min(12. * 0.65 / c.size[0]);
+        let scale = (super::super::placement::text_height(20.) / 3.).min(12. * 0.65 / c.size[0]);
         let expected: Vec<_> = c
             .polylines()
             .into_iter()

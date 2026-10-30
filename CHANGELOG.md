@@ -15,6 +15,9 @@ in [docs/alpha1.md](docs/alpha1.md).
   foreign presentation are preserved. Planes sit beside their features with part-scaled text
   and a short deterministic stagger; linear dimensions have two measured witnesses,
   extension lines and arrowed dimension lines, shortest first on outward ladders.
+  Multi-face aspects are composite; locations use their own non-datum references. Datum
+  leaders start inside their faces in planes containing the outward normal. A physical
+  text-height floor and feature-scaled frame offsets improve fit-view legibility.
   Names carry full requirement notation. The feature
   can be disabled for semantic-only output.
 

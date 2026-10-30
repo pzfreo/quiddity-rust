@@ -43,14 +43,22 @@ Unsupported characters are an explicit writer error, with coverage tests for eve
 symbol. Datums use the same renderer. Callout names use the same full notation as the text,
 with STEP's terminal decimal point removed and stated fractional precision preserved.
 
-Planes start from a vertex on the semantic feature's face/edge. A short leader reaches a
-label just outside the closest narrow bounding-box side. Rotary features use their dominant
-axis as the text direction; other features use the part's long axis. Text height is 0.8% of
-the largest part extent (less for very wide labels). A bounded deterministic row/column
-stagger avoids neighbouring labels without accumulating a long row along the part. No
-sheet layout engine is imported. Datum/diameter/control-frame regressions bound their drawn points and planes to less than half
-a part length from the feature anchor, across the three re-test parts. These placements are
-unchanged by the linear-dimension renderer below.
+Datum leaders start strictly inside a trimmed face, using its area-centre projection when
+valid and deterministic interior UV stations when a hole excludes that centre. Their first
+segment follows the outward face normal. The annotation plane contains that normal, so it
+can never coincide with the face it labels. This applies to both presentation configurations.
+Diameters retain their feature/axis placement. Frames use face-interior sites on planes and
+feature-mouth sites on bores, testing readable tangents and attaching to the nearest frame
+edge. Candidate staggers are tried in increasing leader distance, with small-feature gaps
+capped at 12% of the feature extent. Tests bound frame leaders by 25% of their target's largest
+extent on all three samples. No sheet layout engine is imported.
+
+Capital height is **0.5 mm + 1.8% of the largest part extent**, converted to the file's units:
+0.68 mm on a 10 mm part, 2.3 mm on the 100 mm plate and 5.9 mm on a 300 mm part. Very wide
+labels are capped at 32% of the part extent; a short linear span retains its fit-between-arrows
+cap. This replaces 0.8%-only text, which was unreadable in the plate's fit view. Unresolved
+bare-number slots are no longer reserved for dimensions subsequently drawn by the ladder;
+those discarded slots had pushed frames unnecessarily far away.
 
 Straight location dimensions use **both** semantic endpoints. Planar linear sizes use opposed
 faces. The writer resolves actual trimmed faces with the kernel's ray/face intersector; a
@@ -106,8 +114,7 @@ A datum feature that also has a size needs two independently placed callouts. Th
 (representation, definition), violating inherited `item_identified_representation_usage.UR2`.
 Feature-on writes therefore use separate standard `DATUM_FEATURE` and `DIMENSIONAL_SIZE`
 entities, the size applying to that same datum feature. Each callout has one association with
-a distinct definition in the shared draughting model. Feature-off writing retains its former
-combined entity and bytes. No EXPRESS rule is exempted or relaxed.
+a distinct definition in the shared draughting model. Feature-off writing retains its combined entity. No EXPRESS rule is exempted or relaxed.
 
 The original `FILE_DESCRIPTION` is kept by lossless append. It may lack the CAx-IF
 Recommended Practices references that SFA recommends; the writer does not rewrite that header.
@@ -139,38 +146,40 @@ through `PartDefinition.edges` entity ids and `Part::edge_source`, never B-rep t
 positions; reversed face loops can change the edge order. Regression on `nist_ctc_01_merge`
 checks every edge's witnesses and extension feet, including its 70 reordered edges.
 
-Solid Edge 2026 types the spindle's diameter (when its face has a circular edge), datum A
-and both position tolerances. Linear distances remain symbolic, as with NIST's own files.
-Datum B remains an importer question: it spans two coplanar faces, both with circular edges,
-whereas A uses one cylindrical face. Both have datum callout/plane/semantic links; only A is
-referenced by geometric tolerances. No semantic writer defect has been established, so B's
-valid multi-face association is retained for re-test. No `MBD_0` characterized object or
-mechanical-design/draughting saved-view relationship is added.
+The maintainer's round-4 Solid Edge 2026 hand-edited tests isolate three additional typing
+rules (all copies passed SFA 5.41):
+
+- Multi-face aspects are `COMPOSITE_SHAPE_ASPECT`, including datum features and patterns;
+  ordinary `SHAPE_ASPECT_RELATIONSHIP`s lead to per-face components with GISUs. Group subtypes
+  already inherit composite shape aspect. Aggregating multiple faces as a plain aspect made
+  the corners sample's diameter and position symbolic.
+- A `DIMENSIONAL_LOCATION` never directly references a `DATUM_FEATURE`. Each such endpoint
+  gets a private `DIMENSION` aspect on the same faces. Shared plain per-face GISU carriers
+  avoid duplicating (representation, item) usages and preserve IIRU UR1/UR2. Tolerances still
+  share the datum feature. On lossless append, an immutable foreign datum's existing carrier
+  is reached through composition without editing its entities or duplicating its GISU.
+- A datum annotation plane must contain its face normal, rather than be coplanar with the
+  face; its leader starts inside that face, not at a shared corner vertex.
+
+These explain the previously symbolic spindle datum B: it is a multi-face datum and a
+location reference. The corners sample's datum B also had a coplanar annotation plane.
+The writer now follows all three measured rules; automated graph/interior/normal assertions
+cover every datum and multi-face aspect on the three samples. The maintainer's next import
+will confirm typing on the regenerated output. Linear distances remain symbolic, as with
+NIST's own files. No `MBD_0` characterized object or mechanical-design/draughting saved-view
+relationship is added.
 
 Feature-on writer goldens and fresh OpenCascade captures live in
-`tests/fixtures/ap242/write-presentation/`; `write/` retains feature-off goldens unchanged.
-Round 3 feature-on goldens remove feature links/symbol representations and split datum/size
-semantic identities where needed; changed notation uses qualified/range labels, normalized
-deviations and scope rings. This changes numbering and the OCP captures, not the feature-off
-goldens. The round-1 feature-on goldens change only graphics (Hershey strokes, local placement and
-proportional style width) and full-notation names. Round 2 changes only straight dimension
-curves/planes to measured extensions, arrowed lines and centred ladder text; datum, diameter
-and tolerance-frame graphics/planes are compared against the round-1 inputs unchanged. The Plex font-specific outline oracle is
-retired; stroke metrics, scaling and exhaustive notation glyph checks replace it.
-The round-3 regenerated STEP/OCP pairs are `assembly_plate_pin_intent`, `datum_targets`,
-`datum_targets_shared_support`, `editor_assembly_pin_alone`, `every_kind`,
-`nist_ctc_02_targets`, `nist_ftc_10_targets`, `pmi_gaps`, `pmi_gaps_gram`,
-`spool_fits_intent`, `string_post_tapped_intent`, `thumbwheel_notes_add`, and
-`thumbwheel_thread_knurl_intent`. Each loses feature associations/auxiliary representations
-and consequent entity numbers; `every_kind` also replaces `⌀20 H7` with its stated
-`⌀20.000 - ⌀20.021` range. Scope rings have dedicated writer/geometry tests; these goldens
-contain no scope symbols. OCP captures are refreshed for
-the exact new STEP hashes. The other three pairs and all feature-off fixtures stay unchanged.
-`export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the new
-folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture the legacy folder.
-The feature-on `references/pmi_write-presentation.json` retains every verdict and comparison,
-with one diagnostic entity ID moved from #6615 to #6558 because presentation is now emitted
-after the dimensional semantics. The original feature-off reference remains unchanged.
+`tests/fixtures/ap242/write-presentation/`; `write/` holds feature-off output.
+Round 4 intentionally updates PMI semantics in **both** folders: multi-face composite types
+and private non-datum location endpoints. Both also update datum anchors/planes. Feature-on
+files additionally change text height, frames and resulting ladder clearance. Every changed
+STEP/OCP pair is listed below after regeneration; OCP captures are tied to the exact STEP
+hashes. No-PMI output and foreign append bytes retain their equality assertions. Feature-off
+reference comparisons retain all verdicts; diagnostic IDs may follow entity renumbering.
+`export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the
+presentation folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture feature-off output.
+
 
 ## Maintainer decisions (2026-10-08)
 

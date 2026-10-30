@@ -943,6 +943,23 @@ fn a_feature_of_several_faces_has_a_usage_per_face() {
     };
     let w = written(&f, &p);
     assert_verified(&f, &w, &p);
+    for ids in [
+        &w.read.provenance.parts[0].dimensions[0],
+        &w.read.provenance.parts[0].tolerances[0],
+    ] {
+        let semantic = root(&w.doc, ids, &["dimensional_size", "geometric_tolerance"]);
+        let aspect = refs_of(&w.doc, semantic)
+            .into_iter()
+            .find(|&id| w.names(id).iter().any(|n| express::is_a(n, "shape_aspect")))
+            .unwrap();
+        assert!(
+            w.names(aspect)
+                .iter()
+                .any(|n| express::is_a(n, "composite_shape_aspect")),
+            "{}",
+            w.text(aspect)
+        );
+    }
     let added = w.added();
     for &id in &added {
         assert!(
@@ -5239,7 +5256,6 @@ fn every_requirement_has_a_callout() {
     }
 }
 
-#[cfg(feature = "presentation")]
 fn test_attribute<'d>(
     doc: &'d Document,
     id: u64,
@@ -5355,7 +5371,7 @@ fn sample_placement(doc: &Document, bounds: haecceity::geom::Bounds, expected: u
         let points: Vec<_> = points.iter().map(xyz).collect();
         let Some(Attribute::List(strips)) = test_attribute(doc, curves, "tessellated_curve_set", "line_strips") else { panic!("strips") };
         let Attribute::List(leader) = strips.last().unwrap() else { panic!("leader") };
-        assert_eq!(leader.len(), 2);
+        assert!(leader.len() >= 2, "a leader must have a feature foot and attachment");
         let anchor = points[number(&leader[0]) as usize - 1];
         for k in 0..3 {
             assert!(anchor[k] >= bounds.min[k]-1e-5 && anchor[k] <= bounds.max[k]+1e-5, "anchor outside part: {anchor:?}, {bounds:?}");
@@ -5400,7 +5416,7 @@ fn all_three_specify_samples_have_real_linear_dimensions_and_local_callouts() {
         assert!(new_violations(&f.doc, &w.doc).is_empty());
         sample_placement(&w.doc, bounds, count);
         sample_linear_dimensions(&w.doc, &w.read, &f.parts[0]);
-        assert_non_linear_graphics_unchanged(&f.doc, &w.doc);
+        sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
     }
 }
 
@@ -5494,7 +5510,6 @@ fn spindle_datums_have_complete_links_and_circular_edges() {
     }
 }
 
-#[cfg(feature = "presentation")]
 fn graphic_lines(doc: &Document, callout: u64) -> Vec<Vec<haecceity::geom::V3>> {
     let occurrence = refs_of(doc, callout)[0];
     let set = *refs_of(doc, occurrence).last().unwrap();
@@ -5534,7 +5549,6 @@ fn graphic_lines(doc: &Document, callout: u64) -> Vec<Vec<haecceity::geom::V3>> 
         })
         .collect()
 }
-#[cfg(feature = "presentation")]
 fn annotation_basis(doc: &Document, callout: u64) -> ([f64; 3], [f64; 3], [f64; 3]) {
     let plane=doc.ids().find(|&id|matches!(doc.get(id),Some(RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("annotation_plane")) && refs_of(doc,id).contains(&callout)).unwrap();
     let geometric = refs_of(doc, plane)[1];
@@ -5557,21 +5571,154 @@ fn annotation_basis(doc: &Document, callout: u64) -> ([f64; 3], [f64; 3], [f64; 
         xyz(ids[2], "direction", "direction_ratios"),
     )
 }
-#[cfg(feature = "presentation")]
-fn assert_non_linear_graphics_unchanged(before: &Document, after: &Document) {
-    let collect = |doc: &Document| {
-        doc.ids().filter_map(|id| {
-        if !matches!(doc.get(id),Some(RawEntity::Simple{name,..})if name.eq_ignore_ascii_case("draughting_callout")){return None;}
-        let occurrence=refs_of(doc,id)[0];let set=*refs_of(doc,occurrence).last().unwrap();
-        if test_attribute(doc,set,"representation_item","name")==Some(&Attribute::String("linear dimension".into())) {return None;}
-        Some((test_attribute(doc,id,"representation_item","name").unwrap().clone(),graphic_lines(doc,id),annotation_basis(doc,id)))
-    }).collect::<Vec<_>>()
+fn sample_datums_and_frames(doc: &Document, read: &PmiRead, def: &PartDefinition) {
+    use haecceity::geom;
+    let part = haecceity::step::read_part(doc.bytes(), def).unwrap();
+    let p = &read.parts[0];
+    let largest = part.bounds().max_extent();
+    let is = |id, kind| match doc.get(id).unwrap() {
+        RawEntity::Simple { name, .. } => express::is_a(name, kind),
+        RawEntity::Complex { parts, .. } => parts.iter().any(|p| express::is_a(&p.name, kind)),
     };
-    assert_eq!(
-        collect(before),
-        collect(after),
-        "datum, diameter and control-frame graphics and planes must be unchanged"
-    );
+    fn faces(p: &PartPmi, f: FeatureId, depth: usize, out: &mut Vec<usize>) {
+        assert!(depth <= p.features.len());
+        match &p.features[f.0] {
+            Feature::Items(items) => out.extend(items.iter().filter_map(|a| {
+                if let Anchor::Face(f) = a {
+                    Some(f.0)
+                } else {
+                    None
+                }
+            })),
+            Feature::Group { members, .. } | Feature::Derived { from: members, .. } => {
+                for f in members {
+                    faces(p, *f, depth + 1, out);
+                }
+            }
+        }
+    }
+    for (i, d) in p.datums.iter().enumerate() {
+        let name = format!("Datum {}", d.label());
+        let callout = doc
+            .ids()
+            .find(|&id| {
+                is(id, "draughting_callout")
+                    && test_attribute(doc, id, "representation_item", "name")
+                        == Some(&Attribute::String(name.clone()))
+            })
+            .unwrap();
+        let lines = graphic_lines(doc, callout);
+        let leader = lines.last().unwrap();
+        let foot = leader[0];
+        let (_, plane_normal, _) = annotation_basis(doc, callout);
+        let mut fs = Vec::new();
+        faces(p, d.feature().unwrap(), 0, &mut fs);
+        let face = fs
+            .iter()
+            .copied()
+            .find(|&f| {
+                let surface = &part.faces[f].surface;
+                surface.parameters(foot, None).is_some_and(|(u, v)| {
+                    let (u0, u1, v0, v1) = part.uv_bounds(f).unwrap();
+                    let du = (u1 - u0).abs().max(1e-6) * 1e-5;
+                    let dv = (v1 - v0).abs().max(1e-6) * 1e-5;
+                    geom::dist(surface.value(u, v), foot) < 2e-6
+                        && [(u, v), (u - du, v), (u + du, v), (u, v - dv), (u, v + dv)]
+                            .iter()
+                            .all(|&(u, v)| part.domain(f).unwrap().contains(u, v))
+                })
+            })
+            .unwrap_or_else(|| {
+                panic!("datum {i} {name} foot {foot:?} is not interior to any of its faces {fs:?}")
+            });
+        let surface = &part.faces[face].surface;
+        let (u, v) = surface.parameters(foot, None).unwrap();
+        let n = geom::scale(
+            surface.normal(u, v).unwrap(),
+            if part.faces[face].reversed { -1. } else { 1. },
+        );
+        assert!(
+            geom::dot(n, plane_normal).abs() < 1e-8,
+            "{name}: annotation plane must contain the face normal"
+        );
+        let stem = geom::unit(geom::sub(leader[1], foot)).unwrap();
+        assert!(
+            geom::dot(stem, n) > 1. - 1e-8,
+            "{name}: leader must leave along the outward face normal"
+        );
+        for lp in &part.faces[face].loops {
+            for &(edge, _) in &lp.edges {
+                let e = &part.edges[edge];
+                assert!(
+                    geom::dist(foot, e.curve.value(e.curve.parameter(foot))) > 1e-5,
+                    "{name}: foot on a boundary curve"
+                );
+            }
+        }
+        println!(
+            "{name}: interior face {face}, anchor={foot:?}, face normal={n:?}, annotation normal={plane_normal:?}"
+        );
+    }
+    for callout in doc.ids().filter(|&id| is(id, "draughting_callout")) {
+        let occurrence = refs_of(doc, callout)[0];
+        let set = *refs_of(doc, occurrence).last().unwrap();
+        let kind = test_attribute(doc, set, "representation_item", "name").unwrap();
+        if kind == &Attribute::String("datum".into())
+            || kind == &Attribute::String("linear dimension".into())
+            || kind == &Attribute::String("diameter dimension".into())
+        {
+            continue;
+        }
+        let lines = graphic_lines(doc, callout);
+        let leader = lines.last().unwrap();
+        let reach = leader
+            .iter()
+            .map(|q| geom::dist(*q, leader[0]))
+            .fold(0., f64::max);
+        let association = doc
+            .referrers(callout)
+            .iter()
+            .copied()
+            .find(|&id| is(id, "draughting_model_item_association"))
+            .unwrap();
+        let root = refs_of(doc, association)[0];
+        let index = read.provenance.parts[0]
+            .tolerances
+            .iter()
+            .position(|ids| ids.contains(&root))
+            .unwrap();
+        let mut fs = Vec::new();
+        match p.tolerances[index].target {
+            ToleranceTarget::Feature(f) => faces(p, f, 0, &mut fs),
+            ToleranceTarget::Dimension(d) => match p.dimensions[d.0].kind {
+                DimensionKind::Size { feature, .. } => faces(p, feature, 0, &mut fs),
+                DimensionKind::Location { from, to, .. } => {
+                    faces(p, from, 0, &mut fs);
+                    faces(p, to, 0, &mut fs);
+                }
+            },
+            ToleranceTarget::Relation {
+                relating, related, ..
+            } => {
+                faces(p, relating, 0, &mut fs);
+                faces(p, related, 0, &mut fs);
+            }
+            ToleranceTarget::WholePart => fs.extend(0..part.faces.len()),
+        }
+        let mut feature_bounds = geom::Bounds::empty();
+        for f in fs {
+            feature_bounds.merge(&part.face_bounds(f));
+        }
+        let extent = feature_bounds.max_extent();
+        assert!(
+            reach <= 0.25 * extent,
+            "frame #{callout}: leader {reach} exceeds 0.25 * feature extent {extent}"
+        );
+        println!(
+            "frame #{callout} leader={reach:.6}, feature extent={extent:.6} ({:.6} part lengths)",
+            reach / largest
+        );
+    }
 }
 #[cfg(feature = "presentation")]
 fn measured_foot(
@@ -5653,7 +5800,7 @@ fn sample_linear_dimensions(doc: &Document, read: &PmiRead, def: &PartDefinition
     let part = haecceity::step::read_part(doc.bytes(), def).unwrap();
     let bounds = part.bounds();
     let length = bounds.max_extent();
-    let gap = length / 125. / 3.;
+    let gap = (0.5 + 0.018 * length) / 3.;
     let p = &read.parts[0];
     let fixed:Vec<_>=doc.ids().filter_map(|id| {
         if !matches!(doc.get(id),Some(RawEntity::Simple{name,..})if name.eq_ignore_ascii_case("draughting_callout")){return None;}
@@ -6057,4 +6204,149 @@ fn scope_symbols_survive_the_written_entity_graph() {
             );
         }
     }
+}
+
+/// The measured semantic rules apply with and without graphical dimension writing.
+#[test]
+fn composite_features_and_locations_have_non_datum_geometry_carriers() {
+    for (name, count) in [("spindle", 2), ("plate", 3), ("corners-flatness", 3)] {
+        let f = fixture(&format!("ap242/presentation-placement/{name}.step.gz"));
+        let old = pmi::read(&f.doc, &f.parts).unwrap();
+        let p = &old.parts[0];
+        let w = written(&f, p);
+        assert_verified(&f, &w, p);
+        assert!(new_violations(&f.doc, &w.doc).is_empty());
+        let is = |id, kind| w.names(id).iter().any(|n| express::is_a(n, kind));
+        fn geometry(doc: &Document, id: u64, depth: usize, faces: &mut BTreeSet<u64>) {
+            assert!(depth < 100, "cyclic composition");
+            for &r in doc.referrers(id) {
+                if test_attribute(doc, r, "item_identified_representation_usage", "definition")
+                    == Some(&Attribute::EntityRef(id))
+                    && matches!(doc.get(r),Some(RawEntity::Simple{name,..})if name.eq_ignore_ascii_case("geometric_item_specific_usage"))
+                {
+                    if let Some(Attribute::EntityRef(face)) = test_attribute(
+                        doc,
+                        r,
+                        "item_identified_representation_usage",
+                        "identified_item",
+                    ) {
+                        faces.insert(*face);
+                    }
+                }
+                if matches!(doc.get(r),Some(RawEntity::Simple{name,..})if name.eq_ignore_ascii_case("shape_aspect_relationship"))
+                    && test_attribute(doc, r, "shape_aspect_relationship", "relating_shape_aspect")
+                        == Some(&Attribute::EntityRef(id))
+                {
+                    let Some(Attribute::EntityRef(m)) =
+                        test_attribute(doc, r, "shape_aspect_relationship", "related_shape_aspect")
+                    else {
+                        panic!("component")
+                    };
+                    geometry(doc, *m, depth + 1, faces);
+                }
+            }
+        }
+        let mut composites = 0;
+        let mut locations = 0;
+        for id in w.added() {
+            if is(id, "shape_aspect") {
+                let mut face_set = BTreeSet::new();
+                geometry(&w.doc, id, 0, &mut face_set);
+                face_set.retain(|id| f.parts[0].faces.contains(id));
+                if face_set.len() > 1 {
+                    assert!(
+                        is(id, "composite_shape_aspect"),
+                        "{name}: multi-face {} must be composite",
+                        w.text(id)
+                    );
+                    assert!(w.doc.referrers(id).iter().any(|&r| test_attribute(
+                        &w.doc,
+                        r,
+                        "shape_aspect_relationship",
+                        "relating_shape_aspect"
+                    ) == Some(&Attribute::EntityRef(
+                        id
+                    ))));
+                    composites += 1;
+                }
+            }
+            if is(id, "dimensional_location") {
+                locations += 1;
+                for field in ["relating_shape_aspect", "related_shape_aspect"] {
+                    let Some(Attribute::EntityRef(a)) =
+                        test_attribute(&w.doc, id, "shape_aspect_relationship", field)
+                    else {
+                        panic!("location endpoint")
+                    };
+                    assert!(
+                        !is(*a, "datum_feature"),
+                        "{name}: {} uses datum {}",
+                        w.text(id),
+                        w.text(*a)
+                    );
+                }
+            }
+        }
+        assert!(
+            composites > 0 && locations > 0,
+            "sample must exercise both rules"
+        );
+        assert_eq!(w.read.parts[0].datums.len(), count);
+        sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
+    }
+}
+
+#[test]
+fn a_multi_face_area_target_is_composite_with_per_face_usages() {
+    let f = gap_spool();
+    let p = PartPmi {
+        features: vec![faces(&[0, 1])],
+        datum_targets: vec![
+            DatumTarget::new(1, TargetShape::Area(FeatureId(0)), None, None, None).unwrap(),
+        ],
+        datums: vec![Datum::new(label("A"), None, vec![DatumTargetId(0)]).unwrap()],
+        ..PartPmi::default()
+    };
+    let w = written(&f, &p);
+    assert_verified(&f, &w, &p);
+    // The existing CAx-IF datum_target.WR5 conflict is reported for any area
+    // target; combining it with CSA must add no further schema/rule finding.
+    let findings = new_violations(&f.doc, &w.doc);
+    assert_eq!(findings.len(), 1, "{findings:?}");
+    assert!(findings[0].contains("datum_target.WR5"), "{findings:?}");
+    let target = w
+        .added()
+        .into_iter()
+        .find(|&id| w.names(id).iter().any(|n| express::is_a(n, "datum_target")))
+        .unwrap();
+    assert!(
+        w.names(target)
+            .iter()
+            .any(|n| express::is_a(n, "composite_shape_aspect"))
+    );
+    let components: Vec<_> = w
+        .doc
+        .referrers(target)
+        .iter()
+        .copied()
+        .filter(|&id| {
+            test_attribute(
+                &w.doc,
+                id,
+                "shape_aspect_relationship",
+                "relating_shape_aspect",
+            ) == Some(&Attribute::EntityRef(target))
+                && test_attribute(&w.doc, id, "shape_aspect_relationship", "name")
+                    == Some(&Attribute::String(String::new()))
+        })
+        .collect();
+    // Two geometry components, plus the relationship establishing the datum.
+    assert_eq!(components.len(), 3);
+    assert_eq!(
+        w.added()
+            .into_iter()
+            .filter(|&id| w.names(id) == ["geometric_item_specific_usage"])
+            .count(),
+        2
+    );
 }

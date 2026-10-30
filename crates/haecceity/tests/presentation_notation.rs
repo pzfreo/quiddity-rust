@@ -213,7 +213,7 @@ fn scope_rings_follow_draftwright_at_a_bend_clear_of_the_frame() {
         let leader = draw.lines.last().unwrap();
         assert_eq!(leader.len(), 3);
         let elbow = leader[1];
-        assert!(geom::dist(elbow, leader[2]) > 2.3 * 20. / 125.);
+        assert!(geom::dist(elbow, leader[2]) > 2.3 * (0.5 + 0.018 * 20.));
         let actual = &draw.lines[draw.lines.len() - 1 - rings as usize..draw.lines.len() - 1];
         let up = geom::cross(draw.normal, draw.along);
         let frame_near = draw
@@ -226,7 +226,7 @@ fn scope_rings_follow_draftwright_at_a_bend_clear_of_the_frame() {
         for (i, ring) in actual.iter().enumerate() {
             assert_eq!(ring.len(), 33);
             assert_eq!(ring[0], ring[32]);
-            let r = 0.7 * 2.7 * (20. / 125. / 3.) * if i == 0 { 1. } else { 1.7 };
+            let r = 0.7 * 2.7 * ((0.5 + 0.018 * 20.) / 3.) * if i == 0 { 1. } else { 1.7 };
             for q in ring {
                 assert!((geom::dist(*q, elbow) - r).abs() < 2e-6);
                 assert!(
@@ -331,5 +331,27 @@ fn unprinted_draftwright_fields_remain_semantic_only() {
             .unwrap(),
         );
         assert_eq!(presentation::tolerance(&t, &p).notation(), "⌓ 0.1 A");
+    }
+}
+
+#[test]
+fn physical_text_height_is_legible_across_small_and_large_parts_and_units() {
+    use haecceity::{
+        geom::Bounds,
+        presentation::placement::{Layout, text_height},
+    };
+    for (extent, expected) in [(10., 0.68), (37.6, 1.1768), (100., 2.3), (300., 5.9)] {
+        assert!((text_height(extent) - expected).abs() < 1e-12);
+        for mm_per_unit in [1., 25.4, 0.001] {
+            let bounds = Bounds {
+                min: [0.; 3],
+                max: [extent / mm_per_unit; 3],
+            };
+            assert!(
+                (Layout::with_unit(bounds, mm_per_unit).text_height() * mm_per_unit - expected)
+                    .abs()
+                    < 1e-12
+            );
+        }
     }
 }
