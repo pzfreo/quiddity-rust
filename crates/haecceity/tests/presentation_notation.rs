@@ -175,7 +175,7 @@ fn profile() -> GeometricTolerance {
     }
 }
 #[test]
-fn scope_rings_follow_draftwright_at_the_short_leader_attachment() {
+fn scope_rings_follow_draftwright_at_a_bend_clear_of_the_frame() {
     use haecceity::{
         geom::{self, Bounds as Box3},
         presentation::placement::Layout,
@@ -211,14 +211,28 @@ fn scope_rings_follow_draftwright_at_the_short_leader_attachment() {
         });
         let draw = layout.place([0.; 3], Some([1., 0., 0.]), &c);
         let leader = draw.lines.last().unwrap();
+        assert_eq!(leader.len(), 3);
         let elbow = leader[1];
+        assert!(geom::dist(elbow, leader[2]) > 2.3 * 20. / 125.);
         let actual = &draw.lines[draw.lines.len() - 1 - rings as usize..draw.lines.len() - 1];
+        let up = geom::cross(draw.normal, draw.along);
+        let frame_near = draw
+            .lines
+            .iter()
+            .take(4)
+            .flatten()
+            .map(|q| geom::dot(*q, up))
+            .fold(f64::INFINITY, f64::min);
         for (i, ring) in actual.iter().enumerate() {
             assert_eq!(ring.len(), 33);
             assert_eq!(ring[0], ring[32]);
             let r = 0.7 * 2.7 * (20. / 125. / 3.) * if i == 0 { 1. } else { 1.7 };
             for q in ring {
                 assert!((geom::dist(*q, elbow) - r).abs() < 2e-6);
+                assert!(
+                    geom::dot(*q, up) < frame_near - 1e-6,
+                    "scope ring must clear the frame"
+                );
             }
         }
     }

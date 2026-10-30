@@ -122,15 +122,19 @@ impl Layout {
         if sign < 0. {
             end[v] += height;
         }
-        // Draftwright draws scope rings at the leader bend (RING = 0.7 * ARROW, ARROW = 2.7).
-        // Our short leader has one attachment at the label, so that is its bend.
+        // Draftwright's scope rings stand at the leader bend, clear of the frame.
+        // Add a short normal shelf only for scope symbols; retain all other leaders.
+        let mut elbow = end;
+        if c.leader_rings > 0 {
+            elbow[v] -= sign * 2.4 * h;
+        }
         for ring in 0..c.leader_rings {
             let r = 0.7 * 2.7 * scale * if ring == 0 { 1. } else { 1.7 };
             lines.push(
                 (0..=32)
                     .map(|i| {
                         let t = (i as f64 * 360. / 32.).to_radians();
-                        let mut p = end;
+                        let mut p = elbow;
                         p[u] += r * t.cos();
                         p[v] += r * t.sin();
                         round(p)
@@ -138,7 +142,11 @@ impl Layout {
                     .collect(),
             );
         }
-        lines.push(vec![round(anchor), round(end)]);
+        lines.push(if c.leader_rings > 0 {
+            vec![round(anchor), round(elbow), round(end)]
+        } else {
+            vec![round(anchor), round(end)]
+        });
         Placed {
             anchor: round(anchor),
             origin,

@@ -1928,8 +1928,15 @@ struct Parsed {
     graph: step_io::parser::Graph,
 }
 
+#[cfg(test)]
+thread_local! {
+    static GEOMETRY_PARSES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
 impl Parsed {
     fn new(bytes: &[u8]) -> Result<Parsed, StepError> {
+        #[cfg(test)]
+        GEOMETRY_PARSES.with(|n| n.set(n.get() + 1));
         let parse_error = |e| StepError::Parse(crate::p21::parse_message(bytes, &e));
         let (model, report) = step_io::read(bytes).map_err(parse_error)?;
         let graph = step_io::parser::parse(bytes).map_err(parse_error)?;
@@ -2915,6 +2922,50 @@ pub fn decode_step_file_bytes(path: &std::path::Path, bytes: Vec<u8>) -> std::io
 
 #[cfg(test)]
 mod tests {
+    #[cfg(feature = "presentation")]
+    #[test]
+    fn pmi_writer_shares_one_geometry_parse_between_parts() {
+        use crate::{
+            p21::Document,
+            pmi::{
+                self, PartId,
+                write::{Mode, PresentationPolicy},
+            },
+        };
+        use std::io::Read;
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(
+            "../../tests/fixtures/ap242/write-presentation/assembly_plate_pin_intent.step.gz",
+        );
+        let mut bytes = Vec::new();
+        flate2::read::GzDecoder::new(std::fs::File::open(path).unwrap())
+            .read_to_end(&mut bytes)
+            .unwrap();
+        let defs = super::read_part_definitions(&bytes).unwrap();
+        let doc = Document::parse(bytes).unwrap();
+        let read = pmi::read(&doc, &defs).unwrap();
+        assert_eq!(defs.len(), 2);
+        assert!(read.parts.iter().all(|p| !p.dimensions.is_empty()));
+        let requests: Vec<_> = read
+            .parts
+            .into_iter()
+            .enumerate()
+            .map(|(i, p)| (PartId(i), p))
+            .collect();
+        let before = super::GEOMETRY_PARSES.with(std::cell::Cell::get);
+        pmi::write(
+            &doc,
+            &defs,
+            &requests,
+            Mode::Replace,
+            PresentationPolicy::RemovePresentation,
+        )
+        .unwrap();
+        assert_eq!(
+            super::GEOMETRY_PARSES.with(std::cell::Cell::get) - before,
+            1,
+            "all callout-bearing parts must share one parse, not one parse per part"
+        );
+    }
     use super::*;
     use crate::hlr::{Plane, Unresolved, View, project, section};
 

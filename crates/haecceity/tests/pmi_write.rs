@@ -6006,3 +6006,55 @@ fn read_back_deviations_use_notation_numbers() {
         );
     }
 }
+
+#[cfg(feature = "presentation")]
+#[test]
+fn scope_symbols_survive_the_written_entity_graph() {
+    use haecceity::{geom, presentation};
+    let f = gap_spool();
+    for (target, auxiliary, rings) in [
+        (ToleranceTarget::Feature(FeatureId(1)), vec![], 1),
+        (
+            ToleranceTarget::Feature(FeatureId(0)),
+            vec![AuxiliaryClassification::AllOver],
+            2,
+        ),
+        (ToleranceTarget::WholePart, vec![], 2),
+    ] {
+        let mut p = PartPmi {
+            features: vec![
+                faces(&[0]),
+                Feature::Group {
+                    kind: GroupKind::AllAround,
+                    members: vec![FeatureId(0)],
+                },
+            ],
+            ..PartPmi::default()
+        };
+        let mut t = tolerance(ToleranceKind::SurfaceProfile, target, "0.1");
+        t.auxiliary = auxiliary;
+        p.tolerances.push(t);
+        let w = written(&f, &p);
+        assert_verified(&f, &w, &p);
+        assert!(new_violations(&f.doc, &w.doc).is_empty());
+        let callout = w
+            .added()
+            .into_iter()
+            .find(|&id| w.names(id) == ["draughting_callout"])
+            .unwrap();
+        let lines = graphic_lines(&w.doc, callout);
+        let local = presentation::tolerance(&p.tolerances[0], &p);
+        assert_eq!(lines.len(), local.polylines().len() + rings + 1);
+        let leader = lines.last().unwrap();
+        assert_eq!(leader.len(), 3);
+        for ring in &lines[lines.len() - 1 - rings..lines.len() - 1] {
+            assert_eq!(ring.len(), 33);
+            assert_eq!(ring.first(), ring.last());
+            let centre = geom::scale(geom::add(ring[0], ring[16]), 0.5);
+            assert!(
+                geom::dist(centre, leader[1]) < 2e-6,
+                "ring centred on leader bend"
+            );
+        }
+    }
+}

@@ -117,7 +117,7 @@ literal `\X2\`, correctly STEP-escaped as `\\X2\\`, not an invalid Unicode escap
 Requirement notation additionally ports Draftwright aaa7a73 `src/pmi.rs` MAX/MIN/AVG suffixes
 and fit-with-stated-limits ranges (`lo - hi`, rather than class-only text). Read-back deviation
 values use the shared STEP-number normalization (`±1.0`, `+0.5 -1.0`, `+1E-2 0`). All-around
-and all-over use Draftwright's one/two rings at the short leader's attachment, with the same
+and all-over use Draftwright's one/two rings at a short leader bend clear of the frame, with the same
 0.7 × arrow radius and 1.7 outer-ring ratio (`src/dims/gdt.rs`).
 
 The following remain semantic-only because that Draftwright revision does not draw them
@@ -163,7 +163,8 @@ The round-3 regenerated STEP/OCP pairs are `assembly_plate_pin_intent`, `datum_t
 `spool_fits_intent`, `string_post_tapped_intent`, `thumbwheel_notes_add`, and
 `thumbwheel_thread_knurl_intent`. Each loses feature associations/auxiliary representations
 and consequent entity numbers; `every_kind` also replaces `⌀20 H7` with its stated
-`⌀20.000 - ⌀20.021` range and adds the all-around scope ring. OCP captures are refreshed for
+`⌀20.000 - ⌀20.021` range. Scope rings have dedicated writer/geometry tests; these goldens
+contain no scope symbols. OCP captures are refreshed for
 the exact new STEP hashes. The other three pairs and all feature-off fixtures stay unchanged.
 `export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the new
 folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture the legacy folder.
