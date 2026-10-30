@@ -1206,6 +1206,31 @@ pub struct FaceMoments {
 }
 
 impl Part {
+    /// Signed orthogonal projected area and its centroid in space, along unit `direction`.
+    /// This integrates `n·direction` rather than surface area. Overlapping sheets of a
+    /// folded projection cancel. Used to measure a skin's adjoining edge-treatment strips.
+    pub fn face_projected_moments(&self, face: usize, direction: V3) -> Option<(f64, V3)> {
+        let fc = &self.faces[face];
+        let origin = fc.loops.iter().find_map(|lp| {
+            lp.vertex
+                .or_else(|| lp.edges.first().map(|&(e, _)| self.edges[e].start))
+        })?;
+        let [area, x, y, z] = self.face_integral(face, |u, v| {
+            let (p, su, sv) = point_and_partials(&fc.surface, u, v);
+            let w = geom::dot(geom::cross(su, sv), direction);
+            let q = geom::sub(p, origin);
+            [w, w * q[0], w * q[1], w * q[2]]
+        })?;
+        if !area.is_finite() || area.abs() <= f64::EPSILON {
+            return None;
+        }
+        let centroid = geom::add(origin, [x / area, y / area, z / area]);
+        centroid
+            .iter()
+            .all(|x| x.is_finite())
+            .then_some((if fc.reversed { -area } else { area }, centroid))
+    }
+
     /// The face's area, centroid, outward area vector and central second moments,
     /// by the same boundary quadrature as
     /// [`Part::face_mass`]; `None` where that cannot integrate the face.

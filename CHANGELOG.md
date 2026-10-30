@@ -6,6 +6,17 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Fixed
+
+- For #134, boss height and free-end location include adjoining proved end chamfers
+  and rounds. Plate coverage and centres include the orthogonal projections of
+  adjacent convex edge treatments, preserving real supporting plates under trimming
+  without changing recognition thresholds. Supporting boss/plate fingerprints carry
+  across those edits; matched plate skins seed face correspondence by their real
+  planes. Genuine shaft shortening, plate thinning/removal and flat movement remain
+  visible. Recognition schema `/6` and fingerprint format `/3` are unchanged; affected
+  fingerprint values intentionally change within `/3`, as for #71 and #92.
+
 ## 0.2.4 (2026-10-29)
 
 Upgrading from 0.2.3: recognition and its schema (`quiddity-rust/recognition/6`, fingerprints

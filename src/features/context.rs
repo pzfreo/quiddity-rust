@@ -25,6 +25,7 @@ pub struct Context<'a> {
     solid_classifiers: Vec<OnceLock<Classifier<'a>>>,
     cylinders: OnceLock<Vec<CylinderEvidence>>,
     threads: OnceLock<ThreadAnalysis>,
+    edge_treatments: OnceLock<Vec<super::evidence::Occurrence<()>>>,
     signatures: OnceLock<Vec<Option<BodyKey>>>,
     section_passages: OnceLock<Result<Vec<Found>, PassageError>>,
 }
@@ -39,6 +40,7 @@ internal_entry! {
             solid_classifiers: part.solids.iter().map(|_| OnceLock::new()).collect(),
             cylinders: OnceLock::new(),
             threads: OnceLock::new(),
+            edge_treatments: OnceLock::new(),
             signatures: OnceLock::new(),
             section_passages: OnceLock::new(),
         }
@@ -48,6 +50,13 @@ internal_entry! {
     /// The whole part's box.
     pub fn bounds(&self) -> &Bounds {
         self.bounds.get_or_init(|| self.part.bounds())
+    }
+
+    /// Convex edge treatments, including their supporting evidence, independent of the
+    /// minimum radius used to report fillets. Shared by boss extent and plate coverage.
+    pub(crate) fn edge_treatments(&self) -> &[super::evidence::Occurrence<()>] {
+        self.edge_treatments
+            .get_or_init(|| super::edge_treatments::discover(self))
     }
 
     /// The point classifier for the whole part.

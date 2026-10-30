@@ -2,7 +2,7 @@
 //! (`docs/correspondence.md`, "Fingerprints"). Everything in them is unchanged by a rigid motion
 //! of the part except the placements (positions, axes, normals), which move with it.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -13,7 +13,7 @@ use crate::kernel::geom::{self, Surface, V3};
 use crate::kernel::py;
 
 /// Fingerprint format version: correspondence refuses different formats.
-/// Intentional value changes within v3 are recorded in the changelog (#71, #92).
+/// Intentional value changes within v3 are recorded in the changelog (#71, #92, #134).
 pub const FINGERPRINT_VERSION: &str = "quiddity-rust/fingerprint/3";
 
 /// The fingerprints of one recognition result.
@@ -44,7 +44,8 @@ pub struct FeatureFingerprint {
     /// Placement: the feature's axis, normal or run, as a unit vector (its sign is not
     /// significant).
     pub axis: Option<V3>,
-    /// Placement: the area-weighted centroid of its faces.
+    /// Placement: the area-weighted centroid of its faces; bosses use their axial midpoint,
+    /// plates restore the projected strips removed by convex edge treatments (#134).
     pub position: Option<V3>,
     /// The part's faces that define it, ascending (a pattern's are its members').
     pub faces: Vec<usize>,
@@ -1100,6 +1101,7 @@ fn fingerprint_with_axes(
     features: &Features,
     axis: impl Fn(&str, &str, &Value) -> Option<V3>,
 ) -> Fingerprints {
+    let ctx = crate::features::Context::new(part);
     let faces: Vec<FaceFingerprint> = (0..part.faces.len()).map(|i| face(part, i)).collect();
     let scale = faces
         .iter()
@@ -1129,14 +1131,17 @@ fn fingerprint_with_axes(
                     "family {key} has no defining faces in Features::defining and is not derived"
                 ),
             };
-            out.push(feature(
-                &faces,
-                format!("{key}/{n}"),
-                table,
-                record,
-                faces_of,
-                &axis,
-            ));
+            let mut fp = feature(&faces, format!("{key}/{n}"), table, record, faces_of, &axis);
+            if !fp.faces.is_empty() && (key == "bosses" || key == "plates") {
+                fp.neighbourhood = supporting_neighbourhood(&faces, &fp.faces, &ctx);
+                fp.position = if key == "bosses" {
+                    let boss = serde_json::from_value(record.clone()).expect("boss record");
+                    Some(crate::features::bosses::midpoint(&ctx, &boss, &fp.faces))
+                } else {
+                    plate_position(&ctx, &fp.faces).or(fp.position)
+                };
+            }
+            out.push(fp);
         }
     }
     Fingerprints {
@@ -1145,6 +1150,99 @@ fn fingerprint_with_axes(
         features: out,
         faces,
     }
+}
+
+/// Contract proved convex treatment faces when reading the supporting feature's graph.
+/// Each real neighbouring support is counted once, even when reached directly and through
+/// a bevel. Face fingerprints retain the complete physical graph and trimmed measurements.
+fn supporting_neighbourhood(
+    faces: &[FaceFingerprint],
+    own: &[usize],
+    ctx: &crate::features::Context<'_>,
+) -> Vec<String> {
+    let treatments: BTreeSet<_> = ctx
+        .edge_treatments()
+        .iter()
+        .flat_map(|o| o.defining.iter().copied())
+        .filter(|f| !own.contains(f))
+        .collect();
+    let mut out = Vec::new();
+    for &f in own {
+        let mut neighbours: BTreeMap<usize, &str> = faces[f]
+            .neighbours
+            .iter()
+            .filter(|(g, _)| !treatments.contains(g))
+            .map(|(g, arc)| (*g, arc.as_str()))
+            .collect();
+        // Contract one proved treatment, not the whole connected network of edge
+        // breaks: on a fully bevelled box that network also reaches the opposite skin.
+        for (g, _) in &faces[f].neighbours {
+            for treatment in ctx
+                .edge_treatments()
+                .iter()
+                .filter(|o| o.defining.contains(g))
+            {
+                for &patch in &treatment.defining {
+                    for (h, _) in &faces[patch].neighbours {
+                        if *h != f && !treatments.contains(h) {
+                            neighbours.entry(*h).or_insert("convex");
+                        }
+                    }
+                }
+            }
+        }
+        for (g, arc) in neighbours {
+            let side = if own.contains(&g) { "in" } else { "out" };
+            out.push(format!(
+                "{}>{side}:{}:{arc}",
+                faces[f].surface, faces[g].surface
+            ));
+        }
+    }
+    out.sort();
+    out
+}
+
+/// The area centre of the two supporting skins, restoring projected treatment strips on
+/// each real skin plane. This is intrinsic under rotation and does not move when an edge
+/// break removes area from one skin. A moved plane or a changed footprint still moves it.
+fn plate_position(ctx: &crate::features::Context<'_>, own: &[usize]) -> Option<V3> {
+    let part = ctx.part;
+    let mut weight = 0.;
+    let mut sum = [0.; 3];
+    let mut counted = BTreeSet::new();
+    let reference = crate::features::planes::unit_plane_normal(part, *own.first()?)?;
+    for &f in own {
+        let n = crate::features::planes::unit_plane_normal(part, f)?;
+        let m = part.face_moments(f)?;
+        weight += m.area;
+        sum = geom::add(sum, geom::scale(m.centroid, m.area));
+        let neighbours = part.neighbours(f);
+        for treatment in ctx.edge_treatments() {
+            for &g in &treatment.defining {
+                if !neighbours.contains(&g) || counted.contains(&(g, geom::dot(n, reference) > 0.))
+                {
+                    continue;
+                }
+                let (_, hi) = part.extent_along(&[g], n);
+                let plane = geom::dot(m.centroid, n);
+                if hi > plane + geom::COORD_FLOOR {
+                    continue;
+                }
+                let Some((a, c)) = part.face_projected_moments(g, n) else {
+                    continue;
+                };
+                if a <= 0. {
+                    continue;
+                }
+                let c = geom::add(c, geom::scale(n, plane - geom::dot(c, n)));
+                weight += a;
+                sum = geom::add(sum, geom::scale(c, a));
+                counted.insert((g, geom::dot(n, reference) > 0.));
+            }
+        }
+    }
+    (weight > 0.).then(|| geom::scale(sum, 1. / weight))
 }
 
 /// A derived record's faces: its members' defining faces, each member found among the base

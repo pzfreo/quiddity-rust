@@ -387,6 +387,513 @@
           ]
         }
       ]
+    },
+    {
+      "name": "gramil_shaft",
+      "old_file": "gramil_shaft.old.step.gz",
+      "new_file": "gramil_shaft.new.step.gz",
+      "aligned": true,
+      "expect": [
+        {
+          "label": "#134 bosses/0: gramil_shaft",
+          "family": "bosses",
+          "class": "carried",
+          "old_at": [
+            18.8,
+            0.0,
+            0.0
+          ],
+          "new_at": [
+            18.8,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "label": "#134 flats/1: gramil_shaft",
+          "family": "flats",
+          "class": "adapted",
+          "old_at": [
+            35.6,
+            0.0,
+            -3.4
+          ],
+          "new_at": [
+            35.05236852336747,
+            0.0,
+            -3.4
+          ],
+          "changes": [
+            "neighbourhood",
+            "position"
+          ]
+        },
+        {
+          "label": "#134 plates/0: gramil_shaft",
+          "family": "plates",
+          "class": "carried",
+          "old_at": [
+            36.047773148600534,
+            -7.887528078230836e-16,
+            0.19083891230652886
+          ],
+          "new_at": [
+            36.04777314860039,
+            -4.89581964773351e-16,
+            0.1908389123065575
+          ]
+        },
+        {
+          "label": "#134 added chamfers/0",
+          "family": "chamfers",
+          "class": "new",
+          "old_at": null,
+          "new_at": [
+            36.81932256762467,
+            -3.7973846311295566e-17,
+            0.2156840353986964
+          ]
+        }
+      ],
+      "face_expect": [
+        {
+          "old": 0,
+          "new": 0,
+          "class": "adapted",
+          "changes": [
+            "area"
+          ]
+        },
+        {
+          "old": 1,
+          "new": 13,
+          "class": "adapted",
+          "changes": [
+            "area",
+            "adjacency"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gramil_shaft_shorter",
+      "old_file": "gramil_shaft.old.step.gz",
+      "new_file": "gramil_shaft.shorter.step.gz",
+      "aligned": true,
+      "expect": [
+        {
+          "label": "#134 bosses/0: gramil_shaft_shorter",
+          "family": "bosses",
+          "class": "adapted",
+          "old_at": [
+            18.8,
+            0.0,
+            0.0
+          ],
+          "new_at": [
+            17.8,
+            0.0,
+            0.0
+          ],
+          "changes": [
+            "position",
+            "sizes.height"
+          ]
+        },
+        {
+          "label": "#134 flats/0: gramil_shaft_shorter",
+          "family": "flats",
+          "class": "adapted",
+          "old_at": [
+            13.599999999999998,
+            -4.440892098500626e-16,
+            -3.3999999999999995
+          ],
+          "new_at": [
+            12.600000000000001,
+            -4.4408920985006257e-16,
+            -3.3999999999999995
+          ],
+          "changes": [
+            "position"
+          ]
+        },
+        {
+          "label": "#134 flats/1: gramil_shaft_shorter",
+          "family": "flats",
+          "class": "adapted",
+          "old_at": [
+            35.6,
+            0.0,
+            -3.4
+          ],
+          "new_at": [
+            33.05236852336747,
+            4.440892098500626e-16,
+            -3.4
+          ],
+          "changes": [
+            "neighbourhood",
+            "position"
+          ]
+        },
+        {
+          "label": "#134 holes/1: gramil_shaft_shorter",
+          "family": "holes",
+          "class": "adapted",
+          "old_at": [
+            35.6,
+            -7.365071664294315e-17,
+            6.661338147750939e-16
+          ],
+          "new_at": [
+            33.6,
+            -7.365071664294315e-17,
+            6.661338147750939e-16
+          ],
+          "changes": [
+            "position"
+          ]
+        },
+        {
+          "label": "#134 plates/0: gramil_shaft_shorter",
+          "family": "plates",
+          "class": "adapted",
+          "old_at": [
+            36.047773148600534,
+            -7.887528078230836e-16,
+            0.19083891230652886
+          ],
+          "new_at": [
+            34.04777314860038,
+            -4.739904536217492e-16,
+            0.19083891230655697
+          ],
+          "changes": [
+            "position"
+          ]
+        },
+        {
+          "label": "#134 slots/0: gramil_shaft_shorter",
+          "family": "slots",
+          "class": "adapted",
+          "old_at": [
+            30.400000000000002,
+            1.7246995773336796e-16,
+            6.8833827526759706e-15
+          ],
+          "new_at": [
+            28.4,
+            0.0,
+            6.439293542825908e-15
+          ],
+          "changes": [
+            "position"
+          ]
+        },
+        {
+          "label": "#134 added chamfers/0",
+          "family": "chamfers",
+          "class": "new",
+          "old_at": null,
+          "new_at": [
+            34.81932256762467,
+            -5.863912725989426e-17,
+            0.2156840353986964
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gramil_shaft_flat_moved",
+      "old_file": "gramil_shaft.new.step.gz",
+      "new_file": "gramil_shaft.flat_moved.step.gz",
+      "aligned": true,
+      "expect": [
+        {
+          "label": "#134 bosses/0: gramil_shaft_flat_moved",
+          "family": "bosses",
+          "class": "adapted",
+          "old_at": [
+            18.8,
+            0.0,
+            0.0
+          ],
+          "new_at": [
+            18.8,
+            0.0,
+            0.0
+          ],
+          "changes": [
+            "neighbourhood"
+          ]
+        },
+        {
+          "label": "#134 chamfers/0: gramil_shaft_flat_moved",
+          "family": "chamfers",
+          "class": "adapted",
+          "old_at": [
+            36.81932256762467,
+            -3.7973846311295566e-17,
+            0.2156840353986964
+          ],
+          "new_at": [
+            36.82771969574014,
+            -1.2211414104799848e-16,
+            0.32897237153719416
+          ],
+          "changes": [
+            "position"
+          ]
+        },
+        {
+          "label": "#134 flats/0: gramil_shaft_flat_moved",
+          "family": "flats",
+          "class": "adapted",
+          "old_at": [
+            13.599999999999998,
+            -4.440892098500626e-16,
+            -3.3999999999999995
+          ],
+          "new_at": [
+            15.783676133144635,
+            8.881784197001251e-16,
+            -3.2
+          ],
+          "changes": [
+            "neighbourhood",
+            "position",
+            "sizes.across"
+          ]
+        },
+        {
+          "label": "#134 flats/1: gramil_shaft_flat_moved",
+          "family": "flats",
+          "class": "orphaned",
+          "old_at": [
+            35.05236852336747,
+            0.0,
+            -3.4
+          ],
+          "new_at": null
+        },
+        {
+          "label": "#134 plates/0: gramil_shaft_flat_moved",
+          "family": "plates",
+          "class": "adapted",
+          "old_at": [
+            36.04777314860039,
+            -4.89581964773351e-16,
+            0.1908389123065575
+          ],
+          "new_at": [
+            36.060482481095384,
+            -3.143032005157201e-16,
+            0.2899745493110433
+          ],
+          "changes": [
+            "position"
+          ]
+        },
+        {
+          "label": "#134 slots/0: gramil_shaft_flat_moved",
+          "family": "slots",
+          "class": "adapted",
+          "old_at": [
+            30.400000000000002,
+            1.7246995773336796e-16,
+            6.8833827526759706e-15
+          ],
+          "new_at": [
+            30.400000000000002,
+            0.0,
+            0.009299148698003412
+          ],
+          "changes": [
+            "neighbourhood",
+            "position"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "q134_plate_thinned",
+      "old_file": "q134_plate.old.step.gz",
+      "new_file": "q134_plate.thinned.step.gz",
+      "aligned": true,
+      "expect": [
+        {
+          "label": "#134 plates/0: q134_plate_thinned",
+          "family": "plates",
+          "class": "adapted",
+          "old_at": [
+            50.000000000000014,
+            3.714285714285714,
+            15.928571428571423
+          ],
+          "new_at": [
+            50.00000000000001,
+            3.8620689655172407,
+            15.48275862068965
+          ],
+          "changes": [
+            "position"
+          ]
+        },
+        {
+          "label": "#134 plates/1: q134_plate_thinned",
+          "family": "plates",
+          "class": "adapted",
+          "old_at": [
+            49.99999999999998,
+            31.85714285714285,
+            1.8571428571428568
+          ],
+          "new_at": [
+            49.99999999999998,
+            31.85714285714285,
+            0.9285714285714284
+          ],
+          "changes": [
+            "position",
+            "sizes.thickness"
+          ]
+        },
+        {
+          "label": "#134 risers/0: q134_plate_thinned",
+          "family": "risers",
+          "class": "adapted",
+          "old_at": [
+            50.00000000000001,
+            8.0,
+            17.000000000000004
+          ],
+          "new_at": [
+            50.0,
+            8.0,
+            15.999999999999998
+          ],
+          "changes": [
+            "position",
+            "sizes.height"
+          ]
+        },
+        {
+          "label": "#134 step_levels/0: q134_plate_thinned",
+          "family": "step_levels",
+          "class": "adapted",
+          "old_at": [
+            49.99999999999998,
+            34.0,
+            4.0
+          ],
+          "new_at": [
+            49.99999999999998,
+            34.0,
+            2.0
+          ],
+          "changes": [
+            "position"
+          ]
+        },
+        {
+          "label": "#134 through_steps/0: q134_plate_thinned",
+          "family": "through_steps",
+          "class": "adapted",
+          "old_at": [
+            49.99999999999999,
+            25.333333333333332,
+            8.333333333333336
+          ],
+          "new_at": [
+            49.999999999999986,
+            24.900000000000002,
+            6.9
+          ],
+          "changes": [
+            "position",
+            "sizes.section.legs.0"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "q134_plate_removed",
+      "old_file": "q134_plate.old.step.gz",
+      "new_file": "q134_plate.removed.step.gz",
+      "aligned": false,
+      "expect": [
+        {
+          "label": "#134 plates/0: q134_plate_removed",
+          "family": "plates",
+          "class": "orphaned",
+          "old_at": [
+            50.000000000000014,
+            3.714285714285714,
+            15.928571428571423
+          ],
+          "new_at": null
+        },
+        {
+          "label": "#134 plates/1: q134_plate_removed",
+          "family": "plates",
+          "class": "orphaned",
+          "old_at": [
+            49.99999999999998,
+            31.85714285714285,
+            1.8571428571428568
+          ],
+          "new_at": null
+        },
+        {
+          "label": "#134 risers/0: q134_plate_removed",
+          "family": "risers",
+          "class": "orphaned",
+          "old_at": [
+            50.00000000000001,
+            8.0,
+            17.000000000000004
+          ],
+          "new_at": null
+        },
+        {
+          "label": "#134 step_levels/0: q134_plate_removed",
+          "family": "step_levels",
+          "class": "orphaned",
+          "old_at": [
+            49.99999999999998,
+            34.0,
+            4.0
+          ],
+          "new_at": null
+        },
+        {
+          "label": "#134 through_steps/0: q134_plate_removed",
+          "family": "through_steps",
+          "class": "orphaned",
+          "old_at": [
+            49.99999999999999,
+            25.333333333333332,
+            8.333333333333336
+          ],
+          "new_at": null
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "files": "gramil_shaft.*",
+      "author": "Paul Fremantle (gramil)",
+      "repository": "https://github.com/pzfreo/gramil",
+      "revision": "9171ef6",
+      "recipe": "gramil_shaft.py",
+      "licence": "LICENSE-gramil"
+    },
+    {
+      "files": "q134_plate.*",
+      "recipe": "../../../tools/make_edge_treatment_fixtures.py",
+      "licence": "Apache-2.0"
     }
   ]
 }

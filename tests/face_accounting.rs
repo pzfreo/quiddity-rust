@@ -474,7 +474,29 @@ fn ctc01_e1_accounting_records_and_main_correspondence() {
         .filter(|a| by_id(&a.id).is_none_or(|b| !same(*a, b)))
         .map(|a| a.id.as_str())
         .collect();
-    assert_eq!(differing, changed);
+    // For #134 the supporting plate contracts its convex edge treatments. Its
+    // faces, placement and sizes stay identical; only that neighbourhood changes.
+    let a = old.features.iter().find(|f| f.id == "plates/0").unwrap();
+    let b = by_id("plates/0").unwrap();
+    let mut restored = a.clone();
+    restored.neighbourhood = b.neighbourhood.clone();
+    assert!(same(&restored, b));
+    let count = |f: &correspondence::FeatureFingerprint, text: &str| {
+        f.neighbourhood
+            .iter()
+            .filter(|x| x.as_str() == text)
+            .count()
+    };
+    assert_eq!(count(a, "plane>out:cylinder:convex"), 63);
+    assert_eq!(count(b, "plane>out:cylinder:convex"), 56);
+    assert_eq!(count(a, "plane>out:plane:convex"), 57);
+    assert_eq!(count(b, "plane>out:plane:convex"), 60);
+    let mut expected_differing = changed.clone();
+    expected_differing.push("plates/0");
+    expected_differing.sort_unstable();
+    let mut differing = differing;
+    differing.sort_unstable();
+    assert_eq!(differing, expected_differing);
     let old_claims: BTreeSet<_> = old.features.iter().flat_map(|f| &f.faces).collect();
     assert_eq!(old_claims.len(), 90); // main: feature 90, body 20, unexplained 7
     assert_eq!(old.faces.len(), new.faces.len());

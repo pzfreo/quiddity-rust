@@ -30,7 +30,8 @@ const TOL: f64 = 0.5;
 const ORIENTED_ANGLE_DIGITS: usize = 9;
 
 /// A recognised thin slab. `axis` is the thickness axis, `lo`/`hi` its bounding coordinates
-/// along it, and `u`/`v` the area-weighted centre of its two face groups on the other two axes.
+/// along it, and `u`/`v` the area-weighted centre of its two supporting skins (including
+/// projected convex edge treatments) on the other two axes.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Plate {
     pub axis: char,
@@ -158,7 +159,7 @@ pub fn discover(ctx: &Context<'_>, opts: &PlateOptions) -> Vec<Occurrence<Plate>
     let mut out: Vec<Occurrence<Plate>> = Vec::new();
     for scope in &scopes {
         let mut seen: Vec<(char, f64, f64)> = Vec::new();
-        for mut o in proposals(part, scope, opts, tol) {
+        for mut o in proposals(ctx, scope, opts, tol) {
             // A locally degraded run skips a plate whose faces prove no one valid solid
             // (`_discover_plates` on a degraded graph, before it binds plate keys).
             if evidence::local_degradation()
@@ -189,7 +190,13 @@ pub fn discover(ctx: &Context<'_>, opts: &PlateOptions) -> Vec<Occurrence<Plate>
 }
 
 /// `_plate_proposals`: one body's plates, sorted by axis, `lo` and `hi`.
-fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<Occurrence<Plate>> {
+fn proposals(
+    ctx: &Context<'_>,
+    scope: &Scope,
+    opts: &PlateOptions,
+    tol: f64,
+) -> Vec<Occurrence<Plate>> {
+    let part = ctx.part;
     let b = &scope.bounds;
     let extents: V3 = std::array::from_fn(|i| b.max[i] - b.min[i]);
     let faces: Vec<usize> = scope
@@ -241,14 +248,18 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
             continue;
         }
         let threshold = opts.min_area_frac * cross;
+        let coverage = |g: &Group, sign| {
+            policy::clears_threshold(g.area, threshold)
+                || policy::clears_threshold(trimmed_coverage(ctx, g, i, sign).0.area, threshold)
+        };
         let mut events: Vec<(f64, i8, &Group)> = negative
             .iter()
-            .filter(|(_, g)| policy::clears_threshold(g.area, threshold))
+            .filter(|(_, g)| coverage(g, -1.0))
             .map(|(c, g)| (c.0, -1, g))
             .chain(
                 positive
                     .iter()
-                    .filter(|(_, g)| policy::clears_threshold(g.area, threshold))
+                    .filter(|(_, g)| coverage(g, 1.0))
                     .map(|(c, g)| (c.0, 1, g)),
             )
             .collect();
@@ -276,7 +287,12 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
             let high_skin = supported_skin(part, high_group, low_group, i);
             let low_group = low_skin.as_ref().unwrap_or(low_group);
             let high_group = high_skin.as_ref().unwrap_or(high_group);
+            let (low_group, mut context) = trimmed_coverage(ctx, low_group, i, -1.0);
+            let (high_group, hi_context) = trimmed_coverage(ctx, high_group, i, 1.0);
+            context.extend(hi_context);
             let combined_area = low_group.area + high_group.area;
+            context.sort_unstable();
+            context.dedup();
             // The plate is bounded by its skins' outermost real planes (#71).
             out.push(Occurrence {
                 record: Plate {
@@ -295,7 +311,7 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
                     .chain(&high_group.faces)
                     .copied()
                     .collect(),
-                context: vec![],
+                context,
             });
         }
     }
@@ -307,6 +323,54 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
             .then(py::order(*a.hi, *b.hi))
     });
     out
+}
+
+/// Coverage is the skin plus the signed orthogonal projection of adjoining convex edge
+/// treatments, not their larger surface area or a bounding rectangle. These are the strips
+/// removed from this supporting plane. Count each treatment once; require it to lie inward
+/// of the real skin plane. Neither the skin coordinates nor the coverage threshold changes.
+fn trimmed_coverage(ctx: &Context<'_>, g: &Group, axis: usize, sign: f64) -> (Group, Vec<usize>) {
+    let part = ctx.part;
+    let neighbours: Vec<_> = g.faces.iter().flat_map(|&f| part.neighbours(f)).collect();
+    let mut counted = Vec::new();
+    let mut context = Vec::new();
+    let mut restored = Group {
+        low: g.low,
+        high: g.high,
+        area: g.area,
+        u_sum: g.u_sum,
+        v_sum: g.v_sum,
+        faces: g.faces.clone(),
+    };
+    let other: Vec<_> = (0..3).filter(|&i| i != axis).collect();
+    let mut direction = [0.; 3];
+    direction[axis] = sign;
+    for treatment in ctx.edge_treatments() {
+        for &face in &treatment.defining {
+            if counted.contains(&face) || !neighbours.contains(&face) {
+                continue;
+            }
+            let b = part.face_bounds(face);
+            if (sign > 0.0 && b.max[axis] > g.high + geom::COORD_FLOOR)
+                || (sign < 0.0 && b.min[axis] < g.low - geom::COORD_FLOOR)
+            {
+                continue;
+            }
+            let Some((projected, centre)) = part.face_projected_moments(face, direction) else {
+                continue;
+            };
+            if projected <= 0.0 {
+                continue;
+            }
+            restored.area += projected;
+            restored.u_sum += projected * centre[other[0]];
+            restored.v_sum += projected * centre[other[1]];
+            counted.push(face);
+            context.extend(&treatment.defining);
+            context.extend(&treatment.context);
+        }
+    }
+    (restored, context)
 }
 
 /// A coordinate usable as an ordered map key (never NaN here).

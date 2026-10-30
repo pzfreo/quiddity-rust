@@ -18,6 +18,7 @@ pub mod chamfers;
 pub mod channels;
 pub mod circular_blind_steps;
 pub mod circular_face_patterns;
+mod edge_treatments;
 pub mod through_notches;
 pub mod v_channels;
 internal_entry! { pub mod context; }
