@@ -41,7 +41,7 @@ that separate repository is not modified here. Rust exposes the schema texts as
 constants under the opt-in `json` feature, independent of `presentation`.
 
 A document is `{ "schema": "haecceity.pmi/1", "units": { "length": [...],
-"angle": [...] }, "pmi": { ... } }`. The machine-readable schemas use JSON
+"angle": [...], "density": [...], "other": [...] }, "pmi": { ... } }`. The machine-readable schemas use JSON
 Schema 2020-12. Every model field is explicit, including null optionals and empty
 arrays. Unknown properties are errors. Each member of the independently identified semantic
 collections is `{ "id": "caller string", "value": <typed value> }`.
@@ -61,8 +61,10 @@ Decimals are strings, including directions, geometry real values and ratios.
 `Length.unit`, `Angle.unit` and `Geometry.length_unit` are indices into the
 appropriate **document-level** unit table; mixed units retain their original
 values without conversion. Unit definitions include named SI/conversion units
-and `other` with the stated exact metres/radians factor. Density retains its
-model's derived unit factors (base-unit names and decimal exponents).
+and `other` with the stated exact metres/radians factor. `Density.unit` indexes `units.density`, whose definitions retain the model's
+derived factors (base-unit names and decimal exponents). Other measured attribute
+units index `units.other`, preserving their source unit names. Every unit therefore
+lives at document level, including units the model holds only by name.
 
 `FaceIndex` accepts an integer, `{"name":"OCCT face name"}`, or
 `{"fingerprint":"support key"}`. Indices use `read_part_definitions().faces`
@@ -87,7 +89,8 @@ The table covers every `$defs` semantic type. Names in the left column are the
 Rust/model names used as schema definition names. ID wrappers are array indices,
 not separate AP242 entities. “PMI” section numbers refer to CAx-IF PMI v4.1;
 [Supplemental Geometry v1.3](https://www.mbx-if.org/home/cax/recpractices/)
-and User Defined Attributes v1.8 supply the additional practices. Schema-level
+[User Defined Attributes v1.8](https://www.mbx-if.org/home/wp-content/uploads/2024/05/rec_prac_user_def_attributes_v18.pdf) and
+[Material Identification and Density R2.1](https://web.archive.org/web/20240419135511id_/https://www.mbx-if.org/documents/RecPrac_MaterialDensity_v21.pdf) supply the additional practices. Schema-level
 wrappers, ids and unit table indices are JSON transport conventions, explicitly
 not AP242 entities.
 
@@ -95,7 +98,7 @@ not AP242 entities.
 | --- | --- | --- |
 | `Decimal`, `Length`, `Angle`, `Quantity`, `Value`, `Ratio`, `Count`, `Bounds`, `LengthUnit`, `AngleUnit` | length_measure_with_unit, plane_angle_measure_with_unit, measure_representation_item, value_format_type_qualifier, plus_minus_tolerance, tolerance_value, si_unit, conversion_based_unit | PMI §§5.2–5.4 |
 | `Anchor`, `Feature`, `GroupKind`, `DerivedKind`, `DerivedGeometry`, `DerivedGeometryKind` | shape_aspect, composite_group_shape_aspect, derived_shape_aspect and subtypes, shape_aspect_deriving_relationship, geometric_item_specific_usage | PMI §§3.8–3.9, 5.1.4, 6.4 |
-| `Geometry`, `GeometryItem`, `GeometryValue` | geometric_representation_item and its typed geometry tree, constructive_geometry_representation | PMI §§3.9.1, 9.4.2; Supplemental Geometry |
+| `Geometry`, `GeometryItem`, `GeometryValue` | geometric_representation_item and its typed geometry tree, constructive_geometry_representation | PMI §§3.9.1, 9.4.2; Supplemental Geometry §§5.1–5.4 |
 | `DatumLabel`, `Datum` | datum, datum_feature, datum_feature_relationship | PMI §6.5 |
 | `Placement`, `Direction`, `TargetShape`, `DatumTarget` | axis2_placement_3d, direction, datum_target, placed_datum_target_feature, target parameters, feature_for_datum_target_relationship | PMI §6.6, Tables 10–11 |
 | `DatumModifier`, `SimpleDatumModifier`, `DatumModifierType`, `DatumReference`, `Compartment`, `DatumSystem` | datum_reference_modifier, simple_datum_reference_modifier, datum_reference_modifier_with_value, datum_reference_element, datum_reference_compartment, datum_system | PMI §§6.9.7–6.9.8, Table 15 |
@@ -112,7 +115,7 @@ not AP242 entities.
 | `Material`, `Density` | property_definition, representation, descriptive_representation_item, measure_representation_item, positive_ratio_measure, derived_unit | Material Identification and Density R2.1 §§4.1–4.2 |
 | `Note`, `Callout`, `NoteOwner` | property_definition, descriptive_representation_item, draughting_callout, draughting_model_item_association | PMI §§7.3–7.4; UDA |
 | `SurfaceTexture`, `MaterialRemoval`, `SurfaceTextureParameter` | property_definition, general_property, surface_texture_representation, measure_representation_item | No surface-texture section in PMI v4.1; ISO 10303-1110 Surface_texture / Standard_surface_texture_parameter, with existing model decisions in step-ap242.md |
-| `AttributeSet`, `GeneralProperty`, `AttributeValue` | property_definition, general_property, general_property_association, representation, descriptive_representation_item, measure_representation_item, compound_representation_item | PMI §7.4; UDA §§4–5 |
+| `AttributeSet`, `GeneralProperty`, `AttributeValue` | property_definition, general_property, general_property_association, representation, descriptive_representation_item, measure_representation_item, compound_representation_item | PMI §7.4; UDA §§5–7 |
 | `PartPmi`, `PartId`, `FaceIndex`, `EdgeIndex`, `FeatureId`, `DatumId`, `DatumTargetId`, `DimensionId`, `ToleranceId`, `GeometryId`, `DerivedGeometryId` | product_definition, product_definition_shape (part aggregate); references to the types above | PMI §3.8; JSON indexing convention |
 
 ## Presentation companion
@@ -153,3 +156,34 @@ an EXPRESS entity. A face anchor has one support face; a feature can contain
 several such anchors. `Anchors::bind_support` binds a consumer-verified namespace.
 Opaque string support keys are also accepted through `Anchors.fingerprints`.
 No new fingerprint algorithm or hash dependency is introduced.
+
+Tolerance relationships use `applied_identification_assignment` with an
+`identification_role` named `haecceity.pmi/1 item id`: AP242's
+`id_attribute_select` excludes `geometric_tolerance_relationship`, while ed4's
+`identification_item` includes it. JSON writes upgrade an ed1 file to the existing
+ed4 writer target when this carrier is needed. Other independent items use
+`ID_ATTRIBUTE`. The JSON-enabled reader recognizes this assignment role; its
+assignment is consumed with the relationship. Ordinary writes keep their existing
+schema and bytes. This is a transport convention over the standard assignment
+entities, not an extension to the EXPRESS schema.
+
+`LengthUnitDefinition` / `AngleUnitDefinition` / `DensityUnitDefinition` /
+`OtherUnitDefinition` name the document-level unit definitions; their corresponding
+`*Unit` definitions are integer transport references. AP242 sources are `si_unit`,
+`conversion_based_unit`, `derived_unit` / `derived_unit_element`, and the named
+unit of a `measure_with_unit` (PMI §§5.2–5.4; Material practice §4.2; UDA §7).
+
+## STEP writer boundary
+
+The JSON mapping is lossless over `PartPmi`; it cannot recover facts the model
+never held. STEP writing keeps the existing writer's refusals: for example a
+missing nominal value (PMI §5.2.1), a projected zone without its end geometry,
+an ambiguous named unit, an unstated group kind, and read-only hole definitions.
+Source duplicate identifiers are also an explicit JSON export refusal rather
+than silently renumbered. `json::write` verifies the emitted semantic model by
+reading it back before returning bytes. It never removes refused requirements.
+
+The strict corpus STEP closure test is separately runnable with `--ignored` so
+these pre-existing refusals remain visible. The local SFA sample test, also
+explicitly invoked, records any supported-subset exclusions in adjacent audit
+files; such a sample does not establish a complete source round trip.

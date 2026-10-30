@@ -428,6 +428,17 @@ pub fn read(
             links.entry(item).or_default().insert(key.clone());
         }
     }
+    for (i, callouts) in read.provenance.parts[part.0]
+        .note_callouts
+        .iter()
+        .enumerate()
+    {
+        if let Some(key) = semantic.ids.get("notes").and_then(|ids| ids.get(i)) {
+            for &root in callouts {
+                links.entry(root).or_default().insert(key.clone());
+            }
+        }
+    }
     let mut out = Presentation::default();
     for root in roots {
         let mut graphic = Graphic::new(
@@ -570,7 +581,13 @@ pub fn generated(semantic: &Semantic) -> Result<Presentation> {
     for (i, d) in semantic.pmi.datums.iter().enumerate() {
         add("datums", i, presentation::datum(d.label().as_str()))?;
     }
-    for (i, t) in semantic.pmi.surface_textures.iter().enumerate() {
+    for (i, t) in semantic
+        .pmi
+        .surface_textures
+        .iter()
+        .enumerate()
+        .filter(|(_, t)| t.on.is_some())
+    {
         add(
             "surface_textures",
             i,
@@ -579,6 +596,28 @@ pub fn generated(semantic: &Semantic) -> Result<Presentation> {
     }
     for (i, n) in semantic.pmi.notes.iter().enumerate() {
         add("notes", i, presentation::label(&n.text))?;
+    }
+    for row in presentation::notes::general_notes(&semantic.pmi) {
+        use presentation::notes::Source;
+        let (collection, index) = match row.source {
+            Source::General(i) => ("general", i),
+            Source::Texture(i) => ("surface_textures", i),
+            Source::Attribute(i) => ("attributes", i),
+            Source::Material => continue,
+        };
+        add(collection, index, presentation::notes::notes_block(&[row]))?;
+    }
+    // Material has no independent PartIdentifiers carrier; retain its callout unlinked.
+    if let Some(material) = &semantic.pmi.material {
+        let c = presentation::label(&format!("MATERIAL: {}", material.id));
+        let mut g = Graphic::new(self::Source::Generated, c.notation());
+        g.polylines = c
+            .polylines()
+            .into_iter()
+            .map(|l| l.into_iter().map(|[x, y]| [x, y, 0.]).collect())
+            .collect();
+        g.text = c.cells;
+        out.unlinked.push(g);
     }
     validate(&serde_json::to_value(&out)?)?;
     Ok(out)

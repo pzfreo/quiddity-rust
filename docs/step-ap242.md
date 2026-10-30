@@ -49,7 +49,9 @@ This standard derived-id route covers **surface textures**, including part defau
 which the UDA route discussed in pzfreo/quiddity-rust#135 could not cover. It supplies the
 inspection numbers needed by draftwright-rust#254 without interpreting Specify's private
 number-allocation history. The writer's lossless Add path preserves existing ids and
-records; identifier writing or transfer through Replace is not added.
+records. The opt-in `json` feature adds identified replacement through
+`haecceity::json::write`; the ordinary writer keeps its existing behavior. See
+[the versioned JSON reference](pmi-json.md).
 
 `specify-0.1.4-plate.step.gz` pins all 34 numbered requirements from the maintainer's
 Plate: 3 datums, 26 dimensions, 3 geometric tolerances, 1 part-default surface texture

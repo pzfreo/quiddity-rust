@@ -37,7 +37,7 @@ pub(super) fn check(v: &Value, s: &Value, root: &Value, path: &str) -> Result<()
             "object" => v.is_object(),
             "array" => v.is_array(),
             "string" => v.is_string(),
-            "integer" => v.is_i64() || v.is_u64(),
+            "integer" => v.is_i64() || v.is_u64() || v.as_f64().is_some_and(|n| n.fract() == 0.),
             "number" => v.is_number(),
             "boolean" => v.is_boolean(),
             "null" => v.is_null(),
@@ -131,7 +131,16 @@ pub(super) fn walk(
 ) -> Result<()> {
     if let Some(r) = s["$ref"].as_str() {
         let name = r.rsplit('/').next().unwrap_or("");
-        if ["LengthUnit", "AngleUnit", "FaceIndex", "EdgeIndex"].contains(&name) {
+        if [
+            "LengthUnit",
+            "AngleUnit",
+            "DensityUnit",
+            "OtherUnit",
+            "FaceIndex",
+            "EdgeIndex",
+        ]
+        .contains(&name)
+        {
             return f(name, v);
         }
         return walk(

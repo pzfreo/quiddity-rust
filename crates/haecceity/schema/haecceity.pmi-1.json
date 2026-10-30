@@ -21,11 +21,25 @@
           "items": {
             "$ref": "#/$defs/AngleUnitDefinition"
           }
+        },
+        "density": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DensityUnitDefinition"
+          }
+        },
+        "other": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/OtherUnitDefinition"
+          }
         }
       },
       "required": [
         "length",
-        "angle"
+        "angle",
+        "density",
+        "other"
       ],
       "additionalProperties": false
     },
@@ -523,16 +537,16 @@
     "GroupKind": {
       "oneOf": [
         {
-          "const": "multiple_elements"
+          "const": "multiple elements"
         },
         {
-          "const": "pattern_of_features"
+          "const": "pattern of features"
         },
         {
-          "const": "all_around"
+          "const": "all_around_shape_aspect"
         },
         {
-          "const": "between"
+          "const": "between_shape_aspect"
         },
         {
           "const": "unstated"
@@ -542,7 +556,7 @@
     "DerivedKind": {
       "oneOf": [
         {
-          "const": "derived"
+          "const": "derived_shape_aspect"
         },
         {
           "const": "apex"
@@ -724,7 +738,7 @@
         {
           "type": "object",
           "properties": {
-            "circular_curve": {
+            "circular curve": {
               "type": "object",
               "properties": {
                 "diameter": {
@@ -738,7 +752,7 @@
             }
           },
           "required": [
-            "circular_curve"
+            "circular curve"
           ],
           "additionalProperties": false
         },
@@ -1353,7 +1367,7 @@
           "const": "independency"
         },
         {
-          "const": "envelope_requirement"
+          "const": "envelope requirement"
         }
       ]
     },
@@ -2841,20 +2855,7 @@
           "$ref": "#/$defs/Decimal"
         },
         "unit": {
-          "type": "array",
-          "items": {
-            "type": "array",
-            "prefixItems": [
-              {
-                "type": "string"
-              },
-              {
-                "$ref": "#/$defs/Decimal"
-              }
-            ],
-            "minItems": 2,
-            "maxItems": 2
-          }
+          "$ref": "#/$defs/DensityUnit"
         }
       },
       "required": [
@@ -3001,13 +3002,13 @@
     "MaterialRemoval": {
       "oneOf": [
         {
-          "const": "any_process_allowed"
+          "const": "any process allowed"
         },
         {
-          "const": "required"
+          "const": "material removal required"
         },
         {
-          "const": "not_allowed"
+          "const": "no material removal"
         }
       ]
     },
@@ -3191,7 +3192,7 @@
                   "$ref": "#/$defs/Decimal"
                 },
                 "unit": {
-                  "type": "string"
+                  "$ref": "#/$defs/OtherUnit"
                 }
               },
               "required": [
@@ -3747,6 +3748,33 @@
         "support"
       ],
       "additionalProperties": false
+    },
+    "DensityUnitDefinition": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "prefixItems": [
+          {
+            "type": "string"
+          },
+          {
+            "$ref": "#/$defs/Decimal"
+          }
+        ],
+        "minItems": 2,
+        "maxItems": 2
+      }
+    },
+    "DensityUnit": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "OtherUnitDefinition": {
+      "type": "string"
+    },
+    "OtherUnit": {
+      "type": "integer",
+      "minimum": 0
     }
   }
 }

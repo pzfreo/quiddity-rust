@@ -525,7 +525,32 @@ impl<'a> Reader<'a> {
 
     /// `id_attribute`s naming `id` (§5.1 Figure 4): part of the item's construct.
     fn id_attributes(&mut self, id: u64) -> Vec<u64> {
-        self.referrers_by(id, "id_attribute", "id_attribute", "identified_item")
+        let out = self.referrers_by(id, "id_attribute", "id_attribute", "identified_item");
+        #[cfg(feature = "json")]
+        let out = {
+            let mut out = out;
+            out.extend(self.json_identifications(id));
+            out
+        };
+        out
+    }
+
+    #[cfg(feature = "json")]
+    fn json_identifications(&mut self, id: u64) -> Vec<u64> {
+        self.referrers_by(
+            id,
+            "applied_identification_assignment",
+            "applied_identification_assignment",
+            "items",
+        )
+        .into_iter()
+        .filter(|&r| {
+            self.get_ref(r, "identification_assignment", "role")
+                .and_then(|role| self.get_str(role, "identification_role", "name"))
+                .as_deref()
+                == Some("haecceity.pmi/1 item id")
+        })
+        .collect()
     }
 
     fn item_identifier(
@@ -547,6 +572,10 @@ impl<'a> Reader<'a> {
             [] => None,
             [attribute] => {
                 let value = self.get_str(*attribute, "id_attribute", "attribute_value");
+                #[cfg(feature = "json")]
+                let value = value.or_else(|| {
+                    self.get_str(*attribute, "identification_assignment", "assigned_id")
+                });
                 if value.is_none() {
                     self.find(
                         FindingKind::Nonconformance,

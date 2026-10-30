@@ -48,3 +48,11 @@ for solid in 0..part.solids.len() {
 *Haecceity* is "thisness": the particular thing itself, as *quiddity* is "whatness".
 
 Licensed under Apache-2.0. Source and issues: <https://github.com/pzfreo/quiddity-rust>.
+
+
+Enable the non-default `json` Cargo feature for `haecceity::json`: semantic
+`haecceity.pmi/1`, the `haecceity.presentation/1` companion, and packaged schema
+constants. See [the reference](docs/pmi-json.md) and `schema/` in the crate.
+`json::identify`, `to_value`/`from_value` and `write` keep source identifiers and
+resolve named/support anchors against caller-supplied geometry. The ordinary
+writer and feature-off builds retain their output.

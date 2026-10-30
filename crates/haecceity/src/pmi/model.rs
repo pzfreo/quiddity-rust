@@ -748,12 +748,16 @@ pub enum DerivedGeometryKind {
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum GroupKind {
     /// `composite_group_shape_aspect` 'multiple elements' (§6.4).
+    #[cfg_attr(feature = "json", serde(rename = "multiple elements"))]
     MultipleElements,
     /// `composite_group_shape_aspect` 'pattern of features' (§6.4.1).
+    #[cfg_attr(feature = "json", serde(rename = "pattern of features"))]
     PatternOfFeatures,
     /// `all_around_shape_aspect` (§6.4.2).
+    #[cfg_attr(feature = "json", serde(rename = "all_around_shape_aspect"))]
     AllAround,
     /// `between_shape_aspect` (§6.4.3).
+    #[cfg_attr(feature = "json", serde(rename = "between_shape_aspect"))]
     Between,
     /// A `composite_group_shape_aspect` whose name and description state neither string: the
     /// file does not say which (a finding when read).
@@ -766,6 +770,7 @@ pub enum GroupKind {
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum DerivedKind {
     /// Plain `derived_shape_aspect`.
+    #[cfg_attr(feature = "json", serde(rename = "derived_shape_aspect"))]
     Derived,
     Apex,
     CentreOfSymmetry,
@@ -915,6 +920,7 @@ pub enum TargetShape {
     Circle {
         diameter: Length,
     },
+    #[cfg_attr(feature = "json", serde(rename = "circular curve"))]
     CircularCurve {
         diameter: Length,
     },
@@ -1390,6 +1396,7 @@ pub enum DimTolerance {
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum Principle {
     Independency,
+    #[cfg_attr(feature = "json", serde(rename = "envelope requirement"))]
     EnvelopeRequirement,
 }
 
@@ -2879,10 +2886,13 @@ pub struct SurfaceTexture {
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum MaterialRemoval {
     /// 'any process allowed': the basic symbol.
+    #[cfg_attr(feature = "json", serde(rename = "any process allowed"))]
     AnyProcessAllowed,
     /// 'material removal required'.
+    #[cfg_attr(feature = "json", serde(rename = "material removal required"))]
     Required,
     /// 'no material removal'.
+    #[cfg_attr(feature = "json", serde(rename = "no material removal"))]
     NotAllowed,
 }
 

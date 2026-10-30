@@ -11,9 +11,11 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::sync::OnceLock;
 
 pub(crate) mod invariants;
+mod parse;
 /// The file's As Drawn graphics and generated notation, keyed by semantic id.
 pub mod presentation;
 mod schema;
+pub use parse::parse;
 
 pub const PMI_SCHEMA: &str = include_str!("../../schema/haecceity.pmi-1.json");
 pub const PRESENTATION_SCHEMA: &str = include_str!("../../schema/haecceity.presentation-1.json");
@@ -240,6 +242,8 @@ pub fn to_value(p: &Semantic) -> Result<Value> {
     }
     let mut lengths = Vec::new();
     let mut angles = Vec::new();
+    let mut densities = Vec::new();
+    let mut other = Vec::new();
     schema::walk(
         &mut raw,
         &pmi_schema()["$defs"]["PartPmi"],
@@ -248,6 +252,8 @@ pub fn to_value(p: &Semantic) -> Result<Value> {
             let units = match kind {
                 "LengthUnit" => &mut lengths,
                 "AngleUnit" => &mut angles,
+                "DensityUnit" => &mut densities,
+                "OtherUnit" => &mut other,
                 _ => return Ok(()),
             };
             let index = units.iter().position(|u| u == v).unwrap_or_else(|| {
@@ -258,8 +264,7 @@ pub fn to_value(p: &Semantic) -> Result<Value> {
             Ok(())
         },
     )?;
-    let out =
-        json!({"schema":"haecceity.pmi/1","units":{"length":lengths,"angle":angles},"pmi":raw});
+    let out = json!({"schema":"haecceity.pmi/1","units":{"length":lengths,"angle":angles,"density":densities,"other":other},"pmi":raw});
     validate_schema(&out)?;
     Ok(out)
 }
@@ -285,11 +290,12 @@ pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
                         return Err(Error(format!("unknown edge index {x}")));
                     }
                 }
-                "LengthUnit" | "AngleUnit" => {
-                    let table = if kind == "LengthUnit" {
-                        "length"
-                    } else {
-                        "angle"
+                "LengthUnit" | "AngleUnit" | "DensityUnit" | "OtherUnit" => {
+                    let table = match kind {
+                        "LengthUnit" => "length",
+                        "AngleUnit" => "angle",
+                        "DensityUnit" => "density",
+                        _ => "other",
                     };
                     let i = x
                         .as_u64()
@@ -388,6 +394,43 @@ pub fn write(
     let (edit, report) = pmi::write::write_identified(doc, parts, &values, &ids, policy)
         .map_err(|e| Error(e.to_string()))?;
     let bytes = doc.apply(&edit).map_err(|e| Error(e.to_string()))?.bytes;
+    let definitions =
+        crate::step::read_part_definitions(&bytes).map_err(|e| Error(e.to_string()))?;
+    let after = Document::parse(bytes.clone()).map_err(|e| Error(e.to_string()))?;
+    let before_read = pmi::read(doc, parts).map_err(|e| Error(e.to_string()))?;
+    let after_read = pmi::read(&after, &definitions).map_err(|e| Error(e.to_string()))?;
+    pmi::verify(
+        pmi::Snapshot {
+            doc,
+            defs: parts,
+            read: &before_read,
+        },
+        doc,
+        &values,
+        pmi::Mode::Replace,
+        pmi::Snapshot {
+            doc: &after,
+            defs: &definitions,
+            read: &after_read,
+        },
+    )
+    .into_result()
+    .map_err(Error)?;
+    for (part, expected) in &ids {
+        let actual = &after_read.identifiers.parts[part.0];
+        let actual: BTreeSet<_> = COLLECTIONS
+            .iter()
+            .flat_map(|c| file_ids(Some(actual), c).iter().flatten())
+            .collect();
+        for id in expected.values().flatten() {
+            if !actual.contains(id) {
+                return Err(Error(format!(
+                    "part {}: item id {id:?} cannot be represented independently by the AP242 writer",
+                    part.0
+                )));
+            }
+        }
+    }
     Ok((bytes, report))
 }
 
@@ -431,4 +474,14 @@ fn validate_feature_roles(p: &PartPmi) -> Result<()> {
         }
     }
     Ok(())
+}
+
+/// Parse and decode one versioned semantic document. Duplicate keys are errors.
+pub fn from_str(text: &str, anchors: &Anchors) -> Result<Semantic> {
+    from_value(&parse(text)?, anchors)
+}
+
+/// Pretty JSON, preserving all stated decimal strings.
+pub fn to_string(p: &Semantic) -> Result<String> {
+    Ok(serde_json::to_string_pretty(&to_value(p)?)?)
 }

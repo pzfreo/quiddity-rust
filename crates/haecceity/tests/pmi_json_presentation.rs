@@ -51,11 +51,28 @@ fn ctc_01_as_drawn_and_unlinked_graphics_survive() {
         "ANNOTATION_CURVE_OCCURRENCE",
         vec![A::String("orphan".into()), A::List(vec![]), line.to_ref()],
     ));
-    edit.add(p21::simple(
+    let orphan = edit.add(p21::simple(
         "DRAUGHTING_CALLOUT",
         vec![
             A::String("unlinked witness".into()),
             A::List(vec![ann.to_ref()]),
+        ],
+    ));
+    let context = doc
+        .ids()
+        .find_map(|id| match doc.get(id) {
+            Some(p21::RawEntity::Simple {
+                name, attributes, ..
+            }) if name.eq_ignore_ascii_case("draughting_model") => attributes.get(2).cloned(),
+            _ => None,
+        })
+        .unwrap();
+    edit.add(p21::simple(
+        "DRAUGHTING_MODEL",
+        vec![
+            A::String("unlinked graphics".into()),
+            A::List(vec![orphan.to_ref()]),
+            context,
         ],
     ));
     let bytes = doc.apply(&edit).unwrap().bytes;
@@ -86,6 +103,7 @@ fn ctc_01_as_drawn_and_unlinked_graphics_survive() {
         .find(|g| g.name == "unlinked witness")
         .unwrap();
     assert!(!orphan.step_ids.is_empty());
+    assert_eq!(orphan.polylines, vec![vec![[1., 2., 3.], [4., 5., 6.]]]);
     let decoded: presentation::Presentation =
         serde_json::from_value(serde_json::to_value(&drawn).unwrap()).unwrap();
     assert_eq!(decoded, drawn);

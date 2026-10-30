@@ -513,7 +513,15 @@ fn write_inner(
         .trim()
         .to_ascii_uppercase()
         .starts_with("AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF");
-    let edition: &'static Edition = if ap242 {
+    #[cfg(feature = "json")]
+    let json_upgrade = identifiers.is_some()
+        && express::edition(&first).is_some_and(|e| std::ptr::eq(e, &express::AP242_ED1))
+        && pmi.iter().any(|(_, p)| !p.tolerance_relations.is_empty());
+    #[cfg(not(feature = "json"))]
+    let json_upgrade = false;
+    let edition: &'static Edition = if json_upgrade {
+        express::TARGET
+    } else if ap242 {
         express::edition(&first).unwrap_or(express::TARGET)
     } else {
         express::TARGET
@@ -759,7 +767,7 @@ fn write_inner(
     report.added = added;
 
     // Decision 1: an AP214/AP203 file that gains PMI becomes AP242, if it can.
-    let upgrade = added > 0 && !ap242;
+    let upgrade = added > 0 && (!ap242 || json_upgrade);
     let repaired = if upgrade {
         // Work on the original records; removal/presentation rewrites are never repaired.
         let excluded = removed
@@ -1902,10 +1910,30 @@ impl<'a> PartPlan<'a> {
             .get(collection)
             .and_then(|v| v.get(index))
             .ok_or_else(|| WriteError::Internal(format!("missing JSON id {collection}/{index}")))?;
-        em.simple(
-            "id_attribute",
-            &[("attribute_value", s(id)), ("identified_item", carrier.a())],
-        )?;
+        if collection == "tolerance_relations" {
+            // geometric_tolerance_relationship is not in id_attribute_select.
+            // AP242 ed4 identification_item explicitly includes it.
+            let role = em.simple(
+                "identification_role",
+                &[
+                    ("name", s("haecceity.pmi/1 item id")),
+                    ("description", A::Unset),
+                ],
+            )?;
+            em.simple(
+                "applied_identification_assignment",
+                &[
+                    ("assigned_id", s(id)),
+                    ("role", role.a()),
+                    ("items", refs([carrier])),
+                ],
+            )?;
+        } else {
+            em.simple(
+                "id_attribute",
+                &[("attribute_value", s(id)), ("identified_item", carrier.a())],
+            )?;
+        }
         Ok(())
     }
 
@@ -3089,7 +3117,12 @@ impl<'a> PartPlan<'a> {
             let r = self.tolerance(em, &mut st, pds, t, &mut names)?;
             st.tolerances.insert(i, r);
         }
-        for (_i, r) in p.tolerance_relations.iter().enumerate() {
+        let tolerance_relations = p.tolerance_relations.iter();
+        #[cfg(feature = "json")]
+        let tolerance_relations = tolerance_relations.enumerate();
+        #[cfg(not(feature = "json"))]
+        let tolerance_relations = tolerance_relations.map(|item| ((), item));
+        for (_i, r) in tolerance_relations {
             let name = match r.kind {
                 RelationKind::Composite => "composite",
                 RelationKind::Precedence => "precedence",
@@ -3148,7 +3181,12 @@ impl<'a> PartPlan<'a> {
             && !p.general.iter().any(|g| matches!(g, GeneralTolerance::Table { cells, .. } if cells.iter().any(|c| c.items.iter().any(|(n,_)| n == "number of decimal places")))) {
             self.tolerance_table(em, pds, "", &[ToleranceCell { items: vec![("number of decimal places".into(), CellValue::Count(Decimal::parse(&places.to_string()).map_err(|e| WriteError::Internal(e.0))?))] }])?;
         }
-        for (_i, t) in p.threads.iter().enumerate() {
+        let threads = p.threads.iter();
+        #[cfg(feature = "json")]
+        let threads = threads.enumerate();
+        #[cfg(not(feature = "json"))]
+        let threads = threads.map(|item| ((), item));
+        for (_i, t) in threads {
             self.thread(
                 em,
                 &mut st,
@@ -3158,7 +3196,12 @@ impl<'a> PartPlan<'a> {
                 _i,
             )?;
         }
-        for (_i, k) in p.knurls.iter().enumerate() {
+        let knurls = p.knurls.iter();
+        #[cfg(feature = "json")]
+        let knurls = knurls.enumerate();
+        #[cfg(not(feature = "json"))]
+        let knurls = knurls.map(|item| ((), item));
+        for (_i, k) in knurls {
             self.knurl(
                 em,
                 &mut st,
