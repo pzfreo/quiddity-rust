@@ -6415,3 +6415,79 @@ fn a_location_on_a_datum_group_shares_its_datum_members_geometry_once() {
         );
     }
 }
+
+#[test]
+fn add_locations_keep_foreign_datum_features_and_reuse_their_components() {
+    let f = fixture("ap242/presentation-placement/spindle.step.gz");
+    let before = pmi::read(&f.doc, &f.parts).unwrap();
+    let p = &before.parts[0];
+    let b = p
+        .datums
+        .iter()
+        .find(|d| d.label().as_str() == "B")
+        .unwrap()
+        .feature()
+        .unwrap();
+    let d = p
+        .dimensions
+        .iter()
+        .find(|d| matches!(d.kind, DimensionKind::Location { from, .. } if from == b))
+        .unwrap()
+        .clone();
+    let addition = PartPmi {
+        features: p.features.clone(),
+        datums: p.datums.clone(),
+        dimensions: vec![d],
+        ..PartPmi::default()
+    };
+    let w = write(&f, &[(PartId(0), addition.clone())], Mode::Add).unwrap();
+    assert_verified_as(&f, &w, &addition, Mode::Add);
+    for id in f.doc.ids() {
+        assert_eq!(
+            &f.doc.bytes()[f.doc.span(id).unwrap()],
+            &w.doc.bytes()[w.doc.span(id).unwrap()],
+            "foreign entity #{id} changed"
+        );
+    }
+    assert_eq!(f.doc.file_schema(), w.doc.file_schema());
+    assert!(new_violations(&f.doc, &w.doc).is_empty());
+    let loc = w
+        .added()
+        .into_iter()
+        .find(|&id| w.names(id) == ["dimensional_location"])
+        .unwrap();
+    let Some(Attribute::EntityRef(a)) = test_attribute(
+        &w.doc,
+        loc,
+        "shape_aspect_relationship",
+        "relating_shape_aspect",
+    ) else {
+        panic!("endpoint")
+    };
+    assert!(
+        w.names(*a)
+            .iter()
+            .any(|n| express::is_a(n, "composite_shape_aspect"))
+    );
+    assert!(
+        !w.names(*a)
+            .iter()
+            .any(|n| express::is_a(n, "datum_feature"))
+    );
+    let components: Vec<_> = w
+        .doc
+        .referrers(*a)
+        .iter()
+        .copied()
+        .filter(|&r| {
+            w.names(r) == ["shape_aspect_relationship"]
+                && test_attribute(
+                    &w.doc,
+                    r,
+                    "shape_aspect_relationship",
+                    "relating_shape_aspect",
+                ) == Some(&Attribute::EntityRef(*a))
+        })
+        .collect();
+    assert_eq!(components.len(), 2, "reuse both original face carriers");
+}

@@ -4207,16 +4207,53 @@ impl<'a> PartPlan<'a> {
             Feature::Items(items) => {
                 // A carried datum is immutable on append. Reuse its existing carrier
                 // through composition rather than duplicating a GISU or editing it.
-                if matches!(original, R::Old(_)) {
-                    em.simple(
-                        "shape_aspect_relationship",
-                        &[
-                            ("name", s("")),
-                            ("description", s("")),
-                            ("relating_shape_aspect", r.a()),
-                            ("related_shape_aspect", original.a()),
-                        ],
-                    )?;
+                if let R::Old(old) = original {
+                    let members: Vec<_> = self
+                        .doc
+                        .referrers(old)
+                        .iter()
+                        .copied()
+                        .filter(|&rel| {
+                            leaf_names(self.doc, rel) == ["shape_aspect_relationship"]
+                                && attr_ref(
+                                    self.doc,
+                                    rel,
+                                    "shape_aspect_relationship",
+                                    "relating_shape_aspect",
+                                ) == Some(old)
+                        })
+                        .filter_map(|rel| {
+                            attr_ref(
+                                self.doc,
+                                rel,
+                                "shape_aspect_relationship",
+                                "related_shape_aspect",
+                            )
+                        })
+                        .filter(|&m| !is_a(self.doc, m, "datum"))
+                        .collect();
+                    // A multi-face foreign datum already has per-face carriers. Reuse
+                    // those components so the new CSA has its required multiple
+                    // component relationships, rather than one link to the whole datum.
+                    let carriers = if items.iter().copied().collect::<BTreeSet<_>>().len() > 1
+                        && members.len() > 1
+                    {
+                        members
+                    } else {
+                        vec![old]
+                    };
+                    for carrier in carriers {
+                        let member = em.reference(carrier)?;
+                        em.simple(
+                            "shape_aspect_relationship",
+                            &[
+                                ("name", s("")),
+                                ("description", s("")),
+                                ("relating_shape_aspect", r.a()),
+                                ("related_shape_aspect", member.a()),
+                            ],
+                        )?;
+                    }
                 } else {
                     self.usages(em, st, pds, r, None, items)?;
                 }

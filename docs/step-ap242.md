@@ -162,7 +162,10 @@ rules (all copies passed SFA 5.41):
   on it disappear from OCCT's semantic reading. Its geometry-component and datum-establishment
   relationships satisfy the composite inverse cardinality. Regression keeps all pre-existing
   OCCT comparisons without new exceptions. On lossless append, an immutable foreign datum's existing carrier
-  is reached through composition without editing its entities or duplicating its GISU.
+  is reached through composition without editing its entities or duplicating its GISU. A
+  new multi-face location aspect reuses the foreign datum's individual face components,
+  retaining the composite's multiple-component cardinality; an append regression compares
+  every original entity byte for byte.
 - A datum annotation plane must contain its face normal, rather than be coplanar with the
   face; its leader starts inside that face, not at a shared corner vertex.
 
