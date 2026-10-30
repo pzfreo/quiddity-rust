@@ -3234,21 +3234,7 @@
         "features": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "value": {
-                "$ref": "#/$defs/Feature"
-              }
-            },
-            "required": [
-              "id",
-              "value"
-            ],
-            "additionalProperties": false
+            "$ref": "#/$defs/Feature"
           }
         },
         "datum_targets": {

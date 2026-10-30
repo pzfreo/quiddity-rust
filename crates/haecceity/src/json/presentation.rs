@@ -409,6 +409,21 @@ pub fn read(
                 .map(|id| (*entity, id.clone()))
         })
         .collect();
+    let mut datum_support: BTreeMap<u64, BTreeSet<String>> = BTreeMap::new();
+    for (i, datum) in semantic.pmi.datums.iter().enumerate() {
+        if let Some(feature) = datum.feature()
+            && let Some(carrier) = read
+                .json_carriers
+                .get(&(part, "features".into(), feature.0))
+            && let Some(id) = semantic.ids.get("datums").and_then(|ids| ids.get(i))
+        {
+            datum_support
+                .entry(*carrier)
+                .or_default()
+                .insert(id.clone());
+        }
+    }
+    let mut support_links: BTreeMap<u64, BTreeSet<String>> = BTreeMap::new();
     let mut links: BTreeMap<u64, BTreeSet<String>> = BTreeMap::new();
     for id in doc
         .ids()
@@ -426,10 +441,16 @@ pub fn read(
             "item_identified_representation_usage",
             "identified_item",
         ));
-        if let (Some(definition), Some(item)) = (definition, item)
-            && let Some(key) = carriers.get(&definition)
-        {
-            links.entry(item).or_default().insert(key.clone());
+        if let (Some(definition), Some(item)) = (definition, item) {
+            if let Some(key) = carriers.get(&definition) {
+                links.entry(item).or_default().insert(key.clone());
+            }
+            if let Some(keys) = datum_support.get(&definition) {
+                support_links
+                    .entry(item)
+                    .or_default()
+                    .extend(keys.iter().cloned());
+            }
         }
     }
     for (i, callouts) in read.provenance.parts[part.0]
@@ -466,13 +487,23 @@ pub fn read(
                 "#{root}: length unit unresolved; source retained without guessed coordinates"
             ));
         }
-        let keys: BTreeSet<_> = graphic
+        let mut keys: BTreeSet<_> = graphic
             .step_ids
             .iter()
             .filter_map(|id| links.get(id))
             .flatten()
             .cloned()
             .collect();
+        if keys.is_empty() {
+            keys.extend(
+                graphic
+                    .step_ids
+                    .iter()
+                    .filter_map(|id| support_links.get(id))
+                    .flatten()
+                    .cloned(),
+            );
+        }
         graphic.step_ids.sort_unstable();
         graphic.step_ids.dedup();
         graphic.unsupported.sort();

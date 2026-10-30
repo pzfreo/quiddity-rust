@@ -125,7 +125,7 @@ fn malformed_and_unknown_faces_refuse_without_output() {
     let out = dir.join("refused.step");
     let _ = std::fs::remove_file(&out);
     let mut value = json::to_value(&json::identify(model(), None).unwrap()).unwrap();
-    value["pmi"]["features"][0]["value"]["items"][0]["face"] = json!({"name":"missing"});
+    value["pmi"]["features"][0]["items"][0]["face"] = json!({"name":"missing"});
     std::fs::write(&path, value.to_string()).unwrap();
     let result = cli(&[
         "pmi",

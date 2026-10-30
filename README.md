@@ -178,4 +178,5 @@ Specify support key, `--anchors namespace.json` supplies a consumer-verified
 haecceity's `schema/` directory; Specify can package these as
 `specify_core/schema/haecceity.{pmi,presentation}-1.json`. Presentation JSON is
 read-only. The JSON path reports existing STEP writer refusals, including missing
-nominals/geometry, and refuses IDs the writer cannot preserve independently.
+nominals/geometry. Requirement IDs are verified on read-back; support features
+retain the model's array indices.

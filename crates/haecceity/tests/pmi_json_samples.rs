@@ -106,7 +106,18 @@ fn write_sfa_samples_from_json() {
             &parts,
             &semantic,
             pmi::write::PresentationPolicy::RemovePresentation,
-        );
+        )
+        .and_then(|(bytes, report)| {
+            let candidate = Document::parse(bytes.clone()).unwrap();
+            if !haecceity::express::validate_document(candidate.graph()).is_empty()
+                || !haecceity::express_rules::check_all(&candidate).is_empty()
+            {
+                return Err(json::Error(
+                    "the full subset needs the existing writer's practice/schema exceptions".into(),
+                ));
+            }
+            Ok((bytes, report))
+        });
         let (written, report) = match result {
             Ok(result) => result,
             Err(e) => {

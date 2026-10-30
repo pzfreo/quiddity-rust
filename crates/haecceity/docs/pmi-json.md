@@ -55,7 +55,13 @@ arrays. Unknown properties are errors. Each member of the independently identifi
 collections is `{ "id": "caller string", "value": <typed value> }`.
 One dimension or geometric tolerance is one such item, with all its semantic
 content together. References within `pmi` are zero-based indices into the named
-collection, independent of stable external item ids. Order is significant.
+collection, independent of stable external item ids. Order is significant. The identified collections are `datum_targets`, `datums`,
+`dimensions`, `tolerances`, `tolerance_relations`, `general`, `threads`, `knurls`,
+`notes`, `surface_textures` and `attributes`. `features` are structural support
+objects referenced by index, as are supplemental/computed geometry and hole details.
+A support `shape_aspect` and its datum target or size can be projections of one
+STEP entity with one `ID_ATTRIBUTE`; support projections do not create a second
+requirement id. Caller-chosen requirement ids remain unique across collections.
 
 Enums with no payload are strings; enums with payload are single-key objects.
 Keys and enum strings use AP242 entity/enumeration or CAx-IF names wherever the
@@ -155,7 +161,8 @@ ISO table helper types `Iso2768`, `LinearClass` (`f`, `m`, `c`, `v`) and
 classification (PMI §4.1, ISO 2768). Supplemental `geometry`, computed
 `derived_geometry` and `holes` remain plain arrays: they have no independently
 identified requirement entity in `PartIdentifiers`; their owning feature has
-an external id. All other indexed semantic collections carry `{id,value}`.
+an external id. The requirement collections listed above carry `{id,value}`; `features` remain
+plain indexed support objects.
 
 `SupportKey` maps the verified geometric namespace used by Specify #65/#77:
 `{"fingerprint":{"schema":2,"faces":"<verified face hash>","support":[0]}}`.
@@ -187,7 +194,7 @@ The JSON mapping is lossless over `PartPmi`; it cannot recover facts the model
 never held. STEP writing keeps the existing writer's refusals: for example a
 missing nominal value (PMI §5.2.1), a projected zone without its end geometry,
 an ambiguous named unit, an unstated group kind, and read-only hole definitions.
-Source duplicate identifiers are also an explicit JSON export refusal rather
+Duplicate identifiers on independent source requirements are also an explicit JSON export refusal rather
 than silently renumbered. `json::write` verifies the emitted semantic model by
 reading it back before returning bytes. It never removes refused requirements.
 
@@ -195,3 +202,7 @@ The strict corpus STEP closure test is separately runnable with `--ignored` so
 these pre-existing refusals remain visible. The local SFA sample test, also
 explicitly invoked, records any supported-subset exclusions in adjacent audit
 files; such a sample does not establish a complete source round trip.
+
+Presentation associations to structural support aspects are resolved to their
+owning datum requirement when no direct semantic association is available.
+Support-only graphics remain unlinked and are retained.

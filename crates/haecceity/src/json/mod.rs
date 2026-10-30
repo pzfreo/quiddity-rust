@@ -20,7 +20,6 @@ pub use parse::parse;
 pub const PMI_SCHEMA: &str = include_str!("../../schema/haecceity.pmi-1.json");
 pub const PRESENTATION_SCHEMA: &str = include_str!("../../schema/haecceity.presentation-1.json");
 const COLLECTIONS: &[&str] = &[
-    "features",
     "datum_targets",
     "datums",
     "dimensions",
@@ -58,7 +57,7 @@ fn pmi_schema() -> &'static Value {
     S.get_or_init(|| serde_json::from_str(PMI_SCHEMA).expect("packaged PMI schema"))
 }
 
-/// The decoded model and its external ids, kept apart like `PmiRead.identifiers`.
+/// The decoded model and its external requirement ids, kept apart like `PmiRead.identifiers`.
 #[derive(Clone, Debug)]
 pub struct Semantic {
     pub pmi: PartPmi,
@@ -216,6 +215,13 @@ pub fn identify(pmi: PartPmi, identifiers: Option<&PartIdentifiers>) -> Result<S
 
 /// Encode every `PartPmi` field without rounding or changing model order.
 pub fn to_value(p: &Semantic) -> Result<Value> {
+    for collection in p.ids.keys() {
+        if !COLLECTIONS.contains(&collection.as_str()) {
+            return Err(Error(format!(
+                "unknown requirement id collection {collection:?}"
+            )));
+        }
+    }
     let mut raw = serde_json::to_value(&p.pmi)?;
     let mut used = BTreeSet::new();
     for &c in COLLECTIONS {

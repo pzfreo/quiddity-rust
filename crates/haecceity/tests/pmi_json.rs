@@ -57,7 +57,7 @@ fn all_anchor_forms_and_precise_units() {
         json!({"fingerprint":"support-key"}),
     ] {
         let mut v = v.clone();
-        v["pmi"]["features"][0]["value"]["items"][0]["face"] = face;
+        v["pmi"]["features"][0]["items"][0]["face"] = face;
         let decoded = json::from_value(&v, &anchors()).unwrap();
         assert_eq!(p, decoded.pmi);
         assert_eq!(
@@ -72,16 +72,20 @@ fn refusals_are_explained() {
     for (path, value, reason) in [
         ("/schema", json!("haecceity.pmi/2"), "schema violation"),
         (
-            "/pmi/features/0/value/items/0/face",
+            "/pmi/features/0/items/0/face",
             json!({"name":"absent"}),
             "unknown face name",
         ),
         (
-            "/pmi/features/0/value/items/0/face",
+            "/pmi/features/0/items/0/face",
             json!(1),
             "unknown face index",
         ),
-        ("/pmi/datums/0/id", json!("features/0"), "duplicate item id"),
+        (
+            "/pmi/datums/0/id",
+            json!("dimensions/0"),
+            "duplicate item id",
+        ),
         (
             "/pmi/dimensions/0/value/nominal/quantity/length/value",
             json!(1.25),
@@ -212,11 +216,10 @@ fn specify_face_fingerprint_support_key() {
     let mut a = anchors();
     a.bind_support(2, "verified-face-hash").unwrap();
     let mut v = json::to_value(&json::identify(test_model(), None).unwrap()).unwrap();
-    v["pmi"]["features"][0]["value"]["items"][0]["face"] =
+    v["pmi"]["features"][0]["items"][0]["face"] =
         json!({"fingerprint":{"schema":2,"faces":"verified-face-hash","support":[0]}});
     assert_eq!(json::from_value(&v, &a).unwrap().pmi, test_model());
-    v["pmi"]["features"][0]["value"]["items"][0]["face"]["fingerprint"]["faces"] =
-        json!("another-part");
+    v["pmi"]["features"][0]["items"][0]["face"]["fingerprint"]["faces"] = json!("another-part");
     assert!(
         json::from_value(&v, &a)
             .unwrap_err()
@@ -280,7 +283,7 @@ fn named_step_faces_use_the_mesh_face_order_and_write_identically() {
         json!({"fingerprint":{"schema":2,"faces":"verified","support":[0]}}),
     ] {
         let mut v = v.clone();
-        v["pmi"]["features"][0]["value"]["items"][0]["face"] = face;
+        v["pmi"]["features"][0]["items"][0]["face"] = face;
         let decoded = json::from_value(&v, &anchors).unwrap();
         outputs.push(
             json::write(
@@ -321,7 +324,7 @@ fn every_written_kind_keeps_its_caller_id_through_migration() {
         "caller ids lost: {:?}",
         expected.difference(&actual).collect::<Vec<_>>()
     );
-    // Writer-created auxiliary features receive deterministic ids on read.
+    // Support aspects stay structural; independent requirement ids survive migration.
     let again = json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
     assert_eq!(output.ids, again.ids);
 }
@@ -388,24 +391,55 @@ fn read_only_extensions_mixed_units_and_iso_classes_are_lossless() {
 }
 
 #[test]
-fn independently_named_aliases_are_refused_if_the_writer_coalesces_them() {
+fn structural_support_aliases_do_not_duplicate_requirement_ids() {
     let input = cube();
     let doc = Document::parse(input.clone()).unwrap();
     let parts = read_part_definitions(&input).unwrap();
     let mut p = test_model();
     p.features.push(p.features[0].clone());
-    let semantic = json::identify(p, None).unwrap();
-    let error = json::write(
+    let semantic = json::identify(p.clone(), None).unwrap();
+    let (written, _) = json::write(
         &doc,
         &parts,
         &[(PartId(0), semantic)],
         pmi::write::PresentationPolicy::RemovePresentation,
     )
-    .unwrap_err();
+    .unwrap();
+    let definitions = read_part_definitions(&written).unwrap();
+    let read = pmi::read(&Document::parse(written).unwrap(), &definitions).unwrap();
+    assert!(pmi::write::differences(&p, &read.parts[0]).is_empty());
+    assert_eq!(
+        read.identifiers.parts[0].dimensions,
+        vec![Some("dimensions/0".into())]
+    );
+}
+
+#[test]
+fn a_target_and_its_support_aspect_share_one_file_identifier() {
+    use std::io::Read;
+    let raw = std::fs::read(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../tests/fixtures/ap242/nist/nist_ftc_10_asme1_ap242-e2.stp.gz"
+    ))
+    .unwrap();
+    let mut input = vec![];
+    flate2::read::GzDecoder::new(raw.as_slice())
+        .read_to_end(&mut input)
+        .unwrap();
+    let doc = Document::parse(input.clone()).unwrap();
+    let parts = read_part_definitions(&input).unwrap();
+    let read = pmi::read(&doc, &parts).unwrap();
+    let semantic = json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+    let encoded = json::to_value(&semantic).unwrap();
+    assert_eq!(
+        json::from_value(&encoded, &Anchors::read(&doc, &parts[0]))
+            .unwrap()
+            .pmi,
+        read.parts[0]
+    );
     assert!(
-        error
-            .to_string()
-            .contains("cannot be represented independently"),
-        "{error}"
+        semantic.ids["datum_targets"]
+            .iter()
+            .any(|id| id == "DT #18373 on DATUM #18319")
     );
 }
