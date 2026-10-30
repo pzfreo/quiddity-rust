@@ -6,6 +6,12 @@
 //! the file, with [`Finding`]s for everything it did not read (or read through a
 //! nonconformance) and the [`Provenance`] of every model item: the instance ids it consumed,
 //! which a replace removes.
+//!
+//! With the default `presentation` feature, the writer uses `crate::presentation` for
+//! dimension/tolerance content and datum lettering. Styled tessellated geometric sets,
+//! per-callout annotation planes and semantic/feature associations share one part draughting
+//! model. See `docs/step-ap242.md`, Graphical callouts (#137), for the auxiliary symbol
+//! representations required by EXPRESS uniqueness. Append preserves foreign callouts.
 
 mod derived;
 pub mod model;

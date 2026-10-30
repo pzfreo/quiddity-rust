@@ -2566,7 +2566,12 @@ fn specify_intents_written_onto_the_original_files() {
 
 fn load_pins() -> Json {
     serde_json::from_str(
-        &std::fs::read_to_string(common::fixtures().join("references/pmi_write.json")).unwrap(),
+        &std::fs::read_to_string(common::fixtures().join(if cfg!(feature = "presentation") {
+            "references/pmi_write-presentation.json"
+        } else {
+            "references/pmi_write.json"
+        }))
+        .unwrap(),
     )
     .unwrap()
 }
@@ -5290,5 +5295,45 @@ fn an_empty_add_is_byte_identical_even_with_foreign_presentation() {
         let f = fixture(file);
         let w = write(&f, &[(PartId(0), PartPmi::default())], Mode::Add).unwrap();
         assert_eq!(f.doc.bytes(), w.doc.bytes(), "{file}");
+    }
+}
+
+#[cfg(feature = "presentation")]
+#[test]
+fn callouts_and_their_auxiliary_representations_follow_replace_and_remove() {
+    let f = spool();
+    let mut p = four_datums();
+    p.dimensions.push(size(
+        0,
+        "20.0",
+        DimTolerance::Deviations(bounds("0.1", "0.0")),
+    ));
+    p.tolerances.push(tolerance(
+        ToleranceKind::Flatness,
+        ToleranceTarget::Feature(FeatureId(0)),
+        "0.02",
+    ));
+    let first = written(&f, &p);
+    let g = open_bytes(first.doc.bytes().to_vec());
+    for (mode, next) in [
+        (Mode::Remove, PartPmi::default()),
+        (Mode::Replace, p.clone()),
+    ] {
+        let after = write(&g, &[(PartId(0), next.clone())], mode).unwrap();
+        assert_verified_as(&g, &after, &next, mode);
+        assert!(new_violations(&g.doc, &after.doc).is_empty());
+        for id in first.added() {
+            if first
+                .names(id)
+                .iter()
+                .any(|n| express::TARGET.family(n) == Some(express::Family::Presentation))
+            {
+                assert!(
+                    after.doc.get(id).is_none(),
+                    "{mode:?}: stale presentation {}",
+                    first.text(id)
+                );
+            }
+        }
     }
 }

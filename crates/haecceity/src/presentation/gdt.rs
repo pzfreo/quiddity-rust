@@ -150,10 +150,10 @@ pub fn control_frame(
     let mut xs = vec![0.0, H, H + w_tol];
     for _ in datums {
         // Invariant: xs starts with the left edge and grows once per frame cell.
-        xs.push(xs.last().expect("a cell") + H);
+        xs.push(xs[xs.len() - 1] + H);
     }
     // Invariant: xs starts with the left edge and grows once per frame cell.
-    let w = *xs.last().expect("a cell");
+    let w = xs[xs.len() - 1];
     let corners = [[0.0, 0.0], [w, 0.0], [w, H], [0.0, H]];
     for i in 0..4 {
         laid.strokes.push([corners[i], corners[(i + 1) % 4]]);

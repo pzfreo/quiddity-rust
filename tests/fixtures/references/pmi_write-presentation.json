@@ -1,0 +1,805 @@
+{
+ "reasons": {
+  "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": "The reader names a measure's unit that is neither a length nor an angle by its entity types ('derived_unit'), which does not identify one of the file's several derived units; the writer will not pick one (it would guess the unit). The attribute set is left out of the round trip.",
+  "Datum: datum … is established by datum targets, which are not written yet": "Historical refusal retired by maintainer decision 2026-10-20: write the practice §6.6 form with narrowly reported addition-only WR5 exemptions. The 13 CTC-02/FTC-10 targets and their datums now pass clean-copy and full-file round trips; the raw NIST file-wrong rule pins remain unchanged.",
+  "DatumTarget: datum targets are read but not written yet (design: Out of scope)": "Historical refusal retired by maintainer decision 2026-10-20: write the practice §6.6 form with narrowly reported addition-only WR5 exemptions. The 13 CTC-02/FTC-10 targets and their datums now pass clean-copy and full-file round trips; the raw NIST file-wrong rule pins remain unchanged.",
+  "Dimension: a dimension without a nominal value (§N.N.N: it shall always be given)": "NIST CTC-01 states dimensions without a dimensional_characteristic_representation (a nonconformance the reader reads through, pinned in read/findings.json); PMI practice §5.2.1 requires the nominal value, so the writer refuses to write the nonconformance.",
+  "Feature: a group of unstated kind (§N.N requires 'multiple elements' or 'pattern of features')": "NIST FTC-09's composite_group_shape_aspects state neither 'multiple elements' nor 'pattern of features' (read as GroupKind::Unstated with a finding); writing a group whose kind is not stated would write the nonconformance, so it is refused with what depends on it.",
+  "Hole: hole definitions (basic_round_hole) are read but not written yet (design: question Q-holes)": "Edition 4 hole occurrences' basic_round_hole definitions (NIST STC-09) are read into PartPmi.holes, but the writer does not write them yet (docs/step-ap242.md question 7, Q-holes); refused by name so that a replace never drops them silently. The occurrences' faces are still written as their features (the written file is unchanged).",
+  "Note: notes are the non-standard 'manufacturing requirement' text route, which is not written (decision N)": "specify-core's 'manufacturing requirement' properties (threads, knurls, finish, edge condition, general tolerances as text) are not a standard AP242 form; maintainer decision 5: not written.",
+  "Tolerance: a projected tolerance zone without its projection end (§N.N.N.N)": "NIST CTC-04's projected zone names a projection end that identifies no face (read through with a finding); §6.9.2.2 requires the end, so the writer refuses the tolerance rather than write an empty shape aspect.",
+  "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": "Writing tolerance relations (composite feature control frames) is out of scope for this stage (design: Out of scope); refused by name, left out of the round trip.",
+  "no part definitions": "NIST FTC-08's -tg file is tessellated only: read_part_definitions finds no solid or shell with faces, so there is no part to write to (as for the reader).",
+  "removal refused": "The file has PMI of the part the reader did not read (an unread tolerance whose toleranced feature or datum did not resolve, with its measure qualification, pinned in read/findings.json) that references instances the replace removes; kept PMI must not dangle, so the replace is refused naming it (design item 6: anything else blocks). The id_attributes listed beside it would be removed with their items.",
+  "Datum: datum … requires targets whose §N.N description conflicts with datum_target WRN": "Historical refusal retired by maintainer decision 2026-10-20: write the practice §6.6 form with narrowly reported addition-only WR5 exemptions. The 13 CTC-02/FTC-10 targets and their datums now pass clean-copy and full-file round trips; the raw NIST file-wrong rule pins remain unchanged.",
+  "DatumTarget: §N.N states the target shape in its description, but datum_target WRN forbids it; omitting the description passes the rules with UNKNOWN but loses the target shape": "Historical refusal retired by maintainer decision 2026-10-20: write the practice §6.6 form with narrowly reported addition-only WR5 exemptions. The 13 CTC-02/FTC-10 targets and their datums now pass clean-copy and full-file round trips; the raw NIST file-wrong rule pins remain unchanged.",
+  "practice/schema conflicts": "Maintainer decision 2026-10-20: actual raw violations on explicitly registered target/decimal-only cell additions only. Every other rule and structural schema validation remains mandatory; target WR4 is avoided by writing empty names."
+ },
+ "roundtrip": {
+  "assembly": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "ca5711668102f0e8bb9920469a46008e8a51d60e0bea7eb89a03089b0e464291"
+  },
+  "assembly_plate_pin": {
+   "presentation removed": 52,
+   "refuse policy": "refused: 7 presentation blockers of 7",
+   "sha256": "bc268a9d3b1534eb8f19ac96bc39b1ba0d0bdacaf7ab129170f26937bab5bc8a"
+  },
+  "bolt_thread_knurl": {
+   "presentation removed": 29,
+   "refuse policy": "refused: 4 presentation blockers of 4",
+   "sha256": "d6f3e83ebb5b6dbdece381cac4316ec017900c4686e09f24d65217a1dcbfc526"
+  },
+  "bracket_positions": {
+   "presentation removed": 23,
+   "refuse policy": "refused: 3 presentation blockers of 3",
+   "sha256": "9cc88aeaa0d1c582b2a7a40d9cddf25670fa7f830cf3be4b74566b9fad0caeb5"
+  },
+  "nist_ctc_01_asme1_ap242-e1": {
+   "left out": {
+    "dimensions": 4
+   },
+   "presentation removed": 406,
+   "refuse policy": "refused: 52 presentation blockers of 52",
+   "refused": {
+    "Dimension: a dimension without a nominal value (§N.N.N: it shall always be given)": 4
+   },
+   "sha256": "036683e8358ac27d51a92c35362e175c91bc44d3b600a5c605fb496865edcd37"
+  },
+  "nist_ctc_01_merge": {
+   "left out": {
+    "dimensions": 4
+   },
+   "presentation removed": 406,
+   "refuse policy": "refused: 52 presentation blockers of 52",
+   "refused": {
+    "Dimension: a dimension without a nominal value (§N.N.N: it shall always be given)": 4
+   },
+   "sha256": "6f3acb4036ec1583fd88be630a9699b67c24510d62f18f7fed6953e6dd1d7c4c"
+  },
+  "nist_ctc_02_asme1_ap242-e2": {
+   "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
+   "presentation removed": 1473,
+   "refuse policy": "refused: 181 presentation blockers of 215",
+   "sha256": "99a0a2079ddeb64d05c2432cbe931fa17c89da60d8b0bcb0b11bd0ed94fa2e68",
+   "practice/schema conflicts": {
+    "datum_target.WR5": 9
+   }
+  },
+  "nist_ctc_03_asme1_ap242-e2": {
+   "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
+   "left out": {
+    "dimensions": 1
+   },
+   "presentation removed": 969,
+   "refuse policy": "refused: 116 presentation blockers of 129",
+   "refused": {
+    "Dimension: a dimension without a nominal value (§N.N.N: it shall always be given)": 1
+   },
+   "sha256": "196b665776e759282f80fc8fb27d7bceb995df77cf78b7ce48347535a4d6cb5f"
+  },
+  "nist_ftc_06_asme1_ap242-e2": {
+   "error": "removal refused: {\"other id_attribute\": 27, \"semantic-pmi (geometric_tolerance geometric_tolerance_with_datum_reference surface_profile_tolerance)\": 1, \"semantic-pmi measure_qualification\": 1}",
+   "left out": {
+    "datum targets": 6,
+    "datums": 4,
+    "tolerance relations": 4,
+    "tolerances": 4
+   },
+   "refused": {
+    "Datum: datum … is established by datum targets, which are not written yet": 4,
+    "DatumTarget: datum targets are read but not written yet (design: Out of scope)": 6,
+    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 4
+   },
+   "sha256": "b87afb7f25adc0d44d12e182209d50f0b085b533c0742fb8ffd58f4c87403447"
+  },
+  "nist_ftc_07_asme1_ap242-e2": {
+   "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
+   "left out": {
+    "attributes": 12
+   },
+   "presentation removed": 1411,
+   "refuse policy": "refused: 158 presentation blockers of 158",
+   "refused": {
+    "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": 12
+   },
+   "sha256": "aa8115c12e12a99cc439477cbfd222916f9ec629fbb3c9002b18e0c264c9a892"
+  },
+  "nist_ftc_08_asme1_ap242-e2": {
+   "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
+   "left out": {
+    "tolerance relations": 6
+   },
+   "presentation removed": 1267,
+   "refuse policy": "refused: 115 presentation blockers of 115",
+   "refused": {
+    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 6
+   },
+   "sha256": "7b9283b4288d152fd181d76c39285d7c79fbba34fda1e14a41ac4a983f6d68b3"
+  },
+  "nist_ftc_09_asme1_ap242-e1": {
+   "error": "removal refused: {\"semantic-pmi (geometric_tolerance geometric_tolerance_with_datum_reference geometric_tolerance_with_modifiers position_tolerance)\": 1}",
+   "left out": {
+    "dimensions": 10,
+    "features": 11,
+    "tolerance relations": 2,
+    "tolerances": 14
+   },
+   "refused": {
+    "Feature: a group of unstated kind (§N.N requires 'multiple elements' or 'pattern of features')": 11,
+    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 2
+   },
+   "sha256": "f1215fe15a78085a9fa78dd81714caf774b59071be92580b04ebfdc19f52a1bd"
+  },
+  "nist_ftc_10_asme1_ap242-e2": {
+   "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
+   "left out": {
+    "attributes": 12
+   },
+   "presentation removed": 1261,
+   "refuse policy": "refused: 183 presentation blockers of 183",
+   "refused": {
+    "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": 12
+   },
+   "sha256": "9d7711f48e81831c5d1838fdac5c11c0de1aa9b61f3c1d67930a7638b3b25e69",
+   "practice/schema conflicts": {
+    "datum_target.WR5": 4
+   }
+  },
+  "nist_stc_06_asme1_ap242-e3": {
+   "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 4 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
+   "presentation removed": 2291,
+   "refuse policy": "refused: 218 presentation blockers of 218",
+   "sha256": "71777c28da76da0e8a667e4cbe792d5f72c09b5c56440c9744d3d50ca96ecc8d"
+  },
+  "nist_stc_07_asme1_ap242-e3": {
+   "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF  {1 0 10303 442 4 1 4} has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
+   "left out": {
+    "tolerance relations": 6
+   },
+   "presentation removed": 3446,
+   "refuse policy": "refused: 382 presentation blockers of 394",
+   "refused": {
+    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 6
+   },
+   "sha256": "2dddf9b8894bc241f7ffddf3dc4502baa3d49c374e8784039d14b86473d54832"
+  },
+  "nist_stc_08_asme1_ap242-e3": {
+   "error": "removal refused: {\"other id_attribute\": 21, \"semantic-pmi (geometric_tolerance geometric_tolerance_with_datum_reference surface_profile_tolerance)\": 1, \"semantic-pmi measure_qualification\": 1}",
+   "left out": {
+    "tolerance relations": 4
+   },
+   "refused": {
+    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 4
+   },
+   "sha256": "64f24b914910ce8e20c9e4bd59637b4fd155715c7c7b51689466534ed7db1442"
+  },
+  "nist_stc_09_asme1_ap242-e4": {
+   "left out": {
+    "attributes": 12
+   },
+   "presentation removed": 839,
+   "refuse policy": "refused: 115 presentation blockers of 196",
+   "refused": {
+    "Attribute: \"\": N units of the file are named \"derived_unit\"; which one is not stated": 12,
+    "Hole: hole definitions (basic_round_hole) are read but not written yet (design: question Q-holes)": 25
+   },
+   "sha256": "41026b1f0d81830c6092b5147e0e084d2fa163169161c31af4ce06493d3c7d33"
+  },
+  "nist_stc_10_asme1_ap242-e2": {
+   "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
+   "presentation removed": 2459,
+   "refuse policy": "refused: 135 presentation blockers of 135",
+   "sha256": "fba4f46cab1ce1402362038036884631b4a41afe1c9efc5681d358c39db7ed5f"
+  },
+  "spool_fits": {
+   "presentation removed": 17,
+   "refuse policy": "refused: 2 presentation blockers of 2",
+   "sha256": "d1852dcd9ffe049d1031353d815b4c8e675f66608f5a1d800bc928ef23746b74"
+  },
+  "string_post_tapped": {
+   "presentation removed": 17,
+   "refuse policy": "refused: 2 presentation blockers of 2",
+   "sha256": "c30e2d019e46f28dfa7bfdbc9dd80f731c6eb467b65c76e710e6fa2f0d244367"
+  },
+  "thumbwheel_thread_knurl": {
+   "presentation removed": 35,
+   "refuse policy": "refused: 5 presentation blockers of 5",
+   "sha256": "710ba36a0a5cd07aa0ff46795b5a0f899e5dd9a9cc63cd0e0c83fed7d2b65399"
+  }
+ },
+ "corpus": {
+  "patterns": [
+   {
+    "key": "specify-core: ISO 286 fit written as its deviations",
+    "match": [
+     "dimension only in the first",
+     "deviations"
+    ],
+    "verdict": "rust-correct",
+    "reason": "specify-core writes each ISO 286 class as the class's deviations only (TOLERANCE_VALUE, no LIMITS_AND_FITS), because OpenCascade writes the grade wrongly (specify-core writer.py; anti-requirement 'ISO 286 grade written wrongly'). haecceity writes the class the intent states as LIMITS_AND_FITS (§5.2.5); the deviations specify-core states are the class's (checked by the reader stage), so the meaning is the class, and haecceity's form is the practice's."
+   },
+   {
+    "key": "haecceity: ISO 286 fit written as LIMITS_AND_FITS",
+    "match": [
+     "dimension only in the second",
+     "fit "
+    ],
+    "verdict": "rust-correct",
+    "reason": "The other side of the fit difference: the class written as PLUS_MINUS_TOLERANCE → LIMITS_AND_FITS(letter, 'hole'/'shaft', grade, '') (§5.2.5), read back as the same class."
+   },
+   {
+    "key": "haecceity: thread written as its THREAD entity",
+    "match": [
+     "thread only in the second"
+    ],
+    "verdict": "rust-correct",
+    "reason": "specify-core writes threads as 'manufacturing requirement' text and a 'pmi-assist' attribute set because OpenCascade has no thread class (anti-requirement 'threads, knurls … appended as raw text'); haecceity writes the schema's THREAD with its shape_representation_with_parameters (thread WR1–WR16 checked). number_of_threads is written '1.' (one start): what the ratio counts is not settled (design: Status, open); the pitch is kept in the attribute set beside it."
+   },
+   {
+    "key": "specify-core: 'manufacturing requirement' text note (decision 5: not written)",
+    "match": [
+     "note only in the first"
+    ],
+    "verdict": "rust-correct",
+    "reason": "specify-core's 'manufacturing requirement' properties (surface texture, edge condition, general tolerance and thread/knurl text) are not a standard AP242 form; maintainer decision 5: not written. The general tolerance is written in its standard 'default tolerances' form and compares equal."
+   },
+   {
+    "key": "specify-core: thread as a 'pmi-assist' attribute set",
+    "match": [
+     "attribute only in the first",
+     "thread side"
+    ],
+    "verdict": "rust-correct",
+    "reason": "specify-core's user defined attribute set restating the thread (side, designation, pitch, class, hand, drill) because it cannot write THREAD; haecceity writes the THREAD itself and only what is not thread semantics (pitch, tapping drill, depths) as an attribute set."
+   },
+   {
+    "key": "haecceity: pitch, tapping drill and depths as an attribute set",
+    "match": [
+     "attribute only in the second",
+     "\"thread manufacturing\""
+    ],
+    "verdict": "rust-correct",
+    "reason": "Tapping drill diameter and depth and full-thread depth are not thread semantics (design: Threads and knurls): a user defined attribute set on the thread's feature (UDA practice §5–7). The intent's pitch goes there too, since the schema's thread has no pitch item. 'through' is not written: a boolean_representation_item does not read back (reader gap reported)."
+   },
+   {
+    "key": "specify-core: knurl as a 'pmi-assist' attribute set",
+    "match": [
+     "attribute only in the first",
+     "\"pattern\""
+    ],
+    "verdict": "rust-wrong",
+    "reason": "Independent evidence: crates/haecceity/tests/pmi_write.rs::intent_pmi handles the knurl intent in its catch-all arm, recording only a not-written message and omitting its stated pattern, pitch and diameter from PartPmi. The emitted STEP consequently has neither those manufacturing attributes nor their knurl feature binding. The AP242 turned_knurl WR2/WR9 parameter requirements justify refusing to invent a standard knurl, but do not justify losing the supplied information: it could remain explicit manufacturing attributes as thread pitch does in the same adapter. Cause: incomplete intent translation in the test adapter, not a failure of the writer to serialize a fully specified Knurl. Recorded without changing expectations or adding assumed DIN 82 parameters."
+   },
+   {
+    "key": "knurl feature not written (no knurl)",
+    "match": [
+     "feature only in the first"
+    ],
+    "verdict": "rust-wrong",
+    "reason": "Independent evidence: crates/haecceity/tests/pmi_write.rs::intent_pmi handles the knurl intent in its catch-all arm, recording only a not-written message and omitting its stated pattern, pitch and diameter from PartPmi. The emitted STEP consequently has neither those manufacturing attributes nor their knurl feature binding. The AP242 turned_knurl WR2/WR9 parameter requirements justify refusing to invent a standard knurl, but do not justify losing the supplied information: it could remain explicit manufacturing attributes as thread pitch does in the same adapter. Cause: incomplete intent translation in the test adapter, not a failure of the writer to serialize a fully specified Knurl. Recorded without changing expectations or adding assumed DIN 82 parameters."
+   },
+   {
+    "key": "specify-core: values stated in metres",
+    "match": [
+     "Metre"
+    ],
+    "verdict": "rust-correct",
+    "reason": "specify-core's file states tolerance magnitudes in metres (5.E-05 m), OpenCascade's unit of the last dimension written (anti-requirement 'tolerance length unit taken from the last dimension written'); haecceity writes each value in the unit the intent states (millimetres). Equal in meaning (compared by meaning above); different as stated."
+   }
+  ],
+  "cases": {
+   "assembly_plate_pin": {
+    "differences": {
+     "part 0: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 1,
+     "part 0: haecceity: pitch, tapping drill and depths as an attribute set": 1,
+     "part 0: haecceity: thread written as its THREAD entity": 1,
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 4,
+     "part 0: specify-core: ISO 286 fit written as its deviations": 1,
+     "part 0: specify-core: thread as a 'pmi-assist' attribute set": 1,
+     "part 1: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 1,
+     "part 1: haecceity: pitch, tapping drill and depths as an attribute set": 1,
+     "part 1: haecceity: thread written as its THREAD entity": 1,
+     "part 1: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 4,
+     "part 1: specify-core: ISO 286 fit written as its deviations": 1,
+     "part 1: specify-core: thread as a 'pmi-assist' attribute set": 1
+    },
+    "not written": [
+     "part 0: thread on [11]: 'through' is a boolean, which the writer refuses (the reader cannot read it back)",
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)",
+     "part 1: thread on [3]: 'through' is a boolean, which the writer refuses (the reader cannot read it back)",
+     "part 1: surface_finish: no standard form in the model (decision 5)",
+     "part 1: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
+   },
+   "bolt_thread_knurl": {
+    "differences": {
+     "part 0: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 1,
+     "part 0: haecceity: pitch, tapping drill and depths as an attribute set": 1,
+     "part 0: haecceity: thread written as its THREAD entity": 1,
+     "part 0: knurl feature not written (no knurl)": 1,
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 5,
+     "part 0: specify-core: ISO 286 fit written as its deviations": 1,
+     "part 0: specify-core: knurl as a 'pmi-assist' attribute set": 1,
+     "part 0: specify-core: thread as a 'pmi-assist' attribute set": 1
+    },
+    "not written": [
+     "part 0: knurl on [4]: the intent lacks parameters its standard entity requires",
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
+   },
+   "bracket_positions": {
+    "differences": {
+     "part 0: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 2,
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 3,
+     "part 0: specify-core: ISO 286 fit written as its deviations": 2
+    },
+    "not written": [
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
+   },
+   "nist_ctc_01_merge": {
+    "differences": {
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 3,
+     "part 0: specify-core: values stated in metres": 1
+    },
+    "not written": [
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Kept([\"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 1 1 4 }\"])"
+   },
+   "spool_fits": {
+    "differences": {
+     "part 0: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 5,
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 3,
+     "part 0: specify-core: ISO 286 fit written as its deviations": 5
+    },
+    "not written": [
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
+   },
+   "string_post_tapped": {
+    "differences": {
+     "part 0: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 1,
+     "part 0: haecceity: pitch, tapping drill and depths as an attribute set": 1,
+     "part 0: haecceity: thread written as its THREAD entity": 1,
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 4,
+     "part 0: specify-core: ISO 286 fit written as its deviations": 1,
+     "part 0: specify-core: thread as a 'pmi-assist' attribute set": 1
+    },
+    "not written": [
+     "part 0: thread on [17]: 'through' is a boolean, which the writer refuses (the reader cannot read it back)",
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
+   },
+   "thumbwheel_thread_knurl": {
+    "differences": {
+     "part 0: haecceity: ISO 286 fit written as LIMITS_AND_FITS": 1,
+     "part 0: haecceity: pitch, tapping drill and depths as an attribute set": 2,
+     "part 0: haecceity: thread written as its THREAD entity": 2,
+     "part 0: knurl feature not written (no knurl)": 1,
+     "part 0: specify-core: 'manufacturing requirement' text note (decision 5: not written)": 6,
+     "part 0: specify-core: ISO 286 fit written as its deviations": 1,
+     "part 0: specify-core: knurl as a 'pmi-assist' attribute set": 1,
+     "part 0: specify-core: thread as a 'pmi-assist' attribute set": 2
+    },
+    "not written": [
+     "part 0: thread on [12]: 'through' is a boolean, which the writer refuses (the reader cannot read it back)",
+     "part 0: knurl on [9]: the intent lacks parameters its standard entity requires",
+     "part 0: surface_finish: no standard form in the model (decision 5)",
+     "part 0: edges: no standard form in the model (decision 5)"
+    ],
+    "schema": "Upgraded { from: [\"AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }\"], to: \"AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }\" }"
+   }
+  }
+ },
+ "occt": [
+  {
+   "detail": "#6558: value 20.0105 vs 20. Millimetre (different)",
+   "key": "every_kind occt dimension 0:1:4:3",
+   "verdict": "rust-correct",
+   "reason": "The dimension is Ø20 H7 with its limits stated beside the class (20.000/20.021, §5.2.5: 'upper limit'/'lower limit' items beside 'nominal value' and LIMITS_AND_FITS). OpenCascade gives the value as the middle of the stated limits (20.0105) instead of the 'nominal value' item (20.); haecceity reads the nominal, the class and the limits as written."
+  },
+  {
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"Break sharp edges 0.2 max\"",
+   "key": "every_kind occt part 0 semantic text \"coating\"",
+   "verdict": "rust-correct",
+   "reason": "XCAF's metadata reader keeps one string per property name on the part's label (TDataStd_NamedData, keyed 'semantic text'), so of several part notes it holds the last. Each note is its own property_definition('semantic text') with its descriptive item, as PMI practice §7.4 defines editable note text (one property per note; its count is 'number of semantic text notes', Table 17) and NIST's files carry (FTC-07: 16, FTC-10: 19). haecceity reads every note back (pmi_write.rs notes_and_surface_textures_are_standard_forms)."
+  },
+  {
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"Break sharp edges 0.2 max\"",
+   "key": "every_kind occt part 0 semantic text \"heat treatment\"",
+   "verdict": "rust-correct",
+   "reason": "XCAF's metadata reader keeps one string per property name on the part's label (TDataStd_NamedData, keyed 'semantic text'), so of several part notes it holds the last. Each note is its own property_definition('semantic text') with its descriptive item, as PMI practice §7.4 defines editable note text (one property per note; its count is 'number of semantic text notes', Table 17) and NIST's files carry (FTC-07: 16, FTC-10: 19). haecceity reads every note back (pmi_write.rs notes_and_surface_textures_are_standard_forms)."
+  },
+  {
+   "detail": "not read: any process allowed Ra 3.2Micrometre",
+   "key": "every_kind occt part 0 surface texture 0",
+   "verdict": "not-applicable",
+   "reason": "XCAF has no surface texture: OpenCascade 7.9 reads no AP242 surface condition (ISO 10303-1110 'surface texture' property and its surface_texture_representation parameters), and its metadata reader keeps nothing of them (the capture's metadata). haecceity reads the texture back as written."
+  },
+  {
+   "detail": "not read: material removal required Ra 0.8Micrometre, Rz 4.Micrometre",
+   "key": "every_kind occt part 0 surface texture 1",
+   "verdict": "not-applicable",
+   "reason": "XCAF has no surface texture: OpenCascade 7.9 reads no AP242 surface condition (ISO 10303-1110 'surface texture' property and its surface_texture_representation parameters), and its metadata reader keeps nothing of them (the capture's metadata). haecceity reads the texture back as written."
+  },
+  {
+   "detail": "#651: value 5.014 vs 10. Millimetre (different); not plus/minus (range true lower_bound 10 upper_bound 0.028)",
+   "key": "thumbwheel_notes_add occt dimension 0:1:4:1",
+   "verdict": "rust-correct",
+   "reason": "specify-core's own Ø10 (kept byte for byte by the add, not written by haecceity): '#648 = (... MEASURE_WITH_UNIT(POSITIVE_LENGTH_MEASURE(10.),#633) ... REPRESENTATION_ITEM('nominal value'))', '#651 = DIMENSIONAL_SIZE(#646,'diameter')', '#654 = TOLERANCE_VALUE(#653,#652)' with both bounds below nominal (-0.028, -0.013), '#655 = PLUS_MINUS_TOLERANCE(#654,#651)'. OpenCascade's known misread of both deviations below nominal (the capture's known_misreads; specify-core writer.py) drops the deviations and garbles the value; haecceity reads 10 mm with the stated deviations. The same instance in the input file is pinned alike (known_pmi.json occt 'thumbwheel_thread_knurl occt dimension 0:1:4:1')."
+  },
+  {
+   "key": "pmi_gaps occt missing tolerance #6536",
+   "detail": "Position",
+   "verdict": "rust-correct",
+   "reason": "The review traced earlier face movement to shared shape_aspect_relationship endpoints: OCCT 7.9.3 collectShapeAspect treats ordinary relationships as composition (STEPCAFControl_Reader.cxx lines 2918–2934). Fresh private endpoints now leave both ordinary Position tolerances on face #17, proven by both re-captured fixtures and isolated_relationship_endpoints_keep_occt_tolerances_on_their_faces. The edition 4 SELECT permits the remaining relationship target, which Rust preserves exactly; XCAF does not read that target. No practice section defines relationship targets; endpoint composition uses Figure 31."
+  },
+  {
+   "key": "pmi_gaps occt part 0 semantic text \"general note 1\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps occt part 0 semantic text \"general note 2\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps occt part 0 semantic text \"general note 3\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps occt part 0 semantic text \"general note 4\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps occt part 0 feature semantic text 5",
+   "detail": "not in XCAF metadata: \"M8 x 1.25-6H RH\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps occt part 0 surface texture 0",
+   "detail": "not read: any process allowed Ra 1.6Micrometre",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps occt part 0 affected plane 0",
+   "detail": "XCAF exposes no affected plane on the tolerance",
+   "verdict": "not-applicable",
+   "reason": "OCCT 7.9.3 STEPCAFControl_Reader never reads affected planes, so its absence is outside the XCAF cross-check. The §6.9.2.1 Figure 53 intersection plane uses representative plane element with axis2_placement_3d; Rust preserves its explicit variant and geometry, and tests cover all three standard variants and reject an unspecified one."
+  },
+  {
+   "key": "pmi_gaps occt part 0 tolerance relation 0",
+   "detail": "Composite: XCAF exposes the individual tolerances, no relation",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps occt part 0 tolerance relation 1",
+   "detail": "Precedence: XCAF exposes the individual tolerances, no relation",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps occt part 0 tolerance relation 2",
+   "detail": "Simultaneity: XCAF exposes the individual tolerances, no relation",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps occt part 0 default table 0",
+   "detail": "XCAF exposes no general tolerance table or part decimal default",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps occt part 0 density",
+   "detail": "XCAF Some(0.00785) g/cm³ vs 7.85 g/cm³ from 7850. [(\"kilogram\", Decimal(\"1.\")), (\"metre\", Decimal(\"-3.\"))]",
+   "verdict": "rust-correct",
+   "reason": "ISO 10303-41 derived kg/m³, 7850 kg/m³ = 7.85 g/cm³. OCCT 7.9.3 ReadMaterials converts the length factor but handles mass only for ConversionBasedUnitAndMassUnit, omitting SiUnitAndMassUnit (.KILO.,.GRAM.); returns 0.00785 g/cm³. The gram/cm³ control reads 7.85 correctly. Source: Open-Cascade-SAS/OCCT V7_9_3 STEPCAFControl_Reader.cxx lines 5053–5078."
+  },
+  {
+   "key": "pmi_gaps_gram occt missing tolerance #6536",
+   "detail": "Position",
+   "verdict": "rust-correct",
+   "reason": "The review traced earlier face movement to shared shape_aspect_relationship endpoints: OCCT 7.9.3 collectShapeAspect treats ordinary relationships as composition (STEPCAFControl_Reader.cxx lines 2918–2934). Fresh private endpoints now leave both ordinary Position tolerances on face #17, proven by both re-captured fixtures and isolated_relationship_endpoints_keep_occt_tolerances_on_their_faces. The edition 4 SELECT permits the remaining relationship target, which Rust preserves exactly; XCAF does not read that target. No practice section defines relationship targets; endpoint composition uses Figure 31."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 semantic text \"general note 1\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 semantic text \"general note 2\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 semantic text \"general note 3\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 semantic text \"general note 4\"",
+   "detail": "not in XCAF's metadata, which holds \"semantic text\" = \"5. Preserve this requirement.\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 feature semantic text 5",
+   "detail": "not in XCAF metadata: \"M8 x 1.25-6H RH\"",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §7.4 writes one semantic text property per note, on its part shape or feature. All note texts and owners read back exactly; XCAF metadata keeps only the last part semantic text and exposes no feature note here. Five numbered notes are checked through Replace and resumed Add."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 surface texture 0",
+   "detail": "not read: any process allowed Ra 1.6Micrometre",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 affected plane 0",
+   "detail": "XCAF exposes no affected plane on the tolerance",
+   "verdict": "not-applicable",
+   "reason": "OCCT 7.9.3 STEPCAFControl_Reader never reads affected planes, so its absence is outside the XCAF cross-check. The §6.9.2.1 Figure 53 intersection plane uses representative plane element with axis2_placement_3d; Rust preserves its explicit variant and geometry, and tests cover all three standard variants and reject an unspecified one."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 tolerance relation 0",
+   "detail": "Composite: XCAF exposes the individual tolerances, no relation",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 tolerance relation 1",
+   "detail": "Precedence: XCAF exposes the individual tolerances, no relation",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 tolerance relation 2",
+   "detail": "Simultaneity: XCAF exposes the individual tolerances, no relation",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "key": "pmi_gaps_gram occt part 0 default table 0",
+   "detail": "XCAF exposes no general tolerance table or part decimal default",
+   "verdict": "not-applicable",
+   "reason": "The file states the standard entities and passes schema/rule checks and exact Rust read-back. XCAF has no semantic object API for this kind (individual tolerances are exposed without their relation, no default table, no surface texture)."
+  },
+  {
+   "detail": "not read: CircularCurve { diameter: Length { value: Decimal(\"6.\"), unit: Millimetre } }",
+   "key": "datum_targets occt part 0 datum target A5",
+   "verdict": "not-applicable",
+   "reason": "PMI practice v4.1 §6.6.1 Table 10 distinguishes circular curve (outline) from circle (enclosed area). XCAF 7.9.3 DatumTargetType has Point, Line, Rectangle, Circle and Area, with no circular-curve kind; this capture omits it. The writer retains the practice description and diameter; Rust reads it back exactly, and the unmodified rule engine reports only the authorized datum_target.WR5."
+  },
+  {
+   "detail": "not read: Area(FeatureId(1))",
+   "key": "datum_targets occt part 0 datum target A6",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "not read: Curve(FeatureId(2))",
+   "key": "datum_targets occt part 0 datum target A7",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "XCAF exposes no general tolerance table or part decimal default",
+   "key": "datum_targets occt part 0 default table 0",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §4.1 Figure 3 decimal-only cell is written as COUNT_MEASURE(number of decimal places), with no invented range or tolerance. The raw rules still report cell WR3/WR4, individually listed on the new cell in practice_schema_conflicts per maintainer decision 2026-10-20. XCAF 7.9.3 exposes no default table or part decimal-place API. Rust reads both the named cell and bare part precision back exactly through Replace and resumed writes."
+  },
+  {
+   "detail": "support instances [] vs [17]",
+   "key": "datum_targets_shared_support occt part 0 datum target A1",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §6.6.3 support feature, with a private composition endpoint (§5.1 Figure 31) when another tolerance controls the same feature. OCCT 7.9.3 ReadDatums only searches direct GISUs of the relating feature (STEPCAFControl_Reader.cxx 3055–3074), so it omits this support even though target type, number, placement and sizes read correctly. Using the ordinary aspect directly instead makes collectShapeAspect move/drop the other tolerance; the committed shared-support capture proves Position 0.05 stays on face #17. Rust preserves the support exactly and raw rules have only the authorized target WR5/cell WR3/WR4 conflicts."
+  },
+  {
+   "detail": "support instances [] vs [17]",
+   "key": "datum_targets_shared_support occt part 0 datum target A2",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §6.6.3 support feature, with a private composition endpoint (§5.1 Figure 31) when another tolerance controls the same feature. OCCT 7.9.3 ReadDatums only searches direct GISUs of the relating feature (STEPCAFControl_Reader.cxx 3055–3074), so it omits this support even though target type, number, placement and sizes read correctly. Using the ordinary aspect directly instead makes collectShapeAspect move/drop the other tolerance; the committed shared-support capture proves Position 0.05 stays on face #17. Rust preserves the support exactly and raw rules have only the authorized target WR5/cell WR3/WR4 conflicts."
+  },
+  {
+   "detail": "support instances [] vs [17]",
+   "key": "datum_targets_shared_support occt part 0 datum target A3",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §6.6.3 support feature, with a private composition endpoint (§5.1 Figure 31) when another tolerance controls the same feature. OCCT 7.9.3 ReadDatums only searches direct GISUs of the relating feature (STEPCAFControl_Reader.cxx 3055–3074), so it omits this support even though target type, number, placement and sizes read correctly. Using the ordinary aspect directly instead makes collectShapeAspect move/drop the other tolerance; the committed shared-support capture proves Position 0.05 stays on face #17. Rust preserves the support exactly and raw rules have only the authorized target WR5/cell WR3/WR4 conflicts."
+  },
+  {
+   "detail": "support instances [] vs [17]",
+   "key": "datum_targets_shared_support occt part 0 datum target A4",
+   "verdict": "rust-correct",
+   "reason": "PMI practice §6.6.3 support feature, with a private composition endpoint (§5.1 Figure 31) when another tolerance controls the same feature. OCCT 7.9.3 ReadDatums only searches direct GISUs of the relating feature (STEPCAFControl_Reader.cxx 3055–3074), so it omits this support even though target type, number, placement and sizes read correctly. Using the ordinary aspect directly instead makes collectShapeAspect move/drop the other tolerance; the committed shared-support capture proves Position 0.05 stays on face #17. Rust preserves the support exactly and raw rules have only the authorized target WR5/cell WR3/WR4 conflicts."
+  },
+  {
+   "detail": "not read: CircularCurve { diameter: Length { value: Decimal(\"6.\"), unit: Millimetre } }",
+   "key": "datum_targets_shared_support occt part 0 datum target A5",
+   "verdict": "not-applicable",
+   "reason": "PMI practice v4.1 §6.6.1 Table 10 distinguishes circular curve (outline) from circle (enclosed area). XCAF 7.9.3 DatumTargetType has Point, Line, Rectangle, Circle and Area, with no circular-curve kind; this capture omits it. The writer retains the practice description and diameter; Rust reads it back exactly, and the unmodified rule engine reports only the authorized datum_target.WR5."
+  },
+  {
+   "detail": "not read: Area(FeatureId(5))",
+   "key": "datum_targets_shared_support occt part 0 datum target A6",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "not read: Curve(FeatureId(6))",
+   "key": "datum_targets_shared_support occt part 0 datum target A7",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "XCAF exposes no general tolerance table or part decimal default",
+   "key": "datum_targets_shared_support occt part 0 default table 0",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §4.1 Figure 3 decimal-only cell is written as COUNT_MEASURE(number of decimal places), with no invented range or tolerance. The raw rules still report cell WR3/WR4, individually listed on the new cell in practice_schema_conflicts per maintainer decision 2026-10-20. XCAF 7.9.3 exposes no default table or part decimal-place API. Rust reads both the named cell and bare part precision back exactly through Replace and resumed writes."
+  },
+  {
+   "detail": "XCAF exposes no part decimal default",
+   "key": "decimal_default occt part 0 decimal places",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §4.1 Figure 3 decimal-only cell is written as COUNT_MEASURE(number of decimal places), with no invented range or tolerance. The raw rules still report cell WR3/WR4, individually listed on the new cell in practice_schema_conflicts per maintainer decision 2026-10-20. XCAF 7.9.3 exposes no default table or part decimal-place API. Rust reads both the named cell and bare part precision back exactly through Replace and resumed writes."
+  },
+  {
+   "detail": "not read: Area(FeatureId(3))",
+   "key": "nist_ftc_10_targets occt part 0 datum target K1",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "not read: Area(FeatureId(4))",
+   "key": "nist_ftc_10_targets occt part 0 datum target K2",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "not read: Area(FeatureId(8))",
+   "key": "nist_ftc_10_targets occt part 0 datum target L1",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  },
+  {
+   "detail": "not read: Area(FeatureId(9))",
+   "key": "nist_ftc_10_targets occt part 0 datum target L2",
+   "verdict": "not-applicable",
+   "reason": "PMI practice §6.6.2 Table 11 and NIST FTC-10 use a base datum_target for explicit area/curve geometry. OCCT 7.9.3 ReadDatums downcasts every target to PlacedDatumTargetFeature and skips base targets (STEPCAFControl_Reader.cxx 3032–3035); changing an area to placed would violate the non-exempt placed-target WR1. XCAF has no explicit curve target kind either. Rust preserves the standard geometry/target/datum; all four original FTC-10 areas pass clean-copy round trips. Raw schema/rule validation remains mandatory outside the reported target WR5."
+  }
+ ],
+ "pin_changes_2026_10_20": {
+  "roundtrip": "No per-file pin removed. Specify notes no longer appear in refused/left-out because exact standard_form(read) is compared to the replacement reading, and dedicated tests assert no manufacturing requirement survives. NIST tolerance relations no longer appear in refused/left-out because all three standard relation kinds are emitted and compared with their resolved endpoints. Presentation removal counts and file hashes are unchanged. Target refusal counts remain unchanged; their reason now names the literal schema conflict rather than an implementation backlog.",
+  "corpus_roundtrip": "Ten corpus NIST geometry/presentation files are round-tripped separately, with exact hashes and unchanged presentation. They have no semantic targets, tolerance relations, tables or density; the committed AP242 NIST fixtures supply the semantic relation/target evidence. Do not interpret these empty-PMI round trips as coverage of the newly written semantic forms."
+ },
+ "corpus_roundtrip": {
+  "nist_ctc_01_asme1_rd": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "e081d518484d5c708c6729353237f94a7d97da2b74a10d60d4c0d146d67a5855"
+  },
+  "nist_ctc_02_asme1_rc": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "e6df6d0ed68fd8a91bd3f8360c7047f2af3d61068b89050d84423fe8ddb93bcf"
+  },
+  "nist_ctc_03_asme1_rc": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "95a775b1acdbc34de11319cb83b4cf6c6fdd7de8cbfc4af2d0afe5d3565cfdf8"
+  },
+  "nist_ctc_04_asme1_rd": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "cdb59a085a3364941b881f96b511265a7cb5f6e94180c4426bdc3025481f405a"
+  },
+  "nist_ctc_05_asme1_rd": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "5140b8f41fa1d0a069ea978e28c92a597f47220d0a11e667b79ff5f7c7243b86"
+  },
+  "nist_ftc_06_asme1_rd": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "5e30f0903f9470c14a98e70395ca005fe90bcd3fb704c381a80a69958838f169"
+  },
+  "nist_ftc_07_asme1_rd": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "a0bc551656780b26d7a0ee1beedbc07d43f41efa092f74f3c2d8383417f04481"
+  },
+  "nist_ftc_08_asme1_rc": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "4b7011b0b86cf6301058aa954b76a9587d23478b6dee2660f4a80caf0dfe8b73"
+  },
+  "nist_ftc_09_asme1_rd": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "e29c09bd2d454601ff1a0d77c4c4ffaf2ed78eee71031ce49f7b7bb5a6d1d4e8"
+  },
+  "nist_ftc_10_asme1_rb": {
+   "presentation removed": 0,
+   "refuse policy": "written",
+   "sha256": "2bd726f9fe86aeb96ab517ce876e5696e7951310df5c4fbca36276d65879067b"
+  }
+ },
+ "loader_unavailable": {
+  "pmi_gaps": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  },
+  "pmi_gaps_gram": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  },
+  "datum_targets": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  },
+  "datum_targets_shared_support": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  },
+  "decimal_default": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  },
+  "nist_ctc_02_targets": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  },
+  "nist_ftc_10_targets": {
+   "status": {
+    "unavailable": "specify_core is not installed in this environment"
+   },
+   "verdict": "not-applicable",
+   "reason": "The requested read-only quiddity venv contains OCP 7.9.3.1 but no specify_core. XCAF transfer and the safe label walk are required and captured independently; the separate specify-core application loader was not run. All earlier application-loader pins remain unchanged."
+  }
+ }
+}

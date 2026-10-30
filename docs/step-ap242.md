@@ -56,7 +56,7 @@ EXPRESS conflict in the hand-tested NIST-style recipe: inherited
 `item_identified_representation_usage.UR1` prohibits two associations with the same
 representation and callout; UR2 prohibits reusing a definition in a representation.
 NIST CTC-01 itself uses that duplicate pair. To meet the requirement of no new rule
-violations, the writer uses a per-callout `SYMBOL_REPRESENTATION` (same 3D context and
+violations, the writer uses a per-callout `SYMBOL_REPRESENTATION` (classified as presentation for safe removal; same 3D context and
 callout) for the feature association. The semantic association uses the part draughting
 model unless a datum has already used that definition, in which case it also gets its
 own symbol representation. The callout still appears only once in the part draughting
@@ -71,6 +71,9 @@ Feature-on writer goldens and fresh OpenCascade captures live in
 `tests/fixtures/ap242/write-presentation/`; `write/` retains feature-off goldens unchanged.
 `export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the new
 folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture the legacy folder.
+The feature-on `references/pmi_write-presentation.json` retains every verdict and comparison,
+with one diagnostic entity ID moved from #6615 to #6558 because presentation is now emitted
+after the dimensional semantics. The original feature-off reference remains unchanged.
 
 ## Maintainer decisions (2026-10-08)
 

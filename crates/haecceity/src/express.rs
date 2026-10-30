@@ -238,6 +238,7 @@ pub const FAMILY_RULES: &[(&str, Family)] = &[
     ("apll_point_with_surface", Family::Presentation),
     ("styled_item", Family::Presentation),
     ("draughting_model", Family::Presentation),
+    ("symbol_representation", Family::Presentation),
     ("model_geometric_view", Family::Presentation),
     ("camera_model", Family::Presentation),
     ("camera_usage", Family::Presentation),

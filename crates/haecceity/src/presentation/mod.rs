@@ -33,6 +33,10 @@ pub struct Callout {
     pub size: [f64; 2],
 }
 
+#[allow(
+    clippy::expect_used,
+    reason = "the embedded, tested IBM Plex font is immutable"
+)]
 pub fn font() -> &'static text::Font {
     static FONT: std::sync::OnceLock<text::Font> = std::sync::OnceLock::new();
     FONT.get_or_init(|| {
@@ -88,18 +92,18 @@ fn decimal(v: &Value) -> String {
 }
 
 // Convert only when the requirement actually uses different units, never to sheet precision.
-fn in_units(v: &Value, nominal: &Value) -> String {
+fn in_units(v: &Value, nominal: &Value) -> Decimal {
     if v.quantity.cmp_same_unit(&nominal.quantity).is_some() {
-        decimal(v)
+        v.decimal().clone()
     } else {
         let scale = match &nominal.quantity {
             Quantity::Length(l) => l.unit.millimetres(),
             Quantity::Angle(a) => a.unit.radians(),
         };
         if scale.is_finite() && scale != 0.0 {
-            (v.si() / scale).to_string()
+            Decimal::parse(&(v.si() / scale).to_string()).unwrap_or_else(|_| v.decimal().clone())
         } else {
-            decimal(v)
+            v.decimal().clone()
         }
     }
 }
@@ -145,7 +149,7 @@ pub fn dimension_text(d: &Dimension) -> String {
             let value = |v: &Value| {
                 d.nominal
                     .as_ref()
-                    .map_or_else(|| decimal(v), |n| in_units(v, n))
+                    .map_or_else(|| v.decimal().clone(), |n| in_units(v, n))
             };
             let u = value(b.upper());
             let l = value(b.lower());

@@ -108,11 +108,28 @@ pub fn deviation(v: f64) -> String {
 
 /// Signed deviations as Draftwright prints them, without rounding requirement digits.
 pub fn band(upper: f64, lower: f64) -> String {
-    band_text(&upper.to_string(), &lower.to_string())
+    let m = |v: f64| {
+        let s = v.abs().to_string();
+        if s.contains('.') { s } else { format!("{s}.0") }
+    };
+    let signed = |v: f64, sign: char| {
+        if v == 0.0 {
+            "0".to_string()
+        } else {
+            format!("{sign}{}", m(v))
+        }
+    };
+    if upper > 0.0 && upper == -lower {
+        format!("±{}", m(upper))
+    } else {
+        let up = if upper < 0.0 { '-' } else { '+' };
+        let down = if lower > 0.0 { '+' } else { '-' };
+        format!("{} {}", signed(upper, up), signed(lower, down))
+    }
 }
 
 /// The decimal-string form preserves authored trailing digits as well as unsigned zero.
-pub fn band_text(upper: &str, lower: &str) -> String {
+pub fn band_text(upper: &crate::pmi::Decimal, lower: &crate::pmi::Decimal) -> String {
     use crate::pmi::Decimal;
     let printed = |s: &str| {
         if s.contains('.') || s.contains(['e', 'E']) {
@@ -121,9 +138,9 @@ pub fn band_text(upper: &str, lower: &str) -> String {
             format!("{s}.0")
         }
     };
-    let number = |s: &str| Decimal::parse(s).expect("a requirement decimal");
-    let signed = |s: &str| {
-        if number(s).is_zero() {
+    let signed = |value: &Decimal| {
+        let s = value.as_str();
+        if value.is_zero() {
             "0".into()
         } else if s.starts_with('-') || s.starts_with('+') {
             printed(s)
@@ -131,13 +148,14 @@ pub fn band_text(upper: &str, lower: &str) -> String {
             format!("+{}", printed(s))
         }
     };
-    if !number(upper).is_negative()
-        && !number(upper).is_zero()
-        && number(lower).is_negative()
-        && number(upper).cmp_value(&number(lower.trim_start_matches('-')))
-            == std::cmp::Ordering::Equal
+    if !upper.is_negative()
+        && !upper.is_zero()
+        && lower.is_negative()
+        && Decimal::parse(lower.as_str().trim_start_matches('-'))
+            .ok()
+            .is_some_and(|abs| upper.cmp_value(&abs).is_eq())
     {
-        format!("±{}", printed(upper.trim_start_matches('+')))
+        format!("±{}", printed(upper.as_str().trim_start_matches('+')))
     } else {
         format!("{} {}", signed(upper), signed(lower))
     }
