@@ -3875,6 +3875,7 @@ fn written_files_are_the_writers_current_output() {
             committed == bytes,
             "{name}: the writer's output changed; run export_written_files and tools/check_pmi_occt.py"
         );
+        assert_composite_components(&Document::parse(bytes).unwrap());
     }
 }
 
@@ -6382,11 +6383,8 @@ fn assert_composite_components(doc: &Document) {
 
 #[test]
 fn all_written_goldens_have_at_least_two_components_per_composite() {
-    for (_, bytes) in written_cases() {
-        if let Some(bytes) = bytes {
-            assert_composite_components(&Document::parse(bytes).unwrap());
-        }
-    }
+    // Current writer output is checked by written_files_are_the_writers_current_output;
+    // reuse that export pass, rather than write every case a second time for this guard.
     for entry in std::fs::read_dir(write_dir()).unwrap() {
         let path = entry.unwrap().path();
         if path.to_string_lossy().ends_with(".step.gz") {

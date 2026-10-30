@@ -246,7 +246,9 @@ collapse a planar ladder; they are excluded as unreadable views, not treated as 
 clearance. Serialized-sample tests report the minimum clearance among all readable views,
 assert the shared-plane equation and retain the feet/span/arrow/text assertions. Every
 sample and written golden is checked for at least two geometric components per composite,
-excluding the datum-establishment relationship. All original OCCT datum/tolerance verdicts
+excluding the datum-establishment relationship. Current-output graph assertions reuse the
+existing writer/golden byte-equality export pass, avoiding a second export of every case
+in CI; committed goldens are checked independently. All original OCCT datum/tolerance verdicts
 remain enforced.
 
 Round-6 golden changes: `assembly_plate_pin_intent`, `every_kind`, and
