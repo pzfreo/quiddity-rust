@@ -696,23 +696,15 @@ pub fn write(
 
     // Parse geometry once for the entire write, only when a new callout needs it. Parts
     // share the parsed STEP model; each B-rep and ray caster is still local to its part.
-    #[cfg(feature = "presentation")]
     let presentation_reader = plans
         .iter()
-        .any(|p| {
-            !p.pmi.datums.is_empty() || !p.pmi.dimensions.is_empty() || !p.pmi.tolerances.is_empty()
-        })
+        .any(|p| !p.pmi.datums.is_empty() || needs_callouts(p.pmi))
         .then(|| crate::step::PartReader::read(doc.bytes()).ok())
         .flatten();
     // Emission, part by part.
     let mut em = Emitter::new(doc, edition, &mut edit, &removed);
     for plan in &plans {
-        plan.emit(
-            &mut em,
-            &mut report,
-            #[cfg(feature = "presentation")]
-            presentation_reader.as_ref(),
-        )?;
+        plan.emit(&mut em, &mut report, presentation_reader.as_ref())?;
     }
     let emitted_dimensions = em
         .exponents
@@ -2762,7 +2754,7 @@ impl<'a> PartPlan<'a> {
         &self,
         em: &mut Emitter<'_>,
         report: &mut WriteReport,
-        #[cfg(feature = "presentation")] presentation_reader: Option<&crate::step::PartReader>,
+        presentation_reader: Option<&crate::step::PartReader>,
     ) -> Result<(), WriteError> {
         let mut st = Emitted::default();
         let p = self.pmi;
@@ -2824,19 +2816,30 @@ impl<'a> PartPlan<'a> {
 
         for (i, t) in p.datum_targets.iter().enumerate() {
             let explicit = matches!(t.shape(), TargetShape::Area(_) | TargetShape::Curve(_));
-            let target = em.simple(
-                if explicit {
-                    "datum_target"
-                } else {
-                    "placed_datum_target_feature"
-                },
+            let mut types = vec![if explicit {
+                "datum_target"
+            } else {
+                "placed_datum_target_feature"
+            }];
+            if let TargetShape::Area(f) | TargetShape::Curve(f) = t.shape()
+                && matches!(&p.features[self.canonical[f.0]], Feature::Items(items)
+                    if items.iter().copied().collect::<BTreeSet<_>>().len() > 1)
+            {
+                types.push("composite_shape_aspect");
+            }
+            let target = em.instance(
+                &types,
                 &[
-                    ("name", s("")),
-                    ("description", s(target_shape_name(t.shape()))),
-                    ("of_shape", pds.a()),
-                    ("product_definitional", boolean(true)),
-                    ("target_id", s(&t.number().to_string())),
+                    (("shape_aspect", "name"), s("")),
+                    (
+                        ("shape_aspect", "description"),
+                        s(target_shape_name(t.shape())),
+                    ),
+                    (("shape_aspect", "of_shape"), pds.a()),
+                    (("shape_aspect", "product_definitional"), boolean(true)),
+                    (("datum_target", "target_id"), s(&t.number().to_string())),
                 ],
+                &[],
             )?;
             em.practice_conflict(target, &["datum_target.WR5"]);
             st.targets.insert(i, target);
@@ -2897,6 +2900,34 @@ impl<'a> PartPlan<'a> {
                 }
             }
         }
+        // Locations get their own non-datum aspects. Reserve their shared geometric
+        // leaves before emitting datum features. A single-face datum owns its GISU;
+        // private location aspects reach that carrier through composition (UR1/UR2).
+        for d in &p.dimensions {
+            if let DimensionKind::Location { from, to, .. } = d.kind {
+                for f in [from, to] {
+                    let mut pending = vec![f.0];
+                    let mut visited = BTreeSet::new();
+                    while let Some(f) = pending.pop() {
+                        let c = self.canonical[f];
+                        if !visited.insert(c) || !self.is_datum_aspect(c) {
+                            continue;
+                        }
+                        match &p.features[c] {
+                            Feature::Items(items) => {
+                                for k in self.usage_keys(em, &st, items)? {
+                                    *keys.entry(k.clone()).or_insert(0) += 1;
+                                }
+                            }
+                            Feature::Group { members, .. } => {
+                                pending.extend(members.iter().map(|f| f.0))
+                            }
+                            Feature::Derived { .. } => {}
+                        }
+                    }
+                }
+            }
+        }
         let shared: BTreeSet<(R, Vec<R>)> = keys
             .iter()
             .filter(|(_, n)| **n > 1)
@@ -2916,7 +2947,14 @@ impl<'a> PartPlan<'a> {
                 && let [k] = self.usage_keys(em, &st, items)?.as_slice()
                 && shared.contains(k)
             {
-                st.owners.entry(k.clone()).or_insert(c);
+                // A plain datum needs its own GISU for OCCT and Solid Edge typing.
+                // Other aspects (including private location endpoints) compose it,
+                // rather than making the datum a one-component composite.
+                if self.is_datum_aspect(c) {
+                    st.owners.insert(k.clone(), c);
+                } else {
+                    st.owners.entry(k.clone()).or_insert(c);
+                }
             }
         }
         st.shared_keys = keys
@@ -2980,7 +3018,7 @@ impl<'a> PartPlan<'a> {
             st.datums.insert(i, datum);
         }
         #[cfg(not(feature = "presentation"))]
-        self.datum_symbols(em, &symbols, &st, report)?;
+        self.datum_symbols(em, &symbols, &st, report, presentation_reader)?;
         for i in 0..p.dimensions.len() {
             self.dimension(em, &mut st, pds, i)?;
         }
@@ -2989,8 +3027,6 @@ impl<'a> PartPlan<'a> {
             let r = self.tolerance(em, &mut st, pds, t, &mut names)?;
             st.tolerances.insert(i, r);
         }
-        #[cfg(feature = "presentation")]
-        self.datum_symbols(em, &symbols, &st, report, presentation_reader)?;
         for r in &p.tolerance_relations {
             let name = match r.kind {
                 RelationKind::Composite => "composite",
@@ -3013,7 +3049,12 @@ impl<'a> PartPlan<'a> {
                 ],
             )?;
         }
-        for g in &p.general {
+        let general = p.general.iter();
+        #[cfg(feature = "presentation")]
+        let general = general.enumerate();
+        #[cfg(not(feature = "presentation"))]
+        let general = general.map(|item| ((), item));
+        for (_i, g) in general {
             if let GeneralTolerance::Table { name, cells } = g {
                 self.tolerance_table(em, pds, name, cells)?;
             }
@@ -3022,7 +3063,7 @@ impl<'a> PartPlan<'a> {
                     "descriptive_representation_item",
                     &[("name", s("tolerance class")), ("description", s(text))],
                 )?;
-                self.property(
+                let _property = self.property(
                     em,
                     pds,
                     "default tolerances",
@@ -3030,6 +3071,9 @@ impl<'a> PartPlan<'a> {
                     "default tolerances",
                     &[item],
                 )?;
+                #[cfg(feature = "presentation")]
+                st.properties
+                    .insert(crate::presentation::notes::Source::General(_i), _property);
             }
         }
         if let Some(places) = p.decimal_places
@@ -3050,7 +3094,7 @@ impl<'a> PartPlan<'a> {
                     ("description", s(m.name.as_deref().unwrap_or(""))),
                 ],
             )?;
-            self.property(
+            let _property = self.property(
                 em,
                 pd,
                 "material property",
@@ -3058,6 +3102,9 @@ impl<'a> PartPlan<'a> {
                 "material name",
                 &[item],
             )?;
+            #[cfg(feature = "presentation")]
+            st.properties
+                .insert(crate::presentation::notes::Source::Material, _property);
         }
         if let Some(d) = p.material.as_ref().and_then(|m| m.density.as_ref()) {
             let mut elements = Vec::new();
@@ -3100,12 +3147,30 @@ impl<'a> PartPlan<'a> {
             )?;
             self.property(em, pd, "material property", "density", "density", &[item])?;
         }
-        for a in &p.attributes {
-            self.attribute_set(em, &mut st, pd, pds, a)?;
+        let attributes = p.attributes.iter();
+        #[cfg(feature = "presentation")]
+        let attributes = attributes.enumerate();
+        #[cfg(not(feature = "presentation"))]
+        let attributes = attributes.map(|item| ((), item));
+        for (_i, a) in attributes {
+            let _property = self.attribute_set(em, &mut st, pd, pds, a)?;
+            #[cfg(feature = "presentation")]
+            st.properties
+                .insert(crate::presentation::notes::Source::Attribute(_i), _property);
         }
-        for t in &p.surface_textures {
-            self.surface_texture(em, &mut st, pds, t)?;
+        let surface_textures = p.surface_textures.iter();
+        #[cfg(feature = "presentation")]
+        let surface_textures = surface_textures.enumerate();
+        #[cfg(not(feature = "presentation"))]
+        let surface_textures = surface_textures.map(|item| ((), item));
+        for (_i, t) in surface_textures {
+            let _property = self.surface_texture(em, &mut st, pds, t)?;
+            #[cfg(feature = "presentation")]
+            st.properties
+                .insert(crate::presentation::notes::Source::Texture(_i), _property);
         }
+        #[cfg(feature = "presentation")]
+        self.datum_symbols(em, &symbols, &st, report, presentation_reader)?;
         Ok(())
     }
 
@@ -3408,14 +3473,13 @@ impl<'a> PartPlan<'a> {
         symbols: &[(R, Vec<String>, usize)],
         _st: &Emitted,
         report: &mut WriteReport,
-        #[cfg(feature = "presentation")] presentation_reader: Option<&crate::step::PartReader>,
+        presentation_reader: Option<&crate::step::PartReader>,
     ) -> Result<(), WriteError> {
-        if symbols.is_empty()
-            && !(cfg!(feature = "presentation")
-                && (!self.pmi.dimensions.is_empty() || !self.pmi.tolerances.is_empty()))
-        {
+        if symbols.is_empty() && !needs_callouts(self.pmi) {
             return Ok(());
         }
+        let presentation_part = presentation_reader.and_then(|r| r.part(self.def).ok());
+        let factor = self.context_length_unit().map_or(1., |u| u.millimetres());
         let mut tips = Vec::new();
         for (_, labels, f) in symbols {
             tips.push(self.feature_point(*f).ok_or_else(|| {
@@ -3428,15 +3492,12 @@ impl<'a> PartPlan<'a> {
         let mut points = vertices(self.doc, &self.def.faces);
         points.extend(tips.iter().copied());
         #[cfg(not(feature = "presentation"))]
-        let mut layout = SymbolLayout::new(&points);
-        #[cfg(feature = "presentation")]
-        let presentation_part = presentation_reader.and_then(|r| r.part(self.def).ok());
+        let mut layout = SymbolLayout::new(&points, factor);
         #[cfg(feature = "presentation")]
         let mut local_layout = {
             let mut bounds = crate::geom::Bounds::empty();
             // The B-rep includes circular-arc and surface extrema, not just seam vertices.
             if let Some(part) = &presentation_part {
-                let factor = self.context_length_unit().map_or(1., |u| u.millimetres());
                 let b = part.bounds();
                 bounds.add(b.min.map(|x| x / factor));
                 bounds.add(b.max.map(|x| x / factor));
@@ -3446,20 +3507,53 @@ impl<'a> PartPlan<'a> {
                     bounds.add(p);
                 }
             }
-            crate::presentation::placement::Layout::new(bounds)
+            crate::presentation::placement::Layout::with_unit(
+                bounds,
+                self.context_length_unit().map_or(1., |u| u.millimetres()),
+            )
         };
+        #[cfg(feature = "presentation")]
+        let measurements = presentation_part
+            .as_ref()
+            .map(|part| crate::presentation::linear::measurements(part, self.def, self.pmi));
         let mut graphics = Vec::new();
+        #[cfg(feature = "presentation")]
+        let mut note_pieces: BTreeMap<R, Vec<Vec<[f64; 3]>>> = BTreeMap::new();
         for ((feature, labels, _feature_index), tip) in symbols.iter().zip(&tips) {
             let label = labels.join(",");
             #[cfg(not(feature = "presentation"))]
-            let (plane, lines) = layout.draw(*tip, &label);
+            let (plane, lines) = if let Some((point, normal, _)) =
+                presentation_part.as_ref().and_then(|part| {
+                    super::sites::feature_site(part, self.pmi, FeatureId(*_feature_index))
+                }) {
+                layout.draw_on_face(point.map(|x| x / factor), normal, &label)
+            } else {
+                layout.draw(*tip, &label)
+            };
             #[cfg(feature = "presentation")]
             let (plane, lines) = {
                 let c = crate::presentation::datum(&label);
-                let p = local_layout.place(*tip, self.feature_axis(*_feature_index), &c);
+                let p = if let Some((point, normal, _)) =
+                    presentation_part.as_ref().and_then(|part| {
+                        crate::presentation::placement::feature_site(
+                            part,
+                            self.pmi,
+                            FeatureId(*_feature_index),
+                        )
+                    }) {
+                    local_layout.on_face(point.map(|x| x / factor), normal, &c)
+                } else {
+                    local_layout.place(*tip, self.feature_axis(*_feature_index), &c)
+                };
                 ([p.origin, p.normal, p.along], p.lines)
             };
-            graphics.push((*feature, "datum", format!("Datum {label}"), plane, lines));
+            graphics.push((
+                vec![*feature],
+                "datum",
+                format!("Datum {label}"),
+                plane,
+                lines,
+            ));
             report.datum_symbols.push((self.id, label));
         }
         #[cfg(feature = "presentation")]
@@ -3476,12 +3570,22 @@ impl<'a> PartPlan<'a> {
                     .unwrap_or(points.first().copied().unwrap_or([0.; 3]));
                 let c = presentation::dimension(d);
                 let name = c.notation();
-                // Keep the existing slots reserved so datum, diameter and control-frame
-                // placements do not move when linear graphics are replaced below.
-                let p = local_layout.place(tip, self.feature_axis(f.0), &c);
+                let p = if measurements.as_ref().is_some_and(|ms| ms[i].is_some()) {
+                    // The measured ladder below places it. Do not reserve a discarded
+                    // bare-number slot that would push the control frames away.
+                    crate::presentation::placement::Placed {
+                        anchor: tip,
+                        origin: tip,
+                        normal: [0., 0., 1.],
+                        along: [1., 0., 0.],
+                        lines: Vec::new(),
+                    }
+                } else {
+                    local_layout.place(tip, self.feature_axis(f.0), &c)
+                };
                 let (plane, lines) = ([p.origin, p.normal, p.along], p.lines);
                 graphics.push((
-                    _st.dimensions[&i],
+                    vec![_st.dimensions[&i]],
                     presentation::dimension_type(d),
                     name,
                     plane,
@@ -3502,10 +3606,41 @@ impl<'a> PartPlan<'a> {
                     .unwrap_or(points.first().copied().unwrap_or([0.; 3]));
                 let c = presentation::tolerance(t, self.pmi);
                 let name = c.notation();
-                let p = local_layout.place(tip, f.and_then(|f| self.feature_axis(f.0)), &c);
+                let site = f.and_then(|f| {
+                    presentation_part.as_ref().and_then(|part| {
+                        crate::presentation::placement::feature_site(part, self.pmi, f)
+                    })
+                });
+                let p = if let Some((point, normal, face)) = site {
+                    let part = presentation_part.as_ref().ok_or_else(|| {
+                        WriteError::Internal("missing annotation geometry".into())
+                    })?;
+                    let extent = part.face_bounds(face).max_extent() / factor;
+                    if matches!(part.faces[face].surface, crate::geom::Surface::Plane { .. }) {
+                        local_layout.on_feature(point.map(|x| x / factor), normal, &c, extent)
+                    } else if let Some(axis) = f
+                        .and_then(|f| self.feature_axis(f.0))
+                        .and_then(crate::geom::unit)
+                    {
+                        let centre = part.bounds().centre().map(|x| x / factor);
+                        let axis = crate::geom::scale(
+                            axis,
+                            if crate::geom::dot(crate::geom::sub(tip, centre), axis) < 0. {
+                                -1.
+                            } else {
+                                1.
+                            },
+                        );
+                        local_layout.on_feature(tip, axis, &c, extent)
+                    } else {
+                        local_layout.place(tip, None, &c)
+                    }
+                } else {
+                    local_layout.place(tip, f.and_then(|f| self.feature_axis(f.0)), &c)
+                };
                 let (plane, lines) = ([p.origin, p.normal, p.along], p.lines);
                 graphics.push((
-                    _st.tolerances[&i],
+                    vec![_st.tolerances[&i]],
                     presentation::tolerance_type(t),
                     name,
                     plane,
@@ -3516,10 +3651,11 @@ impl<'a> PartPlan<'a> {
         #[cfg(feature = "presentation")]
         if let Some(part) = &presentation_part {
             use crate::presentation::{self, linear};
-            let factor = self.context_length_unit().map_or(1., |u| u.millimetres());
-            let measurements = linear::measurements(part, self.def, self.pmi);
+            let measurements = measurements
+                .as_ref()
+                .ok_or_else(|| WriteError::Internal("missing linear measurements".into()))?;
             let mut ladder = linear::Ladder::new(part.bounds());
-            for (i, (_, _, _, _, lines)) in graphics.iter().enumerate() {
+            for (i, (_, _, _, plane, lines)) in graphics.iter().enumerate() {
                 if i < symbols.len()
                     || i >= symbols.len() + self.pmi.dimensions.len()
                     || measurements[i - symbols.len()].is_none()
@@ -3528,7 +3664,11 @@ impl<'a> PartPlan<'a> {
                     for p in lines.iter().take(lines.len().saturating_sub(1)).flatten() {
                         b.add(p.map(|x| x * factor));
                     }
-                    ladder.reserve(b);
+                    if i >= symbols.len() && i < symbols.len() + self.pmi.dimensions.len() {
+                        ladder.reserve_dimension(b, plane[1], plane[2]);
+                    } else {
+                        ladder.reserve(b);
+                    }
                 }
             }
             let mut order: Vec<_> = measurements
@@ -3548,6 +3688,81 @@ impl<'a> PartPlan<'a> {
                     .into_iter()
                     .map(|l| l.into_iter().map(|p| p.map(|x| x / factor)).collect())
                     .collect();
+            }
+        }
+        #[cfg(feature = "presentation")]
+        {
+            use crate::presentation::{self, notes};
+            // Reserve the finished graphics, including extension lines, before placing new ink.
+            for (_, _, _, _, lines) in &graphics {
+                local_layout.reserve(lines);
+            }
+            for (i, t) in self
+                .pmi
+                .surface_textures
+                .iter()
+                .enumerate()
+                .filter(|(_, t)| t.on.is_some())
+            {
+                let f =
+                    t.on.ok_or_else(|| WriteError::Internal("missing texture feature".into()))?;
+                let part = presentation_part
+                    .as_ref()
+                    .ok_or_else(|| WriteError::Internal("texture geometry unavailable".into()))?;
+                let (_, _, face) = presentation::placement::feature_site(part, self.pmi, f)
+                    .ok_or_else(|| {
+                        WriteError::Internal("surface texture has no interior face site".into())
+                    })?;
+                let sites = presentation::placement::surface_sites(part, face)
+                    .into_iter()
+                    .map(|(point, normal)| (point.map(|x| x / factor), normal))
+                    .collect::<Vec<_>>();
+                let c = notes::surface_texture(t);
+                let p = local_layout.surface(&sites, &c).ok_or_else(|| {
+                    WriteError::Internal("surface texture has no interior tip site".into())
+                })?;
+                graphics.push((
+                    vec![_st.properties[&notes::Source::Texture(i)]],
+                    "surface roughness",
+                    c.notation(),
+                    [p.origin, p.normal, p.along],
+                    p.lines,
+                ));
+            }
+            let rows = notes::general_notes(self.pmi);
+            if !rows.is_empty() {
+                let c = notes::notes_block(&rows);
+                // Appended annotations stay byte-identical, but still occupy space.
+                local_layout.reserve(&kept_annotation_points(self.doc, em.removed));
+                let p = local_layout.notes(&c);
+                let scale = local_layout.text_height() / 3.;
+                for (i, text) in c.letters.iter().enumerate() {
+                    let row = &rows[i.saturating_sub(1)];
+                    let lines = presentation::font().text(&text.text, text.size).lines;
+                    note_pieces
+                        .entry(_st.properties[&row.source])
+                        .or_default()
+                        .extend(lines.into_iter().map(|line| {
+                            line.into_iter()
+                                .map(|q| {
+                                    [
+                                        p.origin[0] + (q[0] + text.at[0]) * scale,
+                                        p.origin[1],
+                                        p.origin[2] + (q[1] + text.at[1]) * scale,
+                                    ]
+                                })
+                                .collect()
+                        }));
+                }
+                let definitions: BTreeSet<_> =
+                    rows.iter().map(|r| _st.properties[&r.source]).collect();
+                graphics.push((
+                    definitions.into_iter().collect(),
+                    "note",
+                    c.cells.join("\n"),
+                    [p.origin, p.normal, p.along],
+                    p.lines,
+                ));
             }
         }
         let context = em.reference(self.context)?;
@@ -3609,6 +3824,13 @@ impl<'a> PartPlan<'a> {
         let mut planes = Vec::new();
         let mut callouts = Vec::new();
         for (definition, annotation_type, name, [origin, normal, along], lines) in graphics {
+            // Solid Edge uses these names in its tree. Keep the full note wording
+            // with the drawn curves, independently of the short annotation title.
+            let title = if annotation_type == "note" {
+                "General notes"
+            } else {
+                &name
+            };
             #[cfg(feature = "presentation")]
             if let Some(missing) = name
                 .chars()
@@ -3616,50 +3838,72 @@ impl<'a> PartPlan<'a> {
             {
                 return Err(WriteError::Internal(format!("missing PMI glyph {missing}")));
             }
-            let coordinates: Vec<A> = lines
-                .iter()
-                .flatten()
-                .map(|p| A::List(p.map(A::Real).to_vec()))
-                .collect();
-            let mut strips = Vec::new();
-            let mut first = 1i64;
-            for l in &lines {
-                strips.push(A::List(
-                    (0..l.len() as i64).map(|k| A::Integer(first + k)).collect(),
-                ));
-                first += l.len() as i64;
+            let mut occurrences = Vec::new();
+            for &definition in &definition {
+                #[cfg(feature = "presentation")]
+                let source_lines = if annotation_type == "note" {
+                    &note_pieces[&definition]
+                } else {
+                    &lines
+                };
+                #[cfg(not(feature = "presentation"))]
+                let source_lines = &lines;
+                let coordinates: Vec<A> = source_lines
+                    .iter()
+                    .flatten()
+                    .map(|p| A::List(p.map(A::Real).to_vec()))
+                    .collect();
+                let mut strips = Vec::new();
+                let mut first = 1i64;
+                for l in source_lines {
+                    strips.push(A::List(
+                        (0..l.len() as i64).map(|k| A::Integer(first + k)).collect(),
+                    ));
+                    first += l.len() as i64;
+                }
+                let list = em.simple(
+                    "coordinates_list",
+                    &[
+                        ("name", s("")),
+                        ("npoints", A::Integer(coordinates.len() as i64)),
+                        ("position_coords", A::List(coordinates)),
+                    ],
+                )?;
+                let curves = em.simple(
+                    "tessellated_curve_set",
+                    &[
+                        (
+                            "name",
+                            s(if annotation_type == "note" {
+                                &name
+                            } else {
+                                annotation_type
+                            }),
+                        ),
+                        ("coordinates", list.a()),
+                        ("line_strips", A::List(strips)),
+                    ],
+                )?;
+                let set = em.simple(
+                    "tessellated_geometric_set",
+                    &[("name", s(annotation_type)), ("children", refs([curves]))],
+                )?;
+                let occurrence = em.simple(
+                    "tessellated_annotation_occurrence",
+                    &[
+                        ("name", s(title)),
+                        ("styles", refs([line_style])),
+                        ("item", set.a()),
+                    ],
+                )?;
+                occurrences.push(occurrence);
+                if annotation_type == "note" {
+                    callouts.push((vec![definition], occurrence, annotation_type));
+                }
             }
-            let list = em.simple(
-                "coordinates_list",
-                &[
-                    ("name", s("")),
-                    ("npoints", A::Integer(coordinates.len() as i64)),
-                    ("position_coords", A::List(coordinates)),
-                ],
-            )?;
-            let curves = em.simple(
-                "tessellated_curve_set",
-                &[
-                    ("name", s(annotation_type)),
-                    ("coordinates", list.a()),
-                    ("line_strips", A::List(strips)),
-                ],
-            )?;
-            let set = em.simple(
-                "tessellated_geometric_set",
-                &[("name", s(annotation_type)), ("children", refs([curves]))],
-            )?;
-            let occurrence = em.simple(
-                "tessellated_annotation_occurrence",
-                &[
-                    ("name", s(&name)),
-                    ("styles", refs([line_style])),
-                    ("item", set.a()),
-                ],
-            )?;
             let callout = em.simple(
                 "draughting_callout",
-                &[("name", s(&name)), ("contents", refs([occurrence]))],
+                &[("name", s(title)), ("contents", refs(occurrences))],
             )?;
             let (o, n, a) = (
                 point(em, origin)?,
@@ -3675,18 +3919,20 @@ impl<'a> PartPlan<'a> {
                     ("ref_direction", a.a()),
                 ],
             )?;
-            let plane = em.simple("plane", &[("name", s(&name)), ("position", placement.a())])?;
+            let plane = em.simple("plane", &[("name", s(title)), ("position", placement.a())])?;
             let annotation_plane = em.simple(
                 "annotation_plane",
                 &[
-                    ("name", s(&name)),
+                    ("name", s(title)),
                     ("styles", refs([plane_style])),
                     ("item", plane.a()),
                     ("elements", refs([callout])),
                 ],
             )?;
             planes.push(annotation_plane);
-            callouts.push((definition, callout));
+            if annotation_type != "note" {
+                callouts.push((definition, callout, annotation_type));
+            }
         }
         let model = em.simple(
             "draughting_model",
@@ -3710,17 +3956,19 @@ impl<'a> PartPlan<'a> {
         // CAx-IF PMI §7.3: exactly the semantic link in the part draughting model.
         // SFA 5.41 rejects feature links and symbol representations here; removing them
         // leaves Solid Edge 2026's typed imports and symbolic graphics identical.
-        for (definition, callout) in callouts {
-            em.simple(
-                "draughting_model_item_association",
-                &[
-                    ("name", s("PMI representation to presentation link")),
-                    ("description", s("")),
-                    ("definition", definition.a()),
-                    ("used_representation", model.a()),
-                    ("identified_item", callout.a()),
-                ],
-            )?;
+        for (definitions, callout, _annotation_type) in callouts {
+            for definition in definitions {
+                em.simple(
+                    "draughting_model_item_association",
+                    &[
+                        ("name", s("PMI representation to presentation link")),
+                        ("description", s("")),
+                        ("definition", definition.a()),
+                        ("used_representation", model.a()),
+                        ("identified_item", callout.a()),
+                    ],
+                )?;
+            }
         }
         Ok(())
     }
@@ -3904,17 +4152,27 @@ impl<'a> PartPlan<'a> {
         let r = match &self.pmi.features[c] {
             Feature::Items(items) => {
                 let role = self.roles.get(&c).copied().unwrap_or(Role::Plain);
+                // Composite means at least two distinct geometric components. A shared
+                // single-face datum remains plain and owns the face's GISU.
+                let composite = items.iter().copied().collect::<BTreeSet<_>>().len() > 1;
+                let types = |ty| {
+                    let mut types = vec![ty];
+                    if composite {
+                        types.push("composite_shape_aspect");
+                    }
+                    types
+                };
                 let r = match role {
-                    Role::Plain => em.instance(&["shape_aspect"], &base(true), &[])?,
-                    Role::DatumFeature => em.instance(&["datum_feature"], &base(true), &[])?,
-                    Role::AppliedArea => em.instance(&["applied_area"], &base(true), &[])?,
-                    Role::ThreadRunout => em.instance(&["thread_runout"], &base(true), &[])?,
+                    Role::Plain => em.instance(&types("shape_aspect"), &base(true), &[])?,
+                    Role::DatumFeature => em.instance(&types("datum_feature"), &base(true), &[])?,
+                    Role::AppliedArea => em.instance(&types("applied_area"), &base(true), &[])?,
+                    Role::ThreadRunout => em.instance(&types("thread_runout"), &base(true), &[])?,
                     // Two independently placed callouts need distinct semantic definitions
                     // in one draughting model (IIRU UR2). Keep the datum feature and write
                     // its size as a separate dimensional_size applying to that same feature.
                     #[cfg(feature = "presentation")]
                     Role::DatumFeatureOfSize(_) => {
-                        em.instance(&["datum_feature"], &base(true), &[])?
+                        em.instance(&types("datum_feature"), &base(true), &[])?
                     }
                     #[cfg(not(feature = "presentation"))]
                     Role::DatumFeatureOfSize(d) => {
@@ -3928,7 +4186,7 @@ impl<'a> PartPlan<'a> {
                         vals.push((("dimensional_size", "applies_to"), me));
                         vals.push((("dimensional_size", "name"), s(kind.name())));
                         let r =
-                            em.instance(&["dimensional_size_with_datum_feature"], &vals, &[])?;
+                            em.instance(&types("dimensional_size_with_datum_feature"), &vals, &[])?;
                         st.dimensions.insert(d, r);
                         r
                     }
@@ -4024,6 +4282,138 @@ impl<'a> PartPlan<'a> {
         Ok(r)
     }
 
+    fn is_datum_aspect(&self, c: usize) -> bool {
+        matches!(
+            self.roles.get(&c),
+            Some(Role::DatumFeature | Role::DatumFeatureOfSize(_))
+        )
+    }
+
+    /// Solid Edge 2026 does not type a datum used directly by DIMENSIONAL_LOCATION.
+    /// Give each location endpoint its own ordinary aspect; both use plain GISU leaves
+    /// on the same faces. Tolerances continue to refer to the original datum feature.
+    fn location_feature(
+        &self,
+        em: &mut Emitter<'_>,
+        st: &mut Emitted,
+        pds: R,
+        f: usize,
+    ) -> Result<R, WriteError> {
+        let c = self.canonical[f];
+        if !self.is_datum_aspect(c) {
+            return self.feature(em, st, pds, f);
+        }
+        let original = self.feature(em, st, pds, f)?;
+        let (ty, description) = match &self.pmi.features[c] {
+            Feature::Items(items) => (
+                if items.iter().copied().collect::<BTreeSet<_>>().len() > 1 {
+                    "composite_shape_aspect"
+                } else {
+                    "shape_aspect"
+                },
+                "",
+            ),
+            Feature::Group {
+                kind: GroupKind::PatternOfFeatures,
+                ..
+            } => ("composite_group_shape_aspect", "pattern of features"),
+            Feature::Group {
+                kind: GroupKind::MultipleElements,
+                ..
+            } => ("composite_group_shape_aspect", "multiple elements"),
+            Feature::Group {
+                kind: GroupKind::AllAround,
+                ..
+            } => ("all_around_shape_aspect", ""),
+            Feature::Group {
+                kind: GroupKind::Between,
+                ..
+            } => ("between_shape_aspect", ""),
+            _ => return Ok(original),
+        };
+        let r = em.simple(
+            ty,
+            &[
+                ("name", s("DIMENSION")),
+                ("description", s(description)),
+                ("of_shape", pds.a()),
+                ("product_definitional", boolean(true)),
+            ],
+        )?;
+        match &self.pmi.features[c] {
+            Feature::Items(items) => {
+                // A carried datum is immutable on append. Reuse its existing carrier
+                // through composition rather than duplicating a GISU or editing it.
+                if let R::Old(old) = original {
+                    let members: Vec<_> = self
+                        .doc
+                        .referrers(old)
+                        .iter()
+                        .copied()
+                        .filter(|&rel| {
+                            leaf_names(self.doc, rel) == ["shape_aspect_relationship"]
+                                && attr_ref(
+                                    self.doc,
+                                    rel,
+                                    "shape_aspect_relationship",
+                                    "relating_shape_aspect",
+                                ) == Some(old)
+                        })
+                        .filter_map(|rel| {
+                            attr_ref(
+                                self.doc,
+                                rel,
+                                "shape_aspect_relationship",
+                                "related_shape_aspect",
+                            )
+                        })
+                        .filter(|&m| !is_a(self.doc, m, "datum"))
+                        .collect();
+                    // A multi-face foreign datum already has per-face carriers. Reuse
+                    // those components so the new CSA has its required multiple
+                    // component relationships, rather than one link to the whole datum.
+                    let carriers = if items.iter().copied().collect::<BTreeSet<_>>().len() > 1
+                        && members.len() > 1
+                    {
+                        members
+                    } else {
+                        vec![old]
+                    };
+                    for carrier in carriers {
+                        let member = em.reference(carrier)?;
+                        em.simple(
+                            "shape_aspect_relationship",
+                            &[
+                                ("name", s("")),
+                                ("description", s("")),
+                                ("relating_shape_aspect", r.a()),
+                                ("related_shape_aspect", member.a()),
+                            ],
+                        )?;
+                    }
+                } else {
+                    self.usages(em, st, pds, r, None, items)?;
+                }
+            }
+            Feature::Group { members, .. } => {
+                for f in members {
+                    let m = self.location_feature(em, st, pds, f.0)?;
+                    em.simple(
+                        "shape_aspect_relationship",
+                        &[
+                            ("name", s("")),
+                            ("description", s("")),
+                            ("relating_shape_aspect", r.a()),
+                            ("related_shape_aspect", m.a()),
+                        ],
+                    )?;
+                }
+            }
+            _ => {}
+        }
+        Ok(r)
+    }
+
     /// The instance of feature `f` in `role`: the feature's own, or its second instance of
     /// that type (an applied area or thread runout on faces that are also another feature).
     fn role_instance(
@@ -4051,14 +4441,19 @@ impl<'a> PartPlan<'a> {
         } else {
             "thread_runout"
         };
-        let r = em.simple(
-            ty,
+        let mut types = vec![ty];
+        if items.iter().copied().collect::<BTreeSet<_>>().len() > 1 {
+            types.push("composite_shape_aspect");
+        }
+        let r = em.instance(
+            &types,
             &[
-                ("name", s("")),
-                ("description", s("")),
-                ("of_shape", pds.a()),
-                ("product_definitional", boolean(true)),
+                (("shape_aspect", "name"), s("")),
+                (("shape_aspect", "description"), s("")),
+                (("shape_aspect", "of_shape"), pds.a()),
+                (("shape_aspect", "product_definitional"), boolean(true)),
             ],
+            &[],
         )?;
         st.twins.insert((c, role), r);
         self.usages(em, st, pds, r, None, items)?;
@@ -4175,11 +4570,11 @@ impl<'a> PartPlan<'a> {
                 return Ok(());
             }
         }
+        let several = keys.len() > 1;
         for (rep, items) in keys {
             let [item] = items[..] else {
                 return Err(WriteError::Internal("a usage key of several items".into()));
             };
-            let several = per_rep[&rep] > 1;
             let key = (rep, items);
             let member = if let Some(&m) = st.shared.get(&key) {
                 Some(m)
@@ -4369,8 +4764,8 @@ impl<'a> PartPlan<'a> {
                         directed,
                         angle,
                     } => {
-                        let a = self.feature(em, st, pds, from.0)?;
-                        let b = self.feature(em, st, pds, to.0)?;
+                        let a = self.location_feature(em, st, pds, from.0)?;
+                        let b = self.location_feature(em, st, pds, to.0)?;
                         let p = match path {
                             Some(p) => Some(self.feature(em, st, pds, p.0)?),
                             None => None,
@@ -5201,7 +5596,7 @@ impl<'a> PartPlan<'a> {
         pd: R,
         pds: R,
         a: &AttributeSet,
-    ) -> Result<(), WriteError> {
+    ) -> Result<R, WriteError> {
         let owner = match a.on {
             // Editable note text on the part is on its shape (PMI practice §7.4.3, Table 17:
             // 'on part' is property_definition.definition = product_definition_shape).
@@ -5281,7 +5676,7 @@ impl<'a> PartPlan<'a> {
                 ("derived_definition", pdef.a()),
             ],
         )?;
-        Ok(())
+        Ok(pdef)
     }
 
     /// A surface texture as ISO 10303-1110 maps it (the PMI practice has no section on it):
@@ -5303,7 +5698,7 @@ impl<'a> PartPlan<'a> {
         st: &mut Emitted,
         pds: R,
         t: &SurfaceTexture,
-    ) -> Result<(), WriteError> {
+    ) -> Result<R, WriteError> {
         let owner = match t.on {
             None => pds,
             Some(f) => self.feature(em, st, pds, f.0)?,
@@ -5376,13 +5771,146 @@ impl<'a> PartPlan<'a> {
                 ],
             )?;
         }
-        Ok(())
+        Ok(texture)
+    }
+}
+
+/// Tessellated/polyline ink of kept callouts, including repositioned tessellated sets.
+/// Read only: reserve foreign presentation without moving or restating it.
+#[cfg(feature = "presentation")]
+fn kept_annotation_points(doc: &Document, removed: &BTreeSet<u64>) -> Vec<Vec<[f64; 3]>> {
+    use crate::geom;
+    let mut out = Vec::new();
+    let roots = doc
+        .ids()
+        .filter(|id| !removed.contains(id) && is_a(doc, *id, "draughting_callout"));
+    for root in roots {
+        let identity = ([0.; 3], [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]);
+        let mut stack = vec![(root, identity)];
+        let mut seen = BTreeSet::new();
+        while let Some((id, mut frame)) = stack.pop() {
+            if !seen.insert(id) {
+                continue;
+            }
+            let transform = |frame: ([f64; 3], [[f64; 3]; 3]), p: [f64; 3]| {
+                (0..3).fold(frame.0, |q, k| geom::add(q, geom::scale(frame.1[k], p[k])))
+            };
+            let location = attr_ref(doc, id, "repositioned_tessellated_item", "location");
+            if let Some(location) = location {
+                let origin = attr_ref(doc, location, "placement", "location")
+                    .and_then(|p| point_of(doc, p))
+                    .unwrap_or([0.; 3]);
+                let direction = |field, default| {
+                    attr_ref(doc, location, "axis2_placement_3d", field)
+                        .and_then(|d| {
+                            let A::List(v) = attr(doc, d, "direction", "direction_ratios")? else {
+                                return None;
+                            };
+                            let mut xyz = [0.; 3];
+                            for (i, a) in v.iter().take(3).enumerate() {
+                                xyz[i] = match a {
+                                    A::Real(x) => *x,
+                                    A::Integer(x) => *x as f64,
+                                    _ => return None,
+                                };
+                            }
+                            geom::unit(xyz)
+                        })
+                        .unwrap_or(default)
+                };
+                let z = direction("axis", [0., 0., 1.]);
+                let x = direction("ref_direction", [1., 0., 0.]);
+                let y = geom::unit(geom::cross(z, x)).unwrap_or([0., 1., 0.]);
+                let x = geom::cross(y, z);
+                let basis = [x, y, z].map(|v| geom::sub(transform(frame, v), frame.0));
+                frame = (transform(frame, origin), basis);
+            }
+            if let Some(p) = point_of(doc, id) {
+                out.push(vec![transform(frame, p)]);
+            }
+            // Full conics conservatively enclose any trimmed annotation arcs.
+            if let Some(position) = attr_ref(doc, id, "conic", "position") {
+                let radius = ["radius", "semi_axis_1", "semi_axis_2"]
+                    .iter()
+                    .filter_map(|field| {
+                        match attr(
+                            doc,
+                            id,
+                            if *field == "radius" {
+                                "circle"
+                            } else {
+                                "ellipse"
+                            },
+                            field,
+                        )? {
+                            A::Real(r) => Some(*r),
+                            A::Integer(r) => Some(*r as f64),
+                            _ => None,
+                        }
+                    })
+                    .fold(0., f64::max);
+                if let Some(centre) =
+                    attr_ref(doc, position, "placement", "location").and_then(|p| point_of(doc, p))
+                {
+                    let centre = transform(frame, centre);
+                    out.push(vec![
+                        geom::sub(centre, [radius; 3]),
+                        geom::add(centre, [radius; 3]),
+                    ]);
+                }
+            }
+            if let Some(A::List(points)) = attr(doc, id, "coordinates_list", "position_coords") {
+                let points = points
+                    .iter()
+                    .filter_map(|p| {
+                        let A::List(v) = p else { return None };
+                        let mut xyz = [0.; 3];
+                        for (i, a) in v.iter().take(3).enumerate() {
+                            xyz[i] = match a {
+                                A::Real(x) => *x,
+                                A::Integer(x) => *x as f64,
+                                _ => return None,
+                            };
+                        }
+                        Some(transform(frame, xyz))
+                    })
+                    .collect();
+                out.push(points);
+            }
+            if let Some(e) = doc.get(id) {
+                p21::visit_attributes(e, &mut |a| {
+                    if let A::EntityRef(next) = a
+                        && Some(*next) != location
+                    {
+                        stack.push((*next, frame));
+                    }
+                });
+            }
+        }
+    }
+    out
+}
+
+fn needs_callouts(p: &PartPmi) -> bool {
+    #[cfg(feature = "presentation")]
+    {
+        !p.dimensions.is_empty()
+            || !p.tolerances.is_empty()
+            || p.surface_textures.iter().any(|t| t.on.is_some())
+            || !crate::presentation::notes::general_notes(p).is_empty()
+    }
+    #[cfg(not(feature = "presentation"))]
+    {
+        let _ = p;
+        false
     }
 }
 
 /// What a part's emission has made so far.
 #[derive(Default)]
 struct Emitted {
+    #[cfg(feature = "presentation")]
+    properties: BTreeMap<crate::presentation::notes::Source, R>,
     /// Canonical feature → instance.
     features: BTreeMap<usize, R>,
     /// Geometry → its item and, for a new one, the representation holding it.
@@ -5647,7 +6175,7 @@ struct SymbolLayout {
 
 #[cfg(not(feature = "presentation"))]
 impl SymbolLayout {
-    fn new(points: &[[f64; 3]]) -> SymbolLayout {
+    fn new(points: &[[f64; 3]], mm_per_unit: f64) -> SymbolLayout {
         let mut lo = [f64::INFINITY; 3];
         let mut hi = [f64::NEG_INFINITY; 3];
         for p in points {
@@ -5665,9 +6193,72 @@ impl SymbolLayout {
             hi,
             u: axes[0],
             v: axes[1],
-            height: diagonal / 30.0,
+            height: super::sites::text_height(
+                extent.iter().copied().fold(0., f64::max) * mm_per_unit,
+            ) / mm_per_unit,
             right: lo[axes[0]] - diagonal,
         }
+    }
+
+    /// The same measured datum placement rule in the feature-off lettering path.
+    #[allow(clippy::type_complexity)]
+    fn draw_on_face(
+        &mut self,
+        tip: [f64; 3],
+        outward: [f64; 3],
+        label: &str,
+    ) -> ([[f64; 3]; 3], Vec<Vec<[f64; 3]>>) {
+        use crate::geom;
+        let axis = if outward[0].abs() < 0.8 {
+            [1., 0., 0.]
+        } else {
+            [0., 1., 0.]
+        };
+        let along = geom::unit(geom::sub(
+            axis,
+            geom::scale(outward, geom::dot(axis, outward)),
+        ))
+        .unwrap_or([1., 0., 0.]);
+        let normal = geom::unit(geom::cross(along, outward)).unwrap_or([0., 0., 1.]);
+        let h = self.height;
+        let (strokes, width) = lettering(label, h);
+        let size = h;
+        let frame = width.max(size) + h;
+        let bottom = 0.6 * h;
+        let at = |x: f64, y: f64| {
+            geom::add(
+                tip,
+                geom::add(geom::scale(along, x), geom::scale(outward, y)),
+            )
+        };
+        let mut lines = vec![vec![
+            at(-frame / 2., bottom),
+            at(frame / 2., bottom),
+            at(frame / 2., bottom + size + h),
+            at(-frame / 2., bottom + size + h),
+            at(-frame / 2., bottom),
+        ]];
+        for stroke in strokes {
+            lines.push(
+                stroke
+                    .into_iter()
+                    .map(|(x, y)| at(x - width / 2., bottom + h / 2. + y))
+                    .collect(),
+            );
+        }
+        lines.push(vec![
+            at(-0.2 * h, 0.3 * h),
+            tip,
+            at(0.2 * h, 0.3 * h),
+            at(-0.2 * h, 0.3 * h),
+        ]);
+        lines.push(vec![tip, at(0., bottom)]);
+        let round = |p: [f64; 3]| p.map(|x| (x * 1e6).round() / 1e6 + 0.);
+        let lines = lines
+            .into_iter()
+            .map(|l| l.into_iter().map(round).collect())
+            .collect();
+        ([round(at(-frame / 2., bottom)), normal, along], lines)
     }
 
     /// The symbol's plane (origin, normal, direction in it) and its polylines: the label boxed,

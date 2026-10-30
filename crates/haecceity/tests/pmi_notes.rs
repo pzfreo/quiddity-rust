@@ -255,11 +255,12 @@ fn attribute_sets_carry_their_description_and_general_property() {
     let a = attribute(&r, 0, 22163);
     assert_eq!(a.description, None);
     assert_eq!(a.general_property, Some(uda("semantic text")));
-    // The writer's: every_kind's #6673 PROPERTY_DEFINITION('inspection','user defined
-    // attribute',#6519) ← #6676 → #6672 GENERAL_PROPERTY('','inspection',$); #6679 'semantic
-    // text' ← #6682 → #6678 GENERAL_PROPERTY('','semantic text',$).
+    // Round-6 writer: single-face datum GISU ownership removes the extra carrier.
+    // #6675 PROPERTY_DEFINITION('inspection','user defined attribute',#6519)
+    // ← #6678 → #6674 GENERAL_PROPERTY('','inspection',$); #6681 'semantic
+    // text' ← #6684 → #6680 GENERAL_PROPERTY('','semantic text',$).
     let (r, _) = read("write/every_kind.step.gz");
-    for (pdef, name) in [(6673, "inspection"), (6679, "semantic text")] {
+    for (pdef, name) in [(6675, "inspection"), (6681, "semantic text")] {
         let a = attribute(&r, 0, pdef);
         assert_eq!(a.description.as_deref(), Some("user defined attribute"));
         assert_eq!(a.general_property, Some(uda(name)), "#{pdef}");

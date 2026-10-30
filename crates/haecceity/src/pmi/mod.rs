@@ -8,14 +8,15 @@
 //! which a replace removes.
 //!
 //! With the default `presentation` feature, the writer uses `crate::presentation` for
-//! dimension/tolerance content and datum lettering. Styled tessellated geometric sets,
-//! per-callout annotation planes and one semantic association per callout share one part
+//! dimension/tolerance content, datum lettering, face texture symbols and written part notes.
+//! Styled tessellated geometric sets, annotation planes and semantic associations share one part
 //! draughting model (CAx-IF PMI §7.3). See `docs/step-ap242.md`, Graphical callouts (#137).
 //! Append preserves foreign callouts and symbol representations.
 
 mod derived;
 pub mod model;
 mod read;
+pub(crate) mod sites;
 pub mod standards;
 pub mod verify;
 mod without;

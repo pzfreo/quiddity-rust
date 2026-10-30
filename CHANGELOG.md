@@ -20,9 +20,18 @@ in [docs/alpha1.md](docs/alpha1.md).
   association per callout in the part's shared presentation path. No-PMI bytes and appended
   foreign presentation are preserved. Planes sit beside their features with part-scaled text
   and a short deterministic stagger; linear dimensions have two measured witnesses,
-  extension lines and arrowed dimension lines, shortest first on outward ladders.
-  Names carry full requirement notation. The feature
-  can be disabled for semantic-only output.
+  extension lines and arrowed dimension lines, shortest first on outward ladders in one
+  shared plane per direction/side, with principal/isometric projection clearance.
+  Multi-face aspects are composite; single-face datums own their GISUs as plain aspects.
+  Locations use their own non-datum references. Datum
+  leaders start inside their faces in planes containing the outward normal. A physical
+  text-height floor and feature-scaled frame offsets improve fit-view legibility.
+  Names carry full requirement notation; the notes block uses the tree title `General notes`
+  while retaining its full drawn wording. The feature
+  can be disabled for semantic-only output. Face-specific surface textures get ISO 1302
+  symbols, and written material, defaults, process settings and indexed general notes get
+  one property-linked notes block per part. Shared wording/geometry comes from Draftwright;
+  existing foreign requirements are not restated.
 
 ## 0.2.5 (2026-10-30)
 

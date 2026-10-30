@@ -62,11 +62,12 @@ identifiers, so the exact STEP carriers and values are the identifier test autho
 
 `haecceity::presentation` owns requirement notation and local 2D callout geometry, ported
 at the copyright owner's direction from Draftwright aaa7a73 (`dims/tolerance.rs`,
-`dims/gdt.rs`; the initial `text.rs` outline port is replaced by Hershey strokes). Drawing precision, sheet layout, strips, lanes, authored wording,
+`dims/gdt.rs`; the initial `text.rs` outline port is replaced by Hershey strokes). Drawing precision, sheet layout, strips, lanes
 and Spec-authored controls remain in Draftwright; no Draftwright dependency is introduced.
 The `presentation` Cargo feature is **default-on** in haecceity and quiddity: Specify's
 ordinary writes must carry visible PMI. `default-features = false` retains semantic-only
-size/location/tolerance writing and the old datum graphics. No-PMI writes retain their
+size/location/tolerance writing and legacy datum lettering (with the same face-interior
+placement rule). No-PMI writes retain their
 bytes; append never redraws foreign PMI or its presentation.
 
 Every newly written dimension and geometric tolerance gets real drawn content: dimension
@@ -78,14 +79,22 @@ Unsupported characters are an explicit writer error, with coverage tests for eve
 symbol. Datums use the same renderer. Callout names use the same full notation as the text,
 with STEP's terminal decimal point removed and stated fractional precision preserved.
 
-Planes start from a vertex on the semantic feature's face/edge. A short leader reaches a
-label just outside the closest narrow bounding-box side. Rotary features use their dominant
-axis as the text direction; other features use the part's long axis. Text height is 0.8% of
-the largest part extent (less for very wide labels). A bounded deterministic row/column
-stagger avoids neighbouring labels without accumulating a long row along the part. No
-sheet layout engine is imported. Datum/diameter/control-frame regressions bound their drawn points and planes to less than half
-a part length from the feature anchor, across the three re-test parts. These placements are
-unchanged by the linear-dimension renderer below.
+Datum leaders start strictly inside a trimmed face, using its area-centre projection when
+valid and deterministic interior UV stations when a hole excludes that centre. Their first
+segment follows the outward face normal. The annotation plane contains that normal, so it
+can never coincide with the face it labels. This applies to both presentation configurations.
+Diameters retain their feature/axis placement. Frames use face-interior sites on planes and
+feature-mouth sites on bores, testing readable tangents and attaching to the nearest frame
+edge. Candidate staggers are tried in increasing leader distance, with small-feature gaps
+capped at 12% of the feature extent. Tests bound frame leaders by 25% of their target's largest
+extent on all three samples. No sheet layout engine is imported.
+
+Capital height is **0.5 mm + 1.8% of the largest part extent**, converted to the file's units:
+0.68 mm on a 10 mm part, 2.3 mm on the 100 mm plate and 5.9 mm on a 300 mm part. Very wide
+labels are capped at 32% of the part extent; a short linear span retains its fit-between-arrows
+cap. This replaces 0.8%-only text, which was unreadable in the plate's fit view. Unresolved
+bare-number slots are no longer reserved for dimensions subsequently drawn by the ladder;
+those discarded slots had pushed frames unnecessarily far away.
 
 Straight location dimensions use **both** semantic endpoints. Planar linear sizes use opposed
 faces. The writer resolves actual trimmed faces with the kernel's ray/face intersector; a
@@ -124,7 +133,7 @@ Each callout is in an `ANNOTATION_PLANE`, placed near the feature. All planes be
 one part draughting model. The geometric-set wrapper is necessary for Solid Edge 2026
 to retain the annotation; the plane prevents misplaced graphics.
 
-Each callout has **one** `DRAUGHTING_MODEL_ITEM_ASSOCIATION`, named
+Each dimension, tolerance or datum callout has **one** `DRAUGHTING_MODEL_ITEM_ASSOCIATION`, named
 `PMI representation to presentation link`, to its semantic entity, using the part's
 `DRAUGHTING_MODEL`. Datums retain their datum-feature association. NIST STEP File Analyzer
 5.41 (PMI Recommended Practices §7.3) rejected the former feature links: their reserved name
@@ -141,8 +150,7 @@ A datum feature that also has a size needs two independently placed callouts. Th
 (representation, definition), violating inherited `item_identified_representation_usage.UR2`.
 Feature-on writes therefore use separate standard `DATUM_FEATURE` and `DIMENSIONAL_SIZE`
 entities, the size applying to that same datum feature. Each callout has one association with
-a distinct definition in the shared draughting model. Feature-off writing retains its former
-combined entity and bytes. No EXPRESS rule is exempted or relaxed.
+a distinct definition in the shared draughting model. Feature-off writing retains its combined entity. No EXPRESS rule is exempted or relaxed.
 
 The original `FILE_DESCRIPTION` is kept by lossless append. It may lack the CAx-IF
 Recommended Practices references that SFA recommends; the writer does not rewrite that header.
@@ -174,38 +182,196 @@ through `PartDefinition.edges` entity ids and `Part::edge_source`, never B-rep t
 positions; reversed face loops can change the edge order. Regression on `nist_ctc_01_merge`
 checks every edge's witnesses and extension feet, including its 70 reordered edges.
 
-Solid Edge 2026 types the spindle's diameter (when its face has a circular edge), datum A
-and both position tolerances. Linear distances remain symbolic, as with NIST's own files.
-Datum B remains an importer question: it spans two coplanar faces, both with circular edges,
-whereas A uses one cylindrical face. Both have datum callout/plane/semantic links; only A is
-referenced by geometric tolerances. No semantic writer defect has been established, so B's
-valid multi-face association is retained for re-test. No `MBD_0` characterized object or
-mechanical-design/draughting saved-view relationship is added.
+The maintainer's round-4 Solid Edge 2026 hand-edited tests isolate three additional typing
+rules (all copies passed SFA 5.41):
+
+- Multi-face aspects are `COMPOSITE_SHAPE_ASPECT`, including datum features and patterns;
+  ordinary `SHAPE_ASPECT_RELATIONSHIP`s lead to per-face components with GISUs. Group subtypes
+  already inherit composite shape aspect. Aggregating multiple faces as a plain aspect made
+  the corners sample's diameter and position symbolic.
+- A `DIMENSIONAL_LOCATION` never directly references a `DATUM_FEATURE`. Each such endpoint
+  gets a private `DIMENSION` aspect on the same faces. Shared plain per-face GISU carriers
+  avoid duplicating (representation, item) usages and preserve IIRU UR1/UR2. Tolerances still
+  share the datum feature. Round 6 corrects the round-4 shared-carrier workaround: a
+  **single-face datum is plain and owns its own GISU**. Private location aspects compose
+  that carrier, so neither the datum nor a flatness tolerance loses its direct geometry
+  in OCCT. A datum-establishment relationship is not a second geometric component;
+  counting it made SFA 5.41 reject the one-component composite and Solid Edge import the
+  datum/flatness symbolically. Only two or more geometric components justify a composite.
+  On lossless append an immutable foreign datum's existing carrier is reached through
+  composition without editing its entities or duplicating its GISU. A new multi-face
+  location aspect reuses the foreign datum's individual face components.
+- A datum annotation plane must contain its face normal, rather than be coplanar with the
+  face; its leader starts inside that face, not at a shared corner vertex.
+
+These explain the previously symbolic spindle datum B: it is a multi-face datum and a
+location reference. The corners sample's datum B also had a coplanar annotation plane.
+The writer now follows all three measured rules; automated graph/interior/normal assertions
+cover every datum and multi-face aspect on the three samples. The maintainer's next import
+will confirm typing on the regenerated output. Linear distances remain symbolic, as with
+NIST's own files. No `MBD_0` characterized object or mechanical-design/draughting saved-view
+relationship is added.
+
+Round 5 adds visibility for non-geometric requirements. `presentation::notes` ports
+Draftwright aaa7a73's `dims/gdt.rs::finish_symbol`, `title_block.rs::removal_marks`,
+`pmi_lowering.rs::part_note_text` and `notes.rs` heading. Face-specific textures get the
+ISO 1302 two-leg symbol, parameter bar, material-removal bar/circle and parameter rows
+in micrometres. The actual two-leg tip touches a trimmed-face interior point; a finite grid of
+interior stations keeps its ink clear of existing annotations. Its plane contains the outward
+face normal, and its legs rise out of the face; there is no disconnected or long leader. The geometric set is named `surface roughness` (PMI practice
+§8.4, Table 18), with the usual occurrence, callout, plane and shared part draughting model.
+The existing ISO 10303-1110 surface-texture property/parameter graph is unchanged. The
+model has no lay field; no lay or process requirement is inferred from geometry.
+
+The general-notes callout, occurrence and annotation-plane names are `General notes`
+for the viewer tree. The full block wording remains on its tessellated curve sets;
+the geometric-set annotation type remains `note`, and the drawn text is unchanged.
+A part with written settings gets one front-facing `GENERAL NOTES` block to the right of
+the part and all callout ink/extension lines, including kept foreign tessellated/polyline
+annotations (repositioned tessellated sets are transformed when reserving their space).
+Only submitted settings are stated, in this order: material identification; general
+tolerance classes; default finish parameters; edge condition; coating; heat treatment;
+free `general note` values sorted by their explicit `note index` (stable input order
+otherwise). Material/general-tolerance title cells become `MATERIAL: …` and
+`GENERAL TOLERANCES …`; a default becomes `SURFACE FINISH … UNLESS OTHERWISE STATED`.
+Draftwright's process wording is retained: qualify bare values with `Coating:` or
+`Heat treatment:`, but preserve authored process prose. Process/free rows use Draftwright’s `1  …` numbering and indented continuation lines;
+their underlying requirement text is unchanged.
+General-tolerance tables remain semantic tables, not invented class descriptions.
+All strings and symbol geometry are public through `haecceity::presentation::notes`.
+No settings means no block; lossless append does not restate carried properties.
+
+Surface texture callouts link their existing **PROPERTY_DEFINITION**; notes link each
+stated property to a separate annotation occurrence inside the one notes callout. This
+avoids inherited IIRU UR1/UR2 (several DMIAs cannot identify the same callout in one
+model). All these links use `PMI representation to presentation link` in the part's
+draughting model. [PMI practice §§7.3–7.4](https://www.mbx-if.org/home/wp-content/uploads/2024/06/rec_pracs_pmi_v41.pdf)
+support property-backed editable notes and annotation subsets. The
+[NIST SFA 5.41 checker](https://github.com/usnistgov/SFA/blob/8c5922c1d9b76f7ee03ad3fb0348b4c69495d248/source/sfa-grafpmi.tcl#L1062-L1095)
+explicitly exempts `property_definition` from its invalid-definition error and requires
+a draughting model; these are asserted in the writer graph tests, together with planes,
+styles, wrapper names, property coverage and non-overlap. This is a **source audit**, not
+an SFA execution verdict: its Windows IFCsvr runtime is unavailable here, and the local
+Parallels command failed initialization under the sandbox; computer-use access also
+requires approval, unavailable in this unattended session. The maintainer must run SFA
+5.41 on the generated samples. The preference for a property link follows that checker;
+no redundant feature association or symbol representation is added.
+
+Solid Edge's measured material import remains `Material (None)`, so material is visible
+as text only; surface texture is symbolic graphics. Neither behavior changes the semantic
+properties read by Specify/SFA. The original losslessly retained FILE_DESCRIPTION still
+may omit recommended-practice references; it is not rewritten to hide that SFA note.
 
 Feature-on writer goldens and fresh OpenCascade captures live in
-`tests/fixtures/ap242/write-presentation/`; `write/` retains feature-off goldens unchanged.
-Round 3 feature-on goldens remove feature links/symbol representations and split datum/size
-semantic identities where needed; changed notation uses qualified/range labels, normalized
-deviations and scope rings. This changes numbering and the OCP captures, not the feature-off
-goldens. The round-1 feature-on goldens change only graphics (Hershey strokes, local placement and
-proportional style width) and full-notation names. Round 2 changes only straight dimension
-curves/planes to measured extensions, arrowed lines and centred ladder text; datum, diameter
-and tolerance-frame graphics/planes are compared against the round-1 inputs unchanged. The Plex font-specific outline oracle is
-retired; stroke metrics, scaling and exhaustive notation glyph checks replace it.
-The round-3 regenerated STEP/OCP pairs are `assembly_plate_pin_intent`, `datum_targets`,
-`datum_targets_shared_support`, `editor_assembly_pin_alone`, `every_kind`,
-`nist_ctc_02_targets`, `nist_ftc_10_targets`, `pmi_gaps`, `pmi_gaps_gram`,
-`spool_fits_intent`, `string_post_tapped_intent`, `thumbwheel_notes_add`, and
-`thumbwheel_thread_knurl_intent`. Each loses feature associations/auxiliary representations
-and consequent entity numbers; `every_kind` also replaces `⌀20 H7` with its stated
-`⌀20.000 - ⌀20.021` range. Scope rings have dedicated writer/geometry tests; these goldens
-contain no scope symbols. OCP captures are refreshed for
-the exact new STEP hashes. The other three pairs and all feature-off fixtures stay unchanged.
-`export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the new
-folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture the legacy folder.
-The feature-on `references/pmi_write-presentation.json` retains every verdict and comparison,
-with one diagnostic entity ID moved from #6615 to #6558 because presentation is now emitted
-after the dimensional semantics. The original feature-off reference remains unchanged.
+`tests/fixtures/ap242/write-presentation/`; `write/` holds feature-off output.
+Round 4 intentionally updates PMI semantics in **both** folders: multi-face composite types
+and private non-datum location endpoints. Both also update datum anchors/planes. Feature-on
+files additionally change text height, frames and resulting ladder clearance. The changed
+STEP/OCP pairs are listed below; OCP captures are tied to the exact STEP
+hashes. No-PMI output and foreign append bytes retain their equality assertions. Feature-off
+reference comparisons retain all verdicts; diagnostic IDs may follow entity renumbering.
+`export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the
+presentation folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture feature-off output.
+
+
+Round-7 golden changes are feature-on only: `assembly_plate_pin_intent`, `every_kind`,
+`pmi_gaps`, `pmi_gaps_gram`, `editor_assembly_pin_alone`, `spool_fits_intent`,
+`string_post_tapped_intent` and `thumbwheel_thread_knurl_intent` use the short
+`General notes` tree title. The full block wording moves from annotation names to
+curve-set names; all drawn coordinates, styles, links and semantic content remain identical.
+Their matching OpenCascade captures are refreshed for the new STEP hashes. All sixteen
+feature-off pairs and the other eight feature-on pairs remain byte-identical.
+
+Round 6 restores plain single-face datum features with their own GISUs in both feature
+configurations; private location endpoints remain non-datum. It also puts each parallel,
+same-side linear ladder in one common outer bounding-box plane, with extensions from the
+original measured feet to that plane. Shortest-first order is unchanged. Projected text
+rectangles and dimension spans are collision-checked in all three principal and four
+isometric directions. Exactly edge-on annotation planes have zero-area text and necessarily
+collapse a planar ladder; they are excluded as unreadable views, not treated as successful
+clearance. Serialized-sample tests report the minimum clearance among all readable views,
+assert the shared-plane equation and retain the feet/span/arrow/text assertions. Every
+sample and written golden is checked for at least two geometric components per composite,
+excluding the datum-establishment relationship. Current-output graph assertions reuse the
+existing writer/golden byte-equality export pass, avoiding a second export of every case
+in CI; committed goldens are checked independently. All original OCCT datum/tolerance verdicts
+remain enforced.
+
+Round-6 golden changes: `assembly_plate_pin_intent`, `every_kind`, and
+`string_post_tapped_intent` change their STEP/OCP pairs in **both** feature folders.
+Single-face datums now own the face GISU, with private location endpoints composing that
+carrier; no one-component composite remains. The feature-on versions additionally change
+linear extension paths and shared-plane ladder geometry. All other thirteen pairs in each
+folder remain byte-identical. Fresh OCCT captures retain every existing typed datum and
+tolerance assertion; every capture field except its STEP hash is identical. The
+`pmi_notes` inspection/semantic-text property-chain IDs move 6677/6683 → 6675/6681
+because the redundant carrier is removed; the description/general-property assertions
+are unchanged. The existing OCCT H7 nominal-value comparison in
+`references/pmi_write.json` renumbers its diagnostic entity 6617 → 6615 (feature off),
+and `references/pmi_write-presentation.json` moves 6560 → 6558 (feature on). Values,
+comparisons and verdicts are unchanged. The semantic-edge witness test obtains the outward direction
+from the final extension segment: an earlier segment can travel from the real foot to the
+ladder's common plane. Its exact-edge assertion remains unchanged.
+
+Round-5 golden changes are **feature-on only** (each pair includes its fresh OCP capture):
+`assembly_plate_pin_intent` adds one notes block per part (26 → 28 callouts);
+`every_kind` adds a texture symbol and notes block (16 → 18);
+`pmi_gaps` and `pmi_gaps_gram` add a texture symbol and notes block (3 → 5);
+`editor_assembly_pin_alone` (5 → 6), `spool_fits_intent` (12 → 13),
+`string_post_tapped_intent` (7 → 8) and `thumbwheel_thread_knurl_intent` (5 → 6)
+add a notes block. `datum_targets` and `datum_targets_shared_support` keep one callout;
+their entity numbering changes because presentation follows property emission, allowing
+property links. Existing dimension/datum/frame graphics are retained. The other six
+feature-on STEP files and all sixteen feature-off STEP files remain byte-identical.
+`opencascade_puts_a_parts_pmi_on_its_prototype` now expects exactly one symbolic
+`CommonLabel` for the pin's notes block instead of an empty graphical-label list. Its
+zero-valued/no-face/no-part fields and two property-backed occurrences are checked;
+all original typed-item counts, prototype labels, face attachments and plate emptiness
+assertions remain. Haecceity still reads the material/class only on the pin.
+The disposable Specify clone updates only the three `settings_only_writer_sha256` values
+in `tests/fixtures/characteristic-numbers-legacy.json`: a material-only write now adds a
+visible notes block. Its frozen analysis and PMI-read hashes remain unchanged. No Specify
+changes are committed. Existing/resume/characteristic-number tests retain their assertions.
+The three sample rewrite-count assertions increase by one for their new notes block;
+the input-count assertions and all geometry assertions remain. Separate tests add the
+full settings and face texture on each sample part, with exact contents, link coverage,
+face anchors, no overlaps, unchanged dimension witnesses and clean EXPRESS/rules.
+
+Round-4 golden changes (each name denotes its `.step.gz` and matching `.occt.json.gz`):
+**C** = composite multi-face aspect; **L** = private location endpoint; **D** = face-interior
+normal datum leader/plane and physical height; **P** = feature-on text height, frame attachment,
+shortest stagger and ladder clearance. A dash means the pair is byte-identical.
+
+| Pair | Feature on | Feature off |
+| --- | --- | --- |
+| `assembly_plate_pin_intent` | C, L, D, P | C, L, D |
+| `datum_targets` | P | — |
+| `datum_targets_shared_support` | P | — |
+| `editor_assembly_pin_alone` | D, P | D |
+| `every_kind` | C, L, D, P | C, L, D |
+| `nist_ctc_02_targets` | P | — |
+| `nist_ftc_10_targets` | D, P | D |
+| `pmi_gaps` | P | — |
+| `pmi_gaps_gram` | P | — |
+| `spool_fits_intent` | C, D, P | C, D |
+| `string_post_tapped_intent` | C, L, D, P | C, L, D |
+| `thumbwheel_notes_add` | P | — |
+| `thumbwheel_thread_knurl_intent` | D, P | D |
+
+`decimal_default`, `thread_removed` and `thread_replaced` remain byte-identical in both
+configurations. `thumbwheel_notes_add` keeps all foreign datums/notes and their graphics;
+only its newly added flatness callout changes. Fresh OCP captures confirm the same semantic
+counts and preserve every comparison/verdict. The no-new-PMI cases retain their original
+STEP captures rather than replacing them solely for the available Python loader's status.
+
+The `pmi_notes` property-chain expectation follows `write/every_kind` renumbering:
+inspection #6673 → #6677 and semantic text #6679 → #6683, from the new location aspect and
+shared carrier. Description and `GENERAL_PROPERTY` equality assertions are unchanged.
+Sample geometry expectations replace the old bitwise comparison with independent interior,
+normal, frame-distance and text-height checks; leaders may include a short normal-first bend.
+The existing OCCT fit-mean diagnostic follows renumbering only: feature-on #6558 → #6560
+and feature-off #6615 → #6617. Its value comparison, verdict and explanation are unchanged;
+no missing-datum/tolerance exception is added.
 
 ## Maintainer decisions (2026-10-08)
 
@@ -260,7 +426,8 @@ These override anything below and any stream brief that says otherwise.
    `draughting_model_item_association`, following the PMI practice's presentation sections, so a
    presentation-only viewer shows the datum. This is the one piece of presentation written in
    this run; it is derived from the semantic model (never a separate source of truth) and is
-   removed with its datum on replace. Other presentation stays out of scope.
+   removed with its datum on replace. This original datum-only scope was extended by #137
+   to dimensions, tolerances, surface textures and written part settings (see above).
 7. **Replace removes the replaced PMI's presentation by default.** The default presentation
    policy for replace and remove is `RemovePresentation`: callouts, associations and their
    exclusively owned geometry and styles that reference removed PMI are removed and every one is
@@ -529,10 +696,10 @@ draftwright's `origin/main`.
 | R9 | Verify a write by reading it back with the same reader, semantically. | `writer.verify`, `writer._verify_appended` |
 | R10 | Report what cannot be read rather than drop it: unknown or unsupported PMI entities, references that do not resolve, values without units. | draftwright `PmiExtractionReport`, `lint_pmi_extraction` |
 
-Not needed by either consumer from the PMI layer: graphic presentation (specify-core writes
-datum feature symbols only so that presentation-only viewers show something; draftwright draws
-from semantics and reads no presentation except "common labels"), saved views, tessellated
-presentation. specify-core's `mesh` command (a face-indexed tessellation for its picker) also
+Drawing clients derive their own drawings from semantics; they need no arbitrary graphic
+presentation interpreted as requirements (Draftwright reads only "common labels"). The writer
+now supplies the visible model callouts described in #137 above. Saved views remain outside
+this stream. specify-core's `mesh` command (a face-indexed tessellation for its picker) also
 uses OpenCascade; it is not PMI and is listed under [Out of scope](#out-of-scope-for-now).
 
 ## Semantic model
@@ -1490,9 +1657,9 @@ What was done meanwhile is in each.
 
 ## Out of scope for now
 
-- **Graphic presentation** other than datum feature symbols (callouts, polylines, tessellated
-  presentation, saved views) derived from the semantics. Existing presentation is kept byte for
-  byte, or removed and reported under the `RemovePresentation` policy; it is never updated.
+- **Arbitrary presentation authoring and saved views.** The default feature derives callouts
+  for newly written requirements (see #137 above). Existing foreign presentation is kept byte
+  for byte, or removed and reported under `RemovePresentation`; it is never redrawn.
 - **PMI on assembly occurrences** (`assembly_component_usage` paths); reported as findings.
 - **Density units whose scale is not stated**: refused; known SI mass/length units and inch/foot lengths are written in their own units.
 - **A general EXPRESS rule engine**; named checks cover what the writer emits.
