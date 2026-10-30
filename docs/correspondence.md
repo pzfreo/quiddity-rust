@@ -338,3 +338,10 @@ orphaned feature and a new one.
 The fingerprint content changes across this stack before the final version bump. Merge
 the seven layers together so version 2 fingerprints with intermediate semantics are never
 released independently.
+
+For #134, boss placement is the complete measured axial midpoint, and plate placement
+restores the projected strips removed from its skins by proved convex edge treatments.
+These two families' neighbourhoods contract those treatments to their supports.
+These intentional value corrections stay in fingerprint format `/3` (as for #71/#92);
+face fingerprints still describe the physically trimmed geometry. An aligned matched
+plate seeds mutually unique skin planes without requiring their areas to remain alike.

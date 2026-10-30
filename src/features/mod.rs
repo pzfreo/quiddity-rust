@@ -18,6 +18,7 @@ pub mod chamfers;
 pub mod channels;
 pub mod circular_blind_steps;
 pub mod circular_face_patterns;
+mod edge_treatments;
 pub mod through_notches;
 pub mod v_channels;
 internal_entry! { pub mod context; }
@@ -244,13 +245,27 @@ internal_entry! {
 /// covering the input faces without issuing feature claims. Section-recess projection
 /// refusals are carried in [`Features::section_recess_refusal`].
 pub fn recognise(part: &Part) -> Features {
-    take_inventory(part, recognise_in).unwrap_or_else(|error| Features {
-        discovery_refusals: BTreeMap::from([("reconciliation_refusals", vec![
-            discovery::DiscoveryRefusal::new(error, 0..part.faces.len())
-        ])]),
-        ..Features::default()
-    })
+    recognise_with(part, |_, features| features)
 }
+}
+
+/// Keep the inventory's context alive for downstream geometry consumers and fingerprints.
+pub(crate) fn recognise_with<T>(part: &Part, then: impl FnOnce(&Context<'_>, Features) -> T) -> T {
+    let mut then = Some(then);
+    take_inventory(part, |ctx, inventory| {
+        then.take().unwrap()(ctx, recognise_in(ctx, inventory))
+    })
+    .unwrap_or_else(|error| {
+        let ctx = Context::new(part);
+        let features = Features {
+            discovery_refusals: BTreeMap::from([(
+                "reconciliation_refusals",
+                vec![discovery::DiscoveryRefusal::new(error, 0..part.faces.len())],
+            )]),
+            ..Features::default()
+        };
+        then.take().unwrap()(&ctx, features)
+    })
 }
 
 /// `recognise` over one completed run.
@@ -629,11 +644,7 @@ pub(crate) fn inventory_in(
             evidence::RunMode::Strict
         },
         cylindrical_profiles: Vec::new(),
-        chamfers: kept(
-            &mut defining,
-            "chamfers",
-            chamfers::discover(ctx, &Default::default()),
-        ),
+        chamfers: kept(&mut defining, "chamfers", ctx.reported_chamfers().to_vec()),
         bosses: kept(&mut defining, "bosses", bosses::discover(ctx)),
         angled_steps: kept(&mut defining, "angled_steps", angled_steps::discover(ctx)),
         flats: kept(&mut defining, "flats", flats::discover(ctx)),
@@ -645,7 +656,7 @@ pub(crate) fn inventory_in(
         oriented_chamfers: kept(
             &mut defining,
             "oriented_chamfers",
-            oriented_chamfers::discover(ctx, &Default::default()),
+            ctx.reported_oriented_chamfers().to_vec(),
         ),
         circular_face_patterns: kept(
             &mut defining,
@@ -784,7 +795,7 @@ pub(crate) fn inventory_in(
         fillets: kept_shared(
             &mut defining,
             "fillets",
-            skip_unproved(part, fillets::discover(ctx, &Default::default())),
+            skip_unproved(part, ctx.reported_fillets().to_vec()),
         ),
         defining: defining.defining,
         evidence_status: defining.evidence_status,

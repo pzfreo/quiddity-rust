@@ -43,6 +43,10 @@ impl DerefMut for PublishedFeatures {
 }
 
 impl PublishedFeatures {
+    pub(crate) fn measurement_source(&self) -> (&Features, &Rigid) {
+        (&self.source, &self.motion)
+    }
+
     pub(crate) fn working(&self) -> &Features {
         &self.working
     }

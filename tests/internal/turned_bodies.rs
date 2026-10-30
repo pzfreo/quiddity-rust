@@ -33,7 +33,8 @@ fn original_single_diameter_disc_has_bore_chamfers_and_complete_claims() {
     assert!(f.turned_steps.is_empty());
     let raw_boss = features::bosses::discover(&Context::new(&p));
     assert_eq!(raw_boss.len(), 1);
-    near(raw_boss[0].record.height, 6.5);
+    // For #134: include both 0.25 mm end chamfers, not only the cylinder.
+    near(raw_boss[0].record.height, 7.);
     let key = b.profile_key.as_ref().unwrap();
     assert_eq!(key.axis, 'z');
     let fp = quiddity::correspondence::fingerprint::fingerprint(&p, &f);

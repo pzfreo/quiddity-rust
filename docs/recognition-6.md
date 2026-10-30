@@ -558,3 +558,59 @@ measurements are sizes, surface kinds and material sides are traits. Meridian
 sizes are canonicalised together over both axis senses, retaining station/radius
 associations. Points, body keys and the legacy profile join are placement;
 profile face indices are ignored in parameters and remain defining evidence.
+
+## Boss ends and trimmed plates (for #134)
+
+A boss's `height` is its complete axial extent, including adjoining proved end
+chamfers and edge rounds. Its `location` is the axis point at that complete free
+end; `axis` still points from base to free end. Both ends can contribute. Coaxial
+cones/tori must be proved edge treatments beyond the cylindrical band, meeting the
+cylinder at a convex junction at that end. A tangent toroidal/spherical round must
+have convex material curvature; a concave root fillet into the host never lengthens
+a boss. Each treatment's axial and radial legs must be no larger than the smaller
+of the boss radius and half its straight cylindrical length. This makes the end
+break subordinate to its own boss in both directions, independent of the whole
+part's size, and excludes long tapers. A treatment eligible for two cylindrical
+segments extends neither: no treatment span is counted into two bosses. A tangent
+spherical end round contributes only when its equator meets the cylinder end.
+The cylinder faces remain defining evidence; treatments are consulted context and
+can keep their own feature records. A genuinely shorter shaft still has a shorter
+height. No cylinder-only length field is added: no existing consumer requires it.
+
+Plate coverage measures the supporting skin: its planar area plus the signed
+orthogonal projection of adjacent proved convex chamfers/rounds lying inward of
+that real skin plane. Projection measures the removed strips, unlike summing the
+larger curved/sloping surface areas or using a bounding rectangle that fills holes.
+Each strip is counted once per side. The existing area-fraction, thinness and
+coordinate-band thresholds are unchanged. Two real opposed planar skins are still
+required, so removing a skin removes the plate and thinning it changes `hi - lo`.
+The plate's transverse `u`/`v` centre includes those projected strips and their first
+moments; `lo`/`hi` remain real supporting planes. Even a round below the standalone
+fillet reporting floor trims its support and participates in this measurement.
+
+Boss fingerprints use the measured axial midpoint (before height publication),
+and plate fingerprints the area centre of the restored skins. Their neighbourhoods
+contract proved convex edge treatments to the neighbouring supports, counting each
+support once. Consequently adding an edge break carries the supporting boss and
+plate, while the treatment and the physically trimmed faces retain their changes.
+Within an aligned matched plate, mutually unique equally oriented skin planes seed
+face correspondence even when trimming makes their areas differ substantially.
+The global face-overlap rule and matching cutoffs are unchanged.
+
+Schema `/6` and fingerprint format `/3` stay unchanged: these are corrected values
+in existing fields, following the intentional-value-change rule used for #71 and
+#92. Re-recognise saved affected fingerprints to obtain the corrected measurements.
+Correspondence costs and changes read the corrected `sizes.height` and placements.
+The evidence host lookup uses the complete `location - axis * height` base target
+using physical boundary planes only; consulted context does not create hosts.
+Treatment proofs used for extent work on oblique axes too, independently of
+standalone treatment presentation. Turned fillets report their actual convex or
+concave material side. Recognition and fingerprinting share the same Context,
+reported treatment proofs, boss measurements and supporting-skin moments; plate
+coverage and fingerprint placement use one projection/deduplication implementation.
+Planar strips reuse planar area/centroid measurements. A cone's axial projection
+has a constant normal component, so its surface moments also measure that strip;
+the same moments are carried rigidly into its face fingerprint instead of being
+integrated again. Other projection directions retain signed surface quadrature.
+haecceity's kernel and PMI models do not consume `BossRecord.height`, and PMI face
+anchors continue to refer to the original defining faces. No PMI schema changes.

@@ -400,9 +400,17 @@ fn ctc05_inside_rounds_and_spherical_corners_are_claimed() {
     let rounds = fillets::discover_verified(&Context::new(&part), &Default::default()).unwrap();
     let inside: Vec<_> = rounds
         .iter()
-        .filter(|o| o.record.side == "concave")
+        // For #134, turned root rounds now also report concave. These #127
+        // expectations describe the original prismatic proofs and spherical caps.
+        .filter(|o| o.record.side == "concave" && !o.record.turned)
         .collect();
     assert_eq!(inside.len(), 16);
+    assert!(
+        rounds
+            .iter()
+            .any(|o| o.record.turned && o.record.side == "concave"),
+        "#134: CTC-05 turned root rounds have concave material side"
+    );
     assert_eq!(
         inside.iter().filter(|o| o.record.radius == 6.35).count(),
         15

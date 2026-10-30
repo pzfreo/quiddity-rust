@@ -80,3 +80,6 @@ mod vector_publication;
 mod face_grooves;
 #[path = "turned_bodies.rs"]
 mod turned_bodies;
+
+#[path = "edge_trimming.rs"]
+mod edge_trimming;

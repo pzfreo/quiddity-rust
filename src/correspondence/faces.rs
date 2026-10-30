@@ -235,18 +235,47 @@ impl Ctx<'_> {
             let (Class::Carried | Class::Adapted, Some(id)) = (e.class, &e.new) else {
                 continue;
             };
-            let a_faces: Vec<usize> = self.old.features[i]
+            let mut a_faces: Vec<usize> = self.old.features[i]
                 .faces
                 .iter()
                 .copied()
                 .filter(|&a| fwd[a].is_none())
                 .collect();
-            let b_faces: Vec<usize> = self.new.features[new_index[id.as_str()]]
+            let mut b_faces: Vec<usize> = self.new.features[new_index[id.as_str()]]
                 .faces
                 .iter()
                 .copied()
                 .filter(|&b| back[b].is_none())
                 .collect();
+            // A matched plate establishes its two real supporting skins (#134). An edge
+            // treatment may remove most of one skin's area and replace its adjacency, so
+            // area-based global coincidence/cost is no longer a sound seed for that skin.
+            // Seed only a mutually unique, equally oriented supporting plane within this
+            // matched feature; keep the actual area/centroid/adjacency changes below.
+            if self.aligned && self.axis.is_none() && self.old.features[i].family == "plates" {
+                let same_plane = |a: usize, b: usize| {
+                    let (fa, fb) = (&self.old.faces[a], &self.new.faces[b]);
+                    fa.surface == "plane"
+                        && fb.surface == "plane"
+                        && matches!((fa.axis, fb.axis), (Some(x), Some(y))
+                            if geom::dot(self.motion.dir(x), y) >= self.th.angle_tol.cos()
+                            && geom::dot(geom::sub(self.motion.point(fa.centroid), fb.centroid), y).abs() <= self.tol())
+                };
+                for &a in &a_faces {
+                    let bs: Vec<_> = b_faces
+                        .iter()
+                        .copied()
+                        .filter(|&b| same_plane(a, b))
+                        .collect();
+                    if let [b] = bs[..]
+                        && a_faces.iter().filter(|&&a2| same_plane(a2, b)).count() == 1
+                    {
+                        link(&mut fwd, &mut back, a, b);
+                    }
+                }
+                a_faces.retain(|&a| fwd[a].is_none());
+                b_faces.retain(|&b| back[b].is_none());
+            }
             if a_faces.is_empty() || b_faces.is_empty() {
                 continue;
             }

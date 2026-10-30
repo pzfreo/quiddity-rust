@@ -52,8 +52,11 @@ fn revision_pairs_have_their_expected_classes() {
     for case in cases["cases"].as_array().unwrap() {
         let name = case["name"].as_str().unwrap();
         let read = |which: &str| {
-            let part =
-                quiddity::read_step_file(&root.join(format!("{name}.{which}.step.gz"))).unwrap();
+            let file = case[format!("{which}_file")]
+                .as_str()
+                .map(str::to_owned)
+                .unwrap_or_else(|| format!("{name}.{which}.step.gz"));
+            let part = quiddity::read_step_file(&root.join(file)).unwrap();
             correspondence::caller_space_recognise(&part).fingerprints
         };
         let (old, new) = (read("old"), read("new"));
@@ -95,6 +98,28 @@ fn revision_pairs_have_their_expected_classes() {
         // Faces: each carried feature's faces carried onto its partner's faces, and with nothing
         // expected to change (a whole-part motion), every face carried and none new.
         // (A pattern's faces are its members', which are checked as features in their own right.)
+        // For #134 a carried supporting feature may have an adapted, trimmed face. Check
+        // those explicitly, including the partner, without weakening untouched-face checks.
+        let face_expect: Vec<_> = case["face_expect"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .collect();
+        for exp in &face_expect {
+            let f = exp["old"].as_u64().unwrap() as usize;
+            let fe = &c.faces[f];
+            results.push((
+                format!("#134 trimmed face {f}"),
+                serde_json::to_value(fe.class).unwrap() == exp["class"]
+                    && serde_json::to_value(fe.new).unwrap() == exp["new"]
+                    && exp["changes"]
+                        .as_array()
+                        .into_iter()
+                        .flatten()
+                        .all(|k| fe.changes.contains_key(k.as_str().unwrap())),
+                format!("{fe:?}"),
+            ));
+        }
         for e in &c.features {
             if e.class != Class::Carried || e.old.split('/').next().unwrap().ends_with("_patterns")
             {
@@ -102,6 +127,12 @@ fn revision_pairs_have_their_expected_classes() {
             }
             let theirs = faces_of(&new, e.new.as_deref().unwrap());
             for &f in faces_of(&old, &e.old) {
+                if face_expect
+                    .iter()
+                    .any(|exp| exp["old"].as_u64() == Some(f as u64))
+                {
+                    continue;
+                }
                 let fe = &c.faces[f];
                 results.push((
                     format!("faces of {}: face {f} carried", e.old),

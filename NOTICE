@@ -27,3 +27,8 @@ pzfreo/step-diff-demo, cast_bearing_unit.step at commit
 Test fixture tests/fixtures/spotface_outer_steps.step is an original Apache-2.0
 analytic construction made for #118 by tools/make_spotface_fixture.py, using only
 Python's standard library and no third-party model or external dataset.
+
+The tests/fixtures/revisions/gramil_shaft.* STEP revisions and generator recipe
+are Paul Fremantle's gramil shaft (https://github.com/pzfreo/gramil, 9171ef6),
+supplied for #134 under Open Community License v1. Their separate licence is
+included as tests/fixtures/revisions/LICENSE-gramil.

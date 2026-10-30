@@ -625,9 +625,8 @@ fn pattern_holes(pattern: &features::hole_patterns::HolePattern) -> &[holes::Hol
     }
 }
 
-/// The planar faces normal to *axis* immediately outside *constituent* whose offsets along it
-/// from *location* are among the *targets* chosen from all such offsets (`_axial_host_nodes`).
-/// Offsets are read at each face's centroid, as Python's `Face.center()` reads a plane.
+/// The planar faces normal to *axis* immediately outside *constituent*, selected by
+/// their axial offsets. Consulted end caps never become hosts merely by being context.
 fn axial_hosts(
     part: &Part,
     constituent: &[usize],

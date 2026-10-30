@@ -25,6 +25,13 @@ pub struct Context<'a> {
     solid_classifiers: Vec<OnceLock<Classifier<'a>>>,
     cylinders: OnceLock<Vec<CylinderEvidence>>,
     threads: OnceLock<ThreadAnalysis>,
+    chamfers: OnceLock<Vec<super::evidence::Occurrence<super::chamfers::Chamfer>>>,
+    oriented_chamfers: OnceLock<Vec<super::evidence::Occurrence<super::oriented_chamfers::OrientedChamfer>>>,
+    fillets: OnceLock<Vec<super::evidence::Occurrence<super::fillets::Fillet>>>,
+    bosses: OnceLock<super::bosses::Analysis>,
+    edge_treatments: OnceLock<Vec<super::evidence::Occurrence<()>>>,
+    skins: Vec<OnceLock<Option<super::plates::Skin>>>,
+    surface_moments: Vec<OnceLock<Option<crate::kernel::mass::FaceMoments>>>,
     signatures: OnceLock<Vec<Option<BodyKey>>>,
     section_passages: OnceLock<Result<Vec<Found>, PassageError>>,
 }
@@ -39,6 +46,13 @@ internal_entry! {
             solid_classifiers: part.solids.iter().map(|_| OnceLock::new()).collect(),
             cylinders: OnceLock::new(),
             threads: OnceLock::new(),
+            chamfers: OnceLock::new(),
+            oriented_chamfers: OnceLock::new(),
+            fillets: OnceLock::new(),
+            bosses: OnceLock::new(),
+            edge_treatments: OnceLock::new(),
+            skins: part.faces.iter().map(|_| OnceLock::new()).collect(),
+            surface_moments: part.faces.iter().map(|_| OnceLock::new()).collect(),
             signatures: OnceLock::new(),
             section_passages: OnceLock::new(),
         }
@@ -48,6 +62,42 @@ internal_entry! {
     /// The whole part's box.
     pub fn bounds(&self) -> &Bounds {
         self.bounds.get_or_init(|| self.part.bounds())
+    }
+
+    /// Convex edge treatments, including their supporting evidence, independent of the
+    /// minimum radius used to report fillets. Shared by boss extent and plate coverage.
+    pub(crate) fn edge_treatments(&self) -> &[super::evidence::Occurrence<()>] {
+        self.edge_treatments
+            .get_or_init(|| super::edge_treatments::discover(self))
+    }
+
+    pub(crate) fn reported_chamfers(&self) -> &[super::evidence::Occurrence<super::chamfers::Chamfer>] {
+        self.chamfers.get_or_init(|| super::chamfers::discover(self, &Default::default()))
+    }
+
+    pub(crate) fn reported_oriented_chamfers(&self) -> &[super::evidence::Occurrence<super::oriented_chamfers::OrientedChamfer>] {
+        self.oriented_chamfers.get_or_init(|| super::oriented_chamfers::discover(self, &Default::default()))
+    }
+
+    pub(crate) fn reported_fillets(&self) -> &[super::evidence::Occurrence<super::fillets::Fillet>] {
+        self.fillets.get_or_init(|| super::fillets::discover(self, &Default::default()))
+    }
+
+    pub(super) fn boss_analysis(&self) -> &super::bosses::Analysis {
+        self.bosses.get_or_init(|| super::bosses::analyse(self))
+    }
+
+    pub(super) fn skin(&self, face: usize) -> Option<&super::plates::Skin> {
+        self.skins[face].get_or_init(|| super::plates::measure_skin(self, face)).as_ref()
+    }
+
+    /// Shared by the boss's body-relative origin and constant-Jacobian skin strips.
+    pub(super) fn surface_moments(&self, face: usize) -> Option<crate::kernel::mass::FaceMoments> {
+        *self.surface_moments[face].get_or_init(|| self.part.face_moments(face))
+    }
+
+    pub(crate) fn measured_surface_moments(&self, face: usize) -> Option<crate::kernel::mass::FaceMoments> {
+        self.surface_moments[face].get().copied().flatten()
     }
 
     /// The point classifier for the whole part.

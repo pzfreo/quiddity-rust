@@ -30,7 +30,8 @@ const TOL: f64 = 0.5;
 const ORIENTED_ANGLE_DIGITS: usize = 9;
 
 /// A recognised thin slab. `axis` is the thickness axis, `lo`/`hi` its bounding coordinates
-/// along it, and `u`/`v` the area-weighted centre of its two face groups on the other two axes.
+/// along it, and `u`/`v` the area-weighted centre of its two supporting skins (including
+/// projected convex edge treatments) on the other two axes.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Plate {
     pub axis: char,
@@ -158,7 +159,7 @@ pub fn discover(ctx: &Context<'_>, opts: &PlateOptions) -> Vec<Occurrence<Plate>
     let mut out: Vec<Occurrence<Plate>> = Vec::new();
     for scope in &scopes {
         let mut seen: Vec<(char, f64, f64)> = Vec::new();
-        for mut o in proposals(part, scope, opts, tol) {
+        for mut o in proposals(ctx, scope, opts, tol) {
             // A locally degraded run skips a plate whose faces prove no one valid solid
             // (`_discover_plates` on a degraded graph, before it binds plate keys).
             if evidence::local_degradation()
@@ -189,7 +190,13 @@ pub fn discover(ctx: &Context<'_>, opts: &PlateOptions) -> Vec<Occurrence<Plate>
 }
 
 /// `_plate_proposals`: one body's plates, sorted by axis, `lo` and `hi`.
-fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<Occurrence<Plate>> {
+fn proposals(
+    ctx: &Context<'_>,
+    scope: &Scope,
+    opts: &PlateOptions,
+    tol: f64,
+) -> Vec<Occurrence<Plate>> {
+    let part = ctx.part;
     let b = &scope.bounds;
     let extents: V3 = std::array::from_fn(|i| b.max[i] - b.min[i]);
     let faces: Vec<usize> = scope
@@ -241,14 +248,18 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
             continue;
         }
         let threshold = opts.min_area_frac * cross;
+        let coverage = |g: &Group, sign| {
+            policy::clears_threshold(g.area, threshold)
+                || policy::clears_threshold(trimmed_coverage(ctx, g, i, sign).0.area, threshold)
+        };
         let mut events: Vec<(f64, i8, &Group)> = negative
             .iter()
-            .filter(|(_, g)| policy::clears_threshold(g.area, threshold))
+            .filter(|(_, g)| coverage(g, -1.0))
             .map(|(c, g)| (c.0, -1, g))
             .chain(
                 positive
                     .iter()
-                    .filter(|(_, g)| policy::clears_threshold(g.area, threshold))
+                    .filter(|(_, g)| coverage(g, 1.0))
                     .map(|(c, g)| (c.0, 1, g)),
             )
             .collect();
@@ -276,7 +287,12 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
             let high_skin = supported_skin(part, high_group, low_group, i);
             let low_group = low_skin.as_ref().unwrap_or(low_group);
             let high_group = high_skin.as_ref().unwrap_or(high_group);
+            let (low_group, mut context) = trimmed_coverage(ctx, low_group, i, -1.0);
+            let (high_group, hi_context) = trimmed_coverage(ctx, high_group, i, 1.0);
+            context.extend(hi_context);
             let combined_area = low_group.area + high_group.area;
+            context.sort_unstable();
+            context.dedup();
             // The plate is bounded by its skins' outermost real planes (#71).
             out.push(Occurrence {
                 record: Plate {
@@ -295,7 +311,7 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
                     .chain(&high_group.faces)
                     .copied()
                     .collect(),
-                context: vec![],
+                context,
             });
         }
     }
@@ -307,6 +323,142 @@ fn proposals(part: &Part, scope: &Scope, opts: &PlateOptions, tol: f64) -> Vec<O
             .then(py::order(*a.hi, *b.hi))
     });
     out
+}
+
+/// Cached supporting-plane moments. Projection and deduplication are shared by
+/// recognition coverage, published transverse centres and fingerprint placement.
+pub(super) struct Skin {
+    normal: V3,
+    area: f64,
+    sum: V3,
+    strips: Vec<Strip>,
+}
+struct Strip {
+    face: usize,
+    area: f64,
+    sum: V3,
+    context: Vec<usize>,
+}
+pub(crate) struct SupportingMoments {
+    pub area: f64,
+    pub sum: V3,
+    pub context: Vec<usize>,
+}
+
+pub(super) fn measure_skin(ctx: &Context<'_>, face: usize) -> Option<Skin> {
+    use crate::kernel::brep::Arc;
+    let part = ctx.part;
+    let normal = unit_plane_normal(part, face)?;
+    let [area, _] = part.face_mass(face)?;
+    let centre = part.face_centre(face)?;
+    let plane = geom::dot(centre, normal);
+    let neighbours = part.neighbours(face);
+    let mut strips = Vec::new();
+    let mut seen = std::collections::BTreeSet::new();
+    for treatment in ctx.edge_treatments() {
+        for &g in &treatment.defining {
+            if !neighbours.contains(&g) || !seen.insert(g) {
+                continue;
+            }
+            // A root/concave junction does not trim this supporting skin.
+            if !matches!(part.arc(face, g), Some(Arc::Convex | Arc::Smooth)) {
+                continue;
+            }
+            let (_, hi) = part.extent_along(&[g], normal);
+            if hi > plane + geom::COORD_FLOOR {
+                continue;
+            }
+            let projected = if let Surface::Plane { .. } = part.faces[g].surface {
+                // Constant Jacobian: reuse planar Green moments, rather than integrating
+                // a surface with a constant projection factor a second time.
+                part.face_mass(g)
+                    .zip(part.face_centre(g))
+                    .zip(unit_plane_normal(part, g))
+                    .map(|(([area, _], centre), n)| (area * geom::dot(n, normal), centre))
+            } else if matches!(part.faces[g].surface, Surface::Cone { frame, .. }
+                if geom::norm(geom::cross(frame.z, normal)) <= 1e-12)
+            {
+                // A cone's outward normal has constant axial component. Its axial
+                // projection therefore has the same centroid as its surface area.
+                // Reuse these moments when the boss's body origin reads this face.
+                ctx.surface_moments(g)
+                    .map(|m| (geom::dot(m.area_vector, normal), m.centroid))
+            } else {
+                part.face_projected_moments(g, normal)
+            };
+            let Some((area, centre)) = projected else {
+                continue;
+            };
+            if area <= 0. {
+                continue;
+            }
+            let centre = geom::add(
+                centre,
+                geom::scale(normal, plane - geom::dot(centre, normal)),
+            );
+            strips.push(Strip {
+                face: g,
+                area,
+                sum: geom::scale(centre, area),
+                context: treatment
+                    .defining
+                    .iter()
+                    .chain(&treatment.context)
+                    .copied()
+                    .collect(),
+            });
+        }
+    }
+    Some(Skin {
+        normal,
+        area,
+        sum: geom::scale(centre, area),
+        strips,
+    })
+}
+
+pub(crate) fn supporting_moments(ctx: &Context<'_>, faces: &[usize]) -> Option<SupportingMoments> {
+    let reference = ctx.skin(*faces.first()?)?.normal;
+    let mut out = SupportingMoments {
+        area: 0.,
+        sum: [0.; 3],
+        context: Vec::new(),
+    };
+    let mut counted = std::collections::BTreeSet::new();
+    for &f in faces {
+        let skin = ctx.skin(f)?;
+        out.area += skin.area;
+        out.sum = geom::add(out.sum, skin.sum);
+        for strip in &skin.strips {
+            if counted.insert((strip.face, geom::dot(skin.normal, reference) > 0.)) {
+                out.area += strip.area;
+                out.sum = geom::add(out.sum, strip.sum);
+                out.context.extend(&strip.context);
+            }
+        }
+    }
+    out.context.sort_unstable();
+    out.context.dedup();
+    Some(out)
+}
+
+fn trimmed_coverage(ctx: &Context<'_>, g: &Group, axis: usize, _sign: f64) -> (Group, Vec<usize>) {
+    let mut restored = Group {
+        low: g.low,
+        high: g.high,
+        area: g.area,
+        u_sum: g.u_sum,
+        v_sum: g.v_sum,
+        faces: g.faces.clone(),
+    };
+    let Some(m) = supporting_moments(ctx, &g.faces) else {
+        return (restored, Vec::new());
+    };
+    let other: Vec<_> = (0..3).filter(|&i| i != axis).collect();
+    restored.area = m.area;
+    restored.u_sum = m.sum[other[0]];
+    restored.v_sum = m.sum[other[1]];
+    (restored, m.context)
 }
 
 /// A coordinate usable as an ordered map key (never NaN here).

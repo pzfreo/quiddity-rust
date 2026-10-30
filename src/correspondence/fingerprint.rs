@@ -2,7 +2,7 @@
 //! (`docs/correspondence.md`, "Fingerprints"). Everything in them is unchanged by a rigid motion
 //! of the part except the placements (positions, axes, normals), which move with it.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -13,7 +13,7 @@ use crate::kernel::geom::{self, Surface, V3};
 use crate::kernel::py;
 
 /// Fingerprint format version: correspondence refuses different formats.
-/// Intentional value changes within v3 are recorded in the changelog (#71, #92).
+/// Intentional value changes within v3 are recorded in the changelog (#71, #92, #134).
 pub const FINGERPRINT_VERSION: &str = "quiddity-rust/fingerprint/3";
 
 /// The fingerprints of one recognition result.
@@ -44,7 +44,8 @@ pub struct FeatureFingerprint {
     /// Placement: the feature's axis, normal or run, as a unit vector (its sign is not
     /// significant).
     pub axis: Option<V3>,
-    /// Placement: the area-weighted centroid of its faces.
+    /// Placement: the area-weighted centroid of its faces; bosses use their axial midpoint,
+    /// plates restore the projected strips removed by convex edge treatments (#134).
     pub position: Option<V3>,
     /// The part's faces that define it, ascending (a pattern's are its members').
     pub faces: Vec<usize>,
@@ -1046,16 +1047,54 @@ pub fn classify(key: &str, path: &str) -> Option<(&'static str, Role)> {
 /// Panics on a family missing from [`FAMILIES`], or one with neither defining faces in
 /// `features.defining` nor members: a wiring defect, not an input.
 pub fn fingerprint(part: &Part, features: &Features) -> Fingerprints {
-    fingerprint_with_axes(part, features, |_, _, _| None)
+    fingerprint_with_axes(
+        &crate::features::Context::new(part),
+        part,
+        features,
+        features,
+        None,
+        |_, _, _| None,
+    )
 }
 
+#[cfg(test)]
 pub(crate) fn published_fingerprint(
     part: &Part,
     features: &crate::published_records::PublishedFeatures,
 ) -> Fingerprints {
-    let mut fingerprints = fingerprint_with_axes(part, features.working(), |id, path, value| {
-        features.fingerprint_axis(id, path, value)
-    });
+    published_fingerprint_impl(
+        &crate::features::Context::new(part),
+        part,
+        features,
+        features.working(),
+        None,
+    )
+}
+
+pub(crate) fn published_fingerprint_in(
+    part: &Part,
+    features: &crate::published_records::PublishedFeatures,
+    ctx: &crate::features::Context<'_>,
+) -> Fingerprints {
+    let (source, motion) = features.measurement_source();
+    published_fingerprint_impl(ctx, part, features, source, Some(motion))
+}
+
+fn published_fingerprint_impl(
+    ctx: &crate::features::Context<'_>,
+    part: &Part,
+    features: &crate::published_records::PublishedFeatures,
+    source: &Features,
+    motion: Option<&crate::framed_records::Rigid>,
+) -> Fingerprints {
+    let mut fingerprints = fingerprint_with_axes(
+        ctx,
+        part,
+        features.working(),
+        source,
+        motion,
+        |id, path, value| features.fingerprint_axis(id, path, value),
+    );
     for f in &mut fingerprints.features {
         let n =
             f.id.rsplit_once('/')
@@ -1096,11 +1135,28 @@ pub(crate) fn merge_legacy_families(fingerprints: &mut Fingerprints) {
 }
 
 fn fingerprint_with_axes(
+    ctx: &crate::features::Context<'_>,
     part: &Part,
     features: &Features,
+    source: &Features,
+    motion: Option<&crate::framed_records::Rigid>,
     axis: impl Fn(&str, &str, &Value) -> Option<V3>,
 ) -> Fingerprints {
-    let faces: Vec<FaceFingerprint> = (0..part.faces.len()).map(|i| face(part, i)).collect();
+    let faces: Vec<FaceFingerprint> = (0..part.faces.len())
+        .map(|i| {
+            // Axial cone-strip projection already integrated these same surface moments.
+            // Carry that measurement into file coordinates instead of integrating it again.
+            let measured = matches!(ctx.part.faces[i].surface, Surface::Cone { .. })
+                .then(|| ctx.measured_surface_moments(i))
+                .flatten()
+                .map(|m| FaceMeasure {
+                    area: m.area,
+                    centroid: motion.map_or(m.centroid, |r| r.point(m.centroid)),
+                    area_vector: motion.map_or(m.area_vector, |r| r.direction(m.area_vector)),
+                });
+            face(part, i, measured)
+        })
+        .collect();
     let scale = faces
         .iter()
         .filter_map(|f| f.area)
@@ -1129,14 +1185,23 @@ fn fingerprint_with_axes(
                     "family {key} has no defining faces in Features::defining and is not derived"
                 ),
             };
-            out.push(feature(
-                &faces,
-                format!("{key}/{n}"),
-                table,
-                record,
-                faces_of,
-                &axis,
-            ));
+            let mut fp = feature(&faces, format!("{key}/{n}"), table, record, faces_of, &axis);
+            if !fp.faces.is_empty() && (key == "bosses" || key == "plates") {
+                fp.neighbourhood = supporting_neighbourhood(&faces, &fp.faces, ctx);
+                let position = if key == "bosses" {
+                    Some(crate::features::bosses::midpoint(
+                        ctx,
+                        &source.bosses[n],
+                        &fp.faces,
+                    ))
+                } else {
+                    plate_position(ctx, &fp.faces)
+                };
+                fp.position = position
+                    .map(|p| motion.map_or(p, |m| m.point(p)))
+                    .or(fp.position);
+            }
+            out.push(fp);
         }
     }
     Fingerprints {
@@ -1145,6 +1210,83 @@ fn fingerprint_with_axes(
         features: out,
         faces,
     }
+}
+
+/// Contract proved convex treatment faces when reading the supporting feature's graph.
+/// Each real neighbouring support is counted once, even when reached directly and through
+/// a bevel. Face fingerprints retain the complete physical graph and trimmed measurements.
+fn supporting_neighbourhood(
+    faces: &[FaceFingerprint],
+    own: &[usize],
+    ctx: &crate::features::Context<'_>,
+) -> Vec<String> {
+    let treatments: BTreeSet<_> = ctx
+        .edge_treatments()
+        .iter()
+        .flat_map(|o| o.defining.iter().copied())
+        .filter(|f| !own.contains(f))
+        .collect();
+    let mut out = Vec::new();
+    for &f in own {
+        let mut neighbours: BTreeMap<usize, &str> = faces[f]
+            .neighbours
+            .iter()
+            .map(|(g, arc)| (*g, arc.as_str()))
+            .collect();
+        // Contract one treatment, without connecting separate patches of this feature
+        // or unrelated bores along a large conical band. A boss's virtual end support
+        // is transverse and planar; its existing longitudinal neighbours stay direct.
+        for (g, _) in &faces[f].neighbours {
+            if !treatments.contains(g) {
+                continue;
+            }
+            let mut supports = BTreeSet::new();
+            for treatment in ctx
+                .edge_treatments()
+                .iter()
+                .filter(|o| o.defining.contains(g))
+            {
+                for &patch in &treatment.defining {
+                    for (h, _) in &faces[patch].neighbours {
+                        if own.contains(h) || treatments.contains(h) {
+                            continue;
+                        }
+                        if faces[f].surface == "cylinder"
+                            && !(faces[*h].surface == "plane"
+                                && matches!((faces[f].axis, faces[*h].axis),
+                                (Some(a), Some(n)) if geom::dot(a, n).abs() >= crate::features::policy::AXIS_ALIGNED_COS))
+                        {
+                            continue;
+                        }
+                        supports.insert(*h);
+                    }
+                }
+            }
+            if !supports.is_empty() {
+                neighbours.remove(g);
+                for h in supports {
+                    neighbours.entry(h).or_insert("convex");
+                }
+            }
+        }
+        for (g, arc) in neighbours {
+            let side = if own.contains(&g) { "in" } else { "out" };
+            out.push(format!(
+                "{}>{side}:{}:{arc}",
+                faces[f].surface, faces[g].surface
+            ));
+        }
+    }
+    out.sort();
+    out
+}
+
+/// The area centre of the two supporting skins, restoring projected treatment strips on
+/// each real skin plane. This is intrinsic under rotation and does not move when an edge
+/// break removes area from one skin. A moved plane or a changed footprint still moves it.
+fn plate_position(ctx: &crate::features::Context<'_>, own: &[usize]) -> Option<V3> {
+    let m = crate::features::plates::supporting_moments(ctx, own)?;
+    (m.area > 0.).then(|| geom::scale(m.sum, 1. / m.area))
 }
 
 /// A derived record's faces: its members' defining faces, each member found among the base
@@ -1729,11 +1871,26 @@ fn surface_name(s: &Surface) -> String {
     }
 }
 
-fn face(part: &Part, i: usize) -> FaceFingerprint {
+#[derive(Clone, Copy)]
+struct FaceMeasure {
+    area: f64,
+    centroid: V3,
+    area_vector: V3,
+}
+
+fn face(part: &Part, i: usize, measured: Option<FaceMeasure>) -> FaceFingerprint {
     let surface = effective(part, i);
     // A face whose quadrature gives no area (a kernel failure: such faces exist) is fingerprinted
     // as one of unknown area.
-    let moments = part.face_moments(i).filter(|m| m.area > 1e-9);
+    let moments = measured
+        .or_else(|| {
+            part.face_moments(i).map(|m| FaceMeasure {
+                area: m.area,
+                centroid: m.centroid,
+                area_vector: m.area_vector,
+            })
+        })
+        .filter(|m| m.area > 1e-9);
     let centroid = moments.map(|m| m.centroid).unwrap_or_else(|| {
         let (mut sum, mut n) = ([0.0; 3], 0usize);
         for e in part.face_edges(i) {
