@@ -61,6 +61,7 @@ impl Layout {
         let tip = c.strokes.first()?[1];
         let scale = (self.height / 3.)
             .min(0.32 * self.bounds.max_extent().max(self.height) / c.size[0].max(1.));
+        let local = c.polylines();
         let mut best = None;
         for &(anchor, outward) in sites {
             let outward = geom::unit(outward)?;
@@ -81,10 +82,9 @@ impl Layout {
                 )
                 .map(|x| (x * 1e6).round() / 1e6 + 0.)
             };
-            let lines: Vec<Vec<V3>> = c
-                .polylines()
-                .into_iter()
-                .map(|line| line.into_iter().map(at).collect())
+            let lines: Vec<Vec<V3>> = local
+                .iter()
+                .map(|line| line.iter().copied().map(at).collect())
                 .collect();
             let mut bounds = Bounds::empty();
             for &p in lines.iter().flatten() {
