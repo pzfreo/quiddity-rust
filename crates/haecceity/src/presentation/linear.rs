@@ -152,7 +152,10 @@ fn elements(part: &Part, p: &PartPmi, feature: FeatureId, depth: usize) -> Vec<E
                     let g = p.geometry.get(g.0)?;
                     crate::pmi::write::geometry_point(&g.item).map(|q| {
                         Element::Point(q.map(|x| {
-                            x * g.length_unit.as_ref().map_or(1., LengthUnit::millimetres)
+                            x * g.length_unit.as_ref().map_or_else(
+                                || part.file_units().map_or(1., |u| u.0),
+                                LengthUnit::millimetres,
+                            )
                         }))
                     })
                 }
@@ -538,6 +541,40 @@ impl Ladder {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn supplemental_points_respect_context_units_and_explicit_overrides() {
+        let part = Part::new(vec![], vec![], vec![]).with_file_pcurves(
+            std::collections::BTreeMap::new(),
+            (25.4, 1.),
+            None,
+        );
+        let mut p = PartPmi::default();
+        p.geometry.push(Geometry {
+            item: GeometryItem {
+                leaves: vec![(
+                    "cartesian_point".into(),
+                    vec![
+                        GeometryValue::Text(String::new()),
+                        GeometryValue::List(
+                            ["1.", "2.", "3."]
+                                .map(|n| GeometryValue::Real(Decimal::parse(n).unwrap()))
+                                .to_vec(),
+                        ),
+                    ],
+                )],
+            },
+            length_unit: None,
+        });
+        p.features
+            .push(Feature::Items(vec![Anchor::Geometry(GeometryId(0))]));
+        let point = elements(&part, &p, FeatureId(0), 0)[0].point(&part);
+        assert!(geom::dist(point, [25.4, 50.8, 76.2]) < 1e-12);
+        p.geometry[0].length_unit = Some(LengthUnit::Millimetre);
+        assert_eq!(
+            elements(&part, &p, FeatureId(0), 0)[0].point(&part),
+            [1., 2., 3.]
+        );
+    }
     #[test]
     fn arrow_triangles_and_text_keep_their_frame_in_a_rotated_plane() {
         let d = canonical([1., 2., 3.]);
