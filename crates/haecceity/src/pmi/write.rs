@@ -3456,7 +3456,7 @@ impl<'a> PartPlan<'a> {
         pds: R,
         name: &str,
         cells: &[ToleranceCell],
-    ) -> Result<R, WriteError> {
+    ) -> Result<TableIdentity, WriteError> {
         let context = em.simple(
             "representation_context",
             &[
@@ -3545,7 +3545,14 @@ impl<'a> PartPlan<'a> {
                 ("rep_2", rep.a()),
             ],
         )?;
-        Ok(table)
+        #[cfg(feature = "json")]
+        {
+            Ok(table)
+        }
+        #[cfg(not(feature = "json"))]
+        {
+            Ok(())
+        }
     }
 
     /// A point of feature `f` in the part's coordinates: of its first face, edge or
@@ -6054,6 +6061,12 @@ fn needs_callouts(p: &PartPmi) -> bool {
         false
     }
 }
+
+// Preserve the ordinary writer's return type when JSON identity emission is disabled.
+#[cfg(feature = "json")]
+type TableIdentity = R;
+#[cfg(not(feature = "json"))]
+type TableIdentity = ();
 
 /// What a part's emission has made so far.
 #[derive(Default)]
