@@ -3045,7 +3045,12 @@ impl<'a> PartPlan<'a> {
                 ],
             )?;
         }
-        for (_i, g) in p.general.iter().enumerate() {
+        let general = p.general.iter();
+        #[cfg(feature = "presentation")]
+        let general = general.enumerate();
+        #[cfg(not(feature = "presentation"))]
+        let general = general.map(|item| ((), item));
+        for (_i, g) in general {
             if let GeneralTolerance::Table { name, cells } = g {
                 self.tolerance_table(em, pds, name, cells)?;
             }
@@ -3138,13 +3143,23 @@ impl<'a> PartPlan<'a> {
             )?;
             self.property(em, pd, "material property", "density", "density", &[item])?;
         }
-        for (_i, a) in p.attributes.iter().enumerate() {
+        let attributes = p.attributes.iter();
+        #[cfg(feature = "presentation")]
+        let attributes = attributes.enumerate();
+        #[cfg(not(feature = "presentation"))]
+        let attributes = attributes.map(|item| ((), item));
+        for (_i, a) in attributes {
             let _property = self.attribute_set(em, &mut st, pd, pds, a)?;
             #[cfg(feature = "presentation")]
             st.properties
                 .insert(crate::presentation::notes::Source::Attribute(_i), _property);
         }
-        for (_i, t) in p.surface_textures.iter().enumerate() {
+        let surface_textures = p.surface_textures.iter();
+        #[cfg(feature = "presentation")]
+        let surface_textures = surface_textures.enumerate();
+        #[cfg(not(feature = "presentation"))]
+        let surface_textures = surface_textures.map(|item| ((), item));
+        for (_i, t) in surface_textures {
             let _property = self.surface_texture(em, &mut st, pds, t)?;
             #[cfg(feature = "presentation")]
             st.properties
@@ -3683,15 +3698,21 @@ impl<'a> PartPlan<'a> {
             {
                 let f =
                     t.on.ok_or_else(|| WriteError::Internal("missing texture feature".into()))?;
-                let (point, normal, _) = presentation_part
+                let part = presentation_part
                     .as_ref()
-                    .and_then(|part| presentation::placement::feature_site(part, self.pmi, f))
+                    .ok_or_else(|| WriteError::Internal("texture geometry unavailable".into()))?;
+                let (_, _, face) = presentation::placement::feature_site(part, self.pmi, f)
                     .ok_or_else(|| {
                         WriteError::Internal("surface texture has no interior face site".into())
                     })?;
+                let sites = presentation::placement::surface_sites(part, face)
+                    .into_iter()
+                    .map(|(point, normal)| (point.map(|x| x / factor), normal))
+                    .collect::<Vec<_>>();
                 let c = notes::surface_texture(t);
-                let p = local_layout.on_face(point.map(|x| x / factor), normal, &c);
-                local_layout.reserve(&p.lines);
+                let p = local_layout.surface(&sites, &c).ok_or_else(|| {
+                    WriteError::Internal("surface texture has no interior tip site".into())
+                })?;
                 graphics.push((
                     vec![_st.properties[&notes::Source::Texture(i)]],
                     "surface roughness",

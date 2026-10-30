@@ -1,7 +1,7 @@
 //! Feature-local model annotation placement and a deterministic stagger; no sheet layout.
 use super::Callout;
 use crate::geom::{self, Bounds, V3};
-pub use crate::pmi::sites::{face_site, feature_site, text_height};
+pub use crate::pmi::sites::{face_site, feature_site, surface_sites, text_height};
 
 #[derive(Clone, Debug)]
 pub struct Placed {
@@ -54,6 +54,70 @@ impl Layout {
         if b.max_extent().is_finite() {
             self.occupied.push(b);
         }
+    }
+    /// ISO 1302's actual tip touches an interior face site; its legs rise normally.
+    /// A small fixed list of interior stations avoids existing annotation ink.
+    pub fn surface(&mut self, sites: &[(V3, V3)], c: &Callout) -> Option<Placed> {
+        let tip = c.strokes.first()?[1];
+        let scale = (self.height / 3.)
+            .min(0.32 * self.bounds.max_extent().max(self.height) / c.size[0].max(1.));
+        let mut best = None;
+        for &(anchor, outward) in sites {
+            let outward = geom::unit(outward)?;
+            let mut along = self.along(outward);
+            let mut normal = geom::unit(geom::cross(along, outward))?;
+            let k = geom::dominant_axis(normal);
+            if (k == 1 && normal[k] > 0.) || (k != 1 && normal[k] < 0.) {
+                normal = geom::scale(normal, -1.);
+                along = geom::scale(along, -1.);
+            }
+            let at = |p: [f64; 2]| {
+                geom::add(
+                    anchor,
+                    geom::add(
+                        geom::scale(along, (p[0] - tip[0]) * scale),
+                        geom::scale(outward, (p[1] - tip[1]) * scale),
+                    ),
+                )
+                .map(|x| (x * 1e6).round() / 1e6 + 0.)
+            };
+            let lines: Vec<Vec<V3>> = c
+                .polylines()
+                .into_iter()
+                .map(|line| line.into_iter().map(at).collect())
+                .collect();
+            let mut bounds = Bounds::empty();
+            for &p in lines.iter().flatten() {
+                bounds.add(p);
+            }
+            let collisions = self
+                .occupied
+                .iter()
+                .filter(|b| boxes_overlap(bounds, **b, 0.2 * self.height))
+                .count();
+            if best
+                .as_ref()
+                .is_none_or(|(score, _, _)| collisions < *score)
+            {
+                best = Some((
+                    collisions,
+                    Placed {
+                        anchor: at(tip),
+                        origin: at(tip),
+                        normal,
+                        along,
+                        lines,
+                    },
+                    bounds,
+                ));
+            }
+            if collisions == 0 {
+                break;
+            }
+        }
+        let (_, placed, bounds) = best?;
+        self.occupied.push(bounds);
+        Some(placed)
     }
     /// Front-facing notes to the right of the part and every existing annotation.
     /// The strict X separation also avoids overlap in front/top projections.

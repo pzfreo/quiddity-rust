@@ -109,17 +109,13 @@ pub fn general_notes(p: &PartPmi) -> Vec<Row> {
             .enumerate()
             .filter(|(_, a)| a.on.is_none() && a.name == "semantic text")
         {
-            let index = a
-                .items
-                .iter()
-                .find_map(|(k, v)| {
-                    if let AttributeValue::Integer(n) = v {
-                        (k == "note index").then_some(*n)
-                    } else {
-                        None
-                    }
-                })
-                .unwrap_or(i as i64);
+            let index = a.items.iter().find_map(|(k, v)| {
+                if let AttributeValue::Integer(n) = v {
+                    (k == "note index" && *n > 0).then_some(*n)
+                } else {
+                    None
+                }
+            });
             for (k, v) in &a.items {
                 let matches = k == kind
                     || matches!(
@@ -132,7 +128,7 @@ pub fn general_notes(p: &PartPmi) -> Vec<Row> {
             }
         }
         if kind == "general note" {
-            items.sort_by_key(|(index, i, _)| (*index, *i));
+            items.sort_by_key(|(index, i, _)| (index.is_none(), index.unwrap_or(0), *i));
         }
         rows.extend(items.into_iter().map(|(_, i, text)| Row {
             source: Source::Attribute(i),

@@ -3987,7 +3987,8 @@ fn opencascade_reads_the_written_files() {
 /// (`write/editor_assembly_pin_alone`, from `one_part_of_an_assembly_is_written_alone`): every
 /// item it reads is on the pin's own prototype label (a direct child of the shape tool's
 /// label, not a component of the assembly, so both placements show it), on the pin's faces as
-/// haecceity numbers them; the plate's label has nothing and nothing is unattached.
+/// haecceity numbers them; the plate's label has nothing. Feature-on output additionally
+/// carries one unattached symbolic notes CommonLabel (no semantic dimension is unattached).
 #[test]
 fn opencascade_puts_a_parts_pmi_on_its_prototype() {
     let name = "editor_assembly_pin_alone";
@@ -4004,10 +4005,41 @@ fn opencascade_puts_a_parts_pmi_on_its_prototype() {
     const KINDS: [&str; 3] = ["dimensions", "geometric_tolerances", "datums"];
     for k in KINDS {
         assert!(parts[0][k].as_array().unwrap().is_empty(), "plate has {k}");
+        if k != "dimensions" {
+            assert!(
+                capture["unattached"][k].as_array().unwrap().is_empty(),
+                "unattached {k}"
+            );
+        }
+    }
+    let graphic_notes = capture["unattached"]["dimensions"].as_array().unwrap();
+    #[cfg(not(feature = "presentation"))]
+    assert!(graphic_notes.is_empty());
+    #[cfg(feature = "presentation")]
+    {
+        // OCCT exposes the new general-notes block as one symbolic CommonLabel.
+        // Keep the exact semantic counts/face/prototype assertions below unchanged.
+        assert_eq!(graphic_notes.len(), 1);
+        let note = &graphic_notes[0];
+        assert_eq!(note["type"], "CommonLabel");
+        assert_eq!(note["semantic_name"], "DGT:Common_label");
+        assert_eq!(note["value"], 0.0);
+        for key in ["faces", "faces2", "parts", "values", "modifiers"] {
+            assert!(
+                note[key].as_array().unwrap().is_empty(),
+                "symbolic note {key}"
+            );
+        }
+        let reading = pmi::read(&f.doc, &f.parts).unwrap();
+        assert!(reading.parts[0].material.is_none());
+        assert!(reading.parts[0].general.is_empty());
+        assert_eq!(reading.parts[1].material.as_ref().unwrap().id, "Steel C45");
         assert!(
-            capture["unattached"][k].as_array().unwrap().is_empty(),
-            "unattached {k}"
+            matches!(&reading.parts[1].general[..], [GeneralTolerance::Class{text,..}] if text=="ISO 2768-f")
         );
+        let blocks:Vec<_>=f.doc.ids().filter(|&id| matches!(f.doc.get(id),Some(RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("draughting_callout")) && test_attribute(&f.doc,id,"representation_item","name")==Some(&Attribute::String("GENERAL NOTES\nMATERIAL: Steel C45\nGENERAL TOLERANCES ISO 2768-f".into()))).collect();
+        assert_eq!(blocks.len(), 1);
+        assert_eq!(refs_of(&f.doc, blocks[0]).len(), 2);
     }
     let pin = &parts[1];
     let label = pin["label"].as_str().unwrap();
@@ -6569,6 +6601,26 @@ fn written_settings_have_one_notes_block_and_face_texture_symbols_with_valid_lin
         8,
         "one occurrence per property; header shares the first"
     );
+    let rows = presentation::notes::general_notes(&p);
+    let block = presentation::notes::notes_block(&rows);
+    let provenance = &w.read.provenance.parts[0];
+    let source_property = |source| {
+        use presentation::notes::Source;
+        let ids = match source {
+            Source::Material => &provenance.material,
+            Source::General(i) => &provenance.general[i],
+            Source::Texture(i) => &provenance.surface_textures[i],
+            Source::Attribute(i) => {
+                assert_eq!(w.read.parts[0].attributes[i].items, p.attributes[i].items);
+                &provenance.attributes[i]
+            }
+        };
+        root(&w.doc, ids, &["property_definition"])
+    };
+    let (origin, normal, along) = annotation_basis(&w.doc, note);
+    let up = geom::cross(normal, along);
+    let physical = haecceity::step::read_part(f.doc.bytes(), &f.parts[0]).unwrap();
+    let scale = presentation::placement::text_height(physical.bounds().max_extent()) / 3.;
     let mut note_points = Vec::new();
     let mut properties = BTreeSet::new();
     for occurrence in occurrences {
@@ -6601,6 +6653,52 @@ fn written_settings_have_one_notes_block_and_face_texture_symbols_with_valid_lin
                 "PMI representation to presentation link".into()
             ))
         );
+        let source = rows
+            .iter()
+            .map(|r| r.source)
+            .find(|&source| source_property(source) == ids[0])
+            .expect("link to a stated property");
+        let mut expected_lines = Vec::new();
+        for (i, text) in block.letters.iter().enumerate() {
+            if rows[i.saturating_sub(1)].source != source {
+                continue;
+            }
+            expected_lines.extend(
+                presentation::font()
+                    .text(&text.text, text.size)
+                    .lines
+                    .into_iter()
+                    .map(|line| {
+                        line.into_iter()
+                            .map(|q| {
+                                geom::add(
+                                    origin,
+                                    geom::add(
+                                        geom::scale(along, (q[0] + text.at[0]) * scale),
+                                        geom::scale(up, (q[1] + text.at[1]) * scale),
+                                    ),
+                                )
+                            })
+                            .collect::<Vec<_>>()
+                    }),
+            );
+        }
+        let actual_lines = occurrence_lines(&w.doc, occurrence);
+        assert_eq!(
+            actual_lines.len(),
+            expected_lines.len(),
+            "strokes for {source:?}"
+        );
+        for (actual, expected) in actual_lines.iter().zip(expected_lines) {
+            assert_eq!(actual.len(), expected.len());
+            assert!(
+                actual
+                    .iter()
+                    .zip(expected)
+                    .all(|(a, b)| geom::dist(*a, b) < 1e-9),
+                "the drawn row must state its associated property {source:?}"
+            );
+        }
         properties.insert(ids[0]);
         let curves = refs_of(&w.doc, set)[0];
         let coords = refs_of(&w.doc, curves)[0];
@@ -6656,21 +6754,7 @@ fn written_settings_have_one_notes_block_and_face_texture_symbols_with_valid_lin
             "PMI representation to presentation link".into()
         ))
     );
-    let lines = graphic_lines(&w.doc, texture);
-    let leader = lines.last().unwrap();
-    let part = haecceity::step::read_part(f.doc.bytes(), &f.parts[0]).unwrap();
-    let (anchor, normal, _) =
-        presentation::placement::feature_site(&part, &p, FeatureId(0)).unwrap();
-    assert!(
-        geom::dist(anchor, leader[0]) < 2e-6,
-        "texture foot must be interior to its semantic face"
-    );
-    let (_, plane_normal, _) = annotation_basis(&w.doc, texture);
-    assert!(
-        geom::dot(normal, plane_normal).abs() < 1e-8,
-        "texture's plane contains the face normal"
-    );
-    assert!(geom::dot(normal, geom::unit(geom::sub(leader[1], leader[0])).unwrap()) > 1. - 1e-8);
+    assert_texture_tip(&w.doc, &p, &f.parts[0], texture, FeatureId(0));
     let set = *refs_of(&w.doc, refs_of(&w.doc, texture)[0]).last().unwrap();
     assert_eq!(
         test_attribute(&w.doc, set, "representation_item", "name"),
@@ -6781,6 +6865,22 @@ fn full_notes_and_face_finishes_clear_the_three_sample_parts_without_moving_dime
         assert_verified(&f, &w, &p);
         assert_reads_back(&w, PartId(0), &p);
         assert!(new_violations(&f.doc, &w.doc).is_empty());
+        let blocks: Vec<_> = w
+            .added()
+            .into_iter()
+            .filter(|&id| {
+                w.names(id) == ["draughting_callout"]
+                    && test_attribute(&w.doc, id, "representation_item", "name")
+                        == Some(&Attribute::String(
+                            presentation::notes::notes_block(&presentation::notes::general_notes(
+                                &p,
+                            ))
+                            .cells
+                            .join("\n"),
+                        ))
+            })
+            .collect();
+        assert_eq!(blocks.len(), 1, "{name}: one complete notes block");
         assert_notes_clear(&w.doc);
         sample_linear_dimensions(&w.doc, &w.read, &f.parts[0]);
         sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
@@ -6794,12 +6894,48 @@ fn full_notes_and_face_finishes_clear_the_three_sample_parts_without_moving_dime
             })
             .collect();
         assert_eq!(textures.len(), 1, "{name}: one surface texture symbol");
-        let lines = graphic_lines(&w.doc, textures[0]);
-        let part = haecceity::step::read_part(f.doc.bytes(), &f.parts[0]).unwrap();
-        let (anchor, normal, _) =
-            presentation::placement::feature_site(&part, &p, feature).unwrap();
-        assert!(haecceity::geom::dist(lines.last().unwrap()[0], anchor) < 2e-6);
-        let (_, plane_normal, _) = annotation_basis(&w.doc, textures[0]);
-        assert!(haecceity::geom::dot(normal, plane_normal).abs() < 1e-8);
+        assert_texture_tip(&w.doc, &p, &f.parts[0], textures[0], feature);
     }
+}
+
+#[cfg(feature = "presentation")]
+fn assert_texture_tip(
+    doc: &Document,
+    p: &PartPmi,
+    def: &PartDefinition,
+    callout: u64,
+    feature: FeatureId,
+) {
+    use haecceity::{geom, presentation};
+    let part = haecceity::step::read_part(doc.bytes(), def).unwrap();
+    let (_, _, face) = presentation::placement::feature_site(&part, p, feature).unwrap();
+    let lines = graphic_lines(doc, callout);
+    let tip = lines[0][1];
+    assert_eq!(tip, lines[1][0], "both ISO legs meet on the face");
+    let surface = &part.faces[face].surface;
+    let (u, v) = surface.parameters(tip, None).unwrap();
+    assert!(geom::dist(surface.value(u, v), tip) < 2e-6);
+    let (u0, u1, v0, v1) = part.uv_bounds(face).unwrap();
+    let du = (u1 - u0).abs().max(1e-6) * 1e-5;
+    let dv = (v1 - v0).abs().max(1e-6) * 1e-5;
+    assert!(
+        [(u, v), (u - du, v), (u + du, v), (u, v - dv), (u, v + dv)]
+            .iter()
+            .all(|&(u, v)| part.domain(face).unwrap().contains(u, v)),
+        "ISO symbol tip is strictly inside the semantic face"
+    );
+    let normal = geom::scale(
+        surface.normal(u, v).unwrap(),
+        if part.faces[face].reversed { -1. } else { 1. },
+    );
+    let (origin, plane_normal, along) = annotation_basis(doc, callout);
+    assert!(
+        geom::dist(origin, tip) < 1e-9,
+        "annotation plane is anchored at the symbol tip"
+    );
+    assert!(geom::dot(normal, plane_normal).abs() < 1e-6);
+    assert!(
+        geom::dot(normal, geom::cross(plane_normal, along)) > 1. - 1e-6,
+        "symbol rises outward from the face"
+    );
 }

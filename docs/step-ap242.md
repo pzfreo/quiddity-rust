@@ -181,8 +181,9 @@ Round 5 adds visibility for non-geometric requirements. `presentation::notes` po
 Draftwright aaa7a73's `dims/gdt.rs::finish_symbol`, `title_block.rs::removal_marks`,
 `pmi_lowering.rs::part_note_text` and `notes.rs` heading. Face-specific textures get the
 ISO 1302 two-leg symbol, parameter bar, material-removal bar/circle and parameter rows
-in micrometres. Its leader starts at a trimmed-face interior point, in a plane containing
-the outward face normal. The geometric set is named `surface roughness` (PMI practice
+in micrometres. The actual two-leg tip touches a trimmed-face interior point; a finite grid of
+interior stations keeps its ink clear of existing annotations. Its plane contains the outward
+face normal, and its legs rise out of the face; there is no disconnected or long leader. The geometric set is named `surface roughness` (PMI practice
 §8.4, Table 18), with the usual occurrence, callout, plane and shared part draughting model.
 The existing ISO 10303-1110 surface-texture property/parameter graph is unchanged. The
 model has no lay field; no lay or process requirement is inferred from geometry.
@@ -208,12 +209,13 @@ avoids inherited IIRU UR1/UR2 (several DMIAs cannot identify the same callout in
 model). All these links use `PMI representation to presentation link` in the part's
 draughting model. [PMI practice §§7.3–7.4](https://www.mbx-if.org/home/wp-content/uploads/2024/06/rec_pracs_pmi_v41.pdf)
 support property-backed editable notes and annotation subsets. The
-[NIST SFA checker](https://github.com/usnistgov/SFA/blob/master/source/sfa-grafpmi.tcl#L973-L1004)
+[NIST SFA 5.41 checker](https://github.com/usnistgov/SFA/blob/8c5922c1d9b76f7ee03ad3fb0348b4c69495d248/source/sfa-grafpmi.tcl#L1062-L1095)
 explicitly exempts `property_definition` from its invalid-definition error and requires
 a draughting model; these are asserted in the writer graph tests, together with planes,
 styles, wrapper names, property coverage and non-overlap. This is a **source audit**, not
 an SFA execution verdict: its Windows IFCsvr runtime is unavailable here, and the local
-Parallels command failed initialization under the sandbox. The maintainer must run SFA
+Parallels command failed initialization under the sandbox; computer-use access also
+requires approval, unavailable in this unattended session. The maintainer must run SFA
 5.41 on the generated samples. The preference for a property link follows that checker;
 no redundant feature association or symbol representation is added.
 
@@ -233,6 +235,30 @@ reference comparisons retain all verdicts; diagnostic IDs may follow entity renu
 `export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the
 presentation folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture feature-off output.
 
+
+Round-5 golden changes are **feature-on only** (each pair includes its fresh OCP capture):
+`assembly_plate_pin_intent` adds one notes block per part (26 → 28 callouts);
+`every_kind` adds a texture symbol and notes block (16 → 18);
+`pmi_gaps` and `pmi_gaps_gram` add a texture symbol and notes block (3 → 5);
+`editor_assembly_pin_alone` (5 → 6), `spool_fits_intent` (12 → 13),
+`string_post_tapped_intent` (7 → 8) and `thumbwheel_thread_knurl_intent` (5 → 6)
+add a notes block. `datum_targets` and `datum_targets_shared_support` keep one callout;
+their entity numbering changes because presentation follows property emission, allowing
+property links. Existing dimension/datum/frame graphics are retained. The other six
+feature-on STEP files and all sixteen feature-off STEP files remain byte-identical.
+`opencascade_puts_a_parts_pmi_on_its_prototype` now expects exactly one symbolic
+`CommonLabel` for the pin's notes block instead of an empty graphical-label list. Its
+zero-valued/no-face/no-part fields and two property-backed occurrences are checked;
+all original typed-item counts, prototype labels, face attachments and plate emptiness
+assertions remain. Haecceity still reads the material/class only on the pin.
+The disposable Specify clone updates only the three `settings_only_writer_sha256` values
+in `tests/fixtures/characteristic-numbers-legacy.json`: a material-only write now adds a
+visible notes block. Its frozen analysis and PMI-read hashes remain unchanged. No Specify
+changes are committed. Existing/resume/characteristic-number tests retain their assertions.
+The three sample rewrite-count assertions increase by one for their new notes block;
+the input-count assertions and all geometry assertions remain. Separate tests add the
+full settings and face texture on each sample part, with exact contents, link coverage,
+face anchors, no overlaps, unchanged dimension witnesses and clean EXPRESS/rules.
 
 Round-4 golden changes (each name denotes its `.step.gz` and matching `.occt.json.gz`):
 **C** = composite multi-face aspect; **L** = private location endpoint; **D** = face-interior
@@ -323,7 +349,8 @@ These override anything below and any stream brief that says otherwise.
    `draughting_model_item_association`, following the PMI practice's presentation sections, so a
    presentation-only viewer shows the datum. This is the one piece of presentation written in
    this run; it is derived from the semantic model (never a separate source of truth) and is
-   removed with its datum on replace. Other presentation stays out of scope.
+   removed with its datum on replace. This original datum-only scope was extended by #137
+   to dimensions, tolerances, surface textures and written part settings (see above).
 7. **Replace removes the replaced PMI's presentation by default.** The default presentation
    policy for replace and remove is `RemovePresentation`: callouts, associations and their
    exclusively owned geometry and styles that reference removed PMI are removed and every one is
@@ -592,10 +619,10 @@ draftwright's `origin/main`.
 | R9 | Verify a write by reading it back with the same reader, semantically. | `writer.verify`, `writer._verify_appended` |
 | R10 | Report what cannot be read rather than drop it: unknown or unsupported PMI entities, references that do not resolve, values without units. | draftwright `PmiExtractionReport`, `lint_pmi_extraction` |
 
-Not needed by either consumer from the PMI layer: graphic presentation (specify-core writes
-datum feature symbols only so that presentation-only viewers show something; draftwright draws
-from semantics and reads no presentation except "common labels"), saved views, tessellated
-presentation. specify-core's `mesh` command (a face-indexed tessellation for its picker) also
+Drawing clients derive their own drawings from semantics; they need no arbitrary graphic
+presentation interpreted as requirements (Draftwright reads only "common labels"). The writer
+now supplies the visible model callouts described in #137 above. Saved views remain outside
+this stream. specify-core's `mesh` command (a face-indexed tessellation for its picker) also
 uses OpenCascade; it is not PMI and is listed under [Out of scope](#out-of-scope-for-now).
 
 ## Semantic model
@@ -1553,9 +1580,9 @@ What was done meanwhile is in each.
 
 ## Out of scope for now
 
-- **Graphic presentation** other than datum feature symbols (callouts, polylines, tessellated
-  presentation, saved views) derived from the semantics. Existing presentation is kept byte for
-  byte, or removed and reported under the `RemovePresentation` policy; it is never updated.
+- **Arbitrary presentation authoring and saved views.** The default feature derives callouts
+  for newly written requirements (see #137 above). Existing foreign presentation is kept byte
+  for byte, or removed and reported under `RemovePresentation`; it is never redrawn.
 - **PMI on assembly occurrences** (`assembly_component_usage` paths); reported as findings.
 - **Density units whose scale is not stated**: refused; known SI mass/length units and inch/foot lengths are written in their own units.
 - **A general EXPRESS rule engine**; named checks cover what the writer emits.

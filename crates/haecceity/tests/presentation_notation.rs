@@ -500,6 +500,19 @@ fn part_settings_have_shared_wording_and_indexed_general_notes() {
         assert_eq!(notes::part_note_text(kind, text), expected);
     }
     assert!(notes::general_notes(&PartPmi::default()).is_empty());
+    let mut unindexed = attribute("general note", "Unindexed", 0);
+    unindexed.items.retain(|(key, _)| key != "note index");
+    let mixed = PartPmi {
+        attributes: vec![unindexed, attribute("general note", "Indexed", 1)],
+        ..PartPmi::default()
+    };
+    assert_eq!(
+        notes::general_notes(&mixed)
+            .iter()
+            .map(|r| r.text.as_str())
+            .collect::<Vec<_>>(),
+        ["Indexed", "Unindexed"]
+    );
     let aliases = PartPmi {
         attributes: vec![
             attribute("coating", "Black", 0),
