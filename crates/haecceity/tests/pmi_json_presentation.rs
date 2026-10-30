@@ -134,3 +134,82 @@ fn generated_notation_has_semantic_ids_and_source() {
     );
     presentation::validate(&serde_json::to_value(generated).unwrap()).unwrap();
 }
+
+#[test]
+fn malformed_coordinates_and_indices_never_renumber_drawn_points() {
+    let doc = Document::parse(ctc()).unwrap();
+    let mut edit = p21::Edit::new();
+    let coords = edit.add(p21::simple(
+        "COORDINATES_LIST",
+        vec![
+            A::String("bad unused row".into()),
+            A::Integer(3),
+            A::List(vec![
+                A::List(vec![A::Real(1.), A::Real(2.)]),
+                A::List(vec![A::Real(3.), A::Real(4.), A::Real(5.)]),
+                A::List(vec![A::Real(6.), A::Real(7.), A::Real(8.)]),
+            ]),
+        ],
+    ));
+    let curve = edit.add(p21::simple(
+        "TESSELLATED_CURVE_SET",
+        vec![
+            A::String("stable indices".into()),
+            coords.to_ref(),
+            A::List(vec![
+                A::List(vec![A::Integer(2), A::Integer(3)]),
+                A::List(vec![A::Integer(0), A::Integer(2), A::Integer(3)]),
+            ]),
+        ],
+    ));
+    let occurrence = edit.add(p21::simple(
+        "TESSELLATED_ANNOTATION_OCCURRENCE",
+        vec![
+            A::String("stable indices".into()),
+            A::List(vec![]),
+            curve.to_ref(),
+        ],
+    ));
+    let root = edit.add(p21::simple(
+        "DRAUGHTING_CALLOUT",
+        vec![
+            A::String("bad-source-index witness".into()),
+            A::List(vec![occurrence.to_ref()]),
+        ],
+    ));
+    let context = doc
+        .ids()
+        .find_map(|id| match doc.get(id) {
+            Some(p21::RawEntity::Simple {
+                name, attributes, ..
+            }) if name.eq_ignore_ascii_case("draughting_model") => attributes.get(2).cloned(),
+            _ => None,
+        })
+        .unwrap();
+    edit.add(p21::simple(
+        "DRAUGHTING_MODEL",
+        vec![
+            A::String("source index witness".into()),
+            A::List(vec![root.to_ref()]),
+            context,
+        ],
+    ));
+    let bytes = doc.apply(&edit).unwrap().bytes;
+    let parts = read_part_definitions(&bytes).unwrap();
+    let doc = Document::parse(bytes).unwrap();
+    let read = pmi::read(&doc, &parts).unwrap();
+    let semantic = json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+    let presentation = presentation::read(&doc, &read, PartId(0), &semantic).unwrap();
+    let graphic = presentation
+        .unlinked
+        .iter()
+        .find(|g| g.name == "bad-source-index witness")
+        .unwrap();
+    assert_eq!(graphic.polylines, vec![vec![[3., 4., 5.], [6., 7., 8.]]]);
+    assert!(
+        graphic
+            .unsupported
+            .iter()
+            .any(|why| why.contains("index out of range"))
+    );
+}

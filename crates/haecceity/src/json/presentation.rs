@@ -199,12 +199,12 @@ fn children(doc: &Document, id: u64) -> Vec<u64> {
     }
     vec![]
 }
-fn coordinates(doc: &Document, id: u64, owner: &str) -> Vec<[f64; 3]> {
+fn coordinates(doc: &Document, id: u64, owner: &str) -> Vec<Option<[f64; 3]>> {
     reference(attr(doc, id, owner, "coordinates"))
         .map(|r| {
             list(attr(doc, r, "coordinates_list", "position_coords"))
                 .iter()
-                .filter_map(|a| xyz(Some(a)))
+                .map(|a| xyz(Some(a)))
                 .collect()
         })
         .unwrap_or_default()
@@ -212,11 +212,15 @@ fn coordinates(doc: &Document, id: u64, owner: &str) -> Vec<[f64; 3]> {
 fn indices(a: &A) -> Vec<usize> {
     list(Some(a))
         .iter()
-        .filter_map(|v| {
+        .map(|v| {
+            // Keep every position: deleting a bad index would join different points.
             if let A::Integer(n) = v {
-                usize::try_from(*n).ok().and_then(|n| n.checked_sub(1))
+                usize::try_from(*n)
+                    .ok()
+                    .and_then(|n| n.checked_sub(1))
+                    .unwrap_or(usize::MAX)
             } else {
-                None
+                usize::MAX
             }
         })
         .collect()
@@ -277,7 +281,7 @@ fn draw(
         for strip in list(attr(doc, id, "tessellated_curve_set", "line_strips")) {
             let line: Option<Vec<_>> = indices(strip)
                 .iter()
-                .map(|i| coords.get(*i).copied().map(at))
+                .map(|i| coords.get(*i).copied().flatten().map(at))
                 .collect();
             if let Some(line) = line {
                 g.polylines.push(line);
@@ -340,7 +344,7 @@ fn draw(
                     } else {
                         pn.get(*i).copied()
                     };
-                    i.and_then(|i| coords.get(i)).copied().map(at)
+                    i.and_then(|i| coords.get(i)).copied().flatten().map(at)
                 })
                 .collect();
             if let Some(v) = vertices {
