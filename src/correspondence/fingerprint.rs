@@ -1171,12 +1171,16 @@ fn supporting_neighbourhood(
         let mut neighbours: BTreeMap<usize, &str> = faces[f]
             .neighbours
             .iter()
-            .filter(|(g, _)| !treatments.contains(g))
             .map(|(g, arc)| (*g, arc.as_str()))
             .collect();
-        // Contract one proved treatment, not the whole connected network of edge
-        // breaks: on a fully bevelled box that network also reaches the opposite skin.
+        // Contract one treatment, without connecting separate patches of this feature
+        // or unrelated bores along a large conical band. A boss's virtual end support
+        // is transverse and planar; its existing longitudinal neighbours stay direct.
         for (g, _) in &faces[f].neighbours {
+            if !treatments.contains(g) {
+                continue;
+            }
+            let mut supports = BTreeSet::new();
             for treatment in ctx
                 .edge_treatments()
                 .iter()
@@ -1184,10 +1188,24 @@ fn supporting_neighbourhood(
             {
                 for &patch in &treatment.defining {
                     for (h, _) in &faces[patch].neighbours {
-                        if *h != f && !treatments.contains(h) {
-                            neighbours.entry(*h).or_insert("convex");
+                        if own.contains(h) || treatments.contains(h) {
+                            continue;
                         }
+                        if faces[f].surface == "cylinder"
+                            && !(faces[*h].surface == "plane"
+                                && matches!((faces[f].axis, faces[*h].axis),
+                                (Some(a), Some(n)) if geom::dot(a, n).abs() >= crate::features::policy::AXIS_ALIGNED_COS))
+                        {
+                            continue;
+                        }
+                        supports.insert(*h);
                     }
+                }
+            }
+            if !supports.is_empty() {
+                neighbours.remove(g);
+                for h in supports {
+                    neighbours.entry(h).or_insert("convex");
                 }
             }
         }

@@ -595,6 +595,9 @@ Schema `/6` and fingerprint format `/3` stay unchanged: these are corrected valu
 in existing fields, following the intentional-value-change rule used for #71 and
 #92. Re-recognise saved affected fingerprints to obtain the corrected measurements.
 Correspondence costs and changes read the corrected `sizes.height` and placements.
-The evidence host lookup uses the complete `location - axis * height` base target;
+The evidence host lookup uses the complete `location - axis * height` base target
+and includes base planes consulted by the end-round proof; these remain physical
+hosts even when they are also consulted evidence. Treatment proofs used for extent
+work on oblique axes too, independently of standalone treatment presentation.
 haecceity's kernel and PMI models do not consume `BossRecord.height`, and PMI face
 anchors continue to refer to the original defining faces. No PMI schema changes.

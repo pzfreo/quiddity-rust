@@ -106,3 +106,48 @@ fn a_real_plate_thinning_or_removal_remains_visible() {
     let p = part("revisions/q134_plate.removed.step.gz");
     assert!(plates::discover(&Context::new(&p), &Default::default()).is_empty());
 }
+
+#[test]
+fn audited_boss_supports_do_not_connect_separate_patches_or_lose_consulted_base_hosts() {
+    let Some(root) = common::corpus_dir() else {
+        assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
+        return;
+    };
+    let p =
+        quiddity::read_step_file(&root.join("cadgenbench/threaded_connector_109.step")).unwrap();
+    let r = quiddity::correspondence::caller_space_recognise(&p);
+    for boss in r
+        .fingerprints
+        .features
+        .iter()
+        .filter(|f| f.family == "bosses")
+    {
+        let physical = boss
+            .faces
+            .iter()
+            .flat_map(|&f| &r.fingerprints.faces[f].neighbours)
+            .filter(|(g, _)| boss.faces.contains(g))
+            .count();
+        let contracted = boss
+            .neighbourhood
+            .iter()
+            .filter(|s| s.contains(">in:"))
+            .count();
+        assert_eq!(contracted, physical, "#134: {}", boss.id);
+    }
+    let p = quiddity::read_step_file(&root.join("nist/nist_ftc_06_asme1_rd.stp")).unwrap();
+    let view = quiddity::evidence_view::build_recognition_evidence(&p).unwrap();
+    for index in [4, 6] {
+        let f = view
+            .features
+            .iter()
+            .find(|f| f.family == "bosses" && f.index == index)
+            .unwrap();
+        assert_eq!(
+            f.hosts,
+            [12],
+            "#134: the R3.175 base round consults the real host plane"
+        );
+        near(view.result.bosses[index].height, 53.34);
+    }
+}

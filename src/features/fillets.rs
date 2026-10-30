@@ -29,7 +29,7 @@ const FILLET_MAX_EXTENT: f64 = 3.0 * PI / 4.0;
 /// noise of modelled geometry such as CTC-03's 90.0246° round (#120).
 const FILLET_SWEEP_TOL_DEG: f64 = 0.5;
 /// A turned edge fillet is a quarter circle in section; a bead is a half or full one.
-const TURNED_FILLET_MAX_EXTENT: f64 = PI / 2.0 * 1.05;
+pub(super) const TURNED_FILLET_MAX_EXTENT: f64 = PI / 2.0 * 1.05;
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct Fillet {
