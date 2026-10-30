@@ -3408,10 +3408,12 @@ impl<'a> PartPlan<'a> {
         #[cfg(not(feature = "presentation"))]
         let mut layout = SymbolLayout::new(&points);
         #[cfg(feature = "presentation")]
+        let presentation_part = crate::step::read_part(self.doc.bytes(), self.def).ok();
+        #[cfg(feature = "presentation")]
         let mut local_layout = {
             let mut bounds = crate::geom::Bounds::empty();
             // The B-rep includes circular-arc and surface extrema, not just seam vertices.
-            if let Ok(part) = crate::step::read_part(self.doc.bytes(), self.def) {
+            if let Some(part) = &presentation_part {
                 let factor = self.context_length_unit().map_or(1., |u| u.millimetres());
                 let b = part.bounds();
                 bounds.add(b.min.map(|x| x / factor));
@@ -3459,6 +3461,8 @@ impl<'a> PartPlan<'a> {
                     .unwrap_or(points.first().copied().unwrap_or([0.; 3]));
                 let c = presentation::dimension(d);
                 let name = c.notation();
+                // Keep the existing slots reserved so datum, diameter and control-frame
+                // placements do not move when linear graphics are replaced below.
                 let p = local_layout.place(tip, self.feature_axis(f.0), &c);
                 let (plane, lines) = ([p.origin, p.normal, p.along], p.lines);
                 graphics.push((
@@ -3495,6 +3499,43 @@ impl<'a> PartPlan<'a> {
                     plane,
                     lines,
                 ));
+            }
+        }
+        #[cfg(feature = "presentation")]
+        if let Some(part) = &presentation_part {
+            use crate::presentation::{self, linear};
+            let factor = self.context_length_unit().map_or(1., |u| u.millimetres());
+            let measurements = linear::measurements(part, self.pmi);
+            let mut ladder = linear::Ladder::new(part.bounds());
+            for (i, (_, _, _, _, lines)) in graphics.iter().enumerate() {
+                if i < symbols.len()
+                    || i >= symbols.len() + self.pmi.dimensions.len()
+                    || measurements[i - symbols.len()].is_none()
+                {
+                    let mut b = crate::geom::Bounds::empty();
+                    for p in lines.iter().take(lines.len().saturating_sub(1)).flatten() {
+                        b.add(p.map(|x| x * factor));
+                    }
+                    ladder.reserve(b);
+                }
+            }
+            let mut order: Vec<_> = measurements
+                .iter()
+                .enumerate()
+                .filter_map(|(i, m)| m.as_ref().map(|m| (i, m)))
+                .collect();
+            order.sort_by(|a, b| a.1.length().total_cmp(&b.1.length()).then(a.0.cmp(&b.0)));
+            for (i, m) in order {
+                let p = ladder
+                    .draw(m, &presentation::dimension(&self.pmi.dimensions[i]))
+                    .placed;
+                let g = &mut graphics[symbols.len() + i];
+                g.3 = [p.origin.map(|x| x / factor), p.normal, p.along];
+                g.4 = p
+                    .lines
+                    .into_iter()
+                    .map(|l| l.into_iter().map(|p| p.map(|x| x / factor)).collect())
+                    .collect();
             }
         }
         let context = em.reference(self.context)?;
@@ -5558,7 +5599,7 @@ fn vertices(doc: &Document, faces: &[u64]) -> Vec<[f64; 3]> {
 }
 
 /// The first `cartesian_point` of a supplemental geometry item, by value.
-fn geometry_point(g: &GeometryItem) -> Option<[f64; 3]> {
+pub(crate) fn geometry_point(g: &GeometryItem) -> Option<[f64; 3]> {
     fn value(v: &GeometryValue) -> Option<[f64; 3]> {
         match v {
             GeometryValue::Item(i) => geometry_point(i),

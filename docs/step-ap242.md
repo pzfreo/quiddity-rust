@@ -48,8 +48,36 @@ label just outside the closest narrow bounding-box side. Rotary features use the
 axis as the text direction; other features use the part's long axis. Text height is 0.8% of
 the largest part extent (less for very wide labels). A bounded deterministic row/column
 stagger avoids neighbouring labels without accumulating a long row along the part. No
-sheet layout engine is imported. Sample-part regressions bound every drawn point and plane
-origin to less than half a part length from the feature anchor, across all three re-test parts.
+sheet layout engine is imported. Datum/diameter/control-frame regressions bound their drawn points and planes to less than half
+a part length from the feature anchor, across the three re-test parts. These placements are
+unchanged by the linear-dimension renderer below.
+
+Straight location dimensions use **both** semantic endpoints. Planar linear sizes use opposed
+faces. The writer resolves actual trimmed faces with the kernel's ray/face intersector; a
+bore witness is on its axis at the face/mouth, rather than a cylindrical wall vertex. Two
+extension lines leave those witnesses with a small gap and overshoot the dimension line.
+Triangular arrowheads use Draftwright's `arrow`/`head` geometry. The arrow-to-arrow dimension
+span is parallel to the measured direction; the line has a break for its centred text. Text
+fits between the arrows and remains right-handed in its annotation plane, including on the
+negative side of the part.
+
+The ladder reuses Draftwright's shortest-first nesting rule (`dims/placement.rs::respace`):
+sort spans ascending, breaking ties by semantic order; allocate successive outward rungs per
+parallel direction and side. At text height h, the first offset is 10h/3, subsequent steps
+7h/3, extension gap h/3 and overshoot 2h/3. Labels conflicting with existing annotation ink
+advance to the next rung. This is model-space dimension geometry, not sheet placement.
+Boundary witnesses provide a general fallback when an element has no analytic plane/axis;
+the writer never changes the nominal or manufactures a span to fit it. A target with no two
+measurable witnesses retains notation. Curved-distance and angular graphics retain the
+previous callout path; angular arc construction is deferred rather than guessing an angle
+vertex from incomplete semantic targets.
+
+Sample-part tests independently inspect the serialized strips: witness feet on the measured
+faces or bore axes, span equal to nominal within 1e-6 relative, direction parallel to the
+measured face normal, text on the line between its arrows, disjoint text boxes (also projected
+for parallel planes), and increasing ladder offsets. Opposed-face linear sizes, axis-to-axis
+locations, and rotated annotation frames have additional tests. The old proximity assertion
+is no longer used as evidence for linear dimensions.
 
 The graph is `COORDINATES_LIST` → `TESSELLATED_CURVE_SET` →
 `TESSELLATED_GEOMETRIC_SET` (CAx-IF type name, e.g. `diameter dimension`, `position`,
@@ -82,7 +110,9 @@ mechanical-design/draughting saved-view relationship is added.
 Feature-on writer goldens and fresh OpenCascade captures live in
 `tests/fixtures/ap242/write-presentation/`; `write/` retains feature-off goldens unchanged.
 The round-1 feature-on goldens change only graphics (Hershey strokes, local placement and
-proportional style width) and full-notation names. The Plex font-specific outline oracle is
+proportional style width) and full-notation names. Round 2 changes only straight dimension
+curves/planes to measured extensions, arrowed lines and centred ladder text; datum, diameter
+and tolerance-frame graphics/planes are compared against the round-1 inputs unchanged. The Plex font-specific outline oracle is
 retired; stroke metrics, scaling and exhaustive notation glyph checks replace it.
 `export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the new
 folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture the legacy folder.

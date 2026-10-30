@@ -9,6 +9,7 @@
 use crate::pmi::*;
 
 mod gdt;
+pub mod linear;
 pub mod placement;
 pub mod text;
 pub mod tolerance;
