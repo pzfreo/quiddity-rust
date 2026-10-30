@@ -108,13 +108,24 @@ fn a_real_plate_thinning_or_removal_remains_visible() {
 }
 
 #[test]
-fn audited_boss_supports_do_not_connect_separate_patches_or_lose_consulted_base_hosts() {
+fn audited_boss_ends_exclude_root_fillets_long_tapers_and_concave_shoulders() {
     let Some(root) = common::corpus_dir() else {
         assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
         return;
     };
     let p =
         quiddity::read_step_file(&root.join("cadgenbench/threaded_connector_109.step")).unwrap();
+    let found = bosses::discover(&Context::new(&p));
+    let shaft = found.iter().find(|o| o.defining == [162]).unwrap();
+    near(shaft.record.height, 199.67);
+    assert!(
+        !shaft.context.contains(&164),
+        "#134: cone 164 joins cylinder 162 concavely"
+    );
+    let owners: Vec<_> = found.iter().filter(|o| o.context.contains(&164)).collect();
+    assert_eq!(owners.len(), 1, "#134: one cone can extend only one boss");
+    near(owners[0].record.diameter, 130.94);
+    near(owners[0].record.height, 24.04);
     let r = quiddity::correspondence::caller_space_recognise(&p);
     for boss in r
         .fingerprints
@@ -136,6 +147,24 @@ fn audited_boss_supports_do_not_connect_separate_patches_or_lose_consulted_base_
         assert_eq!(contracted, physical, "#134: {}", boss.id);
     }
     let p = quiddity::read_step_file(&root.join("nist/nist_ftc_06_asme1_rd.stp")).unwrap();
+    let fillets = quiddity::features::fillets::discover(&Context::new(&p), &Default::default());
+    for face in [77, 78] {
+        let round = fillets.iter().find(|o| o.defining.contains(&face)).unwrap();
+        assert_eq!(
+            round.record.side, "concave",
+            "#134: FTC-06 root material side"
+        );
+    }
+    let found = bosses::discover(&Context::new(&p));
+    for index in [4, 6] {
+        assert!(
+            found[index]
+                .context
+                .iter()
+                .all(|f| ![40, 45, 77, 78].contains(f)),
+            "#134: neither a long taper nor a root round is an end treatment"
+        );
+    }
     let view = quiddity::evidence_view::build_recognition_evidence(&p).unwrap();
     for index in [4, 6] {
         let f = view
@@ -143,11 +172,10 @@ fn audited_boss_supports_do_not_connect_separate_patches_or_lose_consulted_base_
             .iter()
             .find(|f| f.family == "bosses" && f.index == index)
             .unwrap();
-        assert_eq!(
-            f.hosts,
-            [12],
-            "#134: the R3.175 base round consults the real host plane"
+        assert!(
+            f.hosts.is_empty(),
+            "#134: a concave root round does not create a host"
         );
-        near(view.result.bosses[index].height, 53.34);
+        near(view.result.bosses[index].height, 12.07);
     }
 }

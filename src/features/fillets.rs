@@ -21,7 +21,7 @@ use crate::kernel::geom::{self, Surface, V3, dominant_axis};
 use crate::kernel::py;
 
 /// A minimum-evidence threshold, deliberately absolute (ADR 0008).
-const MIN_RADIUS: f64 = 0.6;
+pub(super) const MIN_RADIUS: f64 = 0.6;
 /// Nearly half-turn rounds between nearly parallel walls are groove/slot full-round
 /// bottoms, not edge fillets (#120). Keep walls at least 45° apart.
 const FILLET_MAX_EXTENT: f64 = 3.0 * PI / 4.0;
@@ -171,7 +171,7 @@ pub fn discover(ctx: &Context<'_>, opts: &FilletOptions) -> Vec<Occurrence<Fille
 }
 
 /// A partial cylinder rounding a convex or concave edge between two tangent walls, in any direction.
-fn prismatic(
+pub(super) fn prismatic(
     ctx: &Context<'_>,
     face: usize,
     min_radius: f64,
@@ -512,14 +512,51 @@ fn turned(
     let edge_axis = principal_axis(frame.z)?;
     let context = turned_context(part, face, &part.neighbours(face), external)?;
     let at = fillet_anchor(part, face)?;
-    Some(occurrence(
+    let mut found = occurrence(
         FilletAxis::Principal(['x', 'y', 'z'][edge_axis]),
         minor,
         at,
         true,
         face,
         context,
-    ))
+    );
+    found.record.side = torus_side(part, face)?;
+    Some(found)
+}
+
+/// Material is inside the tube for a convex torus, outside it for a concave root
+/// round. Tangency alone cannot distinguish them. Require agreement at three samples.
+pub(super) fn torus_side(part: &Part, face: usize) -> Option<&'static str> {
+    let Surface::Torus {
+        frame,
+        major,
+        minor,
+    } = part.faces[face].surface
+    else {
+        return None;
+    };
+    let (u0, u1, v0, v1) = part.uv_bounds(face)?;
+    let mut answer = None;
+    for t in [0.25, 0.5, 0.75] {
+        let (u, v) = (u0 + t * (u1 - u0), v0 + t * (v1 - v0));
+        let p = part.faces[face].surface.value(u, v);
+        let delta = geom::sub(p, frame.origin);
+        let radial = geom::unit(geom::sub(
+            delta,
+            geom::scale(frame.z, geom::dot(delta, frame.z)),
+        ))?;
+        let centre = geom::add(frame.origin, geom::scale(radial, major));
+        let dot = geom::dot(part.face_normal(face, u, v)?, geom::sub(p, centre));
+        if !dot.is_finite() || dot.abs() <= super::policy::length_tol(minor, 1e-9) {
+            return None;
+        }
+        let side = if dot > 0. { "convex" } else { "concave" };
+        if answer.is_some_and(|s| s != side) {
+            return None;
+        }
+        answer = Some(side);
+    }
+    answer
 }
 
 internal_entry! {

@@ -325,15 +325,116 @@ fn proposals(
     out
 }
 
-/// Coverage is the skin plus the signed orthogonal projection of adjoining convex edge
-/// treatments, not their larger surface area or a bounding rectangle. These are the strips
-/// removed from this supporting plane. Count each treatment once; require it to lie inward
-/// of the real skin plane. Neither the skin coordinates nor the coverage threshold changes.
-fn trimmed_coverage(ctx: &Context<'_>, g: &Group, axis: usize, sign: f64) -> (Group, Vec<usize>) {
+/// Cached supporting-plane moments. Projection and deduplication are shared by
+/// recognition coverage, published transverse centres and fingerprint placement.
+pub(super) struct Skin {
+    normal: V3,
+    area: f64,
+    sum: V3,
+    strips: Vec<Strip>,
+}
+struct Strip {
+    face: usize,
+    area: f64,
+    sum: V3,
+    context: Vec<usize>,
+}
+pub(crate) struct SupportingMoments {
+    pub area: f64,
+    pub sum: V3,
+    pub context: Vec<usize>,
+}
+
+pub(super) fn measure_skin(ctx: &Context<'_>, face: usize) -> Option<Skin> {
+    use crate::kernel::brep::Arc;
     let part = ctx.part;
-    let neighbours: Vec<_> = g.faces.iter().flat_map(|&f| part.neighbours(f)).collect();
-    let mut counted = Vec::new();
-    let mut context = Vec::new();
+    let normal = unit_plane_normal(part, face)?;
+    let [area, _] = part.face_mass(face)?;
+    let centre = part.face_centre(face)?;
+    let plane = geom::dot(centre, normal);
+    let neighbours = part.neighbours(face);
+    let mut strips = Vec::new();
+    let mut seen = std::collections::BTreeSet::new();
+    for treatment in ctx.edge_treatments() {
+        for &g in &treatment.defining {
+            if !neighbours.contains(&g) || !seen.insert(g) {
+                continue;
+            }
+            // A root/concave junction does not trim this supporting skin.
+            if !matches!(part.arc(face, g), Some(Arc::Convex | Arc::Smooth)) {
+                continue;
+            }
+            let (_, hi) = part.extent_along(&[g], normal);
+            if hi > plane + geom::COORD_FLOOR {
+                continue;
+            }
+            let projected = if let Surface::Plane { .. } = part.faces[g].surface {
+                // Constant Jacobian: reuse planar Green moments, rather than integrating
+                // a surface with a constant projection factor a second time.
+                part.face_mass(g)
+                    .zip(part.face_centre(g))
+                    .zip(unit_plane_normal(part, g))
+                    .map(|(([area, _], centre), n)| (area * geom::dot(n, normal), centre))
+            } else {
+                part.face_projected_moments(g, normal)
+            };
+            let Some((area, centre)) = projected else {
+                continue;
+            };
+            if area <= 0. {
+                continue;
+            }
+            let centre = geom::add(
+                centre,
+                geom::scale(normal, plane - geom::dot(centre, normal)),
+            );
+            strips.push(Strip {
+                face: g,
+                area,
+                sum: geom::scale(centre, area),
+                context: treatment
+                    .defining
+                    .iter()
+                    .chain(&treatment.context)
+                    .copied()
+                    .collect(),
+            });
+        }
+    }
+    Some(Skin {
+        normal,
+        area,
+        sum: geom::scale(centre, area),
+        strips,
+    })
+}
+
+pub(crate) fn supporting_moments(ctx: &Context<'_>, faces: &[usize]) -> Option<SupportingMoments> {
+    let reference = ctx.skin(*faces.first()?)?.normal;
+    let mut out = SupportingMoments {
+        area: 0.,
+        sum: [0.; 3],
+        context: Vec::new(),
+    };
+    let mut counted = std::collections::BTreeSet::new();
+    for &f in faces {
+        let skin = ctx.skin(f)?;
+        out.area += skin.area;
+        out.sum = geom::add(out.sum, skin.sum);
+        for strip in &skin.strips {
+            if counted.insert((strip.face, geom::dot(skin.normal, reference) > 0.)) {
+                out.area += strip.area;
+                out.sum = geom::add(out.sum, strip.sum);
+                out.context.extend(&strip.context);
+            }
+        }
+    }
+    out.context.sort_unstable();
+    out.context.dedup();
+    Some(out)
+}
+
+fn trimmed_coverage(ctx: &Context<'_>, g: &Group, axis: usize, _sign: f64) -> (Group, Vec<usize>) {
     let mut restored = Group {
         low: g.low,
         high: g.high,
@@ -342,35 +443,14 @@ fn trimmed_coverage(ctx: &Context<'_>, g: &Group, axis: usize, sign: f64) -> (Gr
         v_sum: g.v_sum,
         faces: g.faces.clone(),
     };
+    let Some(m) = supporting_moments(ctx, &g.faces) else {
+        return (restored, Vec::new());
+    };
     let other: Vec<_> = (0..3).filter(|&i| i != axis).collect();
-    let mut direction = [0.; 3];
-    direction[axis] = sign;
-    for treatment in ctx.edge_treatments() {
-        for &face in &treatment.defining {
-            if counted.contains(&face) || !neighbours.contains(&face) {
-                continue;
-            }
-            let b = part.face_bounds(face);
-            if (sign > 0.0 && b.max[axis] > g.high + geom::COORD_FLOOR)
-                || (sign < 0.0 && b.min[axis] < g.low - geom::COORD_FLOOR)
-            {
-                continue;
-            }
-            let Some((projected, centre)) = part.face_projected_moments(face, direction) else {
-                continue;
-            };
-            if projected <= 0.0 {
-                continue;
-            }
-            restored.area += projected;
-            restored.u_sum += projected * centre[other[0]];
-            restored.v_sum += projected * centre[other[1]];
-            counted.push(face);
-            context.extend(&treatment.defining);
-            context.extend(&treatment.context);
-        }
-    }
-    (restored, context)
+    restored.area = m.area;
+    restored.u_sum = m.sum[other[0]];
+    restored.v_sum = m.sum[other[1]];
+    (restored, m.context)
 }
 
 /// A coordinate usable as an ordered map key (never NaN here).

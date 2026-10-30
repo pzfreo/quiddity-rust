@@ -1,4 +1,6 @@
-"""For #67: gramil 9171ef6, production shaft, only end_chamfer 0 -> 1.5.
+"""For #134: derived from gramil 9171ef6 (gramil contributors), production shaft, only end_chamfer 0 -> 1.5.
+
+Originally supplied for pzfreo/specify-core-rust#67 (provenance).
 
 Run with gramil installed (Python 3.12, build123d 0.10.0):
     python gramil_shaft.py OUTDIR

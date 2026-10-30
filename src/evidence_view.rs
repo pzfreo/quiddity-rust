@@ -524,7 +524,6 @@ fn project(
                     &feature.constituent,
                     hole.axis,
                     *hole.location,
-                    false,
                     |offsets| {
                         let lo = offsets.iter().copied().fold(f64::INFINITY, f64::min);
                         let hi = offsets.iter().copied().fold(f64::NEG_INFINITY, f64::max);
@@ -540,7 +539,6 @@ fn project(
                     &feature.constituent,
                     boss.axis,
                     boss.location,
-                    true,
                     |offsets| {
                         // The first offset nearest the target, as Python's `min` by key picks.
                         let mut best = offsets[0];
@@ -627,40 +625,21 @@ fn pattern_holes(pattern: &features::hole_patterns::HolePattern) -> &[holes::Hol
     }
 }
 
-/// Adjoining planar supports normal to *axis*, selected by axial offsets. Bosses also
-/// consider consulted planes: an end round's support can be both consulted evidence and
-/// the physical base host (#134), and must not be replaced by the remote free-end plane.
-/// Offsets are read at each face's centroid, as Python's `Face.center()` reads a plane.
+/// The planar faces normal to *axis* immediately outside *constituent*, selected by
+/// their axial offsets. Consulted end caps never become hosts merely by being context.
 fn axial_hosts(
     part: &Part,
     constituent: &[usize],
     axis: geom::V3,
     location: geom::V3,
-    consulted_hosts: bool,
     targets: impl Fn(&[f64]) -> Vec<f64>,
 ) -> Result<Vec<usize>, EvidenceViewError> {
     let inside: BTreeSet<usize> = constituent.iter().copied().collect();
-    let mut boundary: BTreeSet<usize> = constituent
+    let boundary: BTreeSet<usize> = constituent
         .iter()
         .flat_map(|&f| part.neighbours(f))
         .filter(|n| !inside.contains(n))
         .collect();
-    if consulted_hosts
-        && constituent.iter().any(|&f| {
-            matches!(
-                part.faces[f].surface,
-                Surface::Cone { .. } | Surface::Torus { .. }
-            )
-        })
-    {
-        // Only a treatment's base-side support can supplement the boundary. A free
-        // cap is not a host, and an interchangeable plain-cylinder end gauge must
-        // not acquire a material base assertion merely because its caps are context.
-        boundary.extend(constituent.iter().copied().filter(|&f| {
-            matches!(part.faces[f].surface, Surface::Plane { frame }
-                if geom::dot(geom::sub(frame.origin, location), axis) < -geom::COORD_FLOOR)
-        }));
-    }
     let mut hosts = Vec::new();
     for face in boundary {
         let Surface::Plane { frame } = &part.faces[face].surface else {

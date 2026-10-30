@@ -25,7 +25,12 @@ pub struct Context<'a> {
     solid_classifiers: Vec<OnceLock<Classifier<'a>>>,
     cylinders: OnceLock<Vec<CylinderEvidence>>,
     threads: OnceLock<ThreadAnalysis>,
+    chamfers: OnceLock<Vec<super::evidence::Occurrence<super::chamfers::Chamfer>>>,
+    oriented_chamfers: OnceLock<Vec<super::evidence::Occurrence<super::oriented_chamfers::OrientedChamfer>>>,
+    fillets: OnceLock<Vec<super::evidence::Occurrence<super::fillets::Fillet>>>,
+    bosses: OnceLock<super::bosses::Analysis>,
     edge_treatments: OnceLock<Vec<super::evidence::Occurrence<()>>>,
+    skins: Vec<OnceLock<Option<super::plates::Skin>>>,
     signatures: OnceLock<Vec<Option<BodyKey>>>,
     section_passages: OnceLock<Result<Vec<Found>, PassageError>>,
 }
@@ -40,7 +45,12 @@ internal_entry! {
             solid_classifiers: part.solids.iter().map(|_| OnceLock::new()).collect(),
             cylinders: OnceLock::new(),
             threads: OnceLock::new(),
+            chamfers: OnceLock::new(),
+            oriented_chamfers: OnceLock::new(),
+            fillets: OnceLock::new(),
+            bosses: OnceLock::new(),
             edge_treatments: OnceLock::new(),
+            skins: part.faces.iter().map(|_| OnceLock::new()).collect(),
             signatures: OnceLock::new(),
             section_passages: OnceLock::new(),
         }
@@ -57,6 +67,26 @@ internal_entry! {
     pub(crate) fn edge_treatments(&self) -> &[super::evidence::Occurrence<()>] {
         self.edge_treatments
             .get_or_init(|| super::edge_treatments::discover(self))
+    }
+
+    pub(crate) fn reported_chamfers(&self) -> &[super::evidence::Occurrence<super::chamfers::Chamfer>] {
+        self.chamfers.get_or_init(|| super::chamfers::discover(self, &Default::default()))
+    }
+
+    pub(crate) fn reported_oriented_chamfers(&self) -> &[super::evidence::Occurrence<super::oriented_chamfers::OrientedChamfer>] {
+        self.oriented_chamfers.get_or_init(|| super::oriented_chamfers::discover(self, &Default::default()))
+    }
+
+    pub(crate) fn reported_fillets(&self) -> &[super::evidence::Occurrence<super::fillets::Fillet>] {
+        self.fillets.get_or_init(|| super::fillets::discover(self, &Default::default()))
+    }
+
+    pub(super) fn boss_analysis(&self) -> &super::bosses::Analysis {
+        self.bosses.get_or_init(|| super::bosses::analyse(self))
+    }
+
+    pub(super) fn skin(&self, face: usize) -> Option<&super::plates::Skin> {
+        self.skins[face].get_or_init(|| super::plates::measure_skin(self, face)).as_ref()
     }
 
     /// The point classifier for the whole part.

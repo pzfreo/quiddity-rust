@@ -2,7 +2,7 @@
 //! Reuse the treatment proofs; a merely sloping or curved neighbour is not an edge break.
 
 use super::evidence::Occurrence;
-use super::{Context, chamfers, fillets, oriented_chamfers, turned};
+use super::{Context, chamfers, fillets, turned};
 use crate::kernel::geom::{self, Surface};
 
 pub(super) fn discover(ctx: &Context<'_>) -> Vec<Occurrence<()>> {
@@ -11,29 +11,33 @@ pub(super) fn discover(ctx: &Context<'_>) -> Vec<Occurrence<()>> {
         defining,
         context,
     };
-    let mut out: Vec<_> = chamfers::discover(ctx, &Default::default())
-        .into_iter()
-        .map(|o| erase(o.defining, o.context))
+    let mut out: Vec<_> = ctx
+        .reported_chamfers()
+        .iter()
+        .map(|o| erase(o.defining.clone(), o.context.clone()))
         .chain(
-            oriented_chamfers::discover(ctx, &Default::default())
-                .into_iter()
-                .map(|o| erase(o.defining, o.context)),
+            ctx.reported_oriented_chamfers()
+                .iter()
+                .map(|o| erase(o.defining.clone(), o.context.clone())),
+        )
+        .chain(
+            ctx.reported_fillets()
+                .iter()
+                .filter(|o| o.record.side == "convex")
+                .map(|o| erase(o.defining.clone(), o.context.clone())),
         )
         .collect();
-    // Reporting's absolute 0.6 mm radius floor does not make a smaller real round
-    // cease trimming its supporting face.
-    out.extend(
-        fillets::discover(
-            ctx,
-            &fillets::FilletOptions {
-                min_radius: Some(0.0),
-                ..Default::default()
-            },
-        )
-        .into_iter()
-        .filter(|o| o.record.side == "convex")
-        .map(|o| erase(o.defining, o.context)),
-    );
+    // Reuse reported proofs. Only sub-reporting-radius cylinders need a new
+    // prismatic proof; a small real round still trims its supporting skin.
+    let max_radius = fillets::FilletOptions::default().max_radius_frac * ctx.bounds().max_extent();
+    for (face, f) in ctx.part.faces.iter().enumerate() {
+        if matches!(f.surface, Surface::Cylinder { radius, .. } if radius < fillets::MIN_RADIUS)
+            && let Some(o) = fillets::prismatic(ctx, face, 0., max_radius)
+            && o.record.side == "convex"
+        {
+            out.push(erase(o.defining, o.context));
+        }
+    }
     // Structural measurements must also work on an oblique boss. The standalone
     // turned-treatment records use principal-axis presentation; apply those same
     // geometric proofs here without that presentation gate (#134).
@@ -63,7 +67,9 @@ pub(super) fn discover(ctx: &Context<'_>) -> Vec<Occurrence<()>> {
                 }
                 vec![]
             }
-            Surface::Torus { minor, .. } if minor <= max_radius => {
+            Surface::Torus { minor, .. }
+                if minor <= max_radius && fillets::torus_side(ctx.part, face) == Some("convex") =>
+            {
                 let Some((_, _, lo, hi)) = ctx.part.uv_bounds(face) else {
                     continue;
                 };

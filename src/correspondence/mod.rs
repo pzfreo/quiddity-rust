@@ -62,17 +62,18 @@ pub fn recognise(part: &Part) -> Recognition {
     let frame = match frames::infer_part_frame(part) {
         Ok(frame) => frame,
         Err(reason) => {
-            let features = features::recognise(part);
-            let features: PublishedFeatures = features.into();
-            let fingerprints = fingerprint::published_fingerprint(part, &features);
-            return Recognition {
-                features,
-                fingerprints,
-                frame: RecordFrame::Refused { reason },
-                source_sha256: None,
-                input_repairs: part.input_repairs().to_vec(),
-                body_evidence: BTreeMap::new(),
-            };
+            return features::recognise_with(part, |ctx, features| {
+                let features: PublishedFeatures = features.into();
+                let fingerprints = fingerprint::published_fingerprint_in(part, &features, ctx);
+                Recognition {
+                    features,
+                    fingerprints,
+                    frame: RecordFrame::Refused { reason },
+                    source_sha256: None,
+                    input_repairs: part.input_repairs().to_vec(),
+                    body_evidence: BTreeMap::new(),
+                }
+            });
         }
     };
     recognise_in_frame(part, frame)
@@ -96,43 +97,45 @@ fn recognise_in_frame(part: &Part, frame: PartFrame) -> Recognition {
             };
         }
     };
-    let features = features::recognise(&working);
-    let body_evidence = crate::body::evidence(&working, &features);
-    let Mapped {
-        features,
-        fingerprinted,
-        motion,
-    } = framed_records::to_file(features, &frame, &working);
-    let _ = motion;
-    // Fingerprints read the published values as found in the frame, carried through the exact
-    // motion, so they stay intrinsic to the part: publishing on the file's grid would make a
-    // derived size (hi − lo) depend on where the part is placed, and a near-aligned frame's
-    // publication in the file's axes (#70) would change its axes by the round-off it drops.
-    let fingerprints = fingerprint::published_fingerprint(part, &fingerprinted);
-    Recognition {
-        features,
-        fingerprints,
-        frame: RecordFrame::Inferred(frame),
-        source_sha256: None,
-        input_repairs: part.input_repairs().to_vec(),
-        body_evidence,
-    }
+    features::recognise_with(&working, |ctx, features| {
+        let body_evidence = crate::body::evidence(&working, &features);
+        let Mapped {
+            features,
+            fingerprinted,
+            motion,
+        } = framed_records::to_file(features, &frame, &working);
+        let _ = motion;
+        // Fingerprints read the published values as found in the frame, carried through the exact
+        // motion, so they stay intrinsic to the part: publishing on the file's grid would make a
+        // derived size (hi − lo) depend on where the part is placed, and a near-aligned frame's
+        // publication in the file's axes (#70) would change its axes by the round-off it drops.
+        let fingerprints = fingerprint::published_fingerprint_in(part, &fingerprinted, ctx);
+        Recognition {
+            features,
+            fingerprints,
+            frame: RecordFrame::Inferred(frame),
+            source_sha256: None,
+            input_repairs: part.input_repairs().to_vec(),
+            body_evidence,
+        }
+    })
 }
 
 /// Caller-space recognition for internal regression and geometry tests.
 #[cfg(test)]
 pub(crate) fn caller_space_recognise(part: &Part) -> Recognition {
-    let features = features::recognise(part);
-    let features: PublishedFeatures = features.into();
-    let fingerprints = fingerprint::published_fingerprint(part, &features);
-    Recognition {
-        features,
-        fingerprints,
-        frame: RecordFrame::CallerSpace,
-        source_sha256: None,
-        input_repairs: part.input_repairs().to_vec(),
-        body_evidence: BTreeMap::new(),
-    }
+    features::recognise_with(part, |ctx, features| {
+        let features: PublishedFeatures = features.into();
+        let fingerprints = fingerprint::published_fingerprint_in(part, &features, ctx);
+        Recognition {
+            features,
+            fingerprints,
+            frame: RecordFrame::CallerSpace,
+            source_sha256: None,
+            input_repairs: part.input_repairs().to_vec(),
+            body_evidence: BTreeMap::new(),
+        }
+    })
 }
 
 /// The thresholds and weights `correspond` uses. Lengths are relative to the part's scale (the

@@ -1047,16 +1047,54 @@ pub fn classify(key: &str, path: &str) -> Option<(&'static str, Role)> {
 /// Panics on a family missing from [`FAMILIES`], or one with neither defining faces in
 /// `features.defining` nor members: a wiring defect, not an input.
 pub fn fingerprint(part: &Part, features: &Features) -> Fingerprints {
-    fingerprint_with_axes(part, features, |_, _, _| None)
+    fingerprint_with_axes(
+        &crate::features::Context::new(part),
+        part,
+        features,
+        features,
+        None,
+        |_, _, _| None,
+    )
 }
 
+#[cfg(test)]
 pub(crate) fn published_fingerprint(
     part: &Part,
     features: &crate::published_records::PublishedFeatures,
 ) -> Fingerprints {
-    let mut fingerprints = fingerprint_with_axes(part, features.working(), |id, path, value| {
-        features.fingerprint_axis(id, path, value)
-    });
+    published_fingerprint_impl(
+        &crate::features::Context::new(part),
+        part,
+        features,
+        features.working(),
+        None,
+    )
+}
+
+pub(crate) fn published_fingerprint_in(
+    part: &Part,
+    features: &crate::published_records::PublishedFeatures,
+    ctx: &crate::features::Context<'_>,
+) -> Fingerprints {
+    let (source, motion) = features.measurement_source();
+    published_fingerprint_impl(ctx, part, features, source, Some(motion))
+}
+
+fn published_fingerprint_impl(
+    ctx: &crate::features::Context<'_>,
+    part: &Part,
+    features: &crate::published_records::PublishedFeatures,
+    source: &Features,
+    motion: Option<&crate::framed_records::Rigid>,
+) -> Fingerprints {
+    let mut fingerprints = fingerprint_with_axes(
+        ctx,
+        part,
+        features.working(),
+        source,
+        motion,
+        |id, path, value| features.fingerprint_axis(id, path, value),
+    );
     for f in &mut fingerprints.features {
         let n =
             f.id.rsplit_once('/')
@@ -1097,11 +1135,13 @@ pub(crate) fn merge_legacy_families(fingerprints: &mut Fingerprints) {
 }
 
 fn fingerprint_with_axes(
+    ctx: &crate::features::Context<'_>,
     part: &Part,
     features: &Features,
+    source: &Features,
+    motion: Option<&crate::framed_records::Rigid>,
     axis: impl Fn(&str, &str, &Value) -> Option<V3>,
 ) -> Fingerprints {
-    let ctx = crate::features::Context::new(part);
     let faces: Vec<FaceFingerprint> = (0..part.faces.len()).map(|i| face(part, i)).collect();
     let scale = faces
         .iter()
@@ -1133,13 +1173,19 @@ fn fingerprint_with_axes(
             };
             let mut fp = feature(&faces, format!("{key}/{n}"), table, record, faces_of, &axis);
             if !fp.faces.is_empty() && (key == "bosses" || key == "plates") {
-                fp.neighbourhood = supporting_neighbourhood(&faces, &fp.faces, &ctx);
-                fp.position = if key == "bosses" {
-                    let boss = serde_json::from_value(record.clone()).expect("boss record");
-                    Some(crate::features::bosses::midpoint(&ctx, &boss, &fp.faces))
+                fp.neighbourhood = supporting_neighbourhood(&faces, &fp.faces, ctx);
+                let position = if key == "bosses" {
+                    Some(crate::features::bosses::midpoint(
+                        ctx,
+                        &source.bosses[n],
+                        &fp.faces,
+                    ))
                 } else {
-                    plate_position(&ctx, &fp.faces).or(fp.position)
+                    plate_position(ctx, &fp.faces)
                 };
+                fp.position = position
+                    .map(|p| motion.map_or(p, |m| m.point(p)))
+                    .or(fp.position);
             }
             out.push(fp);
         }
@@ -1225,42 +1271,8 @@ fn supporting_neighbourhood(
 /// each real skin plane. This is intrinsic under rotation and does not move when an edge
 /// break removes area from one skin. A moved plane or a changed footprint still moves it.
 fn plate_position(ctx: &crate::features::Context<'_>, own: &[usize]) -> Option<V3> {
-    let part = ctx.part;
-    let mut weight = 0.;
-    let mut sum = [0.; 3];
-    let mut counted = BTreeSet::new();
-    let reference = crate::features::planes::unit_plane_normal(part, *own.first()?)?;
-    for &f in own {
-        let n = crate::features::planes::unit_plane_normal(part, f)?;
-        let m = part.face_moments(f)?;
-        weight += m.area;
-        sum = geom::add(sum, geom::scale(m.centroid, m.area));
-        let neighbours = part.neighbours(f);
-        for treatment in ctx.edge_treatments() {
-            for &g in &treatment.defining {
-                if !neighbours.contains(&g) || counted.contains(&(g, geom::dot(n, reference) > 0.))
-                {
-                    continue;
-                }
-                let (_, hi) = part.extent_along(&[g], n);
-                let plane = geom::dot(m.centroid, n);
-                if hi > plane + geom::COORD_FLOOR {
-                    continue;
-                }
-                let Some((a, c)) = part.face_projected_moments(g, n) else {
-                    continue;
-                };
-                if a <= 0. {
-                    continue;
-                }
-                let c = geom::add(c, geom::scale(n, plane - geom::dot(c, n)));
-                weight += a;
-                sum = geom::add(sum, geom::scale(c, a));
-                counted.insert((g, geom::dot(n, reference) > 0.));
-            }
-        }
-    }
-    (weight > 0.).then(|| geom::scale(sum, 1. / weight))
+    let m = crate::features::plates::supporting_moments(ctx, own)?;
+    (m.area > 0.).then(|| geom::scale(m.sum, 1. / m.area))
 }
 
 /// A derived record's faces: its members' defining faces, each member found among the base

@@ -15,7 +15,10 @@ in [docs/alpha1.md](docs/alpha1.md).
   across those edits; matched plate skins seed face correspondence by their real
   planes. Genuine shaft shortening, plate thinning/removal and flat movement remain
   visible. Recognition schema `/6` and fingerprint format `/3` are unchanged; affected
-  fingerprint values intentionally change within `/3`, as for #71 and #92.
+  fingerprint values intentionally change within `/3`, as for #71 and #92. Saved
+  `/3` fingerprints compared against new runs show height/position "adapted" on
+  bosses with end treatments. End treatments require a convex end junction and
+  boss-relative size bounds; concave turned fillets now report their actual side.
 
 ## 0.2.4 (2026-10-29)
 

@@ -697,10 +697,21 @@ fn correspondence_problems(
                     f.family == "fillets" && f.traits.get("side").is_some_and(|s| s == "concave")
                 })
                 .collect();
-            assert_eq!(rounds.len(), 6);
-            for round in &rounds {
-                assert_eq!(round.sizes["radius"], 40.);
-            }
+            // For #134, the two turned R10 root rounds now correctly report
+            // concave too. Keep the six R40 web rounds and the exact face pins.
+            assert_eq!(rounds.len(), 8);
+            assert_eq!(
+                rounds.iter().filter(|f| f.sizes["radius"] == 40.).count(),
+                6
+            );
+            assert_eq!(
+                rounds
+                    .iter()
+                    .filter(|f| f.sizes["radius"] == 10.
+                        && f.traits.get("turned").is_some_and(|v| v == "true"))
+                    .count(),
+                2
+            );
             // For #127 after #128, only the six convex R10 profiles remain residual.
             // They share this exact symmetry, without relaxing main's fillet or face pins.
             let profiles: Vec<_> = old

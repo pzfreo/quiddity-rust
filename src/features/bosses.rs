@@ -78,89 +78,154 @@ fn free_end(lo: End, hi: End, relative_body_origin: Option<f64>) -> (bool, bool)
     }
 }
 
-/// Extend only through proved coaxial edge treatments adjoining an axial end. A shoulder
-/// or a neighbouring cylindrical band cannot lengthen this boss. Keep consulted faces in
-/// context: the cylinder still defines the boss, and the treatment can define its own feature.
-fn treated_extent(ctx: &Context<'_>, seg: &Segment) -> (f64, f64, Vec<usize>) {
-    let part = ctx.part;
-    let neighbours: Vec<_> = seg.faces.iter().flat_map(|&f| part.neighbours(f)).collect();
-    let coaxial = |face: usize| match part.faces[face].surface {
-        Surface::Cone { frame, .. } | Surface::Torus { frame, .. } => coaxial_axis_lines(
-            frame.origin,
-            frame.z,
-            seg.axis_point,
-            seg.direction,
-            super::policy::length_tol(seg.diameter, 1e-4),
-        ),
-        _ => false,
-    };
-    let (mut lo, mut hi) = (seg.s_lo, seg.s_hi);
-    let mut context = Vec::new();
-    // A spherical end round is tangent to the cylinder only at its equator: its centre
-    // lies on this axis at an end, and its radius is the boss radius. A ball/bead of a
-    // different radius or a side-contact sphere supplies no axial end evidence.
-    for &face in &neighbours {
-        if let Surface::Sphere { frame, radius } = part.faces[face].surface {
-            let s = geom::dot(frame.origin, seg.direction);
-            if (2. * radius - seg.diameter).abs() <= COORD_FLOOR
-                && geom::dist(frame.origin, axis_point_at(seg, s)) <= COORD_FLOOR
-                && ((s - seg.s_lo).abs() <= COORD_FLOOR || (s - seg.s_hi).abs() <= COORD_FLOOR)
-                && part.frame_points_outward(face) == Some(true)
-            {
-                let (a, b) = part.extent_along(&[face], seg.direction);
-                if a >= seg.s_hi - COORD_FLOOR || b <= seg.s_lo + COORD_FLOOR {
-                    lo = lo.min(a);
-                    hi = hi.max(b);
-                    context.push(face);
-                }
-            }
-        }
-    }
-    if !neighbours.iter().any(|&f| coaxial(f)) {
-        return (lo, hi, context);
-    }
-    for treatment in ctx.edge_treatments() {
-        for &face in &treatment.defining {
-            if !neighbours.contains(&face) || !coaxial(face) {
-                continue;
-            }
-            let (a, b) = part.extent_along(&treatment.defining, seg.direction);
-            if (a >= seg.s_hi - COORD_FLOOR && b > seg.s_hi + COORD_FLOOR)
-                || (b <= seg.s_lo + COORD_FLOOR && a < seg.s_lo - COORD_FLOOR)
-            {
-                lo = lo.min(a);
-                hi = hi.max(b);
-                context.extend(&treatment.defining);
-                context.extend(&treatment.context);
-            }
-        }
-    }
-    context.sort_unstable();
-    context.dedup();
-    (lo, hi, context)
+/// Internal measurements are cached with recognition, including the unrounded midpoint.
+pub(super) struct Analysis {
+    found: Vec<Occurrence<BossRecord>>,
+    midpoints: Vec<V3>,
 }
 
-/// Fingerprint placement uses the measured midpoint, before two-decimal height publication.
-/// In particular, interchangeable end gauges must yield exactly the same physical midpoint.
+struct Treatment {
+    face: usize,
+    lo: f64,
+    hi: f64,
+    context: Vec<usize>,
+}
+
+/// An end break is subordinate to its own boss: neither leg may exceed the radius or
+/// half the straight cylindrical length. This rejects a long taper even on a large part.
+/// At a smooth round, convexity is the tube/sphere material side, not tangency alone.
+fn end_treatments(ctx: &Context<'_>, seg: &Segment) -> Vec<Treatment> {
+    use crate::kernel::brep::Arc;
+    let part = ctx.part;
+    let limit = (seg.diameter / 2.).min((seg.s_hi - seg.s_lo) / 2.);
+    let neighbours: std::collections::BTreeSet<_> =
+        seg.faces.iter().flat_map(|&f| part.neighbours(f)).collect();
+    let mut out = Vec::new();
+    for face in neighbours {
+        let surface = &part.faces[face].surface;
+        let smooth_convex = match *surface {
+            Surface::Cone { frame, .. } | Surface::Torus { frame, .. } => {
+                if !coaxial_axis_lines(
+                    frame.origin,
+                    frame.z,
+                    seg.axis_point,
+                    seg.direction,
+                    super::policy::length_tol(seg.diameter, 1e-4),
+                ) {
+                    continue;
+                }
+                if let Surface::Torus { minor, .. } = *surface {
+                    let Some((_, _, v0, v1)) = part.uv_bounds(face) else {
+                        continue;
+                    };
+                    let mut radii = vec![minor * v0.cos(), minor * v1.cos()];
+                    for k in (v0 / std::f64::consts::PI).ceil() as i32
+                        ..=(v1 / std::f64::consts::PI).floor() as i32
+                    {
+                        radii.push(minor * (f64::from(k) * std::f64::consts::PI).cos());
+                    }
+                    let leg = radii.iter().copied().fold(f64::NEG_INFINITY, f64::max)
+                        - radii.iter().copied().fold(f64::INFINITY, f64::min);
+                    if leg > limit + COORD_FLOOR
+                        || super::fillets::torus_side(part, face) != Some("convex")
+                    {
+                        continue;
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+            Surface::Sphere { frame, radius } => {
+                let s = geom::dot(frame.origin, seg.direction);
+                if (2. * radius - seg.diameter).abs() > COORD_FLOOR
+                    || geom::dist(frame.origin, axis_point_at(seg, s)) > COORD_FLOOR
+                    || part.frame_points_outward(face) != Some(true)
+                {
+                    continue;
+                }
+                true
+            }
+            _ => continue,
+        };
+        let junctions: Vec<_> = seg
+            .faces
+            .iter()
+            .filter(|&&f| part.neighbours(f).contains(&face))
+            .map(|&f| part.arc(f, face))
+            .collect();
+        if junctions.is_empty()
+            || !junctions
+                .iter()
+                .all(|a| *a == Some(Arc::Convex) || (smooth_convex && *a == Some(Arc::Smooth)))
+        {
+            continue;
+        }
+        let (lo, hi) = part.extent_along(&[face], seg.direction);
+        let extension = if lo >= seg.s_hi - COORD_FLOOR {
+            hi - seg.s_hi
+        } else if hi <= seg.s_lo + COORD_FLOOR {
+            seg.s_lo - lo
+        } else {
+            continue;
+        };
+        if extension <= COORD_FLOOR || extension > limit + COORD_FLOOR {
+            continue;
+        }
+        let mut context = vec![face];
+        if !matches!(surface, Surface::Sphere { .. }) {
+            let Some(treatment) = ctx
+                .edge_treatments()
+                .iter()
+                .find(|o| o.defining.contains(&face))
+            else {
+                continue;
+            };
+            if matches!(surface, Surface::Cone { .. }) {
+                let Some(((r0, _), (r1, _), _)) = super::turned::cone_rims(part, face) else {
+                    continue;
+                };
+                if r1 - r0 > limit + COORD_FLOOR {
+                    continue;
+                }
+            }
+            context.extend(&treatment.defining);
+            context.extend(&treatment.context);
+        }
+        out.push(Treatment {
+            face,
+            lo,
+            hi,
+            context,
+        });
+    }
+    out
+}
+
+/// Fingerprints reuse the unrounded midpoint from the same recognition analysis.
 pub(crate) fn midpoint(ctx: &Context<'_>, boss: &BossRecord, faces: &[usize]) -> V3 {
-    let (s_lo, s_hi) = ctx.part.extent_along(faces, boss.axis);
-    let seg = Segment {
-        solid: 0,
-        axis: 0,
-        external: true,
-        diameter: boss.diameter,
-        direction: boss.axis,
-        axis_point: boss.location,
-        s_lo,
-        s_hi,
-        faces: faces.to_vec(),
-    };
-    let (lo, hi, _) = treated_extent(ctx, &seg);
-    axis_point_at(&seg, (lo + hi) / 2.)
+    let analysis = ctx.boss_analysis();
+    if let Some(i) = analysis.found.iter().position(|o| o.defining == faces) {
+        return analysis.midpoints[i];
+    }
+    // Caller-supplied feature records can lack a corresponding recognised segment.
+    let (lo, hi) = ctx.part.extent_along(faces, boss.axis);
+    geom::add(
+        boss.location,
+        geom::scale(
+            boss.axis,
+            (lo + hi) / 2. - geom::dot(boss.location, boss.axis),
+        ),
+    )
 }
 
 internal_entry! {
 pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
+    ctx.boss_analysis().found.clone()
+}
+}
+
+pub(super) fn analyse(ctx: &Context<'_>) -> Analysis {
     let part = ctx.part;
     let (z, cross) = z_then_cross(ctx.cylinders());
     let external: Vec<_> = full_cylinders(&z)
@@ -170,15 +235,27 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
         .collect();
     let mut out = Vec::new();
     let mut origins = BTreeMap::new();
-    for seg in segments(&external) {
-        let (lo_state, lo_faces) = classify_end(part, &seg, seg.s_lo, false);
-        let (hi_state, hi_faces) = classify_end(part, &seg, seg.s_hi, true);
+    let segments = segments(&external);
+    let candidates: Vec<_> = segments
+        .iter()
+        .map(|seg| end_treatments(ctx, seg))
+        .collect();
+    let mut owners = BTreeMap::<usize, usize>::new();
+    for end in &candidates {
+        for treatment in end {
+            *owners.entry(treatment.face).or_default() += 1;
+        }
+    }
+    let mut midpoints = Vec::new();
+    for (seg, treatments) in segments.iter().zip(candidates) {
+        let (lo_state, lo_faces) = classify_end(part, seg, seg.s_lo, false);
+        let (hi_state, hi_faces) = classify_end(part, seg, seg.s_hi, true);
         let relative_origin = if (lo_state == End::Open) == (hi_state == End::Open) {
             origins
                 .entry(seg.solid)
                 .or_insert_with(|| body_origin(part, seg.solid))
                 .map(|origin| {
-                    let middle = axis_point_at(&seg, (seg.s_lo + seg.s_hi) / 2.);
+                    let middle = axis_point_at(seg, (seg.s_lo + seg.s_hi) / 2.);
                     geom::dot(geom::sub(origin, middle), seg.direction)
                 })
         } else {
@@ -199,7 +276,18 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
             (lo_state, lo_faces)
         };
         let d = seg.direction;
-        let (lo, hi, mut treatment_faces) = treated_extent(ctx, &seg);
+        let (mut lo, mut hi) = (seg.s_lo, seg.s_hi);
+        let mut treatment_faces = Vec::new();
+        for treatment in treatments {
+            // Ambiguity cannot make one physical span lengthen two bosses.
+            if owners[&treatment.face] != 1 {
+                continue;
+            }
+            lo = lo.min(treatment.lo);
+            hi = hi.max(treatment.hi);
+            treatment_faces.extend(treatment.context);
+        }
+        midpoints.push(axis_point_at(seg, (lo + hi) / 2.));
         treatment_faces.extend(if presentation && free_state == End::Open {
             gauge_faces
         } else if free_state == End::Open {
@@ -212,7 +300,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
         out.push(Occurrence {
             record: BossRecord {
                 axis: if from_hi { d } else { geom::scale(d, -1.0) }.map(py::without_negative_zero),
-                location: axis_point_at(&seg, if from_hi { hi } else { lo }),
+                location: axis_point_at(seg, if from_hi { hi } else { lo }),
                 diameter: seg.diameter,
                 height: py::round_to(hi - lo, 2),
             },
@@ -220,6 +308,8 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<BossRecord>> {
             context: treatment_faces,
         });
     }
-    out
-}
+    Analysis {
+        found: out,
+        midpoints,
+    }
 }
