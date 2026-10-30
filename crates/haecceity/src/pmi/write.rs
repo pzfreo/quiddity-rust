@@ -3167,7 +3167,10 @@ impl<'a> PartPlan<'a> {
         let general = general.map(|item| ((), item));
         for (_i, g) in general {
             if let GeneralTolerance::Table { name, cells } = g {
+                #[cfg(feature = "json")]
                 let _table = self.tolerance_table(em, pds, name, cells)?;
+                #[cfg(not(feature = "json"))]
+                self.tolerance_table(em, pds, name, cells)?;
                 #[cfg(feature = "json")]
                 self.identify(em, "general", _i, _table)?;
             }
