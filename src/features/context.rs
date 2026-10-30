@@ -31,6 +31,7 @@ pub struct Context<'a> {
     bosses: OnceLock<super::bosses::Analysis>,
     edge_treatments: OnceLock<Vec<super::evidence::Occurrence<()>>>,
     skins: Vec<OnceLock<Option<super::plates::Skin>>>,
+    surface_moments: Vec<OnceLock<Option<crate::kernel::mass::FaceMoments>>>,
     signatures: OnceLock<Vec<Option<BodyKey>>>,
     section_passages: OnceLock<Result<Vec<Found>, PassageError>>,
 }
@@ -51,6 +52,7 @@ internal_entry! {
             bosses: OnceLock::new(),
             edge_treatments: OnceLock::new(),
             skins: part.faces.iter().map(|_| OnceLock::new()).collect(),
+            surface_moments: part.faces.iter().map(|_| OnceLock::new()).collect(),
             signatures: OnceLock::new(),
             section_passages: OnceLock::new(),
         }
@@ -87,6 +89,15 @@ internal_entry! {
 
     pub(super) fn skin(&self, face: usize) -> Option<&super::plates::Skin> {
         self.skins[face].get_or_init(|| super::plates::measure_skin(self, face)).as_ref()
+    }
+
+    /// Shared by the boss's body-relative origin and constant-Jacobian skin strips.
+    pub(super) fn surface_moments(&self, face: usize) -> Option<crate::kernel::mass::FaceMoments> {
+        *self.surface_moments[face].get_or_init(|| self.part.face_moments(face))
+    }
+
+    pub(crate) fn measured_surface_moments(&self, face: usize) -> Option<crate::kernel::mass::FaceMoments> {
+        self.surface_moments[face].get().copied().flatten()
     }
 
     /// The point classifier for the whole part.

@@ -42,7 +42,8 @@ pub fn discover_verified(ctx: &Context<'_>) -> Result<Vec<Occurrence<BossRecord>
 
 /// An intrinsic body-relative origin, using the boundary-area distribution already cached by
 /// the kernel. Missing surface measurements cannot establish a direction.
-fn body_origin(part: &Part, solid: usize) -> Option<V3> {
+fn body_origin(ctx: &Context<'_>, solid: usize) -> Option<V3> {
+    let part = ctx.part;
     let faces = part
         .solids
         .get(solid)
@@ -50,7 +51,7 @@ fn body_origin(part: &Part, solid: usize) -> Option<V3> {
     let weighted = faces
         .into_iter()
         .map(|f| {
-            let moments = part.face_moments(f)?;
+            let moments = ctx.surface_moments(f)?;
             Some((moments.area, moments.centroid))
         })
         .collect::<Option<Vec<_>>>()?;
@@ -256,7 +257,7 @@ pub(super) fn analyse(ctx: &Context<'_>) -> Analysis {
         let relative_origin = if (lo_state == End::Open) == (hi_state == End::Open) {
             origins
                 .entry(seg.solid)
-                .or_insert_with(|| body_origin(part, seg.solid))
+                .or_insert_with(|| body_origin(ctx, seg.solid))
                 .map(|origin| {
                     let middle = axis_point_at(seg, (seg.s_lo + seg.s_hi) / 2.);
                     geom::dot(geom::sub(origin, middle), seg.direction)

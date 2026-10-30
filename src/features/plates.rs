@@ -375,6 +375,14 @@ pub(super) fn measure_skin(ctx: &Context<'_>, face: usize) -> Option<Skin> {
                     .zip(part.face_centre(g))
                     .zip(unit_plane_normal(part, g))
                     .map(|(([area, _], centre), n)| (area * geom::dot(n, normal), centre))
+            } else if matches!(part.faces[g].surface, Surface::Cone { frame, .. }
+                if geom::norm(geom::cross(frame.z, normal)) <= 1e-12)
+            {
+                // A cone's outward normal has constant axial component. Its axial
+                // projection therefore has the same centroid as its surface area.
+                // Reuse these moments when the boss's body origin reads this face.
+                ctx.surface_moments(g)
+                    .map(|m| (geom::dot(m.area_vector, normal), m.centroid))
             } else {
                 part.face_projected_moments(g, normal)
             };

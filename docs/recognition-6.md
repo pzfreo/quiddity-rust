@@ -608,5 +608,9 @@ standalone treatment presentation. Turned fillets report their actual convex or
 concave material side. Recognition and fingerprinting share the same Context,
 reported treatment proofs, boss measurements and supporting-skin moments; plate
 coverage and fingerprint placement use one projection/deduplication implementation.
+Planar strips reuse planar area/centroid measurements. A cone's axial projection
+has a constant normal component, so its surface moments also measure that strip;
+the same moments are carried rigidly into its face fingerprint instead of being
+integrated again. Other projection directions retain signed surface quadrature.
 haecceity's kernel and PMI models do not consume `BossRecord.height`, and PMI face
 anchors continue to refer to the original defining faces. No PMI schema changes.

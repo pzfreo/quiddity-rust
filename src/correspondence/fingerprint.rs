@@ -1142,7 +1142,21 @@ fn fingerprint_with_axes(
     motion: Option<&crate::framed_records::Rigid>,
     axis: impl Fn(&str, &str, &Value) -> Option<V3>,
 ) -> Fingerprints {
-    let faces: Vec<FaceFingerprint> = (0..part.faces.len()).map(|i| face(part, i)).collect();
+    let faces: Vec<FaceFingerprint> = (0..part.faces.len())
+        .map(|i| {
+            // Axial cone-strip projection already integrated these same surface moments.
+            // Carry that measurement into file coordinates instead of integrating it again.
+            let measured = matches!(ctx.part.faces[i].surface, Surface::Cone { .. })
+                .then(|| ctx.measured_surface_moments(i))
+                .flatten()
+                .map(|m| FaceMeasure {
+                    area: m.area,
+                    centroid: motion.map_or(m.centroid, |r| r.point(m.centroid)),
+                    area_vector: motion.map_or(m.area_vector, |r| r.direction(m.area_vector)),
+                });
+            face(part, i, measured)
+        })
+        .collect();
     let scale = faces
         .iter()
         .filter_map(|f| f.area)
@@ -1857,11 +1871,26 @@ fn surface_name(s: &Surface) -> String {
     }
 }
 
-fn face(part: &Part, i: usize) -> FaceFingerprint {
+#[derive(Clone, Copy)]
+struct FaceMeasure {
+    area: f64,
+    centroid: V3,
+    area_vector: V3,
+}
+
+fn face(part: &Part, i: usize, measured: Option<FaceMeasure>) -> FaceFingerprint {
     let surface = effective(part, i);
     // A face whose quadrature gives no area (a kernel failure: such faces exist) is fingerprinted
     // as one of unknown area.
-    let moments = part.face_moments(i).filter(|m| m.area > 1e-9);
+    let moments = measured
+        .or_else(|| {
+            part.face_moments(i).map(|m| FaceMeasure {
+                area: m.area,
+                centroid: m.centroid,
+                area_vector: m.area_vector,
+            })
+        })
+        .filter(|m| m.area > 1e-9);
     let centroid = moments.map(|m| m.centroid).unwrap_or_else(|| {
         let (mut sum, mut n) = ([0.0; 3], 0usize);
         for e in part.face_edges(i) {

@@ -27,6 +27,19 @@ fn gramil_end_chamfer_preserves_boss_height_and_plate_but_shortening_does_not() 
         near(*plates[0].record.lo, lo);
         near(*plates[0].record.hi, hi);
         near(plates[0].record.v, 0.190838914);
+        // For #134: reusing a cone's projection integration in framed fingerprinting
+        // must preserve the physical face area and centroid in file coordinates.
+        let reading = quiddity::correspondence::recognise(&p);
+        for (f, face) in p.faces.iter().enumerate() {
+            if matches!(face.surface, Surface::Cone { .. }) {
+                let measured = p.face_moments(f).unwrap();
+                near(reading.fingerprints.faces[f].area.unwrap(), measured.area);
+                near(
+                    geom::dist(reading.fingerprints.faces[f].centroid, measured.centroid),
+                    0.,
+                );
+            }
+        }
     }
 }
 
