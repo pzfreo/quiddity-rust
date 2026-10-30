@@ -65,7 +65,10 @@ The ladder reuses Draftwright's shortest-first nesting rule (`dims/placement.rs:
 sort spans ascending, breaking ties by semantic order; allocate successive outward rungs per
 parallel direction and side. At text height h, the first offset is 10h/3, subsequent steps
 7h/3, extension gap h/3 and overshoot 2h/3. Labels conflicting with existing annotation ink
-advance to the next rung. This is model-space dimension geometry, not sheet placement.
+advance to the next rung. Shaft lengths use the upper side, clear of the retained datum and
+control frames below; other distances use the nearer side. Front XZ text reads from -Y, top
+XY from +Z, independently of which direction the extensions run. This is model-space
+dimension geometry, not sheet placement.
 Boundary witnesses provide a general fallback when an element has no analytic plane/axis;
 the writer never changes the nominal or manufactures a span to fit it. A target with no two
 measurable witnesses retains notation. Curved-distance and angular graphics retain the

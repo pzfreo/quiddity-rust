@@ -271,7 +271,17 @@ fn pair(
                 geom::add(a.bounds(part).centre(), b.bounds(part).centre()),
                 0.5,
             );
-            if geom::dot(geom::sub(centre, part.bounds().centre()), v) < -1e-9 {
+            let axial_rod = (0..3).any(|k| {
+                let transverse = (0..3)
+                    .filter(|&j| j != k)
+                    .map(|j| part.bounds().max[j] - part.bounds().min[j])
+                    .fold(0., f64::max);
+                geom::dot(d, AXES[k]).abs() > 1. - 1e-8
+                    && part.bounds().max_extent() > 3. * transverse
+            });
+            // Shaft lengths sit above the part, clear of the retained datum/control frames
+            // below it. Other distances use the nearer side of their measured elements.
+            if !axial_rod && geom::dot(geom::sub(centre, part.bounds().centre()), v) < -1e-9 {
                 v = geom::scale(v, -1.);
             }
             let ar = range(a.bounds(part), w);
@@ -438,7 +448,12 @@ impl Ladder {
     pub fn draw(&mut self, m: &Measurement, c: &Callout) -> LinearPlaced {
         let d = m.direction;
         let v = m.outward;
-        let normal = canonical(geom::cross(d, v));
+        // Front XZ reads from -Y; top XY from +Z; side YZ from +X.
+        // Text orientation is independent of which side the extensions run toward.
+        let mut normal = canonical(geom::cross(d, v));
+        if geom::dominant_axis_preferring_z(normal) == 1 {
+            normal = geom::scale(normal, -1.);
+        }
         let up = geom::cross(normal, d);
         let length = m.length();
         let h = self.bounds.max_extent() / 125.;
@@ -574,6 +589,28 @@ mod tests {
             elements(&part, &p, FeatureId(0), 0)[0].point(&part),
             [1., 2., 3.]
         );
+    }
+    #[test]
+    fn both_sides_read_from_the_same_front_or_top_view() {
+        for (d, v, normal) in [
+            ([1., 0., 0.], [0., 0., 1.], [0., -1., 0.]),
+            ([1., 0., 0.], [0., 1., 0.], [0., 0., 1.]),
+        ] {
+            for sign in [-1., 1.] {
+                let m = Measurement {
+                    feet: [[0.; 3], geom::scale(d, 10.)],
+                    direction: d,
+                    outward: geom::scale(v, sign),
+                };
+                let p = Ladder::new(Bounds {
+                    min: [-10.; 3],
+                    max: [10.; 3],
+                })
+                .draw(&m, &super::super::label("10"));
+                assert!(geom::dist(p.placed.normal, normal) < 1e-12);
+                assert_eq!(p.placed.along, d);
+            }
+        }
     }
     #[test]
     fn arrow_triangles_and_text_keep_their_frame_in_a_rotated_plane() {

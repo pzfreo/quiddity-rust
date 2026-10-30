@@ -5649,6 +5649,13 @@ fn sample_linear_dimensions(doc: &Document, read: &PmiRead, def: &PartDefinition
     let length = bounds.max_extent();
     let gap = length / 125. / 3.;
     let p = &read.parts[0];
+    let fixed:Vec<_>=doc.ids().filter_map(|id| {
+        if !matches!(doc.get(id),Some(RawEntity::Simple{name,..})if name.eq_ignore_ascii_case("draughting_callout")){return None;}
+        let occurrence=refs_of(doc,id)[0];let set=*refs_of(doc,occurrence).last().unwrap();
+        if test_attribute(doc,set,"representation_item","name")==Some(&Attribute::String("linear dimension".into())) {return None;}
+        let lines=graphic_lines(doc,id);let mut b=Bounds::empty();for p in lines.iter().take(lines.len()-1).flatten(){b.add(*p);}
+        Some((id,b,annotation_basis(doc,id).1))
+    }).collect();
     let mut labels = Vec::new();
     let mut ladder = Vec::new();
     let mut linear_count = 0;
@@ -5690,6 +5697,20 @@ fn sample_linear_dimensions(doc: &Document, read: &PmiRead, def: &PartDefinition
             geom::sub(lines[1][0], geom::scale(v, gap)),
         ];
         let ends = [lines[2][0], *lines[3].last().unwrap()];
+        for (other, b, normal) in &fixed {
+            if geom::dot(n, *normal).abs() > 1. - 1e-8 {
+                let axes: Vec<_> = (0..3).filter(|&k| n[k].abs() < 0.5).collect();
+                if axes.len() == 2 {
+                    assert!(
+                        !axes
+                            .iter()
+                            .all(|&k| ends[0][k].min(ends[1][k]) < b.max[k] - 1e-8
+                                && ends[0][k].max(ends[1][k]) > b.min[k] + 1e-8),
+                        "dimension #{callout} crosses retained annotation #{other}"
+                    );
+                }
+            }
+        }
         let span = geom::sub(ends[1], ends[0]);
         let nominal = d.nominal.as_ref().unwrap().si().abs();
         assert!(
