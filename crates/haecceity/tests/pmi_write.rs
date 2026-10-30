@@ -5364,7 +5364,7 @@ fn sample_placement(doc: &Document, bounds: haecceity::geom::Bounds, expected: u
         count += 1;
         let occurrence = refs_of(doc, callout)[0];
         let set = *refs_of(doc, occurrence).last().unwrap();
-        if test_attribute(doc,set,"representation_item","name") == Some(&Attribute::String("linear dimension".into())) { continue; }
+        if test_attribute(doc,set,"representation_item","name") == Some(&Attribute::String("linear dimension".into())) || test_attribute(doc,set,"representation_item","name") == Some(&Attribute::String("note".into())) { continue; }
         let curves = refs_of(doc, set)[0];
         let coords = refs_of(doc, curves)[0];
         let Some(Attribute::List(points)) = test_attribute(doc, coords, "coordinates_list", "position_coords") else { panic!("coordinates") };
@@ -5398,10 +5398,10 @@ fn sample_placement(doc: &Document, bounds: haecceity::geom::Bounds, expected: u
 #[cfg(feature = "presentation")]
 #[test]
 fn all_three_specify_samples_have_real_linear_dimensions_and_local_callouts() {
-    for (name, dims, tols, count) in [
-        ("spindle", 9, 2, 13),
-        ("plate", 21, 2, 26),
-        ("corners-flatness", 12, 2, 17),
+    for (name, dims, tols, count, with_settings) in [
+        ("spindle", 9, 2, 13, 14),
+        ("plate", 21, 2, 26, 27),
+        ("corners-flatness", 12, 2, 17, 18),
     ] {
         println!("sample {name}");
         let f = fixture(&format!("ap242/presentation-placement/{name}.step.gz"));
@@ -5414,7 +5414,8 @@ fn all_three_specify_samples_have_real_linear_dimensions_and_local_callouts() {
         let w = written(&f, p);
         assert_verified(&f, &w, p);
         assert!(new_violations(&f.doc, &w.doc).is_empty());
-        sample_placement(&w.doc, bounds, count);
+        sample_placement(&w.doc, bounds, with_settings);
+        assert_notes_clear(&w.doc);
         sample_linear_dimensions(&w.doc, &w.read, &f.parts[0]);
         sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
     }
@@ -5511,7 +5512,12 @@ fn spindle_datums_have_complete_links_and_circular_edges() {
 }
 
 fn graphic_lines(doc: &Document, callout: u64) -> Vec<Vec<haecceity::geom::V3>> {
-    let occurrence = refs_of(doc, callout)[0];
+    refs_of(doc, callout)
+        .into_iter()
+        .flat_map(|occurrence| occurrence_lines(doc, occurrence))
+        .collect()
+}
+fn occurrence_lines(doc: &Document, occurrence: u64) -> Vec<Vec<haecceity::geom::V3>> {
     let set = *refs_of(doc, occurrence).last().unwrap();
     let curve = refs_of(doc, set)[0];
     let coords = refs_of(doc, curve)[0];
@@ -5666,6 +5672,8 @@ fn sample_datums_and_frames(doc: &Document, read: &PmiRead, def: &PartDefinition
         if kind == &Attribute::String("datum".into())
             || kind == &Attribute::String("linear dimension".into())
             || kind == &Attribute::String("diameter dimension".into())
+            || kind == &Attribute::String("note".into())
+            || kind == &Attribute::String("surface roughness".into())
         {
             continue;
         }
@@ -6490,4 +6498,313 @@ fn add_locations_keep_foreign_datum_features_and_reuse_their_components() {
         })
         .collect();
     assert_eq!(components.len(), 2, "reuse both original face carriers");
+}
+
+#[cfg(feature = "presentation")]
+fn settings_pmi() -> PartPmi {
+    let note = |kind: &str, text: &str, index| AttributeSet {
+        name: "semantic text".into(),
+        on: None,
+        description: None,
+        general_property: None,
+        items: vec![
+            (kind.into(), AttributeValue::Text(text.into())),
+            ("note index".into(), AttributeValue::Integer(index)),
+        ],
+    };
+    PartPmi {
+        features: vec![faces(&[0])],
+        datums: vec![datum("A", 0)],
+        material: Some(Material {
+            id: "6082-T6".into(),
+            name: None,
+            density: None,
+        }),
+        general: vec![GeneralTolerance::Class {
+            text: "ISO 2768-m".into(),
+            standard: Some(pmi::standards::Iso2768::recognise("ISO 2768-m").unwrap()),
+        }],
+        surface_textures: textures(Some(FeatureId(0))),
+        attributes: vec![
+            note("general note", "Second note", 2),
+            note("heat treatment", "T6", 0),
+            note("surface treatment", "Anodise black", 0),
+            note("edge condition", "Break sharp edges 0.2 max", 0),
+            note("general note", "First note", 1),
+        ],
+        ..PartPmi::default()
+    }
+}
+
+#[cfg(feature = "presentation")]
+#[test]
+fn written_settings_have_one_notes_block_and_face_texture_symbols_with_valid_links() {
+    use haecceity::{geom, presentation};
+    let f = gap_spool();
+    let p = settings_pmi();
+    let w = written(&f, &p);
+    assert_verified(&f, &w, &p);
+    assert_reads_back(&w, PartId(0), &p);
+    assert!(new_violations(&f.doc, &w.doc).is_empty());
+    let callouts: Vec<_> = w
+        .added()
+        .into_iter()
+        .filter(|&id| w.names(id) == ["draughting_callout"])
+        .collect();
+    assert_eq!(callouts.len(), 3, "datum, face texture, general notes");
+    let note = *callouts
+        .iter()
+        .find(|&&id| w.text(id).contains("GENERAL NOTES"))
+        .unwrap();
+    let expected = std::iter::once("GENERAL NOTES".to_owned())
+        .chain(
+            presentation::notes::general_notes(&p)
+                .iter()
+                .map(|r| r.text.clone()),
+        )
+        .collect::<Vec<_>>()
+        .join("\n");
+    assert_eq!(
+        test_attribute(&w.doc, note, "representation_item", "name"),
+        Some(&Attribute::String(expected))
+    );
+    let occurrences = refs_of(&w.doc, note);
+    assert_eq!(
+        occurrences.len(),
+        8,
+        "one occurrence per property; header shares the first"
+    );
+    let mut note_points = Vec::new();
+    let mut properties = BTreeSet::new();
+    for occurrence in occurrences {
+        let set = *refs_of(&w.doc, occurrence).last().unwrap();
+        assert_eq!(
+            test_attribute(&w.doc, set, "representation_item", "name"),
+            Some(&Attribute::String("note".into()))
+        );
+        // Each property links its own occurrence, keeping IIRU UR1 and UR2 satisfied.
+        let links: Vec<_> = w
+            .added()
+            .into_iter()
+            .filter(|&id| {
+                w.names(id) == ["draughting_model_item_association"]
+                    && refs_of(&w.doc, id).last() == Some(&occurrence)
+            })
+            .collect();
+        assert_eq!(links.len(), 1);
+        let ids = refs_of(&w.doc, links[0]);
+        assert_eq!(w.names(ids[0]), ["property_definition"]);
+        assert_eq!(w.names(ids[1]), ["draughting_model"]);
+        assert_eq!(
+            test_attribute(
+                &w.doc,
+                links[0],
+                "item_identified_representation_usage",
+                "name"
+            ),
+            Some(&Attribute::String(
+                "PMI representation to presentation link".into()
+            ))
+        );
+        properties.insert(ids[0]);
+        let curves = refs_of(&w.doc, set)[0];
+        let coords = refs_of(&w.doc, curves)[0];
+        let Some(Attribute::List(points)) =
+            test_attribute(&w.doc, coords, "coordinates_list", "position_coords")
+        else {
+            panic!("coordinates")
+        };
+        for point in points {
+            let Attribute::List(xyz) = point else {
+                panic!("point")
+            };
+            let Attribute::Real(x) = xyz[0] else {
+                panic!("real")
+            };
+            note_points.push(x);
+        }
+    }
+    assert_eq!(properties.len(), 8);
+    let note_left = note_points.into_iter().fold(f64::INFINITY, f64::min);
+    for &callout in callouts.iter().filter(|&&id| id != note) {
+        assert!(
+            graphic_lines(&w.doc, callout)
+                .iter()
+                .flatten()
+                .all(|q| q[0] < note_left),
+            "notes must be clear of all other callout ink and leaders"
+        );
+    }
+    let texture = *callouts
+        .iter()
+        .find(|&&id| w.text(id).contains("Ra 0.8 Rz 4"))
+        .unwrap();
+    let links: Vec<_> = w
+        .added()
+        .into_iter()
+        .filter(|&id| {
+            w.names(id) == ["draughting_model_item_association"]
+                && refs_of(&w.doc, id).last() == Some(&texture)
+        })
+        .collect();
+    assert_eq!(links.len(), 1);
+    let ids = refs_of(&w.doc, links[0]);
+    assert_eq!(w.names(ids[0]), ["property_definition"]);
+    assert_eq!(
+        test_attribute(
+            &w.doc,
+            links[0],
+            "item_identified_representation_usage",
+            "name"
+        ),
+        Some(&Attribute::String(
+            "PMI representation to presentation link".into()
+        ))
+    );
+    let lines = graphic_lines(&w.doc, texture);
+    let leader = lines.last().unwrap();
+    let part = haecceity::step::read_part(f.doc.bytes(), &f.parts[0]).unwrap();
+    let (anchor, normal, _) =
+        presentation::placement::feature_site(&part, &p, FeatureId(0)).unwrap();
+    assert!(
+        geom::dist(anchor, leader[0]) < 2e-6,
+        "texture foot must be interior to its semantic face"
+    );
+    let (_, plane_normal, _) = annotation_basis(&w.doc, texture);
+    assert!(
+        geom::dot(normal, plane_normal).abs() < 1e-8,
+        "texture's plane contains the face normal"
+    );
+    assert!(geom::dot(normal, geom::unit(geom::sub(leader[1], leader[0])).unwrap()) > 1. - 1e-8);
+    let set = *refs_of(&w.doc, refs_of(&w.doc, texture)[0]).last().unwrap();
+    assert_eq!(
+        test_attribute(&w.doc, set, "representation_item", "name"),
+        Some(&Attribute::String("surface roughness".into()))
+    );
+}
+
+#[cfg(feature = "presentation")]
+#[test]
+fn absent_settings_add_no_notes_and_append_does_not_restate_foreign_settings() {
+    let f = gap_spool();
+    let original = written(&f, &settings_pmi());
+    let carried = open_bytes(original.doc.bytes().to_vec());
+    let no_settings = PartPmi::default();
+    let unchanged = write(&carried, &[(PartId(0), no_settings)], Mode::Add).unwrap();
+    assert_eq!(unchanged.doc.bytes(), carried.doc.bytes());
+    let new = PartPmi {
+        attributes: vec![AttributeSet {
+            name: "semantic text".into(),
+            on: None,
+            description: None,
+            general_property: None,
+            items: vec![(
+                "general note".into(),
+                AttributeValue::Text("Added only".into()),
+            )],
+        }],
+        ..PartPmi::default()
+    };
+    let w = write(&carried, &[(PartId(0), new.clone())], Mode::Add).unwrap();
+    assert_verified_as(&carried, &w, &new, Mode::Add);
+    for id in carried.doc.ids() {
+        assert_eq!(
+            &carried.doc.bytes()[carried.doc.span(id).unwrap()],
+            &w.doc.bytes()[w.doc.span(id).unwrap()],
+            "foreign entity #{id}"
+        );
+    }
+    assert_notes_clear(&w.doc);
+    let new_notes: Vec<_> = w
+        .added()
+        .into_iter()
+        .filter(|&id| w.names(id) == ["draughting_callout"])
+        .collect();
+    assert_eq!(new_notes.len(), 1);
+    assert_eq!(
+        test_attribute(&w.doc, new_notes[0], "representation_item", "name"),
+        Some(&Attribute::String("GENERAL NOTES\nAdded only".into()))
+    );
+    let blank = written(&f, &PartPmi::default());
+    assert!(
+        blank
+            .added()
+            .iter()
+            .all(|&id| blank.names(id) != ["draughting_callout"])
+    );
+}
+
+#[cfg(feature = "presentation")]
+fn assert_notes_clear(doc: &Document) {
+    let callouts:Vec<_> = doc.ids().filter(|&id| matches!(doc.get(id),Some(RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("draughting_callout"))).collect();
+    for &note in &callouts {
+        let occurrence = refs_of(doc, note)[0];
+        let set = *refs_of(doc, occurrence).last().unwrap();
+        if test_attribute(doc, set, "representation_item", "name")
+            != Some(&Attribute::String("note".into()))
+        {
+            continue;
+        }
+        let bounds = |id| {
+            let mut b = haecceity::geom::Bounds::empty();
+            for p in graphic_lines(doc, id).into_iter().flatten() {
+                b.add(p);
+            }
+            b
+        };
+        let a = bounds(note);
+        for &other in callouts.iter().filter(|&&id| id != note) {
+            let b = bounds(other);
+            let overlap = [0, 2]
+                .iter()
+                .all(|&k| a.min[k] < b.max[k] - 1e-8 && a.max[k] > b.min[k] + 1e-8);
+            assert!(
+                !overlap,
+                "note #{note} must clear all ink of callout #{other}: {a:?} / {b:?}"
+            );
+        }
+    }
+}
+
+#[cfg(feature = "presentation")]
+#[test]
+fn full_notes_and_face_finishes_clear_the_three_sample_parts_without_moving_dimensions() {
+    use haecceity::presentation;
+    for name in ["spindle", "plate", "corners-flatness"] {
+        let f = fixture(&format!("ap242/presentation-placement/{name}.step.gz"));
+        let read = pmi::read(&f.doc, &f.parts).unwrap();
+        let mut p = read.parts[0].clone();
+        let settings = settings_pmi();
+        p.material = settings.material;
+        p.general = settings.general;
+        p.attributes = settings.attributes;
+        let mut textures = settings.surface_textures;
+        let feature = p.datums[0].feature().unwrap();
+        textures[1].on = Some(feature);
+        p.surface_textures = textures;
+        let w = written(&f, &p);
+        assert_verified(&f, &w, &p);
+        assert_reads_back(&w, PartId(0), &p);
+        assert!(new_violations(&f.doc, &w.doc).is_empty());
+        assert_notes_clear(&w.doc);
+        sample_linear_dimensions(&w.doc, &w.read, &f.parts[0]);
+        sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
+        let textures: Vec<_> = w
+            .added()
+            .into_iter()
+            .filter(|&id| {
+                w.names(id) == ["draughting_callout"]
+                    && test_attribute(&w.doc, id, "representation_item", "name")
+                        == Some(&Attribute::String("Ra 0.8 Rz 4".into()))
+            })
+            .collect();
+        assert_eq!(textures.len(), 1, "{name}: one surface texture symbol");
+        let lines = graphic_lines(&w.doc, textures[0]);
+        let part = haecceity::step::read_part(f.doc.bytes(), &f.parts[0]).unwrap();
+        let (anchor, normal, _) =
+            presentation::placement::feature_site(&part, &p, feature).unwrap();
+        assert!(haecceity::geom::dist(lines.last().unwrap()[0], anchor) < 2e-6);
+        let (_, plane_normal, _) = annotation_basis(&w.doc, textures[0]);
+        assert!(haecceity::geom::dot(normal, plane_normal).abs() < 1e-8);
+    }
 }

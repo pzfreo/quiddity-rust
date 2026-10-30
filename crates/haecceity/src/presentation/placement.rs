@@ -45,6 +45,54 @@ impl Layout {
     pub fn text_height(&self) -> f64 {
         self.height
     }
+    /// Reserve completed graphics (including leaders) before placing the notes block.
+    pub fn reserve(&mut self, lines: &[Vec<V3>]) {
+        let mut b = Bounds::empty();
+        for &p in lines.iter().flatten() {
+            b.add(p);
+        }
+        if b.max_extent().is_finite() {
+            self.occupied.push(b);
+        }
+    }
+    /// Front-facing notes to the right of the part and every existing annotation.
+    /// The strict X separation also avoids overlap in front/top projections.
+    pub fn notes(&mut self, c: &Callout) -> Placed {
+        let scale = self.height / 3.;
+        let right = self
+            .occupied
+            .iter()
+            .map(|b| b.max[0])
+            .fold(self.bounds.max[0], f64::max);
+        let origin = [
+            right + 2. * self.height,
+            self.bounds.min[1],
+            self.bounds.max[2] - c.size[1] * scale,
+        ];
+        let lines = c
+            .polylines()
+            .into_iter()
+            .map(|l| {
+                l.into_iter()
+                    .map(|p| {
+                        [
+                            origin[0] + p[0] * scale,
+                            origin[1],
+                            origin[2] + p[1] * scale,
+                        ]
+                    })
+                    .collect()
+            })
+            .collect::<Vec<_>>();
+        self.reserve(&lines);
+        Placed {
+            anchor: origin,
+            origin,
+            normal: [0., -1., 0.],
+            along: [1., 0., 0.],
+            lines,
+        }
+    }
     fn along(&self, normal: V3) -> V3 {
         self.axes
             .iter()

@@ -27,7 +27,7 @@ shape is inherited (see [Anti-requirements](#anti-requirements)).
 
 `haecceity::presentation` owns requirement notation and local 2D callout geometry, ported
 at the copyright owner's direction from Draftwright aaa7a73 (`dims/tolerance.rs`,
-`dims/gdt.rs`; the initial `text.rs` outline port is replaced by Hershey strokes). Drawing precision, sheet layout, strips, lanes, authored wording,
+`dims/gdt.rs`; the initial `text.rs` outline port is replaced by Hershey strokes). Drawing precision, sheet layout, strips, lanes
 and Spec-authored controls remain in Draftwright; no Draftwright dependency is introduced.
 The `presentation` Cargo feature is **default-on** in haecceity and quiddity: Specify's
 ordinary writes must carry visible PMI. `default-features = false` retains semantic-only
@@ -98,7 +98,7 @@ Each callout is in an `ANNOTATION_PLANE`, placed near the feature. All planes be
 one part draughting model. The geometric-set wrapper is necessary for Solid Edge 2026
 to retain the annotation; the plane prevents misplaced graphics.
 
-Each callout has **one** `DRAUGHTING_MODEL_ITEM_ASSOCIATION`, named
+Each dimension, tolerance or datum callout has **one** `DRAUGHTING_MODEL_ITEM_ASSOCIATION`, named
 `PMI representation to presentation link`, to its semantic entity, using the part's
 `DRAUGHTING_MODEL`. Datums retain their datum-feature association. NIST STEP File Analyzer
 5.41 (PMI Recommended Practices §7.3) rejected the former feature links: their reserved name
@@ -176,6 +176,50 @@ cover every datum and multi-face aspect on the three samples. The maintainer's n
 will confirm typing on the regenerated output. Linear distances remain symbolic, as with
 NIST's own files. No `MBD_0` characterized object or mechanical-design/draughting saved-view
 relationship is added.
+
+Round 5 adds visibility for non-geometric requirements. `presentation::notes` ports
+Draftwright aaa7a73's `dims/gdt.rs::finish_symbol`, `title_block.rs::removal_marks`,
+`pmi_lowering.rs::part_note_text` and `notes.rs` heading. Face-specific textures get the
+ISO 1302 two-leg symbol, parameter bar, material-removal bar/circle and parameter rows
+in micrometres. Its leader starts at a trimmed-face interior point, in a plane containing
+the outward face normal. The geometric set is named `surface roughness` (PMI practice
+§8.4, Table 18), with the usual occurrence, callout, plane and shared part draughting model.
+The existing ISO 10303-1110 surface-texture property/parameter graph is unchanged. The
+model has no lay field; no lay or process requirement is inferred from geometry.
+
+A part with written settings gets one front-facing `GENERAL NOTES` block to the right of
+the part and all callout ink/extension lines, including kept foreign tessellated/polyline
+annotations (repositioned tessellated sets are transformed when reserving their space).
+Only submitted settings are stated, in this order: material identification; general
+tolerance classes; default finish parameters; edge condition; coating; heat treatment;
+free `general note` values sorted by their explicit `note index` (stable input order
+otherwise). Material/general-tolerance title cells become `MATERIAL: …` and
+`GENERAL TOLERANCES …`; a default becomes `SURFACE FINISH … UNLESS OTHERWISE STATED`.
+Draftwright's process wording is retained: qualify bare values with `Coating:` or
+`Heat treatment:`, but preserve authored process prose. Free notes retain their text.
+General-tolerance tables remain semantic tables, not invented class descriptions.
+All strings and symbol geometry are public through `haecceity::presentation::notes`.
+No settings means no block; lossless append does not restate carried properties.
+
+Surface texture callouts link their existing **PROPERTY_DEFINITION**; notes link each
+stated property to a separate annotation occurrence inside the one notes callout. This
+avoids inherited IIRU UR1/UR2 (several DMIAs cannot identify the same callout in one
+model). All these links use `PMI representation to presentation link` in the part's
+draughting model. [PMI practice §§7.3–7.4](https://www.mbx-if.org/home/wp-content/uploads/2024/06/rec_pracs_pmi_v41.pdf)
+support property-backed editable notes and annotation subsets. The
+[NIST SFA checker](https://github.com/usnistgov/SFA/blob/master/source/sfa-grafpmi.tcl#L973-L1004)
+explicitly exempts `property_definition` from its invalid-definition error and requires
+a draughting model; these are asserted in the writer graph tests, together with planes,
+styles, wrapper names, property coverage and non-overlap. This is a **source audit**, not
+an SFA execution verdict: its Windows IFCsvr runtime is unavailable here, and the local
+Parallels command failed initialization under the sandbox. The maintainer must run SFA
+5.41 on the generated samples. The preference for a property link follows that checker;
+no redundant feature association or symbol representation is added.
+
+Solid Edge's measured material import remains `Material (None)`, so material is visible
+as text only; surface texture is symbolic graphics. Neither behavior changes the semantic
+properties read by Specify/SFA. The original losslessly retained FILE_DESCRIPTION still
+may omit recommended-practice references; it is not rewritten to hide that SFA note.
 
 Feature-on writer goldens and fresh OpenCascade captures live in
 `tests/fixtures/ap242/write-presentation/`; `write/` holds feature-off output.

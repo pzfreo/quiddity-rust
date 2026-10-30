@@ -31,6 +31,33 @@ pub fn glyph(c: char) -> Option<(f64, Vec<Vec<P>>)> {
                 .collect(),
         ));
     }
+    // Accented lettering used by editable notes (e.g. the spindle's “café”).
+    // Keep the base Hershey strokes and draw the accent, never transliterate the stored text.
+    if let Some((base, accent)) = match c {
+        'é' => Some(('e', 1)),
+        'É' => Some(('E', 1)),
+        'è' => Some(('e', -1)),
+        'È' => Some(('E', -1)),
+        'à' => Some(('a', -1)),
+        'À' => Some(('A', -1)),
+        'á' => Some(('a', 1)),
+        'Á' => Some(('A', 1)),
+        _ => None,
+    } {
+        let (advance, mut ink) = glyph(base)?;
+        let centre = advance / 2.;
+        ink.push(if accent > 0 {
+            vec![[centre - 2., 24.], [centre + 3., 29.]]
+        } else {
+            vec![[centre - 3., 29.], [centre + 2., 24.]]
+        });
+        return Some((advance, ink));
+    }
+    if matches!(c, 'µ' | 'μ') {
+        let (advance, mut ink) = glyph('u')?;
+        ink.push(vec![[2., 14.], [2., -7.]]);
+        return Some((advance, ink));
+    }
     let mut lines = Vec::new();
     match c {
         '⌀' | 'ø' | 'Ø' => {

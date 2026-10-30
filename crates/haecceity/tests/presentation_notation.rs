@@ -355,3 +355,167 @@ fn physical_text_height_is_legible_across_small_and_large_parts_and_units() {
         }
     }
 }
+
+#[test]
+fn surface_texture_uses_draftwrights_iso_1302_legs_bar_and_removal_marks() {
+    use presentation::notes;
+    let mut t = SurfaceTexture {
+        on: Some(FeatureId(0)),
+        material_removal: MaterialRemoval::AnyProcessAllowed,
+        parameters: vec![
+            SurfaceTextureParameter {
+                characteristic: "Ra".into(),
+                value: Length {
+                    value: decimal("3.2"),
+                    unit: LengthUnit::Micrometre,
+                },
+            },
+            SurfaceTextureParameter {
+                characteristic: "Rz".into(),
+                value: Length {
+                    value: decimal("0.004"),
+                    unit: LengthUnit::Millimetre,
+                },
+            },
+        ],
+    };
+    assert_eq!(notes::texture_parameters(&t), ["Ra 3.2", "Rz 4"]);
+    let basic = notes::surface_texture(&t);
+    assert_eq!(basic.strokes.len(), 3);
+    assert!(basic.arcs.is_empty());
+    // Draftwright's short and long legs are 1.4 and 3 text heights, both at 60 degrees.
+    let short = basic.strokes[0];
+    let long = basic.strokes[1];
+    assert_eq!(short[1], long[0]);
+    for leg in [short, long] {
+        assert!(
+            ((leg[1][1] - leg[0][1]).abs() / (leg[1][0] - leg[0][0]).abs() - 3f64.sqrt()).abs()
+                < 1e-12
+        );
+    }
+    assert_eq!(short[0][1], 1.4 * 3.);
+    assert_eq!(long[1][1], 3. * 3.);
+    assert_eq!(
+        basic
+            .runs
+            .iter()
+            .map(|r| r.text.as_str())
+            .collect::<Vec<_>>(),
+        ["Ra 3.2", "Rz 4"]
+    );
+    t.material_removal = MaterialRemoval::Required;
+    let required = notes::surface_texture(&t);
+    assert_eq!(required.strokes.len(), 4);
+    assert_eq!(required.strokes[3][0][1], required.strokes[3][1][1]);
+    t.material_removal = MaterialRemoval::NotAllowed;
+    let prohibited = notes::surface_texture(&t);
+    assert_eq!(prohibited.strokes.len(), 3);
+    assert_eq!(prohibited.arcs.len(), 1);
+    assert!((prohibited.arcs[0][2] - 1.4).abs() < 1e-12);
+    for c in [basic, required, prohibited] {
+        assert!(c.runs.iter().all(|t| {
+            presentation::font()
+                .text(&t.text, t.size)
+                .missing
+                .is_empty()
+        }));
+    }
+}
+
+#[test]
+fn part_settings_have_shared_wording_and_indexed_general_notes() {
+    use presentation::notes::{self, Source};
+    let attribute = |kind: &str, text: &str, index| AttributeSet {
+        name: "semantic text".into(),
+        on: None,
+        description: None,
+        general_property: None,
+        items: vec![
+            (kind.into(), AttributeValue::Text(text.into())),
+            ("note index".into(), AttributeValue::Integer(index)),
+        ],
+    };
+    let p = PartPmi {
+        material: Some(Material {
+            id: "6082-T6".into(),
+            name: None,
+            density: None,
+        }),
+        general: vec![GeneralTolerance::Class {
+            text: "ISO 2768-m".into(),
+            standard: None,
+        }],
+        surface_textures: vec![SurfaceTexture {
+            on: None,
+            material_removal: MaterialRemoval::AnyProcessAllowed,
+            parameters: vec![SurfaceTextureParameter {
+                characteristic: "Ra".into(),
+                value: Length {
+                    value: decimal("3.2"),
+                    unit: LengthUnit::Micrometre,
+                },
+            }],
+        }],
+        attributes: vec![
+            attribute("general note", "Second note", 2),
+            attribute("heat treatment", "T6", 0),
+            attribute("edge condition", "Break sharp edges 0.2 max", 0),
+            attribute("surface treatment", "Black", 0),
+            attribute("general note", "First note", 1),
+        ],
+        ..PartPmi::default()
+    };
+    let rows = notes::general_notes(&p);
+    assert_eq!(
+        rows.iter().map(|r| r.text.as_str()).collect::<Vec<_>>(),
+        [
+            "MATERIAL: 6082-T6",
+            "GENERAL TOLERANCES ISO 2768-m",
+            "SURFACE FINISH Ra 3.2 UNLESS OTHERWISE STATED",
+            "Break sharp edges 0.2 max",
+            "Coating: Black",
+            "Heat treatment: T6",
+            "First note",
+            "Second note"
+        ]
+    );
+    assert_eq!(rows[6].source, Source::Attribute(4));
+    assert_eq!(rows[7].source, Source::Attribute(0));
+    let block = notes::notes_block(&rows);
+    assert_eq!(block.runs[0].text, "GENERAL NOTES");
+    assert_eq!(block.runs.len(), rows.len() + 1);
+    for (kind, text, expected) in [
+        ("surface treatment", "Anodise black", "Anodise black"),
+        ("surface treatment", "Zinc plated", "Zinc plated"),
+        (
+            "heat treatment",
+            "Solution treat and age to T6",
+            "Solution treat and age to T6",
+        ),
+        ("heat treatment", "EN8", "Heat treatment: EN8"),
+    ] {
+        assert_eq!(notes::part_note_text(kind, text), expected);
+    }
+    assert!(notes::general_notes(&PartPmi::default()).is_empty());
+    let mut p = p;
+    for a in &mut p.attributes {
+        a.on = Some(NoteOwner::Feature(FeatureId(0)));
+    }
+    p.material = None;
+    p.general.clear();
+    p.surface_textures[0].on = Some(FeatureId(0));
+    assert!(
+        notes::general_notes(&p).is_empty(),
+        "face settings are not part-level defaults"
+    );
+}
+
+#[test]
+fn editable_note_accents_and_micrometre_units_are_drawn() {
+    let ink = presentation::font().text("café Ra 3.2 µm", 3.);
+    assert!(ink.missing.is_empty());
+    assert!(
+        presentation::text::glyph('é').unwrap().1.len()
+            > presentation::text::glyph('e').unwrap().1.len()
+    );
+}

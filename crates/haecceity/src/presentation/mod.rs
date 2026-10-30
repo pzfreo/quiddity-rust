@@ -2,7 +2,7 @@
 //!
 //! Ported from pzfreo/draftwright-rust at aaa7a73: `src/dims/tolerance.rs`,
 //! `src/dims/gdt.rs`, `src/pmi.rs` (qualifiers/limits/scope), and `src/text.rs` (Paul Fremantle; port authorized by the copyright owner for #137, same project family).
-//! Sheet layout, leaders, lanes, authored wording and drawn-precision rounding stay in
+//! Sheet layout, leaders, lanes and drawn-precision rounding stay in
 //! Draftwright. Values here retain requirement precision. Text uses public-domain Hershey
 //! strokes plus explicit ISO symbols; no font parser or embedded outline font is needed.
 
@@ -10,6 +10,7 @@ use crate::pmi::*;
 
 mod gdt;
 pub mod linear;
+pub mod notes;
 pub mod placement;
 pub mod text;
 pub mod tolerance;

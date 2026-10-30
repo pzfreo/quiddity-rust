@@ -22,6 +22,8 @@ haecceity = "0.2"
 The default `presentation` feature exposes `haecceity::presentation`: dimension/tolerance
 notation, feature control frames, datum frames, and local 2D text/symbol strokes shared with
 drawing clients. Every newly written dimension and tolerance gets a graphical callout;
+face textures get ISO 1302 symbols and written part settings share a general-notes block.
+Property links retain their semantic requirements, and notes clear all other callouts;
 existing foreign PMI/presentation remains untouched on append. Disable default features for
 semantic-only dimension/tolerance writing and the legacy datum lettering. The feature is on
 by default so Specify's normal writer output carries visible PMI. Public-domain Hershey lettering and explicit
