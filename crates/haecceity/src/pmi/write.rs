@@ -537,6 +537,20 @@ fn write_inner(
             identifiers: identifiers.and_then(|ids| ids.get(p)),
             ..plan
         };
+        #[cfg(all(feature = "json", not(feature = "presentation")))]
+        let plan = {
+            let mut plan = plan;
+            if plan.identifiers.is_some() {
+                // A fused dimensional_size_with_datum_feature has one ID_ATTRIBUTE
+                // carrier. Explicit JSON ids need independent feature and size entities.
+                for role in plan.roles.values_mut() {
+                    if matches!(role, Role::DatumFeatureOfSize(_)) {
+                        *role = Role::DatumFeature;
+                    }
+                }
+            }
+            plan
+        };
         let original = &pmi
             .iter()
             .find(|(id, _)| id == p)
