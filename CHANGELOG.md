@@ -6,6 +6,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.2.5 (2026-10-30)
+
+Upgrading from 0.2.4: the schema stays `quiddity-rust/recognition/6` and fingerprints `/3`. A boss's
+`height` (and its free-end `location`) now includes its own convex end chamfers and rounds, so
+chamfered or rounded bosses report longer than before; a plate whose edges are chamfered or filleted
+stays a plate; turned fillets on the inside of a corner now say `side: concave`. Fingerprint values
+of affected bosses and plates change within `/3`.
+
 ### Fixed
 
 - For #134, boss height and free-end location include adjoining proved end chamfers
