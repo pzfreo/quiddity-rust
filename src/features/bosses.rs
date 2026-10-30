@@ -205,7 +205,10 @@ fn end_treatments(ctx: &Context<'_>, seg: &Segment) -> Vec<Treatment> {
 /// Fingerprints reuse the unrounded midpoint from the same recognition analysis.
 pub(crate) fn midpoint(ctx: &Context<'_>, boss: &BossRecord, faces: &[usize]) -> V3 {
     let analysis = ctx.boss_analysis();
-    if let Some(i) = analysis.found.iter().position(|o| o.defining == faces) {
+    // Fingerprints canonicalise face order; segment discovery preserves patch order.
+    if let Some(i) = analysis.found.iter().position(|o| {
+        o.defining.len() == faces.len() && o.defining.iter().all(|f| faces.contains(f))
+    }) {
         return analysis.midpoints[i];
     }
     // Caller-supplied feature records can lack a corresponding recognised segment.

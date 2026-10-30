@@ -113,6 +113,21 @@ fn audited_boss_ends_exclude_root_fillets_long_tapers_and_concave_shoulders() {
         assert!(std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_none());
         return;
     };
+    // For #134: fingerprint face order must retrieve the same treated midpoint as
+    // discovery's patch order, including a boss split into several cylinder patches.
+    let p = quiddity::read_step_file(&root.join("cadgenbench_inputs/cgb243.step.gz")).unwrap();
+    let ctx = Context::new(&p);
+    for o in bosses::discover(&ctx) {
+        let mut canonical = o.defining.clone();
+        canonical.sort_unstable();
+        near(
+            geom::dist(
+                bosses::midpoint(&ctx, &o.record, &o.defining),
+                bosses::midpoint(&ctx, &o.record, &canonical),
+            ),
+            0.,
+        );
+    }
     let p =
         quiddity::read_step_file(&root.join("cadgenbench/threaded_connector_109.step")).unwrap();
     let found = bosses::discover(&Context::new(&p));
