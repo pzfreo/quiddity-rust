@@ -161,3 +161,16 @@ Verified on 2026-10-08: rerunning each tool reproduces its fixtures byte for byt
 STEP header `FILE_NAME` time stamp of the `specify/` outputs, which OpenCascade sets when it
 writes (`make_specify_inputs.py --check` masks exactly that field and found no other
 difference).
+
+## Specify 0.1.4 inspection identifiers
+
+`identifiers/specify-0.1.4-plate.step.gz` was written by **specify-core-rust v0.1.4** from
+Draftwright editor's **Plate** sample, the maintainer's own model. Copied unchanged from
+`i265/tests/fixtures/samples/specify-0.1.4-plate.step.gz` supplied for this change.
+Compressed SHA-256: `983cc8b2b4b6e8b107a65e0053bc078fef81c2a5f00a66dcdb4aac2c31219e14`.
+It contains 34 numbered requirements: 3 datums, 26 dimensions, 3 geometric tolerances,
+1 part-default surface texture and 1 internal thread. `pmi_identifiers.rs` pins every
+carrier/value and checks a lossless writer append. OCP 7.9.3.1 / XCAF successfully
+transfers and safely walks this file via `tools/check_pmi_occt.py::check` (26 dimensions,
+3 tolerances, 9 datum labels including references); identifier assertions use the actual
+STEP records, since XCAF does not expose these ids or surface textures.

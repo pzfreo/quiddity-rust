@@ -36,6 +36,7 @@ pub struct PmiRead {
     /// What was not read, or was read through a nonconformance, in a deterministic order.
     pub findings: Vec<Finding>,
     pub provenance: Provenance,
+    pub identifiers: Identifiers,
     pub accounting: Accounting,
 }
 
@@ -150,6 +151,35 @@ pub struct PartProvenance {
     pub geometry: Vec<Vec<u64>>,
     /// Per supplemental geometry: its item's own instance.
     pub geometry_items: Vec<u64>,
+}
+
+/// The decoded `id_attribute.attribute_value` on each item's own entity, never inherited
+/// from its support. Absent or ambiguous identifiers are `None`; duplicates are findings.
+/// Kept separate from the semantic model, like [`Provenance`].
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct Identifiers {
+    pub parts: Vec<PartIdentifiers>,
+}
+
+/// Identifiers for one [`PartPmi`], index for index. Threads and knurls use their definition
+/// `product_definition_shape`; property items use their own `property_definition`
+/// (general tolerance tables use their representation).
+/// Settings merged from several entities (material, standards, decimal places) have no
+/// single requirement entity and are not indexed here.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct PartIdentifiers {
+    pub features: Vec<Option<String>>,
+    pub datum_targets: Vec<Option<String>>,
+    pub datums: Vec<Option<String>>,
+    pub dimensions: Vec<Option<String>>,
+    pub tolerances: Vec<Option<String>>,
+    pub tolerance_relations: Vec<Option<String>>,
+    pub general: Vec<Option<String>>,
+    pub threads: Vec<Option<String>>,
+    pub knurls: Vec<Option<String>>,
+    pub notes: Vec<Option<String>>,
+    pub surface_textures: Vec<Option<String>>,
+    pub attributes: Vec<Option<String>>,
 }
 
 impl PartProvenance {

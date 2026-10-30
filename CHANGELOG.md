@@ -8,6 +8,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Added
 
+- For draftwright-rust#254 and pzfreo/quiddity-rust#135, haecceity's PMI reader exposes
+  each requirement's own AP242 `id_attribute` text in `PmiRead.identifiers`, parallel to
+  provenance. Dimensions, tolerances, datums, surface textures (including part defaults),
+  threads, knurls and other supported carriers retain their ids; duplicate attributes
+  produce a finding instead of selecting a value. Lossless append preserves imported ids.
+
 - For #137, default-on `haecceity::presentation` shares Draftwright's requirement notation,
   frame/symbol geometry and Hershey single-stroke lettering. Every newly written dimension and
   geometric tolerance has a styled tessellated callout, an annotation plane and one semantic

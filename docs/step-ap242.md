@@ -23,6 +23,41 @@ OpenCascade XCAF (`STEPCAFControl`) is a cross-check with a verdict for every di
 specify-core's current PMI handling is shaped by OpenCascade's round-trip defects; none of that
 shape is inherited (see [Anti-requirements](#anti-requirements)).
 
+## Requirement identifiers
+
+`haecceity::pmi::read` exposes `PmiRead.identifiers: Identifiers`, with one
+`PartIdentifiers` per part and `Vec<Option<String>>` entries index for index with the
+semantic model. Like `Provenance`, this is source metadata: semantic model equality,
+writer inputs and existing JSON/snapshot output stay unchanged. Read-result equality
+includes identifiers.
+
+The reader returns the decoded `id_attribute.attribute_value` as text (including empty
+or nonnumeric strings), or `None` when absent. It uses only the item's own entity:
+size/location dimension (including subtypes), simple or complex geometric tolerance,
+`DATUM` (never its `DATUM_FEATURE`), datum target, feature shape aspect, tolerance
+relationship, surface texture's `PROPERTY_DEFINITION`, and thread/knurl definition
+`PRODUCT_DEFINITION_SHAPE`. Notes and attribute sets use their property definition;
+general tolerance classes use their property definition and tables their representation.
+Shared faces, supporting aspects and parameter properties never supply a requirement's id.
+More than one `id_attribute` on the same entity is a `Nonconformance` finding and returns
+`None`, even if the values agree. A malformed value or a datum merged from multiple
+requirement entities is also reported rather than selecting a number. Settings assembled
+from multiple entities (material, standards, default decimal places) have no single
+requirement carrier and are not indexed.
+
+This standard derived-id route covers **surface textures**, including part defaults,
+which the UDA route discussed in pzfreo/quiddity-rust#135 could not cover. It supplies the
+inspection numbers needed by draftwright-rust#254 without interpreting Specify's private
+number-allocation history. The writer's lossless Add path preserves existing ids and
+records; identifier writing or transfer through Replace is not added.
+
+`specify-0.1.4-plate.step.gz` pins all 34 numbered requirements from the maintainer's
+Plate: 3 datums, 26 dimensions, 3 geometric tolerances, 1 part-default surface texture
+and 1 thread. OpenCascade 7.9.3.1 XCAF transfers the fixture and safely walks its labels
+(`tools/check_pmi_occt.py`); it reads 26 dimensions and 3 tolerances, and reports 9 datum
+labels (including references). XCAF does not expose surface textures or these inspection
+identifiers, so the exact STEP carriers and values are the identifier test authority.
+
 ## Graphical callouts (#137)
 
 `haecceity::presentation` owns requirement notation and local 2D callout geometry, ported

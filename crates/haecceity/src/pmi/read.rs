@@ -23,7 +23,10 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use super::model::*;
 use super::standards::Iso2768;
-use super::{Accounting, Finding, FindingKind, PartProvenance, PmiRead, Provenance, ReadError};
+use super::{
+    Accounting, Finding, FindingKind, Identifiers, PartIdentifiers, PartProvenance, PmiRead,
+    Provenance, ReadError,
+};
 use crate::express::{self, Edition, Family};
 use crate::p21::{Attribute, Document, RawEntity, visit_attributes};
 use crate::step::PartDefinition;
@@ -44,12 +47,19 @@ pub fn read(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadErr
     let mut r = Reader::new(doc, parts);
     let mut out_parts = Vec::with_capacity(parts.len());
     let mut provenance = Provenance::default();
+    let mut identifiers = Identifiers::default();
     for (i, part) in parts.iter().enumerate() {
         let mut st = PartState::new(PartId(i), part);
         r.read_part(&mut st);
-        let PartState { pmi, prov, .. } = st;
+        let PartState {
+            pmi,
+            prov,
+            identifiers: part_identifiers,
+            ..
+        } = st;
         out_parts.push(pmi);
         provenance.parts.push(prov);
+        identifiers.parts.push(part_identifiers);
     }
     let accounting = r.account(&provenance);
     let mut findings = std::mem::take(&mut r.findings);
@@ -59,6 +69,7 @@ pub fn read(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadErr
         parts: out_parts,
         findings,
         provenance,
+        identifiers,
         accounting,
     })
 }
@@ -133,6 +144,7 @@ struct PartState<'a> {
     part: &'a PartDefinition,
     pmi: PartPmi,
     prov: PartProvenance,
+    identifiers: PartIdentifiers,
     /// Shape aspect → its feature (None: tried and failed, or in progress).
     features: HashMap<u64, Option<FeatureId>>,
     /// Shape aspect → its content when read without registering (members of a composite).
@@ -163,6 +175,7 @@ impl<'a> PartState<'a> {
             part,
             pmi: PartPmi::default(),
             prov: PartProvenance::default(),
+            identifiers: PartIdentifiers::default(),
             features: HashMap::new(),
             contents: HashMap::new(),
             dimensions: HashMap::new(),
@@ -507,6 +520,36 @@ impl<'a> Reader<'a> {
     /// `id_attribute`s naming `id` (§5.1 Figure 4): part of the item's construct.
     fn id_attributes(&mut self, id: u64) -> Vec<u64> {
         self.referrers_by(id, "id_attribute", "id_attribute", "identified_item")
+    }
+
+    fn identifier(&mut self, part: PartId, id: u64) -> Option<String> {
+        let attributes = self.id_attributes(id);
+        match attributes.as_slice() {
+            [] => None,
+            [attribute] => {
+                let value = self.get_str(*attribute, "id_attribute", "attribute_value");
+                if value.is_none() {
+                    self.find(
+                        FindingKind::Nonconformance,
+                        Some(part),
+                        id,
+                        &attributes,
+                        "id_attribute has no string attribute_value; identifier not read",
+                    );
+                }
+                value
+            }
+            _ => {
+                self.find(
+                    FindingKind::Nonconformance,
+                    Some(part),
+                    id,
+                    &attributes,
+                    "more than one id_attribute on the same entity; identifier not read",
+                );
+                None
+            }
+        }
     }
 
     // --- values ---------------------------------------------------------------------------
@@ -1325,6 +1368,7 @@ impl<'a> Reader<'a> {
                 let fid = FeatureId(st.pmi.features.len());
                 st.pmi.features.push(f);
                 st.prov.features.push(ids(prov));
+                st.identifiers.features.push(self.identifier(st.id, id));
                 if let Some((definition, placement)) = st.holes.remove(&id) {
                     st.pmi.holes.push(Hole {
                         feature: fid,
@@ -2192,6 +2236,12 @@ impl<'a> Reader<'a> {
                     let p = &mut st.prov.datums[existing.0];
                     p.extend(prov);
                     *p = ids(std::mem::take(p));
+                    let identifier = self.identifier(st.id, d);
+                    if identifier.is_some() || st.identifiers.datums[existing.0].is_some() {
+                        st.identifiers.datums[existing.0] = None;
+                        self.find(FindingKind::Nonconformance, part, d, &[other],
+                            "merged datum has more than one requirement entity; identifier not read");
+                    }
                     st.datums.insert(d, existing);
                     self.find(
                         FindingKind::Nonconformance,
@@ -2218,6 +2268,7 @@ impl<'a> Reader<'a> {
                     let id = DatumId(st.pmi.datums.len());
                     st.pmi.datums.push(datum);
                     st.prov.datums.push(ids(prov));
+                    st.identifiers.datums.push(self.identifier(st.id, d));
                     st.datums.insert(d, id);
                 }
                 Err(e) => self.find(FindingKind::Nonconformance, part, d, &[], e.0),
@@ -2260,6 +2311,9 @@ impl<'a> Reader<'a> {
         let fid = FeatureId(st.pmi.features.len());
         st.pmi.features.push(Feature::Items(dedup_anchors(anchors)));
         st.prov.features.push(ids(prov));
+        st.identifiers
+            .features
+            .push(self.identifier(st.id, feature));
         st.features.insert(feature, Some(fid));
     }
 
@@ -2488,6 +2542,9 @@ impl<'a> Reader<'a> {
                 let tid = DatumTargetId(st.pmi.datum_targets.len());
                 st.pmi.datum_targets.push(t);
                 st.prov.datum_targets.push(ids(prov));
+                st.identifiers
+                    .datum_targets
+                    .push(self.identifier(st.id, id));
                 Some(tid)
             }
             Err(e) => {
@@ -3091,6 +3148,7 @@ impl<'a> Reader<'a> {
             principle,
         });
         st.prov.dimensions.push(ids(prov));
+        st.identifiers.dimensions.push(self.identifier(st.id, id));
         Some(did)
     }
 
@@ -3572,6 +3630,7 @@ impl<'a> Reader<'a> {
             description,
         });
         st.prov.tolerances.push(ids(prov));
+        st.identifiers.tolerances.push(self.identifier(st.id, id));
         Some(tid)
     }
 
@@ -4123,6 +4182,9 @@ impl<'a> Reader<'a> {
                 related,
             });
             st.prov.tolerance_relations.push(ids(prov));
+            st.identifiers
+                .tolerance_relations
+                .push(self.identifier(st.id, r));
         }
     }
 
@@ -4172,6 +4234,7 @@ impl<'a> Reader<'a> {
                     continue;
                 };
                 let mut prov = vec![def, def_shape, occ, sdr];
+                prov.extend(self.id_attributes(def_shape));
                 // Parameters.
                 let mut params: BTreeMap<String, (u64, ParamValue)> = BTreeMap::new();
                 let mut bad = false;
@@ -4327,10 +4390,16 @@ impl<'a> Reader<'a> {
                             Item::Thread(t) => {
                                 st.pmi.threads.push(t);
                                 st.prov.threads.push(ids(prov));
+                                st.identifiers
+                                    .threads
+                                    .push(self.identifier(st.id, def_shape));
                             }
                             Item::Knurl(k) => {
                                 st.pmi.knurls.push(k);
                                 st.prov.knurls.push(ids(prov));
+                                st.identifiers
+                                    .knurls
+                                    .push(self.identifier(st.id, def_shape));
                             }
                         }
                     }
@@ -4773,6 +4842,7 @@ impl<'a> Reader<'a> {
             general_property,
         });
         st.prov.attributes.push(ids(prov));
+        st.identifiers.attributes.push(self.identifier(st.id, pdef));
     }
 
     /// The `general_property` an attribute's property definition is associated with by its
@@ -4840,7 +4910,8 @@ impl<'a> Reader<'a> {
             return;
         }
         for (pdr, rep) in reps {
-            let base = vec![pdef, pdr, rep];
+            let mut base = vec![pdef, pdr, rep];
+            base.extend(self.id_attributes(pdef));
             let mut read_any = false;
             for item in self.get_refs(rep, "representation", "items") {
                 let n = self.name_of(item);
@@ -4858,6 +4929,7 @@ impl<'a> Reader<'a> {
                     let mut p = base.clone();
                     p.push(item);
                     st.prov.general.push(ids(p));
+                    st.identifiers.general.push(self.identifier(st.id, pdef));
                     read_any = true;
                 } else {
                     self.find(
@@ -4888,6 +4960,7 @@ impl<'a> Reader<'a> {
                 }
                 let mut p = base.clone();
                 p.extend([rr, table]);
+                p.extend(self.id_attributes(table));
                 let tname = self
                     .get_str(table, "representation", "name")
                     .unwrap_or_default();
@@ -4958,6 +5031,7 @@ impl<'a> Reader<'a> {
                         .general
                         .push(GeneralTolerance::Table { name: tname, cells });
                     st.prov.general.push(ids(p));
+                    st.identifiers.general.push(self.identifier(st.id, table));
                 }
                 read_any = true;
             }
@@ -5130,6 +5204,7 @@ impl<'a> Reader<'a> {
     fn note(&mut self, st: &mut PartState, pdef: u64, kind: &str, on: Option<NoteOwner>) {
         let part = Some(st.id);
         let mut prov = vec![pdef];
+        prov.extend(self.id_attributes(pdef));
         let mut texts = Vec::new();
         for (pdr, rep) in self.property_representations(pdef) {
             prov.extend([pdr, rep]);
@@ -5172,6 +5247,7 @@ impl<'a> Reader<'a> {
             callouts: Vec::new(),
         });
         st.prov.notes.push(ids(prov));
+        st.identifiers.notes.push(self.identifier(st.id, pdef));
     }
 
     /// Whether a 'surface texture parameter' is related from a 'surface texture' property
@@ -5428,6 +5504,9 @@ impl<'a> Reader<'a> {
             parameters,
         });
         st.prov.surface_textures.push(ids(prov));
+        st.identifiers
+            .surface_textures
+            .push(self.identifier(st.id, pdef));
     }
 
     // --- accounting -----------------------------------------------------------------------
