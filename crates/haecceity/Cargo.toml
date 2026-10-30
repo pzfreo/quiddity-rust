@@ -11,7 +11,8 @@ include = ["/src", "/README.md", "/LICENSE", "/NOTICE", "/tests/fixtures/generat
 description = "An exact B-rep geometry kernel in pure Rust: STEP import, rays, classification, volumes and surface recovery."
 
 [features]
-default = []
+default = ["presentation"]
+presentation = []
 f3d = ["dep:cadmpeg-codec-f3d", "dep:cadmpeg-codec-step", "dep:cadmpeg-core", "dep:cadmpeg-ir"]
 
 [dependencies]

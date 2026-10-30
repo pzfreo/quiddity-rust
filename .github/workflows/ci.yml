@@ -50,6 +50,10 @@ jobs:
       # Local first feature check: 2.7 minutes at load ~55; budget ~3 added Linux minutes.
       - run: cargo check --workspace --all-targets --release --features f3d
         if: runner.os == 'Linux'
+      # One serial Linux binary exercises feature-off goldens and removal, without a
+      # second matrix, archive or shard build. Reuse this runner's release dependencies.
+      - run: cargo test -p haecceity --release --no-default-features --test pmi_write
+        if: runner.os == 'Linux'
       # nextest does not run doc-tests.
       - run: cargo test --doc --workspace --release
 

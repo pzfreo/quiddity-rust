@@ -6,6 +6,18 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Added
+
+- For #137, default-on `haecceity::presentation` shares Draftwright's requirement notation,
+  frame/symbol geometry and Hershey single-stroke lettering. Every newly written dimension and
+  geometric tolerance has a styled tessellated callout, an annotation plane and one semantic
+  association per callout in the part's shared presentation path. No-PMI bytes and appended
+  foreign presentation are preserved. Planes sit beside their features with part-scaled text
+  and a short deterministic stagger; linear dimensions have two measured witnesses,
+  extension lines and arrowed dimension lines, shortest first on outward ladders.
+  Names carry full requirement notation. The feature
+  can be disabled for semantic-only output.
+
 ## 0.2.5 (2026-10-30)
 
 Upgrading from 0.2.4: the schema stays `quiddity-rust/recognition/6` and fingerprints `/3`. A boss's

@@ -31,4 +31,16 @@ Python's standard library and no third-party model or external dataset.
 The tests/fixtures/revisions/gramil_shaft.* STEP revisions and generator recipe
 are Paul Fremantle's gramil shaft (https://github.com/pzfreo/gramil, 9171ef6),
 supplied for #134 under Open Community License v1. Their separate licence is
-included as tests/fixtures/revisions/LICENSE-gramil.
+included as tests/fixtures/revisions/LICENSE-gramil. The #137 placement input
+tests/fixtures/ap242/presentation-placement/spindle.step.gz derives from the same
+gramil shaft design and retains that licence (LICENSE-gramil beside the fixture).
+
+For #137, presentation notation, frame geometry and requirement-level tests are ported
+from pzfreo/draftwright-rust at aaa7a73 (src/dims/tolerance.rs, src/dims/gdt.rs and
+tests/spec_gdt.rs), Copyright 2026 Paul Fremantle, at the copyright owner's direction
+for this Apache-2.0 project. Text uses the public-domain Hershey Futura Light data already
+carried by the datum writer, with explicit ISO symbols. The Hershey Fonts were originally
+created by Dr. A. V. Hershey at the U. S. National Bureau of Standards; James Hurt,
+Cognition, Inc., created the data format. These acknowledgements also accompany the data
+in crates/haecceity/src/stroke_font.rs. The former Plex outline renderer, its font-specific
+oracle, font binaries and ttf-parser dependency have been removed.

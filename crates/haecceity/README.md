@@ -19,6 +19,16 @@ manufacturing features. Use haecceity directly when you need the geometry itself
 haecceity = "0.2"
 ```
 
+The default `presentation` feature exposes `haecceity::presentation`: dimension/tolerance
+notation, feature control frames, datum frames, and local 2D text/symbol strokes shared with
+drawing clients. Every newly written dimension and tolerance gets a graphical callout;
+existing foreign PMI/presentation remains untouched on append. Disable default features for
+semantic-only dimension/tolerance writing and the legacy datum lettering. The feature is on
+by default so Specify's normal writer output carries visible PMI. Public-domain Hershey lettering and explicit
+ISO symbols keep files small. Annotation planes start at a feature vertex and use short,
+part-scaled outward offsets with a deterministic stagger. Straight dimensions use two
+measured witnesses, extension lines and arrowed lines on shortest-first ladders. See the [AP242 writer structure](../../docs/step-ap242.md#graphical-callouts-137).
+
 Enable the optional `f3d` feature for `haecceity::f3d::read_f3d_file`: visible Autodesk
 Fusion solid geometry in millimetres, including placements, with no imported PMI.
 

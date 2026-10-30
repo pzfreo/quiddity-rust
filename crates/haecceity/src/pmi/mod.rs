@@ -6,6 +6,12 @@
 //! the file, with [`Finding`]s for everything it did not read (or read through a
 //! nonconformance) and the [`Provenance`] of every model item: the instance ids it consumed,
 //! which a replace removes.
+//!
+//! With the default `presentation` feature, the writer uses `crate::presentation` for
+//! dimension/tolerance content and datum lettering. Styled tessellated geometric sets,
+//! per-callout annotation planes and one semantic association per callout share one part
+//! draughting model (CAx-IF PMI §7.3). See `docs/step-ap242.md`, Graphical callouts (#137).
+//! Append preserves foreign callouts and symbol representations.
 
 mod derived;
 pub mod model;

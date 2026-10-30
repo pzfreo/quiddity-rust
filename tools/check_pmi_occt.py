@@ -3,7 +3,7 @@
     cargo test --release -p haecceity --test pmi_write export_written_files -- --ignored
     ~/cld/quiddity/.venv/bin/python tools/check_pmi_occt.py [CASE ...]
 
-Every ``tests/fixtures/ap242/write/<case>.step.gz`` (written by the Rust test
+Every ``tests/fixtures/ap242/write-presentation/<case>.step.gz`` (written by the Rust test
 ``export_written_files``: every kind of item the writer makes on a specify-core part, and
 specify-core's intents written onto their original corpus files) is first opened in two child
 processes, and how each child ends is recorded (``true``, or the signal or exit status):
@@ -35,6 +35,7 @@ cannot list the map's keys): XCAF puts user defined attributes there, so the wri
 not an authority: where it misreads (its ``known_misreads``), haecceity is rust-correct with
 the clause and the file text.
 
+Set QUIDDITY_PMI_WRITE_FIXTURES=write to capture the feature-off goldens instead.
 Run with an OCP venv (OCP 7.9); nothing outside this checkout is changed. Optional CASE
 names select fixtures. If specify_core is absent, its loader status is explicitly unavailable;
 XCAF transfer, safe label walking and the semantic capture still run.
@@ -43,6 +44,7 @@ XCAF transfer, safe label walking and the semantic capture still run.
 from __future__ import annotations
 
 import gzip
+import os
 import importlib.util
 import json
 import re
@@ -145,7 +147,10 @@ class WrittenCapture(Capture):
 
 capture_pmi_occt.Capture = WrittenCapture
 
-WRITE = Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "ap242" / "write"
+WRITE = (
+    Path(__file__).resolve().parent.parent / "tests" / "fixtures" / "ap242"
+    / os.environ.get("QUIDDITY_PMI_WRITE_FIXTURES", "write-presentation")
+)
 
 
 def child(mode: str, path: str) -> None:

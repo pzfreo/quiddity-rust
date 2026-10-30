@@ -6,3 +6,8 @@ the copyright owner.
 
 tests/fixtures/generated_unit_cube.f3d is an Apache-2.0 encoder-generated fixture
 from cadmpeg/cadmpeg. Its source path and hash are recorded in tests/fixtures/README.md.
+
+Presentation notation and control-frame geometry are ported from Paul Fremantle's
+Draftwright aaa7a73, at the copyright owner's direction for #137. Hershey single-stroke
+font data acknowledgements: Dr. A. V. Hershey, U. S. National Bureau of Standards (fonts);
+James Hurt, Cognition, Inc. (format). See src/stroke_font.rs.

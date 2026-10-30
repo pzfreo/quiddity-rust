@@ -694,10 +694,25 @@ pub fn write(
         }
     }
 
+    // Parse geometry once for the entire write, only when a new callout needs it. Parts
+    // share the parsed STEP model; each B-rep and ray caster is still local to its part.
+    #[cfg(feature = "presentation")]
+    let presentation_reader = plans
+        .iter()
+        .any(|p| {
+            !p.pmi.datums.is_empty() || !p.pmi.dimensions.is_empty() || !p.pmi.tolerances.is_empty()
+        })
+        .then(|| crate::step::PartReader::read(doc.bytes()).ok())
+        .flatten();
     // Emission, part by part.
     let mut em = Emitter::new(doc, edition, &mut edit, &removed);
     for plan in &plans {
-        plan.emit(&mut em, &mut report)?;
+        plan.emit(
+            &mut em,
+            &mut report,
+            #[cfg(feature = "presentation")]
+            presentation_reader.as_ref(),
+        )?;
     }
     let emitted_dimensions = em
         .exponents
@@ -1215,6 +1230,7 @@ impl<'a> Emitter<'a> {
 
     /// The provisional reference of the next instance this emitter adds (`#2^63 + n`, as
     /// `p21` documents), for a record that references itself.
+    #[cfg(not(feature = "presentation"))]
     fn next_ref(&self) -> A {
         A::EntityRef((1u64 << 63) | self.count as u64)
     }
@@ -2742,7 +2758,12 @@ impl<'a> PartPlan<'a> {
 
     // --- emission --------------------------------------------------------------------------
 
-    fn emit(&self, em: &mut Emitter<'_>, report: &mut WriteReport) -> Result<(), WriteError> {
+    fn emit(
+        &self,
+        em: &mut Emitter<'_>,
+        report: &mut WriteReport,
+        #[cfg(feature = "presentation")] presentation_reader: Option<&crate::step::PartReader>,
+    ) -> Result<(), WriteError> {
         let mut st = Emitted::default();
         let p = self.pmi;
         let pds = em.reference(self.def.shape)?;
@@ -2958,7 +2979,8 @@ impl<'a> PartPlan<'a> {
             }
             st.datums.insert(i, datum);
         }
-        self.datum_symbols(em, &symbols, report)?;
+        #[cfg(not(feature = "presentation"))]
+        self.datum_symbols(em, &symbols, &st, report)?;
         for i in 0..p.dimensions.len() {
             self.dimension(em, &mut st, pds, i)?;
         }
@@ -2967,6 +2989,8 @@ impl<'a> PartPlan<'a> {
             let r = self.tolerance(em, &mut st, pds, t, &mut names)?;
             st.tolerances.insert(i, r);
         }
+        #[cfg(feature = "presentation")]
+        self.datum_symbols(em, &symbols, &st, report, presentation_reader)?;
         for r in &p.tolerance_relations {
             let name = match r.kind {
                 RelationKind::Composite => "composite",
@@ -3331,6 +3355,45 @@ impl<'a> PartPlan<'a> {
         }
     }
 
+    /// The axis of the feature's first elementary surface of revolution, in part coordinates.
+    #[cfg(feature = "presentation")]
+    fn feature_axis(&self, f: usize) -> Option<[f64; 3]> {
+        match &self.pmi.features[f] {
+            Feature::Items(items) => items.iter().find_map(|a| {
+                let Anchor::Face(face) = a else { return None };
+                let surface = attr_ref(
+                    self.doc,
+                    self.def.faces[face.0],
+                    "face_surface",
+                    "face_geometry",
+                )?;
+                if !["cylindrical_surface", "conical_surface", "toroidal_surface"]
+                    .iter()
+                    .any(|t| is_a(self.doc, surface, t))
+                {
+                    return None;
+                }
+                let pos = attr_ref(self.doc, surface, "elementary_surface", "position")?;
+                let axis = attr_ref(self.doc, pos, "axis2_placement_3d", "axis")?;
+                let A::List(values) = attr(self.doc, axis, "direction", "direction_ratios")? else {
+                    return None;
+                };
+                let mut d = [0.; 3];
+                for (i, v) in values.iter().take(3).enumerate() {
+                    d[i] = match v {
+                        A::Real(x) => *x,
+                        A::Integer(x) => *x as f64,
+                        _ => return None,
+                    };
+                }
+                Some(d)
+            }),
+            Feature::Group { members, .. } | Feature::Derived { from: members, .. } => {
+                members.iter().find_map(|f| self.feature_axis(f.0))
+            }
+        }
+    }
+
     /// Decision 6: for each datum feature of an added datum, a minimal datum feature symbol
     /// (the label boxed, a stem to a triangle on the feature), derived from the semantics:
     /// one tessellated callout per feature (PMI practice §8.2, the set named for its PMI type,
@@ -3343,9 +3406,14 @@ impl<'a> PartPlan<'a> {
         &self,
         em: &mut Emitter<'_>,
         symbols: &[(R, Vec<String>, usize)],
+        _st: &Emitted,
         report: &mut WriteReport,
+        #[cfg(feature = "presentation")] presentation_reader: Option<&crate::step::PartReader>,
     ) -> Result<(), WriteError> {
-        if symbols.is_empty() {
+        if symbols.is_empty()
+            && !(cfg!(feature = "presentation")
+                && (!self.pmi.dimensions.is_empty() || !self.pmi.tolerances.is_empty()))
+        {
             return Ok(());
         }
         let mut tips = Vec::new();
@@ -3359,14 +3427,139 @@ impl<'a> PartPlan<'a> {
         }
         let mut points = vertices(self.doc, &self.def.faces);
         points.extend(tips.iter().copied());
+        #[cfg(not(feature = "presentation"))]
         let mut layout = SymbolLayout::new(&points);
+        #[cfg(feature = "presentation")]
+        let presentation_part = presentation_reader.and_then(|r| r.part(self.def).ok());
+        #[cfg(feature = "presentation")]
+        let mut local_layout = {
+            let mut bounds = crate::geom::Bounds::empty();
+            // The B-rep includes circular-arc and surface extrema, not just seam vertices.
+            if let Some(part) = &presentation_part {
+                let factor = self.context_length_unit().map_or(1., |u| u.millimetres());
+                let b = part.bounds();
+                bounds.add(b.min.map(|x| x / factor));
+                bounds.add(b.max.map(|x| x / factor));
+            }
+            if !bounds.max_extent().is_finite() {
+                for &p in &points {
+                    bounds.add(p);
+                }
+            }
+            crate::presentation::placement::Layout::new(bounds)
+        };
+        let mut graphics = Vec::new();
+        for ((feature, labels, _feature_index), tip) in symbols.iter().zip(&tips) {
+            let label = labels.join(",");
+            #[cfg(not(feature = "presentation"))]
+            let (plane, lines) = layout.draw(*tip, &label);
+            #[cfg(feature = "presentation")]
+            let (plane, lines) = {
+                let c = crate::presentation::datum(&label);
+                let p = local_layout.place(*tip, self.feature_axis(*_feature_index), &c);
+                ([p.origin, p.normal, p.along], p.lines)
+            };
+            graphics.push((*feature, "datum", format!("Datum {label}"), plane, lines));
+            report.datum_symbols.push((self.id, label));
+        }
+        #[cfg(feature = "presentation")]
+        {
+            use crate::presentation;
+            let feature_of_dimension = |d: &Dimension| match d.kind {
+                DimensionKind::Size { feature, .. } => feature,
+                DimensionKind::Location { from, .. } => from,
+            };
+            for (i, d) in self.pmi.dimensions.iter().enumerate() {
+                let f = feature_of_dimension(d);
+                let tip = self
+                    .feature_point(f.0)
+                    .unwrap_or(points.first().copied().unwrap_or([0.; 3]));
+                let c = presentation::dimension(d);
+                let name = c.notation();
+                // Keep the existing slots reserved so datum, diameter and control-frame
+                // placements do not move when linear graphics are replaced below.
+                let p = local_layout.place(tip, self.feature_axis(f.0), &c);
+                let (plane, lines) = ([p.origin, p.normal, p.along], p.lines);
+                graphics.push((
+                    _st.dimensions[&i],
+                    presentation::dimension_type(d),
+                    name,
+                    plane,
+                    lines,
+                ));
+            }
+            for (i, t) in self.pmi.tolerances.iter().enumerate() {
+                let f = match &t.target {
+                    ToleranceTarget::Feature(f) => Some(*f),
+                    ToleranceTarget::Dimension(d) => {
+                        Some(feature_of_dimension(&self.pmi.dimensions[d.0]))
+                    }
+                    ToleranceTarget::Relation { relating, .. } => Some(*relating),
+                    ToleranceTarget::WholePart => None,
+                };
+                let tip = f
+                    .and_then(|f| self.feature_point(f.0))
+                    .unwrap_or(points.first().copied().unwrap_or([0.; 3]));
+                let c = presentation::tolerance(t, self.pmi);
+                let name = c.notation();
+                let p = local_layout.place(tip, f.and_then(|f| self.feature_axis(f.0)), &c);
+                let (plane, lines) = ([p.origin, p.normal, p.along], p.lines);
+                graphics.push((
+                    _st.tolerances[&i],
+                    presentation::tolerance_type(t),
+                    name,
+                    plane,
+                    lines,
+                ));
+            }
+        }
+        #[cfg(feature = "presentation")]
+        if let Some(part) = &presentation_part {
+            use crate::presentation::{self, linear};
+            let factor = self.context_length_unit().map_or(1., |u| u.millimetres());
+            let measurements = linear::measurements(part, self.def, self.pmi);
+            let mut ladder = linear::Ladder::new(part.bounds());
+            for (i, (_, _, _, _, lines)) in graphics.iter().enumerate() {
+                if i < symbols.len()
+                    || i >= symbols.len() + self.pmi.dimensions.len()
+                    || measurements[i - symbols.len()].is_none()
+                {
+                    let mut b = crate::geom::Bounds::empty();
+                    for p in lines.iter().take(lines.len().saturating_sub(1)).flatten() {
+                        b.add(p.map(|x| x * factor));
+                    }
+                    ladder.reserve(b);
+                }
+            }
+            let mut order: Vec<_> = measurements
+                .iter()
+                .enumerate()
+                .filter_map(|(i, m)| m.as_ref().map(|m| (i, m)))
+                .collect();
+            order.sort_by(|a, b| a.1.length().total_cmp(&b.1.length()).then(a.0.cmp(&b.0)));
+            for (i, m) in order {
+                let p = ladder
+                    .draw(m, &presentation::dimension(&self.pmi.dimensions[i]))
+                    .placed;
+                let g = &mut graphics[symbols.len() + i];
+                g.3 = [p.origin.map(|x| x / factor), p.normal, p.along];
+                g.4 = p
+                    .lines
+                    .into_iter()
+                    .map(|l| l.into_iter().map(|p| p.map(|x| x / factor)).collect())
+                    .collect();
+            }
+        }
         let context = em.reference(self.context)?;
         let font = em.simple(
             "draughting_pre_defined_curve_font",
             &[("name", s("continuous"))],
         )?;
         let black = em.simple("draughting_pre_defined_colour", &[("name", s("black"))])?;
-        let width = (layout.height / 14.0 * 1e6).round() / 1e6;
+        #[cfg(not(feature = "presentation"))]
+        let width = (layout.height / 14. * 1e6).round() / 1e6;
+        #[cfg(feature = "presentation")]
+        let width = ((local_layout.text_height() / 14. * 1e6).round() / 1e6).max(1e-6);
         let curve = em.simple(
             "curve_style",
             &[
@@ -3415,10 +3608,14 @@ impl<'a> PartPlan<'a> {
         };
         let mut planes = Vec::new();
         let mut callouts = Vec::new();
-        for ((feature, labels, _), tip) in symbols.iter().zip(&tips) {
-            let label = labels.join(",");
-            let name = format!("Datum {label}");
-            let ([origin, normal, along], lines) = layout.draw(*tip, &label);
+        for (definition, annotation_type, name, [origin, normal, along], lines) in graphics {
+            #[cfg(feature = "presentation")]
+            if let Some(missing) = name
+                .chars()
+                .find(|&c| !crate::presentation::font().supports(c))
+            {
+                return Err(WriteError::Internal(format!("missing PMI glyph {missing}")));
+            }
             let coordinates: Vec<A> = lines
                 .iter()
                 .flatten()
@@ -3443,14 +3640,14 @@ impl<'a> PartPlan<'a> {
             let curves = em.simple(
                 "tessellated_curve_set",
                 &[
-                    ("name", s("datum")),
+                    ("name", s(annotation_type)),
                     ("coordinates", list.a()),
                     ("line_strips", A::List(strips)),
                 ],
             )?;
             let set = em.simple(
                 "tessellated_geometric_set",
-                &[("name", s("datum")), ("children", refs([curves]))],
+                &[("name", s(annotation_type)), ("children", refs([curves]))],
             )?;
             let occurrence = em.simple(
                 "tessellated_annotation_occurrence",
@@ -3489,13 +3686,19 @@ impl<'a> PartPlan<'a> {
                 ],
             )?;
             planes.push(annotation_plane);
-            callouts.push((*feature, callout));
-            report.datum_symbols.push((self.id, label));
+            callouts.push((definition, callout));
         }
         let model = em.simple(
             "draughting_model",
             &[
-                ("name", s("datum feature symbols")),
+                (
+                    "name",
+                    s(if cfg!(feature = "presentation") {
+                        "PMI callouts"
+                    } else {
+                        "datum feature symbols"
+                    }),
+                ),
                 ("items", refs(planes)),
                 ("context_of_items", context.a()),
             ],
@@ -3504,13 +3707,16 @@ impl<'a> PartPlan<'a> {
         // shape representation (maintainer decision, 2026-10-09): specify-core's OpenCascade
         // loader crashed on every file with one (docs/step-ap242.md gives the cause); the
         // associations below link each symbol.
-        for (feature, callout) in callouts {
+        // CAx-IF PMI §7.3: exactly the semantic link in the part draughting model.
+        // SFA 5.41 rejects feature links and symbol representations here; removing them
+        // leaves Solid Edge 2026's typed imports and symbolic graphics identical.
+        for (definition, callout) in callouts {
             em.simple(
                 "draughting_model_item_association",
                 &[
                     ("name", s("PMI representation to presentation link")),
                     ("description", s("")),
-                    ("definition", feature.a()),
+                    ("definition", definition.a()),
                     ("used_representation", model.a()),
                     ("identified_item", callout.a()),
                 ],
@@ -3703,6 +3909,14 @@ impl<'a> PartPlan<'a> {
                     Role::DatumFeature => em.instance(&["datum_feature"], &base(true), &[])?,
                     Role::AppliedArea => em.instance(&["applied_area"], &base(true), &[])?,
                     Role::ThreadRunout => em.instance(&["thread_runout"], &base(true), &[])?,
+                    // Two independently placed callouts need distinct semantic definitions
+                    // in one draughting model (IIRU UR2). Keep the datum feature and write
+                    // its size as a separate dimensional_size applying to that same feature.
+                    #[cfg(feature = "presentation")]
+                    Role::DatumFeatureOfSize(_) => {
+                        em.instance(&["datum_feature"], &base(true), &[])?
+                    }
+                    #[cfg(not(feature = "presentation"))]
                     Role::DatumFeatureOfSize(d) => {
                         let DimensionKind::Size { kind, .. } = &self.pmi.dimensions[d].kind else {
                             return Err(WriteError::Internal(
@@ -4366,6 +4580,7 @@ impl<'a> PartPlan<'a> {
                 )?
             }
         };
+        st.tolerance_targets.insert(st.tolerances.len(), target);
         let system = match &t.datums {
             Some(ds) => Some(self.datum_system(em, st, pds, ds, names)?),
             None => None,
@@ -5177,6 +5392,7 @@ struct Emitted {
     dimensions: BTreeMap<usize, R>,
     dimension_values: BTreeSet<usize>,
     tolerances: BTreeMap<usize, R>,
+    tolerance_targets: BTreeMap<usize, R>,
     systems: BTreeMap<String, R>,
     /// Usage keys (representation, items) several features need: each one shape aspect.
     shared_keys: BTreeSet<(R, Vec<R>)>,
@@ -5302,173 +5518,8 @@ fn geometry_item(
 // Datum feature symbols (decision 6): presentation derived from the semantics
 // ---------------------------------------------------------------------------------------------
 
-/// The Hershey "Futura Light" single-stroke font (`futural.jhf`, James Hurt's format), as
-/// specify-core carries it (from <https://github.com/kamalmostafa/hershey-fonts>). Its licence
-/// asks that these acknowledgements go with the font data: the Hershey Fonts were originally
-/// created by Dr. A. V. Hershey while working at the U. S. National Bureau of Standards; the
-/// format of the font data was originally created by James Hurt, Cognition, Inc., 900
-/// Technology Park Drive, Billerica, MA 01821. AP242 presentation carries no characters, only
-/// geometry, so a datum letter is drawn as polylines.
-const HERSHEY_FUTURAL: &str = r#"12345  1JZ
-12345  9MWRFRT RRYQZR[SZRY
-12345  6JZNFNM RVFVM
-12345 12H]SBLb RYBRb RLOZO RKUYU
-12345 27H\PBP_ RTBT_ RYIWGTFPFMGKIKKLMMNOOUQWRXSYUYXWZT[P[MZKX
-12345 32F^[FI[ RNFPHPJOLMMKMIKIIJGLFNFPGSHVHYG[F RWTUUTWTYV[X[ZZ[X[VYTWT
-12345 35E_\O\N[MZMYNXPVUTXRZP[L[JZIYHWHUISJRQNRMSKSIRGPFNGMIMKNNPQUXWZY[[[\Z\Y
-12345  8MWRHQGRFSGSIRKQL
-12345 11KYVBTDRGPKOPOTPYR]T`Vb
-12345 11KYNBPDRGTKUPUTTYR]P`Nb
-12345  9JZRLRX RMOWU RWOMU
-12345  6E_RIR[ RIR[R
-12345  8NVSWRXQWRVSWSYQ[
-12345  3E_IR[R
-12345  6NVRVQWRXSWRV
-12345  3G][BIb
-12345 18H\QFNGLJKOKRLWNZQ[S[VZXWYRYOXJVGSFQF
-12345  5H\NJPISFS[
-12345 15H\LKLJMHNGPFTFVGWHXJXLWNUQK[Y[
-12345 16H\MFXFRNUNWOXPYSYUXXVZS[P[MZLYKW
-12345  7H\UFKTZT RUFU[
-12345 18H\WFMFLOMNPMSMVNXPYSYUXXVZS[P[MZLYKW
-12345 24H\XIWGTFRFOGMJLOLTMXOZR[S[VZXXYUYTXQVOSNRNOOMQLT
-12345  6H\YFO[ RKFYF
-12345 30H\PFMGLILKMMONSOVPXRYTYWXYWZT[P[MZLYKWKTLRNPQOUNWMXKXIWGTFPF
-12345 24H\XMWPURRSQSNRLPKMKLLINGQFRFUGWIXMXRWWUZR[P[MZLX
-12345 12NVROQPRQSPRO RRVQWRXSWRV
-12345 14NVROQPRQSPRO RSWRXQWRVSWSYQ[
-12345  4F^ZIJRZ[
-12345  6E_IO[O RIU[U
-12345  4F^JIZRJ[
-12345 21I[LKLJMHNGPFTFVGWHXJXLWNVORQRT RRYQZR[SZRY
-12345 56E`WNVLTKQKOLNMMPMSNUPVSVUUVS RQKOMNPNSOUPV RWKVSVUXVZV\T]Q]O\L[JYHWGTFQFNGLHJJILHOHRIUJWLYNZQ[T[WZYYZX RXKWSWUXV
-12345  9I[RFJ[ RRFZ[ RMTWT
-12345 24G\KFK[ RKFTFWGXHYJYLXNWOTP RKPTPWQXRYTYWXYWZT[K[
-12345 19H]ZKYIWGUFQFOGMILKKNKSLVMXOZQ[U[WZYXZV
-12345 16G\KFK[ RKFRFUGWIXKYNYSXVWXUZR[K[
-12345 12H[LFL[ RLFYF RLPTP RL[Y[
-12345  9HZLFL[ RLFYF RLPTP
-12345 23H]ZKYIWGUFQFOGMILKKNKSLVMXOZQ[U[WZYXZVZS RUSZS
-12345  9G]KFK[ RYFY[ RKPYP
-12345  3NVRFR[
-12345 11JZVFVVUYTZR[P[NZMYLVLT
-12345  9G\KFK[ RYFKT RPOY[
-12345  6HYLFL[ RL[X[
-12345 12F^JFJ[ RJFR[ RZFR[ RZFZ[
-12345  9G]KFK[ RKFY[ RYFY[
-12345 22G]PFNGLIKKJNJSKVLXNZP[T[VZXXYVZSZNYKXIVGTFPF
-12345 14G\KFK[ RKFTFWGXHYJYMXOWPTQKQ
-12345 25G]PFNGLIKKJNJSKVLXNZP[T[VZXXYVZSZNYKXIVGTFPF RSWY]
-12345 17G\KFK[ RKFTFWGXHYJYLXNWOTPKP RRPY[
-12345 21H\YIWGTFPFMGKIKKLMMNOOUQWRXSYUYXWZT[P[MZKX
-12345  6JZRFR[ RKFYF
-12345 11G]KFKULXNZQ[S[VZXXYUYF
-12345  6I[JFR[ RZFR[
-12345 12F^HFM[ RRFM[ RRFW[ R\FW[
-12345  6H\KFY[ RYFK[
-12345  7I[JFRPR[ RZFRP
-12345  9H\YFK[ RKFYF RK[Y[
-12345 12KYOBOb RPBPb ROBVB RObVb
-12345  3KYKFY^
-12345 12KYTBTb RUBUb RNBUB RNbUb
-12345  6JZRDJR RRDZR
-12345  3I[Ib[b
-12345  8NVSKQMQORPSORNQO
-12345 18I\XMX[ RXPVNTMQMONMPLSLUMXOZQ[T[VZXX
-12345 18H[LFL[ RLPNNPMSMUNWPXSXUWXUZS[P[NZLX
-12345 15I[XPVNTMQMONMPLSLUMXOZQ[T[VZXX
-12345 18I\XFX[ RXPVNTMQMONMPLSLUMXOZQ[T[VZXX
-12345 18I[LSXSXQWOVNTMQMONMPLSLUMXOZQ[T[VZXX
-12345  9MYWFUFSGRJR[ ROMVM
-12345 23I\XMX]W`VaTbQbOa RXPVNTMQMONMPLSLUMXOZQ[T[VZXX
-12345 11I\MFM[ RMQPNRMUMWNXQX[
-12345  9NVQFRGSFREQF RRMR[
-12345 12MWRFSGTFSERF RSMS^RaPbNb
-12345  9IZMFM[ RWMMW RQSX[
-12345  3NVRFR[
-12345 19CaGMG[ RGQJNLMOMQNRQR[ RRQUNWMZM\N]Q][
-12345 11I\MMM[ RMQPNRMUMWNXQX[
-12345 18I\QMONMPLSLUMXOZQ[T[VZXXYUYSXPVNTMQM
-12345 18H[LMLb RLPNNPMSMUNWPXSXUWXUZS[P[NZLX
-12345 18I\XMXb RXPVNTMQMONMPLSLUMXOZQ[T[VZXX
-12345  9KXOMO[ ROSPPRNTMWM
-12345 18J[XPWNTMQMNNMPNRPSUTWUXWXXWZT[Q[NZMX
-12345  9MYRFRWSZU[W[ ROMVM
-12345 11I\MMMWNZP[S[UZXW RXMX[
-12345  6JZLMR[ RXMR[
-12345 12G]JMN[ RRMN[ RRMV[ RZMV[
-12345  6J[MMX[ RXMM[
-12345 10JZLMR[ RXMR[P_NaLbKb
-12345  9J[XMM[ RMMXM RM[X[
-12345 40KYTBRCQDPFPHQJRKSMSOQQ RRCQEQGRISJTLTNSPORSTTVTXSZR[Q]Q_Ra RQSSUSWRYQZP\P^Q`RaTb
-12345  3NVRBRb
-12345 40KYPBRCSDTFTHSJRKQMQOSQ RRCSESGRIQJPLPNQPURQTPVPXQZR[S]S_Ra RSSQUQWRYSZT\T^S`RaPb
-12345 24F^IUISJPLONOPPTSVTXTZS[Q RISJQLPNPPQTTVUXUZT[Q[O
-12345 35JZJFJ[K[KFLFL[M[MFNFN[O[OFPFP[Q[QFRFR[S[SFTFT[U[UFVFV[W[WFXFX[Y[YFZFZ[
-"#;
-
-/// One glyph: its advance and its strokes, in font units (capital height 21, baseline 0).
-type Glyph = (f64, Vec<Vec<(f64, f64)>>);
-
-/// Character → glyph for ASCII 32 to 126: a 5-character number, a 3-character vertex count,
-/// then pairs of characters each offset from 'R' (the left and right bearings, then x, y, with
-/// " R" lifting the pen).
-fn hershey_glyphs() -> Vec<Glyph> {
-    let raw: Vec<u8> = HERSHEY_FUTURAL.bytes().filter(|&b| b != b'\n').collect();
-    let mut glyphs = Vec::new();
-    let mut i = 0;
-    let at = |b: u8| f64::from(b) - 82.0;
-    while i + 8 <= raw.len() {
-        let count: usize = std::str::from_utf8(&raw[i + 5..i + 8])
-            .ok()
-            .and_then(|t| t.trim().parse().ok())
-            .unwrap_or(0);
-        let body = &raw[i + 8..(i + 8 + 2 * count).min(raw.len())];
-        i += 8 + 2 * count;
-        if body.len() < 2 {
-            continue;
-        }
-        let (left, right) = (at(body[0]), at(body[1]));
-        let mut strokes = Vec::new();
-        let mut current = Vec::new();
-        for pair in body[2..].chunks(2) {
-            if pair == b" R" {
-                strokes.push(std::mem::take(&mut current));
-            } else if let [x, y] = pair {
-                current.push((at(*x) - left, 9.0 - at(*y)));
-            }
-        }
-        strokes.push(current);
-        strokes.retain(|s: &Vec<(f64, f64)>| s.len() > 1);
-        glyphs.push((right - left, strokes));
-    }
-    glyphs
-}
-
-/// The strokes of `text` at capital `height`, from x = 0 on the baseline, and its width; a
-/// character the font lacks is drawn as '?'.
-fn lettering(text: &str, height: f64) -> (Vec<Vec<(f64, f64)>>, f64) {
-    let glyphs = hershey_glyphs();
-    let scale = height / 21.0;
-    let mut out = Vec::new();
-    let mut x = 0.0;
-    for c in text.chars() {
-        let k = (c as usize)
-            .checked_sub(32)
-            .filter(|&k| k < 95 && k < glyphs.len())
-            .unwrap_or(31);
-        let (advance, strokes) = &glyphs[k];
-        for s in strokes {
-            out.push(
-                s.iter()
-                    .map(|(px, py)| ((x + px) * scale, py * scale))
-                    .collect(),
-            );
-        }
-        x += advance;
-    }
-    (out, x * scale)
-}
+#[cfg(not(feature = "presentation"))]
+use crate::stroke_font::lettering;
 
 /// The coordinates of a `cartesian_point` instance.
 fn point_of(doc: &Document, id: u64) -> Option<[f64; 3]> {
@@ -5551,7 +5602,7 @@ fn vertices(doc: &Document, faces: &[u64]) -> Vec<[f64; 3]> {
 }
 
 /// The first `cartesian_point` of a supplemental geometry item, by value.
-fn geometry_point(g: &GeometryItem) -> Option<[f64; 3]> {
+pub(crate) fn geometry_point(g: &GeometryItem) -> Option<[f64; 3]> {
     fn value(v: &GeometryValue) -> Option<[f64; 3]> {
         match v {
             GeometryValue::Item(i) => geometry_point(i),
@@ -5583,6 +5634,7 @@ fn geometry_point(g: &GeometryItem) -> Option<[f64; 3]> {
 /// Where datum feature symbols go (as specify-core lays them out): standing above the part in
 /// the plane of its two longest extents, each in the plane through its feature's point, side
 /// by side, sized to the part.
+#[cfg(not(feature = "presentation"))]
 struct SymbolLayout {
     hi: [f64; 3],
     /// Axes of the longest, second longest and shortest extent.
@@ -5593,6 +5645,7 @@ struct SymbolLayout {
     right: f64,
 }
 
+#[cfg(not(feature = "presentation"))]
 impl SymbolLayout {
     fn new(points: &[[f64; 3]]) -> SymbolLayout {
         let mut lo = [f64::INFINITY; 3];
@@ -5628,23 +5681,27 @@ impl SymbolLayout {
             p[v] = b;
             p
         };
-        let (strokes, width) = lettering(label, h);
-        let size = 1.6 * h;
-        let frame = size.max(width + 0.6 * h);
-        let left = (tip[u] - frame / 2.0).max(self.right + size / 2.0);
-        self.right = left + frame;
-        let bottom = self.hi[v].max(tip[v]) + size;
-        let mut lines = vec![vec![
-            at(left, bottom),
-            at(left + frame, bottom),
-            at(left + frame, bottom + size),
-            at(left, bottom + size),
-            at(left, bottom),
-        ]];
-        let (a, b) = (left + (frame - width) / 2.0, bottom + (size - h) / 2.0);
-        for s in &strokes {
-            lines.push(s.iter().map(|(x, y)| at(a + x, b + y)).collect());
-        }
+        #[cfg(not(feature = "presentation"))]
+        let (mut lines, frame, left, bottom) = {
+            let (strokes, width) = lettering(label, h);
+            let size = 1.6 * h;
+            let frame = size.max(width + 0.6 * h);
+            let left = (tip[u] - frame / 2.0).max(self.right + size / 2.0);
+            self.right = left + frame;
+            let bottom = self.hi[v].max(tip[v]) + size;
+            let mut lines = vec![vec![
+                at(left, bottom),
+                at(left + frame, bottom),
+                at(left + frame, bottom + size),
+                at(left, bottom + size),
+                at(left, bottom),
+            ]];
+            let (a, b) = (left + (frame - width) / 2.0, bottom + (size - h) / 2.0);
+            for s in &strokes {
+                lines.push(s.iter().map(|(x, y)| at(a + x, b + y)).collect());
+            }
+            (lines, frame, left, bottom)
+        };
         let half = h / 2.0;
         let (tu, tv) = (tip[u], tip[v]);
         let triangle = vec![
