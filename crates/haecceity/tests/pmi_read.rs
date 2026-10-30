@@ -2781,7 +2781,10 @@ fn reads_threads_and_knurls_by_their_schema_parameters() {
 #1113=(MEASURE_REPRESENTATION_ITEM()MEASURE_WITH_UNIT(PLANE_ANGLE_MEASURE(0.5235987756),#401)PLANE_ANGLE_MEASURE_WITH_UNIT()REPRESENTATION_ITEM('helix angle'));
 #1114=(MEASURE_REPRESENTATION_ITEM()MEASURE_WITH_UNIT(COUNT_MEASURE(60.),#1013)REPRESENTATION_ITEM('number of teeth'));
 #1115=SHAPE_REPRESENTATION_WITH_PARAMETERS('',(#1110,#1111,#1112,#1113,#1114,#11),#399);
-#1116=PROPERTY_DEFINITION_REPRESENTATION(#1106,#1115);",
+#1116=PROPERTY_DEFINITION_REPRESENTATION(#1106,#1115);
+#1120=ID_ATTRIBUTE('thread-01',#1001);
+#1121=ID_ATTRIBUTE('knurl-01',#1101);
+#1122=ID_ATTRIBUTE('support-only',#1103);",
     );
     let p = &r.parts[0];
     assert_eq!(p.threads.len(), 1, "{:?}", r.findings);
@@ -2799,6 +2802,10 @@ fn reads_threads_and_knurls_by_their_schema_parameters() {
         Feature::Items(vec![pmi::Anchor::Face(pmi::FaceIndex(0))])
     );
     assert_eq!(p.knurls.len(), 1);
+    assert_eq!(r.identifiers.parts[0].threads, [Some("thread-01".into())]);
+    assert_eq!(r.identifiers.parts[0].knurls, [Some("knurl-01".into())]);
+    assert!(r.provenance.parts[0].threads[0].contains(&1120));
+    assert!(r.provenance.parts[0].knurls[0].contains(&1121));
     let k = &p.knurls[0];
     assert_eq!(k.pattern, pmi::KnurlPattern::Diamond);
     assert_eq!(k.number_of_teeth, Some(pmi::Count(60)));
@@ -2847,7 +2854,9 @@ fn reads_general_tolerance_table_decimal_places_material_density_and_standard() 
 #1405=DOCUMENT('ISO 1101','Geometrical tolerancing','',#1404);
 #1406=APPLIED_DOCUMENT_REFERENCE(#1405,'',(#1401));
 #1407=OBJECT_ROLE('mandatory','');
-#1408=ROLE_ASSOCIATION(#1407,#1406);";
+#1408=ROLE_ASSOCIATION(#1407,#1406);
+#1410=ID_ATTRIBUTE('class-id',#515);
+#1411=ID_ATTRIBUTE('table-id',#1205);";
     let r = with_pmi(records);
     let p = &r.parts[0];
     // Reader /11 projects Figure 3's anonymous single decimal-only carrier to the
@@ -2864,6 +2873,11 @@ fn reads_general_tolerance_table_decimal_places_material_density_and_standard() 
         "DEFAULT_TOLERANCE_TABLE('precision',",
     ));
     assert_eq!(named.parts[0].general.len(), 2);
+    assert_eq!(r.identifiers.parts[0].general, [Some("class-id".into())]);
+    assert_eq!(
+        named.identifiers.parts[0].general,
+        [Some("class-id".into()), Some("table-id".into())]
+    );
     match &named.parts[0].general[1] {
         pmi::GeneralTolerance::Table { name, cells } => {
             assert_eq!(name, "precision");
