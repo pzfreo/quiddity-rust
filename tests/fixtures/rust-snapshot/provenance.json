@@ -196,8 +196,8 @@
     "tests/fixtures/ap242/specify/thumbwheel_thread_knurl.intent.json": "295b20d1efbc4432d50c7a6a4638f978976df714fb991424f261cb69981662ec",
     "tests/fixtures/ap242/specify/thumbwheel_thread_knurl.meta.json": "e6f9038d71c4368480e9e88451188443421a3f8bf1690ba1adf10a0fb0219831",
     "tests/fixtures/ap242/specify/thumbwheel_thread_knurl.step.gz": "b805b0f26ec4bea3446d301067eeca7e61dd8fceeec9a44d7af66f53f1a42f52",
-    "tests/fixtures/ap242/write-presentation/assembly_plate_pin_intent.occt.json.gz": "361e6ffc9490b6868f7fc45d168058b1affc4f9dc45ef0b43fec5046dc7d2387",
-    "tests/fixtures/ap242/write-presentation/assembly_plate_pin_intent.step.gz": "142ee7de73408c4ce31a862c764c6d13f9de7cdbf9a5c093a5e922e714b6f250",
+    "tests/fixtures/ap242/write-presentation/assembly_plate_pin_intent.occt.json.gz": "d3dc85be76c98a5056aa085aad9f09b2091e4d918e0511fe436b596fd07f935e",
+    "tests/fixtures/ap242/write-presentation/assembly_plate_pin_intent.step.gz": "ceea59967e4659e5f189ddfd2ed213de49438c3e3ca606f7665b6912294bd835",
     "tests/fixtures/ap242/write-presentation/datum_targets.occt.json.gz": "7a658ae07d03402009dd231cbeab6f688c1201d176e78a45d88ec48c198d24e4",
     "tests/fixtures/ap242/write-presentation/datum_targets.step.gz": "51e32b92e950b69b6c52d4771a0e5fce249e9246fddee57892240d885c008454",
     "tests/fixtures/ap242/write-presentation/datum_targets_shared_support.occt.json.gz": "2ac64c2d281cd94e7439f1765f68e7ea91b5df99190a6528093efb9debf3cabc",
@@ -206,8 +206,8 @@
     "tests/fixtures/ap242/write-presentation/decimal_default.step.gz": "e582ffbd113dff1c8945d8f104b1ee2c75852996f5f964ff2b55dcfc918c9188",
     "tests/fixtures/ap242/write-presentation/editor_assembly_pin_alone.occt.json.gz": "de7ecc2a8d089532f5c2764f6def386f708c0acbbddd2e87ab81899189f5698f",
     "tests/fixtures/ap242/write-presentation/editor_assembly_pin_alone.step.gz": "a09daf090aa93f8093b43df29eb78c99ed6afee16f41759274feea3ee6c91c87",
-    "tests/fixtures/ap242/write-presentation/every_kind.occt.json.gz": "68548f9de0e16410acc0f542709d758d17e0b98ba1d28dd5994aa4417db828a4",
-    "tests/fixtures/ap242/write-presentation/every_kind.step.gz": "c6fecb66a1cbade57dae72887ddc029fc0f86a7b9d160be9ede476adc4b5b300",
+    "tests/fixtures/ap242/write-presentation/every_kind.occt.json.gz": "8c50766bdf2bc9038f5d5a8446f8c9e5c46d42b61890f6655b86c7c4580e49a1",
+    "tests/fixtures/ap242/write-presentation/every_kind.step.gz": "fae1b31a2a825257ee3b4d66bb55e3788df9f52060d96efe180a196488b91595",
     "tests/fixtures/ap242/write-presentation/nist_ctc_02_targets.occt.json.gz": "90eb7df2100f37daeacdac4e18e416ef02ab41aeaab7651e7dfd947659f862a6",
     "tests/fixtures/ap242/write-presentation/nist_ctc_02_targets.step.gz": "f73f724a77037e2b9bdb7800f816b8dcd1b6c646c46432bcc984cea33102e0f6",
     "tests/fixtures/ap242/write-presentation/nist_ftc_10_targets.occt.json.gz": "bc577cb5232157895f842df78eb95071ed7540aa3a9012ab737e9e6c0b01310b",
@@ -218,8 +218,8 @@
     "tests/fixtures/ap242/write-presentation/pmi_gaps_gram.step.gz": "c2d93c5cb547edf1a951f33bfe795ff8b836eea187d24c3c41bf633d451977e7",
     "tests/fixtures/ap242/write-presentation/spool_fits_intent.occt.json.gz": "5ab98dc90f25ea0506d8c01042e855148ec28ebdc42b5139e8e932620fca6ea7",
     "tests/fixtures/ap242/write-presentation/spool_fits_intent.step.gz": "253b9ecdc0cfcd5fee688f96a72e162a7049d75ee8a85a3b4bc3182958b5ac73",
-    "tests/fixtures/ap242/write-presentation/string_post_tapped_intent.occt.json.gz": "3d07d8cd6f90ff2c220b3a6875b06067c1310ad4723731288b029c38808bfaa1",
-    "tests/fixtures/ap242/write-presentation/string_post_tapped_intent.step.gz": "014fa3e8f1b87aed0736fe2409273f3494eb6a6f613f70ae76301f2a5ed4062a",
+    "tests/fixtures/ap242/write-presentation/string_post_tapped_intent.occt.json.gz": "ea9b0372934344c6bcbc144a11c5434d2c74628ced4a99d2339afede758f99b7",
+    "tests/fixtures/ap242/write-presentation/string_post_tapped_intent.step.gz": "0d07901fea2be2c850a4e3a70766e56c22db8711ae59c7f2e62ca7c71baec430",
     "tests/fixtures/ap242/write-presentation/thread_removed.occt.json.gz": "425f0806602d8cf95bab66572bdbd60847da2a81fd2e78acb976dfc3ed3ad654",
     "tests/fixtures/ap242/write-presentation/thread_removed.step.gz": "00555790b86b7b8cde55a2baccbe50c8adaa9c82ed0540cdd5942036b7511eb2",
     "tests/fixtures/ap242/write-presentation/thread_replaced.occt.json.gz": "e2ec612dbacb627e8d923ef5be27b3a7d778d709172cfde98273369eb3544ec5",
@@ -5871,5 +5871,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "b7f7cb541827072ff83a890892608c143dd9ed46"
+  "source_commit": "b15c52be5f93ae3a30c86f30ffe51e4c86132cde"
 }
