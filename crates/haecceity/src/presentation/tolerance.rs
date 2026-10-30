@@ -132,8 +132,11 @@ pub fn band(upper: f64, lower: f64) -> String {
 pub fn band_text(upper: &crate::pmi::Decimal, lower: &crate::pmi::Decimal) -> String {
     use crate::pmi::Decimal;
     let printed = |s: &str| {
+        // STEP's REAL spelling requires a point even with no fractional digits. Apply
+        // the shared notation normalisation before Draftwright's .0 integer convention.
+        let s = Decimal::parse(s).map_or_else(|_| s.to_owned(), |d| number(&d));
         if s.contains('.') || s.contains(['e', 'E']) {
-            s.to_string()
+            s
         } else {
             format!("{s}.0")
         }

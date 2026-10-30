@@ -694,10 +694,25 @@ pub fn write(
         }
     }
 
+    // Parse geometry once for the entire write, only when a new callout needs it. Parts
+    // share the parsed STEP model; each B-rep and ray caster is still local to its part.
+    #[cfg(feature = "presentation")]
+    let presentation_reader = plans
+        .iter()
+        .any(|p| {
+            !p.pmi.datums.is_empty() || !p.pmi.dimensions.is_empty() || !p.pmi.tolerances.is_empty()
+        })
+        .then(|| crate::step::PartReader::read(doc.bytes()).ok())
+        .flatten();
     // Emission, part by part.
     let mut em = Emitter::new(doc, edition, &mut edit, &removed);
     for plan in &plans {
-        plan.emit(&mut em, &mut report)?;
+        plan.emit(
+            &mut em,
+            &mut report,
+            #[cfg(feature = "presentation")]
+            presentation_reader.as_ref(),
+        )?;
     }
     let emitted_dimensions = em
         .exponents
@@ -1215,6 +1230,7 @@ impl<'a> Emitter<'a> {
 
     /// The provisional reference of the next instance this emitter adds (`#2^63 + n`, as
     /// `p21` documents), for a record that references itself.
+    #[cfg(not(feature = "presentation"))]
     fn next_ref(&self) -> A {
         A::EntityRef((1u64 << 63) | self.count as u64)
     }
@@ -2742,7 +2758,12 @@ impl<'a> PartPlan<'a> {
 
     // --- emission --------------------------------------------------------------------------
 
-    fn emit(&self, em: &mut Emitter<'_>, report: &mut WriteReport) -> Result<(), WriteError> {
+    fn emit(
+        &self,
+        em: &mut Emitter<'_>,
+        report: &mut WriteReport,
+        #[cfg(feature = "presentation")] presentation_reader: Option<&crate::step::PartReader>,
+    ) -> Result<(), WriteError> {
         let mut st = Emitted::default();
         let p = self.pmi;
         let pds = em.reference(self.def.shape)?;
@@ -2969,7 +2990,7 @@ impl<'a> PartPlan<'a> {
             st.tolerances.insert(i, r);
         }
         #[cfg(feature = "presentation")]
-        self.datum_symbols(em, &symbols, &st, report)?;
+        self.datum_symbols(em, &symbols, &st, report, presentation_reader)?;
         for r in &p.tolerance_relations {
             let name = match r.kind {
                 RelationKind::Composite => "composite",
@@ -3387,6 +3408,7 @@ impl<'a> PartPlan<'a> {
         symbols: &[(R, Vec<String>, usize)],
         _st: &Emitted,
         report: &mut WriteReport,
+        #[cfg(feature = "presentation")] presentation_reader: Option<&crate::step::PartReader>,
     ) -> Result<(), WriteError> {
         if symbols.is_empty()
             && !(cfg!(feature = "presentation")
@@ -3408,7 +3430,7 @@ impl<'a> PartPlan<'a> {
         #[cfg(not(feature = "presentation"))]
         let mut layout = SymbolLayout::new(&points);
         #[cfg(feature = "presentation")]
-        let presentation_part = crate::step::read_part(self.doc.bytes(), self.def).ok();
+        let presentation_part = presentation_reader.and_then(|r| r.part(self.def).ok());
         #[cfg(feature = "presentation")]
         let mut local_layout = {
             let mut bounds = crate::geom::Bounds::empty();
@@ -3437,13 +3459,7 @@ impl<'a> PartPlan<'a> {
                 let p = local_layout.place(*tip, self.feature_axis(*_feature_index), &c);
                 ([p.origin, p.normal, p.along], p.lines)
             };
-            graphics.push((
-                vec![*feature],
-                "datum",
-                format!("Datum {label}"),
-                plane,
-                lines,
-            ));
+            graphics.push((*feature, "datum", format!("Datum {label}"), plane, lines));
             report.datum_symbols.push((self.id, label));
         }
         #[cfg(feature = "presentation")]
@@ -3453,7 +3469,6 @@ impl<'a> PartPlan<'a> {
                 DimensionKind::Size { feature, .. } => feature,
                 DimensionKind::Location { from, .. } => from,
             };
-            let feature_ref = |f: FeatureId| _st.features[&self.canonical[f.0]];
             for (i, d) in self.pmi.dimensions.iter().enumerate() {
                 let f = feature_of_dimension(d);
                 let tip = self
@@ -3466,7 +3481,7 @@ impl<'a> PartPlan<'a> {
                 let p = local_layout.place(tip, self.feature_axis(f.0), &c);
                 let (plane, lines) = ([p.origin, p.normal, p.along], p.lines);
                 graphics.push((
-                    vec![_st.dimensions[&i], feature_ref(f)],
+                    _st.dimensions[&i],
                     presentation::dimension_type(d),
                     name,
                     plane,
@@ -3474,16 +3489,13 @@ impl<'a> PartPlan<'a> {
                 ));
             }
             for (i, t) in self.pmi.tolerances.iter().enumerate() {
-                let (f, target) = match &t.target {
-                    ToleranceTarget::Feature(f) => (Some(*f), feature_ref(*f)),
-                    ToleranceTarget::Dimension(d) => (
-                        Some(feature_of_dimension(&self.pmi.dimensions[d.0])),
-                        _st.dimensions[&d.0],
-                    ),
-                    ToleranceTarget::Relation { relating, .. } => {
-                        (Some(*relating), _st.tolerance_targets[&i])
+                let f = match &t.target {
+                    ToleranceTarget::Feature(f) => Some(*f),
+                    ToleranceTarget::Dimension(d) => {
+                        Some(feature_of_dimension(&self.pmi.dimensions[d.0]))
                     }
-                    ToleranceTarget::WholePart => (None, em.reference(self.def.shape)?),
+                    ToleranceTarget::Relation { relating, .. } => Some(*relating),
+                    ToleranceTarget::WholePart => None,
                 };
                 let tip = f
                     .and_then(|f| self.feature_point(f.0))
@@ -3493,7 +3505,7 @@ impl<'a> PartPlan<'a> {
                 let p = local_layout.place(tip, f.and_then(|f| self.feature_axis(f.0)), &c);
                 let (plane, lines) = ([p.origin, p.normal, p.along], p.lines);
                 graphics.push((
-                    vec![_st.tolerances[&i], target],
+                    _st.tolerances[&i],
                     presentation::tolerance_type(t),
                     name,
                     plane,
@@ -3505,7 +3517,7 @@ impl<'a> PartPlan<'a> {
         if let Some(part) = &presentation_part {
             use crate::presentation::{self, linear};
             let factor = self.context_length_unit().map_or(1., |u| u.millimetres());
-            let measurements = linear::measurements(part, self.pmi);
+            let measurements = linear::measurements(part, self.def, self.pmi);
             let mut ladder = linear::Ladder::new(part.bounds());
             for (i, (_, _, _, _, lines)) in graphics.iter().enumerate() {
                 if i < symbols.len()
@@ -3596,7 +3608,7 @@ impl<'a> PartPlan<'a> {
         };
         let mut planes = Vec::new();
         let mut callouts = Vec::new();
-        for (definitions, annotation_type, name, [origin, normal, along], lines) in graphics {
+        for (definition, annotation_type, name, [origin, normal, along], lines) in graphics {
             #[cfg(feature = "presentation")]
             if let Some(missing) = name
                 .chars()
@@ -3674,7 +3686,7 @@ impl<'a> PartPlan<'a> {
                 ],
             )?;
             planes.push(annotation_plane);
-            callouts.push((definitions, callout));
+            callouts.push((definition, callout));
         }
         let model = em.simple(
             "draughting_model",
@@ -3695,37 +3707,20 @@ impl<'a> PartPlan<'a> {
         // shape representation (maintainer decision, 2026-10-09): specify-core's OpenCascade
         // loader crashed on every file with one (docs/step-ap242.md gives the cause); the
         // associations below link each symbol.
-        let mut model_definitions = BTreeSet::new();
-        for (definitions, callout) in callouts {
-            for (index, feature) in definitions.into_iter().enumerate() {
-                // IIRU UR1 forbids the same (representation, callout) twice; UR2 also
-                // forbids presenting a shared feature twice in one representation. Keep the
-                // semantic association in the part's one draughting model and the feature
-                // association in a per-callout symbol representation (an allowed annotation
-                // representation with the same 3D context). No validation exemptions.
-                let used = if index == 0 && model_definitions.insert(feature) {
-                    model
-                } else {
-                    em.simple(
-                        "symbol_representation",
-                        &[
-                            ("name", s("PMI feature association")),
-                            ("items", refs([callout])),
-                            ("context_of_items", context.a()),
-                        ],
-                    )?
-                };
-                em.simple(
-                    "draughting_model_item_association",
-                    &[
-                        ("name", s("PMI representation to presentation link")),
-                        ("description", s("")),
-                        ("definition", feature.a()),
-                        ("used_representation", used.a()),
-                        ("identified_item", callout.a()),
-                    ],
-                )?;
-            }
+        // CAx-IF PMI §7.3: exactly the semantic link in the part draughting model.
+        // SFA 5.41 rejects feature links and symbol representations here; removing them
+        // leaves Solid Edge 2026's typed imports and symbolic graphics identical.
+        for (definition, callout) in callouts {
+            em.simple(
+                "draughting_model_item_association",
+                &[
+                    ("name", s("PMI representation to presentation link")),
+                    ("description", s("")),
+                    ("definition", definition.a()),
+                    ("used_representation", model.a()),
+                    ("identified_item", callout.a()),
+                ],
+            )?;
         }
         Ok(())
     }
@@ -3914,6 +3909,14 @@ impl<'a> PartPlan<'a> {
                     Role::DatumFeature => em.instance(&["datum_feature"], &base(true), &[])?,
                     Role::AppliedArea => em.instance(&["applied_area"], &base(true), &[])?,
                     Role::ThreadRunout => em.instance(&["thread_runout"], &base(true), &[])?,
+                    // Two independently placed callouts need distinct semantic definitions
+                    // in one draughting model (IIRU UR2). Keep the datum feature and write
+                    // its size as a separate dimensional_size applying to that same feature.
+                    #[cfg(feature = "presentation")]
+                    Role::DatumFeatureOfSize(_) => {
+                        em.instance(&["datum_feature"], &base(true), &[])?
+                    }
+                    #[cfg(not(feature = "presentation"))]
                     Role::DatumFeatureOfSize(d) => {
                         let DimensionKind::Size { kind, .. } = &self.pmi.dimensions[d].kind else {
                             return Err(WriteError::Internal(

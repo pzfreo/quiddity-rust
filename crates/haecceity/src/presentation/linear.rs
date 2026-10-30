@@ -124,7 +124,18 @@ impl Element {
         }
     }
 }
-fn elements(part: &Part, p: &PartPmi, feature: FeatureId, depth: usize) -> Vec<Element> {
+fn edge_midpoint(e: &crate::brep::Edge) -> V3 {
+    // For splines/ellipses Edge::midpoint uses sampled arc length. Project its chord
+    // interpolation back onto the actual curve before using it as an extension foot.
+    e.curve.value(e.curve.parameter(e.midpoint()))
+}
+fn elements(
+    part: &Part,
+    edges: &[Option<usize>],
+    p: &PartPmi,
+    feature: FeatureId,
+    depth: usize,
+) -> Vec<Element> {
     if depth > p.features.len() {
         return Vec::new();
     }
@@ -147,7 +158,12 @@ fn elements(part: &Part, p: &PartPmi, feature: FeatureId, depth: usize) -> Vec<E
                     }
                     _ => None,
                 },
-                Anchor::Edge(e) => part.edges.get(e.0).map(|e| Element::Point(e.midpoint())),
+                Anchor::Edge(e) => edges
+                    .get(e.0)
+                    .copied()
+                    .flatten()
+                    .and_then(|i| part.edges.get(i))
+                    .map(|e| Element::Point(edge_midpoint(e))),
                 Anchor::Geometry(g) => {
                     let g = p.geometry.get(g.0)?;
                     crate::pmi::write::geometry_point(&g.item).map(|q| {
@@ -163,7 +179,7 @@ fn elements(part: &Part, p: &PartPmi, feature: FeatureId, depth: usize) -> Vec<E
             .collect(),
         Feature::Group { members, .. } | Feature::Derived { from: members, .. } => members
             .iter()
-            .flat_map(|f| elements(part, p, *f, depth + 1))
+            .flat_map(|f| elements(part, edges, p, *f, depth + 1))
             .collect(),
     }
 }
@@ -325,7 +341,13 @@ fn pair(
 }
 // Exact boundary witnesses for elements without an analytic plane/axis description.
 // They remain on the semantic targets; nominal values never manufacture geometry.
-fn witnesses(part: &Part, p: &PartPmi, feature: FeatureId, depth: usize) -> Vec<Element> {
+fn witnesses(
+    part: &Part,
+    edges: &[Option<usize>],
+    p: &PartPmi,
+    feature: FeatureId,
+    depth: usize,
+) -> Vec<Element> {
     if depth > p.features.len() {
         return Vec::new();
     }
@@ -347,27 +369,51 @@ fn witnesses(part: &Part, p: &PartPmi, feature: FeatureId, depth: usize) -> Vec<
                         .collect::<Vec<_>>()
                 }
                 Anchor::Edge(e) => {
-                    let e = &part.edges[e.0];
+                    let Some(e) = edges
+                        .get(e.0)
+                        .copied()
+                        .flatten()
+                        .and_then(|i| part.edges.get(i))
+                    else {
+                        return Vec::new();
+                    };
                     vec![
                         Element::Point(e.start),
-                        Element::Point(e.midpoint()),
+                        Element::Point(edge_midpoint(e)),
                         Element::Point(e.end),
                     ]
                 }
-                Anchor::Geometry(_) => elements(part, p, feature, depth + 1),
+                Anchor::Geometry(_) => elements(part, edges, p, feature, depth + 1),
             })
             .take(32)
             .collect(),
         Feature::Group { members, .. } | Feature::Derived { from: members, .. } => members
             .iter()
-            .flat_map(|f| witnesses(part, p, *f, depth + 1))
+            .flat_map(|f| witnesses(part, edges, p, *f, depth + 1))
             .take(32)
             .collect(),
     }
 }
+fn semantic_edges(part: &Part, def: &crate::step::PartDefinition) -> Vec<Option<usize>> {
+    // PMI EdgeIndex indexes the definition's entity list, not loop traversal in the B-rep.
+    // Reversed face loops can reverse first use of edges. Resolve by STEP source identity.
+    let by_entity: std::collections::BTreeMap<_, _> = (0..part.edges.len())
+        .filter_map(|i| part.edge_source(i).map(|s| (s.entity, i)))
+        .collect();
+    def.edges
+        .iter()
+        .map(|id| by_entity.get(id).copied())
+        .collect()
+}
 /// Resolve the two semantic elements. Size aspects containing opposite faces are measured
 /// between those faces; a single planar size face finds its opposite on the same part.
-pub fn measurements(part: &Part, p: &PartPmi) -> Vec<Option<Measurement>> {
+pub fn measurements(
+    part: &Part,
+    def: &crate::step::PartDefinition,
+    p: &PartPmi,
+) -> Vec<Option<Measurement>> {
+    let edges = semantic_edges(part, def);
+    let edges = edges.as_slice();
     let caster = RayCaster::for_faces(part, (0..part.faces.len()).collect());
     p.dimensions
         .iter()
@@ -377,11 +423,12 @@ pub fn measurements(part: &Part, p: &PartPmi) -> Vec<Option<Measurement>> {
             }
             let nominal = d.nominal.as_ref().map_or(0., Value::si).abs();
             let (a, b) = match d.kind {
-                DimensionKind::Location { from, to, .. } => {
-                    (elements(part, p, from, 0), elements(part, p, to, 0))
-                }
+                DimensionKind::Location { from, to, .. } => (
+                    elements(part, edges, p, from, 0),
+                    elements(part, edges, p, to, 0),
+                ),
                 DimensionKind::Size { feature, .. } => {
-                    let a = elements(part, p, feature, 0);
+                    let a = elements(part, edges, p, feature, 0);
                     let b = if a.len() > 1 {
                         a.clone()
                     } else {
@@ -400,11 +447,12 @@ pub fn measurements(part: &Part, p: &PartPmi) -> Vec<Option<Measurement>> {
             resolved
                 .or_else(|| {
                     let (a, b) = match d.kind {
-                        DimensionKind::Location { from, to, .. } => {
-                            (witnesses(part, p, from, 0), witnesses(part, p, to, 0))
-                        }
+                        DimensionKind::Location { from, to, .. } => (
+                            witnesses(part, edges, p, from, 0),
+                            witnesses(part, edges, p, to, 0),
+                        ),
                         DimensionKind::Size { feature, .. } => {
-                            let a = witnesses(part, p, feature, 0);
+                            let a = witnesses(part, edges, p, feature, 0);
                             (a.clone(), a)
                         }
                     };
@@ -557,6 +605,42 @@ impl Ladder {
 mod tests {
     use super::*;
     #[test]
+    fn nist_primary_and_boundary_edge_witnesses_use_the_same_semantic_edge() {
+        use std::io::Read;
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../tests/fixtures/ap242/specify/nist_ctc_01_merge.step.gz");
+        let mut bytes = Vec::new();
+        flate2::read::GzDecoder::new(std::fs::File::open(path).unwrap())
+            .read_to_end(&mut bytes)
+            .unwrap();
+        let def = &crate::step::read_part_definitions(&bytes).unwrap()[0];
+        let part = crate::step::read_part(&bytes, def).unwrap();
+        let edges = semantic_edges(&part, def);
+        let p = PartPmi {
+            features: (0..def.edges.len())
+                .map(|i| Feature::Items(vec![Anchor::Edge(EdgeIndex(i))]))
+                .collect(),
+            ..PartPmi::default()
+        };
+        assert_eq!(def.edges.len(), 318);
+        for (i, &id) in def.edges.iter().enumerate() {
+            let actual = (0..part.edges.len())
+                .find(|&e| part.edge_source(e).is_some_and(|s| s.entity == id))
+                .unwrap();
+            let e = &part.edges[actual];
+            let mid = e.curve.value(e.curve.parameter(e.midpoint()));
+            assert_eq!(
+                elements(&part, &edges, &p, FeatureId(i), 0)[0].point(&part),
+                mid
+            );
+            let boundary: Vec<_> = witnesses(&part, &edges, &p, FeatureId(i), 0)
+                .iter()
+                .map(|e| e.point(&part))
+                .collect();
+            assert_eq!(boundary, [e.start, mid, e.end], "semantic edge #{id}");
+        }
+    }
+    #[test]
     fn supplemental_points_respect_context_units_and_explicit_overrides() {
         let part = Part::new(vec![], vec![], vec![]).with_file_pcurves(
             std::collections::BTreeMap::new(),
@@ -582,11 +666,11 @@ mod tests {
         });
         p.features
             .push(Feature::Items(vec![Anchor::Geometry(GeometryId(0))]));
-        let point = elements(&part, &p, FeatureId(0), 0)[0].point(&part);
+        let point = elements(&part, &[], &p, FeatureId(0), 0)[0].point(&part);
         assert!(geom::dist(point, [25.4, 50.8, 76.2]) < 1e-12);
         p.geometry[0].length_unit = Some(LengthUnit::Millimetre);
         assert_eq!(
-            elements(&part, &p, FeatureId(0), 0)[0].point(&part),
+            elements(&part, &[], &p, FeatureId(0), 0)[0].point(&part),
             [1., 2., 3.]
         );
     }

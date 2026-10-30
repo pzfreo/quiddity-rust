@@ -9,9 +9,9 @@
 //!
 //! With the default `presentation` feature, the writer uses `crate::presentation` for
 //! dimension/tolerance content and datum lettering. Styled tessellated geometric sets,
-//! per-callout annotation planes and semantic/feature associations share one part draughting
-//! model. See `docs/step-ap242.md`, Graphical callouts (#137), for the auxiliary symbol
-//! representations required by EXPRESS uniqueness. Append preserves foreign callouts.
+//! per-callout annotation planes and one semantic association per callout share one part
+//! draughting model (CAx-IF PMI §7.3). See `docs/step-ap242.md`, Graphical callouts (#137).
+//! Append preserves foreign callouts and symbol representations.
 
 mod derived;
 pub mod model;

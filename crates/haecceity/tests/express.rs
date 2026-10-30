@@ -433,6 +433,7 @@ fn families_follow_the_rules() {
         ("styled_item", Family::Presentation),
         ("thread", Family::SemanticPmi),
         ("boss", Family::Other),
+        ("symbol_representation", Family::Other),
         ("advanced_face", Family::Other),
         ("property_definition", Family::Other),
     ] {

@@ -10,8 +10,8 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 - For #137, default-on `haecceity::presentation` shares Draftwright's requirement notation,
   frame/symbol geometry and Hershey single-stroke lettering. Every newly written dimension and
-  geometric tolerance has a styled tessellated callout, an annotation plane and semantic/
-  feature associations in the part's shared presentation path. No-PMI bytes and appended
+  geometric tolerance has a styled tessellated callout, an annotation plane and one semantic
+  association per callout in the part's shared presentation path. No-PMI bytes and appended
   foreign presentation are preserved. Planes sit beside their features with part-scaled text
   and a short deterministic stagger; linear dimensions have two measured witnesses,
   extension lines and arrowed dimension lines, shortest first on outward ladders.

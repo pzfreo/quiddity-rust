@@ -5139,6 +5139,12 @@ fn every_requirement_has_a_callout() {
             .filter(|&id| w.names(id).iter().any(|n| express::is_a(n, name)))
             .collect::<Vec<_>>()
     };
+    assert!(of("symbol_representation").is_empty());
+    assert!(of("dimensional_size_with_datum_feature").is_empty());
+    // A size on a datum feature must not introduce a second usage of the same definition.
+    let links = of("draughting_model_item_association");
+    let definitions: BTreeSet<_> = links.iter().map(|&id| refs_of(&w.doc, id)[0]).collect();
+    assert_eq!(definitions.len(), links.len());
     let callouts = of("draughting_callout");
     assert_eq!(
         callouts.len(),
@@ -5148,7 +5154,7 @@ fn every_requirement_has_a_callout() {
     assert_eq!(of("draughting_model").len(), 1);
     assert_eq!(
         of("draughting_model_item_association").len(),
-        p.datums.len() + 2 * (p.dimensions.len() + p.tolerances.len())
+        callouts.len()
     );
     let expected: Vec<_> = p
         .dimensions
@@ -5196,17 +5202,21 @@ fn every_requirement_has_a_callout() {
             .into_iter()
             .filter(|&id| refs_of(&w.doc, id).last() == Some(&callout))
             .collect();
-        assert_eq!(links.len(), 2, "{text}");
+        assert_eq!(links.len(), 1, "{text}");
         let a = refs_of(&w.doc, links[0]);
-        let b = refs_of(&w.doc, links[1]);
-        assert!(
-            w.names(a[1]) == ["draughting_model"] || w.names(a[1]) == ["symbol_representation"]
+        assert_eq!(w.names(a[1]), ["draughting_model"]);
+        assert_eq!(a[1], of("draughting_model")[0]);
+        assert_eq!(
+            test_attribute(
+                &w.doc,
+                links[0],
+                "item_identified_representation_usage",
+                "name"
+            ),
+            Some(&Attribute::String(
+                "PMI representation to presentation link".into()
+            ))
         );
-        if w.names(a[1]) == ["symbol_representation"] {
-            assert_eq!(refs_of(&w.doc, a[1])[0], callout);
-        }
-        assert_eq!(w.names(b[1]), ["symbol_representation"]);
-        assert_eq!(refs_of(&w.doc, b[1])[0], callout);
         assert!(
             w.names(a[0])
                 .iter()
@@ -5214,33 +5224,6 @@ fn every_requirement_has_a_callout() {
                     || express::is_a(n, "dimensional_location")
                     || express::is_a(n, "geometric_tolerance"))
         );
-        // Get the exact semantic endpoint, including complex tolerance instances.
-        let target = if w
-            .names(a[0])
-            .iter()
-            .any(|n| express::is_a(n, "dimensional_size"))
-        {
-            test_attribute(&w.doc, a[0], "dimensional_size", "applies_to")
-        } else if w
-            .names(a[0])
-            .iter()
-            .any(|n| express::is_a(n, "dimensional_location"))
-        {
-            test_attribute(
-                &w.doc,
-                a[0],
-                "shape_aspect_relationship",
-                "relating_shape_aspect",
-            )
-        } else {
-            test_attribute(
-                &w.doc,
-                a[0],
-                "geometric_tolerance",
-                "toleranced_shape_aspect",
-            )
-        };
-        assert_eq!(target, Some(&Attribute::EntityRef(b[0])), "{text}");
         let plane = of("annotation_plane")
             .into_iter()
             .find(|&id| refs_of(&w.doc, id).contains(&callout))
@@ -5300,7 +5283,7 @@ fn an_empty_add_is_byte_identical_even_with_foreign_presentation() {
 
 #[cfg(feature = "presentation")]
 #[test]
-fn callouts_and_their_auxiliary_representations_follow_replace_and_remove() {
+fn semantic_callouts_follow_replace_and_remove_without_auxiliary_representations() {
     let f = spool();
     let mut p = four_datums();
     p.dimensions.push(size(
@@ -5591,7 +5574,13 @@ fn assert_non_linear_graphics_unchanged(before: &Document, after: &Document) {
     );
 }
 #[cfg(feature = "presentation")]
-fn measured_foot(part: &haecceity::Part, p: &PartPmi, f: FeatureId, q: [f64; 3]) -> bool {
+fn measured_foot(
+    part: &haecceity::Part,
+    def: &PartDefinition,
+    p: &PartPmi,
+    f: FeatureId,
+    q: [f64; 3],
+) -> bool {
     use haecceity::geom::{self, Surface};
     match &p.features[f.0] {
         Feature::Items(items) => items.iter().any(|a| match a {
@@ -5631,10 +5620,27 @@ fn measured_foot(part: &haecceity::Part, p: &PartPmi, f: FeatureId, q: [f64; 3])
                 }
                 _ => false,
             },
-            _ => false,
+            Anchor::Edge(e) => {
+                let entity = def.edges[e.0];
+                let i = (0..part.edges.len())
+                    .find(|&i| part.edge_source(i).is_some_and(|s| s.entity == entity))
+                    .unwrap();
+                let edge = &part.edges[i];
+                // Witnesses are endpoints or the trimmed midpoint, not a point anywhere
+                // on the infinite supporting curve. Check both independently.
+                geom::dist(edge.curve.value(edge.curve.parameter(q)), q) < 1e-7
+                    && [
+                        edge.start,
+                        edge.curve.value(edge.curve.parameter(edge.midpoint())),
+                        edge.end,
+                    ]
+                    .iter()
+                    .any(|p| geom::dist(*p, q) < 1e-7)
+            }
+            Anchor::Geometry(_) => false,
         }),
         Feature::Group { members, .. } | Feature::Derived { from: members, .. } => {
-            members.iter().any(|f| measured_foot(part, p, *f, q))
+            members.iter().any(|f| measured_foot(part, def, p, *f, q))
         }
     }
 }
@@ -5724,12 +5730,12 @@ fn sample_linear_dimensions(doc: &Document, read: &PmiRead, def: &PartDefinition
             DimensionKind::Size { feature, .. } => (feature, feature),
         };
         assert!(
-            measured_foot(&part, p, from, feet[0]),
+            measured_foot(&part, def, p, from, feet[0]),
             "D{i} first foot {:?} misses {from:?}",
             feet[0]
         );
         assert!(
-            measured_foot(&part, p, to, feet[1]),
+            measured_foot(&part, def, p, to, feet[1]),
             "D{i} second foot {:?} misses {to:?}",
             feet[1]
         );
@@ -5874,4 +5880,129 @@ fn linear_sizes_use_opposed_faces_and_axis_locations_use_both_centrelines() {
     assert_verified(&f, &w, &p);
     assert!(new_violations(&f.doc, &w.doc).is_empty());
     sample_linear_dimensions(&w.doc, &w.read, &f.parts[0]);
+}
+
+#[cfg(feature = "presentation")]
+#[test]
+fn nist_edge_witnesses_follow_semantic_entities_not_loop_order() {
+    use haecceity::{
+        geom,
+        presentation::{self, linear},
+    };
+    let f = fixture("ap242/specify/nist_ctc_01_merge.step.gz");
+    let mut edge_feet = 0;
+    let mut reordered = 0;
+    for def in &f.parts {
+        let part = haecceity::step::read_part(f.doc.bytes(), def).unwrap();
+        reordered += def
+            .edges
+            .iter()
+            .enumerate()
+            .filter(|(i, id)| part.edge_source(*i).is_none_or(|s| s.entity != **id))
+            .count();
+        // The merged fixture has no direct edge-to-edge linear requirements. Exercise
+        // every semantic edge as an extension target on its real geometry, including
+        // all 70 whose B-rep order differs; choose an independent second edge.
+        let midpoint = |id: u64| {
+            let i = (0..part.edges.len())
+                .find(|&i| part.edge_source(i).is_some_and(|s| s.entity == id))
+                .unwrap();
+            part.edges[i]
+                .curve
+                .value(part.edges[i].curve.parameter(part.edges[i].midpoint()))
+        };
+        let mut p = PartPmi {
+            features: (0..def.edges.len())
+                .map(|i| Feature::Items(vec![Anchor::Edge(EdgeIndex(i))]))
+                .collect(),
+            ..PartPmi::default()
+        };
+        for (i, &id) in def.edges.iter().enumerate() {
+            let a = midpoint(id);
+            let j = def
+                .edges
+                .iter()
+                .position(|&id| geom::dist(a, midpoint(id)) > 1e-6)
+                .unwrap();
+            p.dimensions.push(Dimension {
+                kind: DimensionKind::Location {
+                    from: FeatureId(i),
+                    to: FeatureId(j),
+                    kind: LocationKind::LinearDistance,
+                    path: None,
+                    directed: false,
+                    angle: None,
+                },
+                nominal: Some(mm(&geom::dist(a, midpoint(def.edges[j])).to_string())),
+                tolerance: DimTolerance::None,
+                qualifier: None,
+                modifiers: vec![],
+                principle: None,
+            });
+        }
+        let measurements = linear::measurements(&part, def, &p);
+        for (d, m) in p.dimensions.iter().zip(measurements) {
+            let m = m.expect("every edge-anchored dimension must resolve");
+            let features = match d.kind {
+                DimensionKind::Location { from, to, .. } => [from, to],
+                DimensionKind::Size { feature, .. } => [feature; 2],
+            };
+            let drawn = linear::Ladder::new(part.bounds()).draw(&m, &presentation::dimension(d));
+            for (i, feature) in features.into_iter().enumerate() {
+                if matches!(&p.features[feature.0], Feature::Items(items) if items.iter().any(|a| matches!(a,Anchor::Edge(_))))
+                {
+                    let line = &drawn.placed.lines[i];
+                    let v = geom::unit(geom::sub(line[1], line[0])).unwrap();
+                    let foot = geom::sub(line[0], geom::scale(v, drawn.gap));
+                    assert!(
+                        measured_foot(&part, def, &p, feature, foot),
+                        "semantic edge missed: {feature:?} {foot:?}"
+                    );
+                    edge_feet += 1;
+                }
+            }
+        }
+    }
+    assert_eq!(
+        reordered, 70,
+        "the fixture must exercise reversed loop edge order"
+    );
+    assert_eq!(
+        edge_feet, 636,
+        "both extension feet on all 318 semantic edges"
+    );
+    println!("{edge_feet} semantic edge extension feet checked; {reordered} reordered edges");
+}
+
+#[cfg(feature = "presentation")]
+#[test]
+fn read_back_deviations_use_notation_numbers() {
+    let f = spool();
+    let mut p = PartPmi {
+        features: vec![faces(&[0])],
+        ..PartPmi::default()
+    };
+    for (upper, lower) in [("1.", "-1."), ("0.5", "-1."), ("1.E-2", "0.")] {
+        p.dimensions.push(size(
+            0,
+            "10.",
+            DimTolerance::Deviations(bounds(upper, lower)),
+        ));
+    }
+    let w = written(&f, &p);
+    for (d, expected) in
+        w.read.parts[0]
+            .dimensions
+            .iter()
+            .zip(["⌀10 ±1.0", "⌀10 +0.5 -1.0", "⌀10 +1E-2 0"])
+    {
+        assert_eq!(haecceity::presentation::dimension(d).notation(), expected);
+        assert!(
+            w.added()
+                .into_iter()
+                .any(|id| w.names(id) == ["draughting_callout"]
+                    && test_attribute(&w.doc, id, "representation_item", "name")
+                        == Some(&Attribute::String(expected.into())))
+        );
+    }
 }

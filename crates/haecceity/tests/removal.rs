@@ -639,3 +639,33 @@ fn plans_are_deterministic() {
     };
     assert_eq!(bytes(&a), bytes(&b));
 }
+
+#[test]
+fn a_foreign_symbol_representation_is_not_generic_pmi_presentation() {
+    let doc = handmade(|t| {
+        t.replace(
+            "ENDSEC;\nEND-ISO",
+            "#90=SYMBOL_REPRESENTATION('foreign symbol',(#30),#9);\nENDSEC;\nEND-ISO",
+        )
+    });
+    assert_eq!(instance_family(&doc, 90), Family::Other);
+    let plan = removal::plan(
+        &doc,
+        &handmade_seeds(&doc),
+        PresentationPolicy::RemovePresentation,
+    )
+    .unwrap();
+    let mut edit = Edit::new();
+    plan.into_edit(&mut edit);
+    let after = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    // The foreign symbol holds its callout: neither the representation nor any of its
+    // shared content may be removed or rewritten as generic PMI presentation.
+    for id in [90, 30, 31, 32, 33, 34, 35, 36, 37] {
+        assert_eq!(
+            &doc.bytes()[doc.span(id).unwrap()],
+            &after.bytes()[after.span(id).unwrap()],
+            "foreign symbol content #{id}"
+        );
+        assert!(!plan.removed.contains(&id));
+    }
+}

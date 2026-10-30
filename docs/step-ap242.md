@@ -86,33 +86,73 @@ The graph is `COORDINATES_LIST` → `TESSELLATED_CURVE_SET` →
 `TESSELLATED_GEOMETRIC_SET` (CAx-IF type name, e.g. `diameter dimension`, `position`,
 `profile of surface`) → styled `TESSELLATED_ANNOTATION_OCCURRENCE` → `DRAUGHTING_CALLOUT`.
 Each callout is in an `ANNOTATION_PLANE`, placed near the feature. All planes belong to
-one part draughting model. The wrapper and the feature association are necessary for
-Solid Edge 2026 to retain the annotation; the plane prevents misplaced graphics.
+one part draughting model. The geometric-set wrapper is necessary for Solid Edge 2026
+to retain the annotation; the plane prevents misplaced graphics.
 
-Each dimension/tolerance callout has **two** `DRAUGHTING_MODEL_ITEM_ASSOCIATION`s: to its
-semantic entity (`PMI representation to presentation link`) and to its semantic target
-(`applies_to`, location's relating aspect, or `toleranced_shape_aspect`). There is an
-EXPRESS conflict in the hand-tested NIST-style recipe: inherited
-`item_identified_representation_usage.UR1` prohibits two associations with the same
-representation and callout; UR2 prohibits reusing a definition in a representation.
-NIST CTC-01 itself uses that duplicate pair. To meet the requirement of no new rule
-violations, the writer uses a per-callout `SYMBOL_REPRESENTATION` (classified as presentation for safe removal; same 3D context and
-callout) for the feature association. The semantic association uses the part draughting
-model unless a datum has already used that definition, in which case it also gets its
-own symbol representation. The callout still appears only once in the part draughting
-model. No rule is skipped or exempted. The maintainer's Solid Edge 2026 re-test accepts this structure.
+Each callout has **one** `DRAUGHTING_MODEL_ITEM_ASSOCIATION`, named
+`PMI representation to presentation link`, to its semantic entity, using the part's
+`DRAUGHTING_MODEL`. Datums retain their datum-feature association. NIST STEP File Analyzer
+5.41 (PMI Recommended Practices §7.3) rejected the former feature links: their reserved name
+was invalid for a feature definition, and `SYMBOL_REPRESENTATION` was invalid as their used
+representation. The maintainer removed the spindle's 11 feature associations and their symbol
+representations: Solid Edge 2026 imported exactly the same typed items and symbolic graphics,
+and SFA reported no syntax errors. The earlier hand-made test changed both the wrapper and
+feature link at once; it did not establish a requirement for feature links. No auxiliary
+symbol representations are written, nor are foreign symbol representations classified as
+presentation for removal.
+
+A datum feature that also has a size needs two independently placed callouts. The combined
+`dimensional_size_with_datum_feature` identity would give those semantic associations the same
+(representation, definition), violating inherited `item_identified_representation_usage.UR2`.
+Feature-on writes therefore use separate standard `DATUM_FEATURE` and `DIMENSIONAL_SIZE`
+entities, the size applying to that same datum feature. Each callout has one association with
+a distinct definition in the shared draughting model. Feature-off writing retains its former
+combined entity and bytes. No EXPRESS rule is exempted or relaxed.
+
+The original `FILE_DESCRIPTION` is kept by lossless append. It may lack the CAx-IF
+Recommended Practices references that SFA recommends; the writer does not rewrite that header.
+SFA's spindle note about a missing `\X0\` terminator comes from a test note containing a
+literal `\X2\`, correctly STEP-escaped as `\\X2\\`, not an invalid Unicode escape.
+
+Requirement notation additionally ports Draftwright aaa7a73 `src/pmi.rs` MAX/MIN/AVG suffixes
+and fit-with-stated-limits ranges (`lo - hi`, rather than class-only text). Read-back deviation
+values use the shared STEP-number normalization (`±1.0`, `+0.5 -1.0`, `+1E-2 0`). All-around
+and all-over use Draftwright's one/two rings at the short leader's attachment, with the same
+0.7 × arrow radius and 1.7 outer-ring ratio (`src/dims/gdt.rs`).
+
+The following remain semantic-only because that Draftwright revision does not draw them
+either (`src/pmi.rs` blockers and `src/pmi_lowering.rs` SCOPE/QUALIFIERS). Tests pin these
+omissions rather than inventing additional notation:
+
+- Dimension modifiers other than the already supported Reference: square, controlled radius,
+  statistical, continuous feature, and all other Table 8 size/association/section modifiers;
+  both tolerance principles, and arbitrary qualifiers other than MAX/MIN/AVG.
+- Tolerance modifiers other than maximum/least material: including free state, tangent plane,
+  common/separate zones, statistical, reciprocity and the remaining Table 14 values.
+- Projected/non-uniform zones, runout zone angle, affected plane, unequal zone displacement,
+  unit basis, maximum tolerance value and 'unless otherwise specified'.
+- Datum reference and compartment modifiers (including material condition); common datum
+  letters retain this module's existing hyphen grouping.
+
+Geometry is parsed once per write and shared across parts. Semantic edge indices resolve
+through `PartDefinition.edges` entity ids and `Part::edge_source`, never B-rep traversal
+positions; reversed face loops can change the edge order. Regression on `nist_ctc_01_merge`
+checks every edge's witnesses and extension feet, including its 70 reordered edges.
 
 Solid Edge 2026 types the spindle's diameter (when its face has a circular edge), datum A
 and both position tolerances. Linear distances remain symbolic, as with NIST's own files.
 Datum B remains an importer question: it spans two coplanar faces, both with circular edges,
-whereas A uses one cylindrical face. Both have callout/plane/feature links; only A is
+whereas A uses one cylindrical face. Both have datum callout/plane/semantic links; only A is
 referenced by geometric tolerances. No semantic writer defect has been established, so B's
 valid multi-face association is retained for re-test. No `MBD_0` characterized object or
 mechanical-design/draughting saved-view relationship is added.
 
 Feature-on writer goldens and fresh OpenCascade captures live in
 `tests/fixtures/ap242/write-presentation/`; `write/` retains feature-off goldens unchanged.
-The round-1 feature-on goldens change only graphics (Hershey strokes, local placement and
+Round 3 feature-on goldens remove feature links/symbol representations and split datum/size
+semantic identities where needed; changed notation uses qualified/range labels, normalized
+deviations and scope rings. This changes numbering and the OCP captures, not the feature-off
+goldens. The round-1 feature-on goldens change only graphics (Hershey strokes, local placement and
 proportional style width) and full-notation names. Round 2 changes only straight dimension
 curves/planes to measured extensions, arrowed lines and centred ladder text; datum, diameter
 and tolerance-frame graphics/planes are compared against the round-1 inputs unchanged. The Plex font-specific outline oracle is
@@ -816,7 +856,7 @@ be read, e.g. the pre-4.0.6 datum forms of §6.5.2):
 | Datum | one `datum` per label per part, established by `shape_aspect_relationship` from its `datum_feature` (the feature itself) and/or its `datum_target`s (§6.5, §6.6). A hole or boss datum is a datum feature on the cylindrical faces (§6.5.1, Figure 35); the axis is implied, so specify-core's "hole or boss axis" is written in that form, not as a derived axis |
 | Datum target | `placed_datum_target_feature` (point, line, rectangle, circle, circular curve with `shape_representation_with_parameters`) or `datum_target` on an area feature; `feature_for_datum_target_relationship`; named parameters and 'movable direction' (§6.6); WR5 conflicts on additions reported per decision 2026-10-20; non-exempt placed-target WR3 still enforced |
 | Datum system | one `datum_system` per distinct system, `datum_reference_compartment` per position, never shared (§6.9.7); common datums as `datum_reference_element`s (§6.9.8) |
-| Size / location | `dimensional_size` / `dimensional_location` (+ angular, with path, directed) + `dimensional_characteristic_representation` + `shape_dimension_representation` with 'nominal value' (§5.1–§5.2.1); a datum feature with a size is the complex `dimensional_size_with_datum_feature` (§6.5.3) |
+| Size / location | `dimensional_size` / `dimensional_location` (+ angular, with path, directed) + `dimensional_characteristic_representation` + `shape_dimension_representation` with 'nominal value' (§5.1–§5.2.1); a datum feature with a size uses separate semantic identities with presentation, or the complex `dimensional_size_with_datum_feature` without it (§6.5.3; see Graphical callouts) |
 | Decimal places | `value_format_type_qualifier` on the value (§5.4); the part default by the §4.1 Figure 3 decimal-only cell (WR3/WR4 conflicts reported only on registered additions), or within a complete table cell |
 | Deviations | `plus_minus_tolerance` → `tolerance_value(lower, upper)` with typed `length_measure_with_unit`s (§5.2.3) |
 | Limits | 'upper limit' and 'lower limit' items beside 'nominal value' (§5.2.4) |
@@ -1099,7 +1139,8 @@ Settled by the implementation (where the design was open or silent):
 - *Datum features*: a datum feature on a pattern applying to each member is the group and the
   datum feature in one complex instance (§6.5.2); a datum feature with exactly one size
   dimension, not otherwise a tolerance's or attribute's feature, is the
-  `dimensional_size_with_datum_feature` (§6.5.3). A one-datum compartment carries its reference's
+  `dimensional_size_with_datum_feature` when presentation is disabled (§6.5.3); feature-on
+  output separates datum/size identities for the one-link callouts described above. A one-datum compartment carries its reference's
   modifiers (the two are one thing; `common_datum_list` needs two elements). Datum systems are
   named by their labels ('A|B|C'), made unique per part (`datum_system` UR1).
 - *Threads and knurls*: thread WR12 requires the 'partial area occurrence', so a thread without

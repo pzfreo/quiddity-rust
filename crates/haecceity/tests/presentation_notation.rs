@@ -134,3 +134,188 @@ fn names_use_full_notation_without_steps_terminal_decimal_point() {
     assert_eq!(presentation::dimension(&d).notation(), "⌀3.3 H11");
     assert_eq!(presentation::tolerance::number(&decimal("3.E2")), "3E2");
 }
+
+#[test]
+fn qualifiers_and_stated_fit_limits_follow_draftwright_pmi_labels() {
+    // Draftwright aaa7a73 src/pmi.rs:1934–1941, dimension_label:3739–3775.
+    for (qualifier, suffix) in [
+        (Qualifier::Maximum, "MAX"),
+        (Qualifier::Minimum, "MIN"),
+        (Qualifier::Average, "AVG"),
+    ] {
+        let mut d = dimension(DimTolerance::None);
+        d.qualifier = Some(qualifier);
+        assert_eq!(
+            presentation::dimension(&d).notation(),
+            format!("⌀10.0 {suffix}")
+        );
+    }
+    let d = dimension(DimTolerance::Fit {
+        class: Iso286Class {
+            deviation: FundamentalDeviation::parse("H").unwrap(),
+            grade: ToleranceGrade::It7,
+        },
+        limits: Some(Bounds::new(mm("10.015"), mm("10.000")).unwrap()),
+    });
+    assert_eq!(presentation::dimension(&d).notation(), "⌀10.000 - ⌀10.015");
+}
+fn profile() -> GeometricTolerance {
+    GeometricTolerance {
+        kind: ToleranceKind::SurfaceProfile,
+        target: ToleranceTarget::Feature(FeatureId(0)),
+        magnitude: Some(mm("0.1")),
+        zone: None,
+        modifiers: vec![],
+        unit_basis: None,
+        maximum: None,
+        unequal: None,
+        datums: None,
+        auxiliary: vec![],
+        description: None,
+    }
+}
+#[test]
+fn scope_rings_follow_draftwright_at_the_short_leader_attachment() {
+    use haecceity::{
+        geom::{self, Bounds as Box3},
+        presentation::placement::Layout,
+    };
+    let mut p = PartPmi {
+        features: vec![
+            Feature::Group {
+                kind: GroupKind::AllAround,
+                members: vec![FeatureId(1)],
+            },
+            Feature::Items(vec![]),
+        ],
+        ..PartPmi::default()
+    };
+    for (target, auxiliary, rings) in [
+        (ToleranceTarget::Feature(FeatureId(0)), vec![], 1),
+        (
+            ToleranceTarget::Feature(FeatureId(1)),
+            vec![AuxiliaryClassification::AllOver],
+            2,
+        ),
+        (ToleranceTarget::WholePart, vec![], 2),
+    ] {
+        let mut t = profile();
+        t.target = target;
+        t.auxiliary = auxiliary;
+        let c = presentation::tolerance(&t, &p);
+        assert_eq!(c.notation(), "⌓ 0.1"); // Scope is graphical, as in Draftwright's runs.
+        assert_eq!(c.leader_rings, rings);
+        let mut layout = Layout::new(Box3 {
+            min: [-10.; 3],
+            max: [10.; 3],
+        });
+        let draw = layout.place([0.; 3], Some([1., 0., 0.]), &c);
+        let leader = draw.lines.last().unwrap();
+        let elbow = leader[1];
+        let actual = &draw.lines[draw.lines.len() - 1 - rings as usize..draw.lines.len() - 1];
+        for (i, ring) in actual.iter().enumerate() {
+            assert_eq!(ring.len(), 33);
+            assert_eq!(ring[0], ring[32]);
+            let r = 0.7 * 2.7 * (20. / 125. / 3.) * if i == 0 { 1. } else { 1.7 };
+            for q in ring {
+                assert!((geom::dist(*q, elbow) - r).abs() < 2e-6);
+            }
+        }
+    }
+    // Traverse scope through a dimension target and nested derived/group membership too.
+    p.dimensions.push(dimension(DimTolerance::None));
+    let mut t = profile();
+    t.target = ToleranceTarget::Dimension(DimensionId(0));
+    assert_eq!(presentation::tolerance(&t, &p).leader_rings, 1);
+}
+#[test]
+fn unprinted_draftwright_fields_remain_semantic_only() {
+    // The read-only upstream rejects these in pmi.rs blockers and pmi_lowering.rs
+    // SCOPE/QUALIFIERS. Do not invent notation it does not draw. The complete list is
+    // documented in docs/step-ap242.md, rather than claiming these fields are rendered.
+    let expected = "⌀10.0";
+    for (_, m) in DimensionModifier::TABLE {
+        let mut d = dimension(DimTolerance::None);
+        d.modifiers.push(m);
+        assert_eq!(presentation::dimension(&d).notation(), expected);
+    }
+    for principle in [Principle::Independency, Principle::EnvelopeRequirement] {
+        let mut d = dimension(DimTolerance::None);
+        d.principle = Some(principle);
+        assert_eq!(presentation::dimension(&d).notation(), expected);
+    }
+    let mut d = dimension(DimTolerance::None);
+    d.qualifier = Some(Qualifier::Other("arbitrary".into()));
+    assert_eq!(presentation::dimension(&d).notation(), expected);
+    let p = PartPmi {
+        features: vec![Feature::Items(vec![])],
+        ..PartPmi::default()
+    };
+    for (_, m) in ToleranceModifier::ALL {
+        let mut t = profile();
+        t.modifiers.push(m);
+        let expected = match m {
+            ToleranceModifier::MaximumMaterialRequirement => "⌓ 0.1Ⓜ",
+            ToleranceModifier::LeastMaterialRequirement => "⌓ 0.1Ⓛ",
+            _ => "⌓ 0.1",
+        };
+        assert_eq!(
+            presentation::tolerance(&t, &p).notation(),
+            expected,
+            "{m:?}"
+        );
+    }
+    for field in ["projected", "unequal", "unit_basis", "maximum"] {
+        let mut t = profile();
+        match field {
+            "projected" => {
+                t.zone = Some(Zone {
+                    form: ZoneForm::BetweenTwoEquidistantComplexSurfacesOrTwoParallelPlanes,
+                    projected: Some(ProjectedZone {
+                        end: None,
+                        length: mm("10.0"),
+                    }),
+                    non_uniform: None,
+                    runout_angle: None,
+                    affected_plane: None,
+                    affected_plane_kind: None,
+                })
+            }
+            "unequal" => t.unequal = Some(mm("0.02")),
+            "unit_basis" => {
+                t.unit_basis = Some(UnitBasis {
+                    size: mm("100.0"),
+                    area: None,
+                })
+            }
+            _ => t.maximum = Some(mm("0.5")),
+        }
+        assert_eq!(
+            presentation::tolerance(&t, &p).notation(),
+            "⌓ 0.1",
+            "{field}"
+        );
+    }
+    let mut p = p;
+    p.datums
+        .push(Datum::new(DatumLabel::new("A").unwrap(), Some(FeatureId(0)), vec![]).unwrap());
+    for at_reference in [true, false] {
+        let mut t = profile();
+        let modifier = DatumModifier::Simple(SimpleDatumModifier::MaximumMaterialRequirement);
+        t.datums = Some(
+            DatumSystem::new(vec![Compartment {
+                references: vec![DatumReference {
+                    datum: DatumId(0),
+                    modifiers: if at_reference {
+                        vec![modifier.clone()]
+                    } else {
+                        vec![]
+                    },
+                }],
+                modifiers: if at_reference { vec![] } else { vec![modifier] },
+            }])
+            .unwrap(),
+        );
+        assert_eq!(presentation::tolerance(&t, &p).notation(), "⌓ 0.1 A");
+    }
+}

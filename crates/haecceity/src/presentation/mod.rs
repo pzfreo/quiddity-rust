@@ -1,7 +1,7 @@
 //! One owner of requirement notation and callout geometry in a local 2D frame.
 //!
 //! Ported from pzfreo/draftwright-rust at aaa7a73: `src/dims/tolerance.rs`,
-//! `src/dims/gdt.rs`, and `src/text.rs` (Paul Fremantle; port authorized by the copyright owner for #137, same project family).
+//! `src/dims/gdt.rs`, `src/pmi.rs` (qualifiers/limits/scope), and `src/text.rs` (Paul Fremantle; port authorized by the copyright owner for #137, same project family).
 //! Sheet layout, leaders, lanes, authored wording and drawn-precision rounding stay in
 //! Draftwright. Values here retain requirement precision. Text uses public-domain Hershey
 //! strokes plus explicit ISO symbols; no font parser or embedded outline font is needed.
@@ -33,6 +33,8 @@ pub struct Callout {
     pub runs: Vec<Text>,
     pub cells: Vec<String>,
     pub size: [f64; 2],
+    /// Draftwright's leader-bend scope symbol: one ring for all-around, two for all-over.
+    pub leader_rings: u8,
 }
 
 pub fn font() -> &'static text::Font {
@@ -93,7 +95,7 @@ fn in_units(v: &Value, nominal: &Value) -> Decimal {
 }
 
 /// Text and CAx-IF annotation type for a dimension. Limits remain limits; a fit remains its
-/// ISO 286 class. Zero deviations have no sign (ISO 129-1).
+/// ISO 286 class when no limits are stated. Zero deviations have no sign (ISO 129-1).
 pub fn dimension_text(d: &Dimension) -> String {
     let (prefix, angular) = match &d.kind {
         DimensionKind::Size { kind, angle, .. } => (
@@ -140,7 +142,12 @@ pub fn dimension_text(d: &Dimension) -> String {
             let band = tolerance::band_text(&u, &l);
             text.push_str(&format!(" {band}"));
         }
-        DimTolerance::Limits(b) => {
+        // Draftwright src/pmi.rs dimension_label: stated fit limits print as a range,
+        // exactly like explicit limits; do not compute unstated limits from a class.
+        DimTolerance::Limits(b)
+        | DimTolerance::Fit {
+            limits: Some(b), ..
+        } => {
             text = format!(
                 "{prefix}{}{suffix} - {prefix}{}{suffix}",
                 decimal(b.lower()),
@@ -149,6 +156,15 @@ pub fn dimension_text(d: &Dimension) -> String {
         }
         DimTolerance::Fit { class, .. } => text.push_str(&format!(" {class}")),
         _ => {}
+    }
+    // Ported from Draftwright aaa7a73 src/pmi.rs:1934–1941.
+    if let Some(suffix) = d.qualifier.as_ref().and_then(|q| match q {
+        Qualifier::Maximum => Some("MAX"),
+        Qualifier::Minimum => Some("MIN"),
+        Qualifier::Average => Some("AVG"),
+        Qualifier::Other(_) => None,
+    }) {
+        text.push_str(&format!(" {suffix}"));
     }
     if d.modifiers.contains(&DimensionModifier::Reference) {
         text = format!("({text})");
@@ -276,13 +292,48 @@ pub fn tolerance(t: &GeometricTolerance, p: &PartPmi) -> Callout {
                 .join("-")
         })
         .collect();
-    gdt::control_frame(
+    let mut c = gdt::control_frame(
         name,
         &t.magnitude.as_ref().map_or(String::new(), decimal),
         zone,
         material,
         &datums,
-    )
+    );
+    // Draftwright pmi.rs support()/tolerance() and dims/gdt.rs leader scope rings.
+    fn around(p: &PartPmi, f: FeatureId, depth: usize) -> bool {
+        if depth > p.features.len() {
+            return false;
+        }
+        match &p.features[f.0] {
+            Feature::Group {
+                kind: GroupKind::AllAround,
+                ..
+            } => true,
+            Feature::Group { members, .. } | Feature::Derived { from: members, .. } => {
+                members.iter().any(|f| around(p, *f, depth + 1))
+            }
+            Feature::Items(_) => false,
+        }
+    }
+    c.leader_rings = if t.target == ToleranceTarget::WholePart
+        || t.auxiliary.contains(&AuxiliaryClassification::AllOver)
+    {
+        2
+    } else {
+        let features = match &t.target {
+            ToleranceTarget::Feature(f) => vec![*f],
+            ToleranceTarget::Relation {
+                relating, related, ..
+            } => vec![*relating, *related],
+            ToleranceTarget::Dimension(d) => match p.dimensions[d.0].kind {
+                DimensionKind::Size { feature, .. } => vec![feature],
+                DimensionKind::Location { from, to, .. } => vec![from, to],
+            },
+            ToleranceTarget::WholePart => vec![],
+        };
+        u8::from(features.iter().any(|f| around(p, *f, 0)))
+    };
+    c
 }
 
 /// A boxed datum letter about the local origin (Draftwright's datum frame).
