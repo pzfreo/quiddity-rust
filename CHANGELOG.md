@@ -21,7 +21,8 @@ in [docs/alpha1.md](docs/alpha1.md).
   leaders start inside their faces in planes containing the outward normal. A physical
   text-height floor and feature-scaled frame offsets improve fit-view legibility.
   Names carry full requirement notation; the notes block uses the tree title `General notes`
-  while retaining its full drawn wording. The feature
+  while retaining its full drawn wording, and clears every callout’s complete drawn extent
+  in principal/isometric projections. The feature
   can be disabled for semantic-only output. Face-specific surface textures get ISO 1302
   symbols, and written material, defaults, process settings and indexed general notes get
   one property-linked notes block per part. Shared wording/geometry comes from Draftwright;

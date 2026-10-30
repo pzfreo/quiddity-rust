@@ -7013,33 +7013,110 @@ fn assert_general_notes_names(doc: &Document, callout: u64, expected: &str) {
 
 #[cfg(feature = "presentation")]
 fn assert_notes_clear(doc: &Document) {
-    let callouts:Vec<_> = doc.ids().filter(|&id| matches!(doc.get(id),Some(RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("draughting_callout"))).collect();
-    for &note in &callouts {
-        let occurrence = refs_of(doc, note)[0];
+    use haecceity::{geom, presentation::linear};
+    // Independent serialized-ink check: project every vertex and form its convex
+    // hull, including whole leaders, dimension lines, arrows and extension feet.
+    fn hull(lines: &[Vec<geom::V3>], view: geom::V3) -> Vec<geom::V3> {
+        let view = geom::unit(view).unwrap();
+        let u = geom::unit(geom::cross(
+            view,
+            if view[0].abs() < 0.9 {
+                [1., 0., 0.]
+            } else {
+                [0., 1., 0.]
+            },
+        ))
+        .unwrap();
+        let v = geom::cross(view, u);
+        let mut points: Vec<_> = lines
+            .iter()
+            .flatten()
+            .map(|p| [geom::dot(*p, u), geom::dot(*p, v)])
+            .collect();
+        points.sort_by(|a, b| a[0].total_cmp(&b[0]).then(a[1].total_cmp(&b[1])));
+        points.dedup();
+        let side = |points: Vec<[f64; 2]>| {
+            let mut out: Vec<[f64; 2]> = Vec::new();
+            for p in points {
+                while out.len() >= 2 {
+                    let a = out[out.len() - 2];
+                    let b = out[out.len() - 1];
+                    if (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]) > 0. {
+                        break;
+                    }
+                    out.pop();
+                }
+                out.push(p);
+            }
+            out.pop();
+            out
+        };
+        let mut lower = side(points.clone());
+        points.reverse();
+        lower.extend(side(points));
+        lower
+            .into_iter()
+            .map(|p| geom::add(geom::scale(u, p[0]), geom::scale(v, p[1])))
+            .collect()
+    }
+    let callouts: Vec<_> = doc
+        .ids()
+        .filter(|&id| {
+            matches!(doc.get(id),
+        Some(RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("draughting_callout"))
+        })
+        .map(|id| (id, graphic_lines(doc, id)))
+        .collect();
+    let mut worst = (f64::INFINITY, 0, 0, [0.; 3]);
+    for (note, lines) in &callouts {
+        let occurrence = refs_of(doc, *note)[0];
         let set = *refs_of(doc, occurrence).last().unwrap();
         if test_attribute(doc, set, "representation_item", "name")
             != Some(&Attribute::String("note".into()))
         {
             continue;
         }
-        let bounds = |id| {
-            let mut b = haecceity::geom::Bounds::empty();
-            for p in graphic_lines(doc, id).into_iter().flatten() {
-                b.add(p);
+        for (other, ink) in callouts.iter().filter(|(id, _)| id != note) {
+            for view in linear::VIEWS {
+                let a = hull(lines, view);
+                let b = hull(ink, view);
+                let mut clearance = linear::projected_clearance(&a, &b, view);
+                // Edge-on hulls can both be collinear: include projected coordinate
+                // axes so separated line segments still have a separating axis.
+                let unit_view = geom::unit(view).unwrap();
+                for axis in [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]] {
+                    let Some(axis) = geom::unit(geom::sub(
+                        axis,
+                        geom::scale(unit_view, geom::dot(axis, unit_view)),
+                    )) else {
+                        continue;
+                    };
+                    let interval = |p: &[geom::V3]| {
+                        p.iter()
+                            .map(|p| geom::dot(*p, axis))
+                            .fold([f64::INFINITY, f64::NEG_INFINITY], |r, t| {
+                                [r[0].min(t), r[1].max(t)]
+                            })
+                    };
+                    let x = interval(&a);
+                    let y = interval(&b);
+                    clearance = clearance.max((x[0] - y[1]).max(y[0] - x[1]));
+                }
+                assert!(
+                    clearance > 1e-8,
+                    "notes #{note} overlap callout #{other} in view {view:?}: clearance={clearance}"
+                );
+                if clearance < worst.0 {
+                    worst = (clearance, *note, *other, view);
+                }
             }
-            b
-        };
-        let a = bounds(note);
-        for &other in callouts.iter().filter(|&&id| id != note) {
-            let b = bounds(other);
-            let overlap = [0, 2]
-                .iter()
-                .all(|&k| a.min[k] < b.max[k] - 1e-8 && a.max[k] > b.min[k] + 1e-8);
-            assert!(
-                !overlap,
-                "note #{note} must clear all ink of callout #{other}: {a:?} / {b:?}"
-            );
         }
+    }
+    if worst.0.is_finite() {
+        println!(
+            "all-callout notes clearance: {:.9} mm, #{} / #{}, view {:?}; full serialized ink, all seven views (including edge-on)",
+            worst.0, worst.1, worst.2, worst.3
+        );
     }
 }
 
