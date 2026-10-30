@@ -157,6 +157,14 @@ proportional style width) and full-notation names. Round 2 changes only straight
 curves/planes to measured extensions, arrowed lines and centred ladder text; datum, diameter
 and tolerance-frame graphics/planes are compared against the round-1 inputs unchanged. The Plex font-specific outline oracle is
 retired; stroke metrics, scaling and exhaustive notation glyph checks replace it.
+The round-3 regenerated STEP/OCP pairs are `assembly_plate_pin_intent`, `datum_targets`,
+`datum_targets_shared_support`, `editor_assembly_pin_alone`, `every_kind`,
+`nist_ctc_02_targets`, `nist_ftc_10_targets`, `pmi_gaps`, `pmi_gaps_gram`,
+`spool_fits_intent`, `string_post_tapped_intent`, `thumbwheel_notes_add`, and
+`thumbwheel_thread_knurl_intent`. Each loses feature associations/auxiliary representations
+and consequent entity numbers; `every_kind` also replaces `⌀20 H7` with its stated
+`⌀20.000 - ⌀20.021` range and adds the all-around scope ring. OCP captures are refreshed for
+the exact new STEP hashes. The other three pairs and all feature-off fixtures stay unchanged.
 `export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the new
 folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture the legacy folder.
 The feature-on `references/pmi_write-presentation.json` retains every verdict and comparison,
