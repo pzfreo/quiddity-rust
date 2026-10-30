@@ -2901,9 +2901,8 @@ impl<'a> PartPlan<'a> {
             }
         }
         // Locations get their own non-datum aspects. Reserve their shared geometric
-        // leaves before emitting datum features, so a DATUM_FEATURE never owns a leaf
-        // that a new location must also identify (IIRU UR1/UR2).
-        let mut location_datum_keys = BTreeSet::new();
+        // leaves before emitting datum features. A single-face datum owns its GISU;
+        // private location aspects reach that carrier through composition (UR1/UR2).
         for d in &p.dimensions {
             if let DimensionKind::Location { from, to, .. } = d.kind {
                 for f in [from, to] {
@@ -2918,7 +2917,6 @@ impl<'a> PartPlan<'a> {
                             Feature::Items(items) => {
                                 for k in self.usage_keys(em, &st, items)? {
                                     *keys.entry(k.clone()).or_insert(0) += 1;
-                                    location_datum_keys.insert(k);
                                 }
                             }
                             Feature::Group { members, .. } => {
@@ -2948,9 +2946,15 @@ impl<'a> PartPlan<'a> {
                         .any(|t| t.on().is_some_and(|f| self.canonical[f.0] == c)))
                 && let [k] = self.usage_keys(em, &st, items)?.as_slice()
                 && shared.contains(k)
-                && !(location_datum_keys.contains(k) && self.is_datum_aspect(c))
             {
-                st.owners.entry(k.clone()).or_insert(c);
+                // A plain datum needs its own GISU for OCCT and Solid Edge typing.
+                // Other aspects (including private location endpoints) compose it,
+                // rather than making the datum a one-component composite.
+                if self.is_datum_aspect(c) {
+                    st.owners.insert(k.clone(), c);
+                } else {
+                    st.owners.entry(k.clone()).or_insert(c);
+                }
             }
         }
         st.shared_keys = keys
@@ -3651,7 +3655,7 @@ impl<'a> PartPlan<'a> {
                 .as_ref()
                 .ok_or_else(|| WriteError::Internal("missing linear measurements".into()))?;
             let mut ladder = linear::Ladder::new(part.bounds());
-            for (i, (_, _, _, _, lines)) in graphics.iter().enumerate() {
+            for (i, (_, _, _, plane, lines)) in graphics.iter().enumerate() {
                 if i < symbols.len()
                     || i >= symbols.len() + self.pmi.dimensions.len()
                     || measurements[i - symbols.len()].is_none()
@@ -3660,7 +3664,11 @@ impl<'a> PartPlan<'a> {
                     for p in lines.iter().take(lines.len().saturating_sub(1)).flatten() {
                         b.add(p.map(|x| x * factor));
                     }
-                    ladder.reserve(b);
+                    if i >= symbols.len() && i < symbols.len() + self.pmi.dimensions.len() {
+                        ladder.reserve_dimension(b, plane[1], plane[2]);
+                    } else {
+                        ladder.reserve(b);
+                    }
                 }
             }
             let mut order: Vec<_> = measurements
@@ -4130,16 +4138,9 @@ impl<'a> PartPlan<'a> {
         let r = match &self.pmi.features[c] {
             Feature::Items(items) => {
                 let role = self.roles.get(&c).copied().unwrap_or(Role::Plain);
-                // OCCT follows a datum's component carriers only when it is composite.
-                // A single-face datum sharing a location carrier also has two outgoing
-                // relationships (geometry and datum establishment), satisfying CSA's
-                // inverse cardinality without duplicating a GISU or relaxing UR1.
-                let composite = items.iter().copied().collect::<BTreeSet<_>>().len() > 1
-                    || (self.is_datum_aspect(c)
-                        && self
-                            .usage_keys(em, st, items)?
-                            .iter()
-                            .any(|k| st.shared_keys.contains(k) && st.owners.get(k) != Some(&c)));
+                // Composite means at least two distinct geometric components. A shared
+                // single-face datum remains plain and owns the face's GISU.
+                let composite = items.iter().copied().collect::<BTreeSet<_>>().len() > 1;
                 let types = |ty| {
                     let mut types = vec![ty];
                     if composite {

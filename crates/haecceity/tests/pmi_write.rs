@@ -5850,6 +5850,7 @@ fn sample_linear_dimensions(doc: &Document, read: &PmiRead, def: &PartDefinition
         Some((id,b,annotation_basis(doc,id).1))
     }).collect();
     let mut labels = Vec::new();
+    let mut projected = Vec::new();
     let mut ladder = Vec::new();
     let mut linear_count = 0;
     for (i, d) in p.dimensions.iter().enumerate() {
@@ -5871,12 +5872,50 @@ fn sample_linear_dimensions(doc: &Document, read: &PmiRead, def: &PartDefinition
         let callout = *refs_of(doc, association).last().unwrap();
         let lines = graphic_lines(doc, callout);
         let (origin, n, u) = annotation_basis(doc, callout);
-        let v = geom::unit(geom::sub(lines[0][1], lines[0][0])).unwrap();
+        let v = geom::unit(geom::sub(
+            *lines[0].last().unwrap(),
+            lines[0][lines[0].len() - 2],
+        ))
+        .unwrap();
         let mut text = Bounds::empty();
         if !linear::is_linear(d) {
             for &q in lines.iter().take(lines.len() - 1).flatten() {
                 text.add(q);
             }
+            let up = geom::cross(n, u);
+            let centre = text.centre();
+            let extent = |axis| {
+                (0..8)
+                    .map(|mask| {
+                        geom::dot(
+                            std::array::from_fn(|k| {
+                                if mask & (1 << k) == 0 {
+                                    text.min[k]
+                                } else {
+                                    text.max[k]
+                                }
+                            }),
+                            axis,
+                        )
+                    })
+                    .fold([f64::INFINITY, f64::NEG_INFINITY], |r, t| {
+                        [r[0].min(t), r[1].max(t)]
+                    })
+            };
+            let x = extent(u);
+            let y = extent(up);
+            let polygon = [(-1., -1.), (1., -1.), (1., 1.), (-1., 1.)]
+                .map(|(a, b)| {
+                    geom::add(
+                        centre,
+                        geom::add(
+                            geom::scale(u, a * (x[1] - x[0]) / 2.),
+                            geom::scale(up, b * (y[1] - y[0]) / 2.),
+                        ),
+                    )
+                })
+                .to_vec();
+            projected.push((callout, n, [polygon.clone(), polygon]));
             labels.push((callout, text, n));
             continue;
         }
@@ -5938,14 +5977,17 @@ fn sample_linear_dimensions(doc: &Document, read: &PmiRead, def: &PartDefinition
         }
         for (j, foot) in feet.iter().enumerate() {
             assert!(
-                geom::norm(geom::cross(geom::sub(lines[j][1], lines[j][0]), v)) < 1e-8 * length
+                geom::norm(geom::cross(
+                    geom::sub(*lines[j].last().unwrap(), lines[j][lines[j].len() - 2]),
+                    v
+                )) < 1e-8 * length
             );
             assert!(
                 (geom::dot(*foot, u) - geom::dot(ends[j], u)).abs() < 1e-7 * length
                     || (geom::dot(*foot, u) - geom::dot(ends[1 - j], u)).abs() < 1e-7 * length
             );
             assert!(
-                geom::dot(lines[j][1], v) > geom::dot(ends[0], v),
+                geom::dot(*lines[j].last().unwrap(), v) > geom::dot(ends[0], v),
                 "extension overshoots dimension line"
             );
         }
@@ -5987,7 +6029,34 @@ fn sample_linear_dimensions(doc: &Document, read: &PmiRead, def: &PartDefinition
             .fold(f64::NEG_INFINITY, f64::max);
         let offset = geom::dot(ends[0], v) - edge;
         assert!(offset > 0.);
-        ladder.push((nominal, i, u, v, offset));
+        ladder.push((nominal, i, u, v, offset, geom::dot(origin, n)));
+        let rect = |width: f64, height: f64| {
+            [(-1., -1.), (1., -1.), (1., 1.), (-1., 1.)]
+                .map(|(x, y)| {
+                    geom::add(
+                        origin,
+                        geom::add(
+                            geom::scale(u, x * width / 2.),
+                            geom::scale(v, y * height / 2.),
+                        ),
+                    )
+                })
+                .to_vec()
+        };
+        let ink: Vec<_> = lines.iter().skip(10).flatten().copied().collect();
+        let extent = |axis| {
+            let stations: Vec<_> = ink
+                .iter()
+                .map(|q| geom::dot(geom::sub(*q, origin), axis))
+                .collect();
+            stations.iter().copied().fold(f64::NEG_INFINITY, f64::max)
+                - stations.iter().copied().fold(f64::INFINITY, f64::min)
+        };
+        projected.push((
+            callout,
+            n,
+            [rect(extent(u), extent(v)), rect(nominal, gap * 0.3)],
+        ));
         labels.push((callout, text, n));
         println!(
             "linear D{i} {}: feet={feet:?} dimension={ends:?} text={centre:?} offset={offset:.6} gap={gap:.6} plane_normal={n:?}",
@@ -5998,10 +6067,34 @@ fn sample_linear_dimensions(doc: &Document, read: &PmiRead, def: &PartDefinition
         linear_count,
         p.dimensions.iter().filter(|d| linear::is_linear(d)).count()
     );
+    // Actual serialized ink and dimension spans are checked in all seven distinct
+    // principal/isometric views, including different plane groups. An edge-on plane
+    // has zero-area text and is not a legible view (a planar ladder necessarily collapses).
+    let mut worst = (f64::INFINITY, 0, 0, [0.; 3]);
+    for view in linear::VIEWS {
+        for (i, (a, n, polygons)) in projected.iter().enumerate() {
+            for (b, m, others) in &projected[..i] {
+                if geom::dot(*n, view).abs() < 1e-8 || geom::dot(*m, view).abs() < 1e-8 {
+                    continue;
+                }
+                for x in polygons {
+                    for y in others {
+                        let clearance = linear::projected_clearance(x, y, view);
+                        assert!(
+                            clearance > 1e-8,
+                            "projected dimension text/line overlap #{a}, #{b}, view {view:?}, clearance {clearance}"
+                        );
+                        if clearance < worst.0 {
+                            worst = (clearance, *a, *b, view);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // Other dimension notation still has its explicit face-on projection check.
     for (i, (a, x, n)) in labels.iter().enumerate() {
         for (b, y, m) in &labels[..i] {
-            let overlaps = (0..3).all(|k| x.min[k] < y.max[k] - 1e-8 && x.max[k] > y.min[k] + 1e-8);
-            assert!(!overlaps, "text boxes overlap #{a} {x:?}, #{b} {y:?}");
             if geom::dot(*n, *m).abs() > 1. - 1e-8 {
                 let axes: Vec<_> = (0..3).filter(|&k| n[k].abs() < 0.5).collect();
                 if axes.len() == 2 {
@@ -6015,10 +6108,18 @@ fn sample_linear_dimensions(doc: &Document, read: &PmiRead, def: &PartDefinition
             }
         }
     }
+    println!(
+        "principal/isometric worst projected text/line clearance={:.9} mm, callouts #{} / #{}, view {:?}; zero overlaps in readable views",
+        worst.0, worst.1, worst.2, worst.3
+    );
     ladder.sort_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
     for (i, a) in ladder.iter().enumerate() {
         for b in &ladder[..i] {
             if geom::dot(a.2, b.2) > 1. - 1e-8 && geom::dot(a.3, b.3) > 1. - 1e-8 {
+                assert!(
+                    (a.5 - b.5).abs() < 1e-8,
+                    "parallel dimensions on the same side must share a plane: {a:?}, {b:?}"
+                );
                 assert!(
                     a.4 > b.4 + 1e-8,
                     "shorter dimension must be nearer part: {a:?}, {b:?}"
@@ -6139,7 +6240,8 @@ fn nist_edge_witnesses_follow_semantic_entities_not_loop_order() {
                 if matches!(&p.features[feature.0], Feature::Items(items) if items.iter().any(|a| matches!(a,Anchor::Edge(_))))
                 {
                     let line = &drawn.placed.lines[i];
-                    let v = geom::unit(geom::sub(line[1], line[0])).unwrap();
+                    let v =
+                        geom::unit(geom::sub(*line.last().unwrap(), line[line.len() - 2])).unwrap();
                     let foot = geom::sub(line[0], geom::scale(v, drawn.gap));
                     assert!(
                         measured_foot(&part, def, &p, feature, foot),
@@ -6246,6 +6348,53 @@ fn scope_symbols_survive_the_written_entity_graph() {
     }
 }
 
+/// SFA §6.3–6.5 counts geometric components, not the datum-establishment relation.
+fn assert_composite_components(doc: &Document) {
+    for id in doc.ids() {
+        let composite = match doc.get(id) {
+            Some(RawEntity::Simple { name, .. }) => express::is_a(name, "composite_shape_aspect"),
+            Some(RawEntity::Complex { parts, .. }) => parts
+                .iter()
+                .any(|p| express::is_a(&p.name, "composite_shape_aspect")),
+            _ => false,
+        };
+        if !composite {
+            continue;
+        }
+        let components: BTreeSet<_> = doc.referrers(id).iter().copied().filter(|&r| {
+            matches!(doc.get(r), Some(RawEntity::Simple { name, .. }) if name.eq_ignore_ascii_case("shape_aspect_relationship"))
+                && test_attribute(doc, r, "shape_aspect_relationship", "relating_shape_aspect") == Some(&Attribute::EntityRef(id))
+        }).filter_map(|r| {
+            let Some(Attribute::EntityRef(member)) = test_attribute(doc, r, "shape_aspect_relationship", "related_shape_aspect") else { return None; };
+            let datum = match doc.get(*member) {
+                Some(RawEntity::Simple { name, .. }) => express::is_a(name, "datum"),
+                Some(RawEntity::Complex { parts, .. }) => parts.iter().any(|p| express::is_a(&p.name, "datum")),
+                _ => false,
+            };
+            (!datum).then_some(*member)
+        }).collect();
+        assert!(
+            components.len() >= 2,
+            "composite #{id} needs at least two geometric components, got {components:?}"
+        );
+    }
+}
+
+#[test]
+fn all_written_goldens_have_at_least_two_components_per_composite() {
+    for (_, bytes) in written_cases() {
+        if let Some(bytes) = bytes {
+            assert_composite_components(&Document::parse(bytes).unwrap());
+        }
+    }
+    for entry in std::fs::read_dir(write_dir()).unwrap() {
+        let path = entry.unwrap().path();
+        if path.to_string_lossy().ends_with(".step.gz") {
+            assert_composite_components(&Document::parse(file_bytes(&path)).unwrap());
+        }
+    }
+}
+
 /// The measured semantic rules apply with and without graphical dimension writing.
 #[test]
 fn composite_features_and_locations_have_non_datum_geometry_carriers() {
@@ -6292,21 +6441,23 @@ fn composite_features_and_locations_have_non_datum_geometry_carriers() {
                 let mut face_set = BTreeSet::new();
                 geometry(&w.doc, id, 0, &mut face_set);
                 face_set.retain(|id| f.parts[0].faces.contains(id));
-                if is(id, "datum_feature")
-                    && !face_set.is_empty()
-                    && !w.doc.referrers(id).iter().any(|&r| {
-                        w.names(r) == ["geometric_item_specific_usage"]
-                            && test_attribute(
-                                &w.doc,
-                                r,
-                                "item_identified_representation_usage",
-                                "definition",
-                            ) == Some(&Attribute::EntityRef(id))
-                    })
-                {
+                if is(id, "datum_feature") && face_set.len() == 1 {
                     assert!(
-                        is(id, "composite_shape_aspect"),
-                        "a datum with shared component geometry must be composite for OCCT: {}",
+                        !is(id, "composite_shape_aspect"),
+                        "single-face datum must be plain: {}",
+                        w.text(id)
+                    );
+                    assert!(
+                        w.doc.referrers(id).iter().any(|&r| {
+                            w.names(r) == ["geometric_item_specific_usage"]
+                                && test_attribute(
+                                    &w.doc,
+                                    r,
+                                    "item_identified_representation_usage",
+                                    "definition",
+                                ) == Some(&Attribute::EntityRef(id))
+                        }),
+                        "single-face datum needs its own face GISU: {}",
                         w.text(id)
                     );
                 }
@@ -6345,9 +6496,13 @@ fn composite_features_and_locations_have_non_datum_geometry_carriers() {
             }
         }
         assert!(
-            composites > 0 && locations > 0,
-            "sample must exercise both rules"
+            locations > 0,
+            "sample must exercise private location endpoints"
         );
+        if name != "plate" {
+            assert!(composites > 0, "sample must exercise multi-face aspects");
+        }
+        assert_composite_components(&w.doc);
         assert_eq!(w.read.parts[0].datums.len(), count);
         sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
     }

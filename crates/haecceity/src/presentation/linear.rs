@@ -475,12 +475,82 @@ pub struct LinearPlaced {
     pub offset: f64,
     pub gap: f64,
 }
+/// Principal views and the four distinct isometric projections (opposites are identical).
+pub const VIEWS: [V3; 7] = [
+    [1., 0., 0.],
+    [0., 1., 0.],
+    [0., 0., 1.],
+    [1., 1., 1.],
+    [1., 1., -1.],
+    [1., -1., 1.],
+    [-1., 1., 1.],
+];
+fn rectangle(centre: V3, d: V3, v: V3, width: f64, height: f64) -> Vec<V3> {
+    [(-1., -1.), (1., -1.), (1., 1.), (-1., 1.)]
+        .map(|(x, y)| {
+            geom::add(
+                centre,
+                geom::add(
+                    geom::scale(d, x * width / 2.),
+                    geom::scale(v, y * height / 2.),
+                ),
+            )
+        })
+        .to_vec()
+}
+/// Signed separating-axis clearance in a view, in model millimetres. Positive means
+/// separated. Uses the actual planar rectangles, not an inflated 3D bounding box.
+pub fn projected_clearance(a: &[V3], b: &[V3], view: V3) -> f64 {
+    let Some(view) = geom::unit(view) else {
+        return f64::NEG_INFINITY;
+    };
+    a.iter()
+        .zip(a.iter().cycle().skip(1))
+        .take(a.len())
+        .chain(b.iter().zip(b.iter().cycle().skip(1)).take(b.len()))
+        .filter_map(|(p, q)| geom::unit(geom::cross(view, geom::sub(*q, *p))))
+        .map(|axis| {
+            let interval = |points: &[V3]| {
+                points
+                    .iter()
+                    .map(|p| geom::dot(*p, axis))
+                    .fold([f64::INFINITY, f64::NEG_INFINITY], |r, t| {
+                        [r[0].min(t), r[1].max(t)]
+                    })
+            };
+            let x = interval(a);
+            let y = interval(b);
+            (x[0] - y[1]).max(y[0] - x[1])
+        })
+        .fold(f64::NEG_INFINITY, f64::max)
+}
+#[derive(Clone)]
+struct Ink {
+    normal: V3,
+    polygons: [Vec<V3>; 2],
+}
+impl Ink {
+    fn overlaps(&self, other: &Self) -> bool {
+        VIEWS.into_iter().any(|view| {
+            // Edge-on text has zero projected area and cannot be read in that view.
+            geom::dot(self.normal, view).abs() > 1e-8
+                && geom::dot(other.normal, view).abs() > 1e-8
+                && self.polygons.iter().any(|a| {
+                    other
+                        .polygons
+                        .iter()
+                        .any(|b| projected_clearance(a, b, view) < 1e-8)
+                })
+        })
+    }
+}
 /// Model-space ladder: shortest span first, ties in semantic order, then the first free
 /// outward rung. This is Draftwright's nesting rule, without its sheet layout.
 pub struct Ladder {
     bounds: Bounds,
     groups: Vec<(V3, V3, usize)>,
     labels: Vec<Bounds>,
+    ink: Vec<Ink>,
 }
 impl Ladder {
     pub fn new(bounds: Bounds) -> Self {
@@ -488,10 +558,23 @@ impl Ladder {
             bounds,
             groups: Vec::new(),
             labels: Vec::new(),
+            ink: Vec::new(),
         }
     }
     pub fn reserve(&mut self, b: Bounds) {
         self.labels.push(b);
+    }
+    /// Reserve circular/angular dimension text in its real annotation plane.
+    pub fn reserve_dimension(&mut self, bounds: Bounds, normal: V3, along: V3) {
+        let up = geom::cross(normal, along);
+        let x = range(bounds, along);
+        let y = range(bounds, up);
+        let polygon = rectangle(bounds.centre(), along, up, x[1] - x[0], y[1] - y[0]);
+        self.ink.push(Ink {
+            normal,
+            polygons: [polygon.clone(), polygon],
+        });
+        self.reserve(bounds);
     }
     pub fn draw(&mut self, m: &Measurement, c: &Callout) -> LinearPlaced {
         let d = m.direction;
@@ -503,6 +586,10 @@ impl Ladder {
             normal = geom::scale(normal, -1.);
         }
         let up = geom::cross(normal, d);
+        // A ladder's plane is determined by the part, never by the individual witness
+        // section. Thus top-face axes and mid-thickness face witnesses share one plane.
+        let plane = range(self.bounds, normal)[1];
+        let project = |p| geom::add(p, geom::scale(normal, plane - geom::dot(p, normal)));
         let length = m.length();
         let h = super::placement::text_height(self.bounds.max_extent());
         let scale = (h / 3.).min(length * 0.65 / c.size[0].max(1.));
@@ -516,11 +603,17 @@ impl Ladder {
             .iter()
             .position(|(u, w, _)| geom::dot(*u, d) > 1. - 1e-8 && geom::dot(*w, v) > 1. - 1e-8);
         let mut rung = group.map_or(0, |i| self.groups[i].2);
-        let (centre, offset, label_bounds) = loop {
+        let (centre, offset, label_bounds, ink) = loop {
             let offset = (10. + rung as f64 * 7.) * h / 3.;
             let level = edge + offset;
-            let a = geom::add(m.feet[0], geom::scale(v, level - geom::dot(m.feet[0], v)));
-            let b = geom::add(m.feet[1], geom::scale(v, level - geom::dot(m.feet[1], v)));
+            let a = project(geom::add(
+                m.feet[0],
+                geom::scale(v, level - geom::dot(m.feet[0], v)),
+            ));
+            let b = project(geom::add(
+                m.feet[1],
+                geom::scale(v, level - geom::dot(m.feet[1], v)),
+            ));
             let centre = geom::scale(geom::add(a, b), 0.5);
             let mut bb = Bounds::empty();
             for x in [-c.size[0] / 2., c.size[0] / 2.] {
@@ -532,13 +625,26 @@ impl Ladder {
                 }
             }
             let padding = h / 5.;
+            let ink = Ink {
+                normal,
+                polygons: [
+                    rectangle(
+                        centre,
+                        d,
+                        v,
+                        c.size[0] * scale + padding,
+                        c.size[1] * scale + padding,
+                    ),
+                    rectangle(centre, d, v, length, h / 10.),
+                ],
+            };
             let overlap = self
                 .labels
                 .iter()
                 .any(|b| super::placement::boxes_overlap(bb, *b, padding));
             rung += 1;
-            if !overlap {
-                break (centre, offset, bb);
+            if !overlap && !self.ink.iter().any(|other| ink.overlaps(other)) {
+                break (centre, offset, bb, ink);
             }
         };
         if let Some(i) = group {
@@ -547,10 +653,11 @@ impl Ladder {
             self.groups.push((d, v, rung));
         }
         self.labels.push(label_bounds);
+        self.ink.push(ink);
         let level = edge + offset;
         let mut ends = m
             .feet
-            .map(|p| geom::add(p, geom::scale(v, level - geom::dot(p, v))));
+            .map(|p| project(geom::add(p, geom::scale(v, level - geom::dot(p, v)))));
         if geom::dot(geom::sub(ends[1], ends[0]), d) < 0. {
             ends.swap(0, 1);
         }
@@ -559,7 +666,11 @@ impl Ladder {
         for foot in m.feet {
             lines.push(vec![
                 geom::add(foot, geom::scale(v, gap)),
-                geom::add(foot, geom::scale(v, level + overshoot - geom::dot(foot, v))),
+                project(geom::add(foot, geom::scale(v, gap))),
+                project(geom::add(
+                    foot,
+                    geom::scale(v, level + overshoot - geom::dot(foot, v)),
+                )),
             ]);
         }
         // The dimension line has a text break; its arrow-to-arrow span is the measurement.
@@ -605,6 +716,44 @@ impl Ladder {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn different_witness_sections_share_one_outer_ladder_plane() {
+        let bounds = Bounds {
+            min: [-50., -30., -5.],
+            max: [50., 30., 5.],
+        };
+        let mut ladder = Ladder::new(bounds);
+        let measurements = [
+            Measurement {
+                feet: [[-45., 0., 5.], [45., 0., 5.]],
+                direction: AXES[0],
+                outward: AXES[1],
+            },
+            Measurement {
+                feet: [[-50., 0., 0.], [50., 0., 0.]],
+                direction: AXES[0],
+                outward: AXES[1],
+            },
+        ];
+        let short = ladder.draw(&measurements[0], &super::super::label("90"));
+        let long = ladder.draw(&measurements[1], &super::super::label("100"));
+        assert!(long.offset > short.offset);
+        assert_eq!(short.placed.normal, long.placed.normal);
+        assert_eq!(short.dimension.map(|p| p[2]), [5.; 2]);
+        assert_eq!(long.dimension.map(|p| p[2]), [5.; 2]);
+        assert_eq!(long.feet, measurements[1].feet);
+        for view in VIEWS {
+            if geom::dot(short.placed.normal, view).abs() > 1e-8 {
+                let a = &ladder.ink[0];
+                let b = &ladder.ink[1];
+                for x in &a.polygons {
+                    for y in &b.polygons {
+                        assert!(projected_clearance(x, y, view) > 0.);
+                    }
+                }
+            }
+        }
+    }
     #[test]
     fn nist_primary_and_boundary_edge_witnesses_use_the_same_semantic_edge() {
         use std::io::Read;
@@ -733,7 +882,7 @@ mod tests {
                 .abs()
                 < 1e-12
         );
-        for q in p.placed.lines.iter().flatten() {
+        for q in p.placed.lines.iter().skip(2).flatten() {
             assert!(geom::dot(geom::sub(*q, p.text_center), p.placed.normal).abs() < 1e-12);
         }
         // Ported Draftwright head: length 0.9 text heights, flare half-width = length/6.

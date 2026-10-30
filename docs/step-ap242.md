@@ -157,15 +157,15 @@ rules (all copies passed SFA 5.41):
 - A `DIMENSIONAL_LOCATION` never directly references a `DATUM_FEATURE`. Each such endpoint
   gets a private `DIMENSION` aspect on the same faces. Shared plain per-face GISU carriers
   avoid duplicating (representation, item) usages and preserve IIRU UR1/UR2. Tolerances still
-  share the datum feature. OCCT also requires a datum with component-carried geometry
-  to be composite when it has only one face; otherwise its datum and a flatness tolerance
-  on it disappear from OCCT's semantic reading. Its geometry-component and datum-establishment
-  relationships satisfy the composite inverse cardinality. Regression keeps all pre-existing
-  OCCT comparisons without new exceptions. On lossless append, an immutable foreign datum's existing carrier
-  is reached through composition without editing its entities or duplicating its GISU. A
-  new multi-face location aspect reuses the foreign datum's individual face components,
-  retaining the composite's multiple-component cardinality; an append regression compares
-  every original entity byte for byte.
+  share the datum feature. Round 6 corrects the round-4 shared-carrier workaround: a
+  **single-face datum is plain and owns its own GISU**. Private location aspects compose
+  that carrier, so neither the datum nor a flatness tolerance loses its direct geometry
+  in OCCT. A datum-establishment relationship is not a second geometric component;
+  counting it made SFA 5.41 reject the one-component composite and Solid Edge import the
+  datum/flatness symbolically. Only two or more geometric components justify a composite.
+  On lossless append an immutable foreign datum's existing carrier is reached through
+  composition without editing its entities or duplicating its GISU. A new multi-face
+  location aspect reuses the foreign datum's individual face components.
 - A datum annotation plane must contain its face normal, rather than be coplanar with the
   face; its leader starts inside that face, not at a shared corner vertex.
 
@@ -235,6 +235,32 @@ reference comparisons retain all verdicts; diagnostic IDs may follow entity renu
 `export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the
 presentation folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture feature-off output.
 
+
+Round 6 restores plain single-face datum features with their own GISUs in both feature
+configurations; private location endpoints remain non-datum. It also puts each parallel,
+same-side linear ladder in one common outer bounding-box plane, with extensions from the
+original measured feet to that plane. Shortest-first order is unchanged. Projected text
+rectangles and dimension spans are collision-checked in all three principal and four
+isometric directions. Exactly edge-on annotation planes have zero-area text and necessarily
+collapse a planar ladder; they are excluded as unreadable views, not treated as successful
+clearance. Serialized-sample tests report the minimum clearance among all readable views,
+assert the shared-plane equation and retain the feet/span/arrow/text assertions. Every
+sample and written golden is checked for at least two geometric components per composite,
+excluding the datum-establishment relationship. All original OCCT datum/tolerance verdicts
+remain enforced.
+
+Round-6 golden changes: `assembly_plate_pin_intent`, `every_kind`, and
+`string_post_tapped_intent` change their STEP/OCP pairs in **both** feature folders.
+Single-face datums now own the face GISU, with private location endpoints composing that
+carrier; no one-component composite remains. The feature-on versions additionally change
+linear extension paths and shared-plane ladder geometry. All other thirteen pairs in each
+folder remain byte-identical. Fresh OCCT captures retain every existing typed datum and
+tolerance assertion; every capture field except its STEP hash is identical. The
+`pmi_notes` inspection/semantic-text property-chain IDs move 6677/6683 → 6675/6681
+because the redundant carrier is removed; the description/general-property assertions
+are unchanged. The semantic-edge witness test now obtains the outward direction
+from the final extension segment: an earlier segment can travel from the real foot to the
+ladder's common plane. Its exact-edge assertion remains unchanged.
 
 Round-5 golden changes are **feature-on only** (each pair includes its fresh OCP capture):
 `assembly_plate_pin_intent` adds one notes block per part (26 → 28 callouts);
