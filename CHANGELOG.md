@@ -6,6 +6,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- For #142, opt-in `json` exposes versioned AP242 semantic PMI and As Drawn/generated
+  presentation JSON, packaged JSON Schemas, stable requirement ids and face-name/support
+  anchors, plus `pmi json export`, `import`, `validate` and `presentation` CLI commands.
+  JSON writes retain the existing AP242 refusals and refuse independently named aliases
+  the writer coalesces; complete source STEP closure remains blocked on those cases.
+
 ### Added
 
 - For draftwright-rust#254 and pzfreo/quiddity-rust#135, haecceity's PMI reader exposes

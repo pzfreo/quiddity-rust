@@ -160,3 +160,22 @@ how the test suite and regression snapshots work. Licensed under [Apache-2.0](LI
 
 quiddity-rust began as a port of the Python quiddity library. It no longer depends on it,
 and the archived comparison is in [docs/history](docs/history/python-parity.md).
+
+
+With `--features json`, the command line also exposes haecceity's versioned PMI
+interchange (see [the reference](docs/pmi-json.md)):
+
+```sh
+cargo run --release --features json -- pmi json export part.step > part.pmi.json
+cargo run --release --features json -- pmi json validate part.pmi.json
+cargo run --release --features json -- pmi json import part.step part.pmi.json -o written.step
+cargo run --release --features json -- pmi json presentation part.step > part.presentation.json
+```
+
+Use `--part N` for a multipart file. Import accepts face names directly; for a
+Specify support key, `--anchors namespace.json` supplies a consumer-verified
+`{"schema":2,"faces":"<face fingerprint>"}` namespace. The schemas ship in
+haecceity's `schema/` directory; Specify can package these as
+`specify_core/schema/haecceity.{pmi,presentation}-1.json`. Presentation JSON is
+read-only. The JSON path reports existing STEP writer refusals, including missing
+nominals/geometry, and refuses IDs the writer cannot preserve independently.
