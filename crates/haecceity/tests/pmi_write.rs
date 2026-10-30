@@ -4038,9 +4038,14 @@ fn opencascade_puts_a_parts_pmi_on_its_prototype() {
         assert!(
             matches!(&reading.parts[1].general[..], [GeneralTolerance::Class{text,..}] if text=="ISO 2768-f")
         );
-        let blocks:Vec<_>=f.doc.ids().filter(|&id| matches!(f.doc.get(id),Some(RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("draughting_callout")) && test_attribute(&f.doc,id,"representation_item","name")==Some(&Attribute::String("GENERAL NOTES\nMATERIAL: Steel C45\nGENERAL TOLERANCES ISO 2768-f".into()))).collect();
+        let blocks:Vec<_>=f.doc.ids().filter(|&id| matches!(f.doc.get(id),Some(RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("draughting_callout")) && test_attribute(&f.doc,id,"representation_item","name")==Some(&Attribute::String("General notes".into()))).collect();
         assert_eq!(blocks.len(), 1);
         assert_eq!(refs_of(&f.doc, blocks[0]).len(), 2);
+        assert_general_notes_names(
+            &f.doc,
+            blocks[0],
+            "GENERAL NOTES\nMATERIAL: Steel C45\nGENERAL TOLERANCES ISO 2768-f",
+        );
     }
     let pin = &parts[1];
     let label = pin["label"].as_str().unwrap();
@@ -6743,15 +6748,15 @@ fn written_settings_have_one_notes_block_and_face_texture_symbols_with_valid_lin
     assert_eq!(callouts.len(), 3, "datum, face texture, general notes");
     let note = *callouts
         .iter()
-        .find(|&&id| w.text(id).contains("GENERAL NOTES"))
+        .find(|&&id| {
+            test_attribute(&w.doc, id, "representation_item", "name")
+                == Some(&Attribute::String("General notes".into()))
+        })
         .unwrap();
     let expected = presentation::notes::notes_block(&presentation::notes::general_notes(&p))
         .cells
         .join("\n");
-    assert_eq!(
-        test_attribute(&w.doc, note, "representation_item", "name"),
-        Some(&Attribute::String(expected))
-    );
+    assert_general_notes_names(&w.doc, note, &expected);
     let occurrences = refs_of(&w.doc, note);
     assert_eq!(
         occurrences.len(),
@@ -6957,10 +6962,7 @@ fn absent_settings_add_no_notes_and_append_does_not_restate_foreign_settings() {
         .filter(|&id| w.names(id) == ["draughting_callout"])
         .collect();
     assert_eq!(new_notes.len(), 1);
-    assert_eq!(
-        test_attribute(&w.doc, new_notes[0], "representation_item", "name"),
-        Some(&Attribute::String("GENERAL NOTES\n1  Added only".into()))
-    );
+    assert_general_notes_names(&w.doc, new_notes[0], "GENERAL NOTES\n1  Added only");
     let blank = written(&f, &PartPmi::default());
     assert!(
         blank
@@ -6968,6 +6970,45 @@ fn absent_settings_add_no_notes_and_append_does_not_restate_foreign_settings() {
             .iter()
             .all(|&id| blank.names(id) != ["draughting_callout"])
     );
+}
+
+// The tree title is short; the complete, unmodified wording stays with the drawn strokes.
+#[cfg(feature = "presentation")]
+fn assert_general_notes_names(doc: &Document, callout: u64, expected: &str) {
+    let assert_title = |id| {
+        assert_eq!(
+            test_attribute(doc, id, "representation_item", "name"),
+            Some(&Attribute::String("General notes".into()))
+        )
+    };
+    assert_title(callout);
+    let plane = doc
+        .ids()
+        .find(|&id| {
+            matches!(doc.get(id),
+        Some(RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("annotation_plane"))
+                && refs_of(doc, id).contains(&callout)
+        })
+        .unwrap();
+    assert_title(plane);
+    assert_title(refs_of(doc, plane)[1]);
+    let occurrences = refs_of(doc, callout);
+    assert!(!occurrences.is_empty());
+    for occurrence in occurrences {
+        assert_title(occurrence);
+        let set = *refs_of(doc, occurrence).last().unwrap();
+        assert_eq!(
+            test_attribute(doc, set, "representation_item", "name"),
+            Some(&Attribute::String("note".into()))
+        );
+        let curves = refs_of(doc, set);
+        assert_eq!(curves.len(), 1);
+        assert_eq!(
+            test_attribute(doc, curves[0], "representation_item", "name"),
+            Some(&Attribute::String(expected.into()))
+        );
+        assert!(!occurrence_lines(doc, occurrence).is_empty());
+    }
 }
 
 #[cfg(feature = "presentation")]
@@ -7028,16 +7069,14 @@ fn full_notes_and_face_finishes_clear_the_three_sample_parts_without_moving_dime
             .filter(|&id| {
                 w.names(id) == ["draughting_callout"]
                     && test_attribute(&w.doc, id, "representation_item", "name")
-                        == Some(&Attribute::String(
-                            presentation::notes::notes_block(&presentation::notes::general_notes(
-                                &p,
-                            ))
-                            .cells
-                            .join("\n"),
-                        ))
+                        == Some(&Attribute::String("General notes".into()))
             })
             .collect();
         assert_eq!(blocks.len(), 1, "{name}: one complete notes block");
+        let expected = presentation::notes::notes_block(&presentation::notes::general_notes(&p))
+            .cells
+            .join("\n");
+        assert_general_notes_names(&w.doc, blocks[0], &expected);
         assert_notes_clear(&w.doc);
         sample_linear_dimensions(&w.doc, &w.read, &f.parts[0]);
         sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);

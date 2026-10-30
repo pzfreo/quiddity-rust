@@ -3824,6 +3824,13 @@ impl<'a> PartPlan<'a> {
         let mut planes = Vec::new();
         let mut callouts = Vec::new();
         for (definition, annotation_type, name, [origin, normal, along], lines) in graphics {
+            // Solid Edge uses these names in its tree. Keep the full note wording
+            // with the drawn curves, independently of the short annotation title.
+            let title = if annotation_type == "note" {
+                "General notes"
+            } else {
+                &name
+            };
             #[cfg(feature = "presentation")]
             if let Some(missing) = name
                 .chars()
@@ -3865,7 +3872,14 @@ impl<'a> PartPlan<'a> {
                 let curves = em.simple(
                     "tessellated_curve_set",
                     &[
-                        ("name", s(annotation_type)),
+                        (
+                            "name",
+                            s(if annotation_type == "note" {
+                                &name
+                            } else {
+                                annotation_type
+                            }),
+                        ),
                         ("coordinates", list.a()),
                         ("line_strips", A::List(strips)),
                     ],
@@ -3877,7 +3891,7 @@ impl<'a> PartPlan<'a> {
                 let occurrence = em.simple(
                     "tessellated_annotation_occurrence",
                     &[
-                        ("name", s(&name)),
+                        ("name", s(title)),
                         ("styles", refs([line_style])),
                         ("item", set.a()),
                     ],
@@ -3889,7 +3903,7 @@ impl<'a> PartPlan<'a> {
             }
             let callout = em.simple(
                 "draughting_callout",
-                &[("name", s(&name)), ("contents", refs(occurrences))],
+                &[("name", s(title)), ("contents", refs(occurrences))],
             )?;
             let (o, n, a) = (
                 point(em, origin)?,
@@ -3905,11 +3919,11 @@ impl<'a> PartPlan<'a> {
                     ("ref_direction", a.a()),
                 ],
             )?;
-            let plane = em.simple("plane", &[("name", s(&name)), ("position", placement.a())])?;
+            let plane = em.simple("plane", &[("name", s(title)), ("position", placement.a())])?;
             let annotation_plane = em.simple(
                 "annotation_plane",
                 &[
-                    ("name", s(&name)),
+                    ("name", s(title)),
                     ("styles", refs([plane_style])),
                     ("item", plane.a()),
                     ("elements", refs([callout])),

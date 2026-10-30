@@ -188,6 +188,9 @@ face normal, and its legs rise out of the face; there is no disconnected or long
 The existing ISO 10303-1110 surface-texture property/parameter graph is unchanged. The
 model has no lay field; no lay or process requirement is inferred from geometry.
 
+The general-notes callout, occurrence and annotation-plane names are `General notes`
+for the viewer tree. The full block wording remains on its tessellated curve sets;
+the geometric-set annotation type remains `note`, and the drawn text is unchanged.
 A part with written settings gets one front-facing `GENERAL NOTES` block to the right of
 the part and all callout ink/extension lines, including kept foreign tessellated/polyline
 annotations (repositioned tessellated sets are transformed when reserving their space).
@@ -235,6 +238,14 @@ reference comparisons retain all verdicts; diagnostic IDs may follow entity renu
 `export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the
 presentation folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture feature-off output.
 
+
+Round-7 golden changes are feature-on only: `assembly_plate_pin_intent`, `every_kind`,
+`pmi_gaps`, `pmi_gaps_gram`, `editor_assembly_pin_alone`, `spool_fits_intent`,
+`string_post_tapped_intent` and `thumbwheel_thread_knurl_intent` use the short
+`General notes` tree title. The full block wording moves from annotation names to
+curve-set names; all drawn coordinates, styles, links and semantic content remain identical.
+Their matching OpenCascade captures are refreshed for the new STEP hashes. All sixteen
+feature-off pairs and the other eight feature-on pairs remain byte-identical.
 
 Round 6 restores plain single-face datum features with their own GISUs in both feature
 configurations; private location endpoints remain non-datum. It also puts each parallel,
