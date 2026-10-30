@@ -31,7 +31,9 @@ Python's standard library and no third-party model or external dataset.
 The tests/fixtures/revisions/gramil_shaft.* STEP revisions and generator recipe
 are Paul Fremantle's gramil shaft (https://github.com/pzfreo/gramil, 9171ef6),
 supplied for #134 under Open Community License v1. Their separate licence is
-included as tests/fixtures/revisions/LICENSE-gramil.
+included as tests/fixtures/revisions/LICENSE-gramil. The #137 placement input
+tests/fixtures/ap242/presentation-placement/spindle.step.gz derives from the same
+gramil shaft design and retains that licence (LICENSE-gramil beside the fixture).
 
 For #137, presentation notation, frame geometry and requirement-level tests are ported
 from pzfreo/draftwright-rust at aaa7a73 (src/dims/tolerance.rs, src/dims/gdt.rs and

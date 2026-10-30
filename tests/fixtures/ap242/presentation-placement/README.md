@@ -1,5 +1,6 @@
-Specify-generated #137 placement regression parts (Apache-2.0, Paul Fremantle).
-spindle: resume-alpha6/shaft; plate: cross-engine parts/plate;
+Specify-generated #137 placement regression parts by Paul Fremantle.
+spindle: resume-alpha6/shaft (GRM-02_shaft, the gramil design under Open Community
+License v1; see LICENSE-gramil); plate: cross-engine parts/plate;
 corners-flatness: parts/four_corner_holes_are_quiddity_rectangle_with_members,
 with steel and datum.A.flatness=0.02 answered. Written through Specify at the
 #137 round-1 Hershey/local-placement implementation. Tests replace these files' PMI
