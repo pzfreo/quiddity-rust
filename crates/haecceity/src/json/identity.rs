@@ -169,10 +169,16 @@ pub(super) fn identify(
         .and_then(|i| i.json_units.as_ref())
         .map(|s| serde_json::from_str(s))
         .transpose()?;
+    let anchor_bindings = identifiers
+        .and_then(|i| i.json_anchors.as_ref())
+        .map(|s| serde_json::from_str(s))
+        .transpose()?
+        .unwrap_or_default();
     Ok(Semantic {
         pmi,
         ids,
         unit_table,
+        anchor_bindings,
     })
 }
 

@@ -129,10 +129,19 @@ pub(super) fn walk(
     root: &Value,
     f: &mut impl FnMut(&str, &mut Value) -> Result<()>,
 ) -> Result<()> {
+    walk_path(v, s, root, "", &mut |kind, v, _| f(kind, v))
+}
+pub(super) fn walk_path(
+    v: &mut Value,
+    s: &Value,
+    root: &Value,
+    path: &str,
+    f: &mut impl FnMut(&str, &mut Value, &str) -> Result<()>,
+) -> Result<()> {
     if let Some(r) = s["$ref"].as_str() {
         let name = r.rsplit('/').next().unwrap_or("");
         if super::reference_collection(name).is_some() {
-            return f(name, v);
+            return f(name, v, path);
         }
         if [
             "LengthUnit",
@@ -145,13 +154,14 @@ pub(super) fn walk(
         .contains(&name)
         {
             integer_value(v)?;
-            return f(name, v);
+            return f(name, v, path);
         }
-        return walk(
+        return walk_path(
             v,
             root.pointer(r.trim_start_matches('#'))
                 .ok_or_else(|| Error(format!("invalid schema reference {r}")))?,
             root,
+            path,
             f,
         );
     }
@@ -173,14 +183,20 @@ pub(super) fn walk(
                 }
             });
             if let Some(b) = branch {
-                return walk(v, b, root, f);
+                return walk_path(v, b, root, path, f);
             }
         }
     }
     if let Some(o) = v.as_object_mut() {
         for (k, x) in o {
             if let Some(child) = s["properties"].get(k) {
-                walk(x, child, root, f)?;
+                walk_path(
+                    x,
+                    child,
+                    root,
+                    &format!("{path}/{}", k.replace('~', "~0").replace('/', "~1")),
+                    f,
+                )?;
             }
         }
     }
@@ -191,7 +207,7 @@ pub(super) fn walk(
                 .and_then(|p| p.get(i))
                 .or_else(|| s.get("items"))
             {
-                walk(x, child, root, f)?;
+                walk_path(x, child, root, &format!("{path}/{i}"), f)?;
             }
         }
     }

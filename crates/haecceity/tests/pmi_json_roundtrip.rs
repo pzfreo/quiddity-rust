@@ -73,7 +73,6 @@ fn nist_and_corpus_roundtrip() {
     }
     let mut paths = vec![];
     files(&corpus, &mut paths);
-    let corpus_files = paths.len();
     files(
         &manifest.join("../../tests/fixtures/ap242/nist"),
         &mut paths,
@@ -94,12 +93,12 @@ fn nist_and_corpus_roundtrip() {
     }
     paths.sort();
     paths.dedup();
+    let corpus_files = paths.iter().filter(|p| p.starts_with(&corpus)).count();
     assert!(!paths.is_empty());
     let (mut parts_count, mut item_count, mut json_parts, mut written_parts, mut written_items) =
         (0, 0, 0, 0, 0);
     let mut errors = vec![];
     let mut blocked = BTreeMap::<String, usize>::new();
-    let mut samples = (false, false, false);
     for path in &paths {
         eprintln!("roundtrip {}", path.display());
         let input = bytes(path);
@@ -206,30 +205,6 @@ fn nist_and_corpus_roundtrip() {
                                 after_part.solid_is_geometrically_valid(solid)
                             );
                         }
-                    }
-                }
-                if let Some(dir) = std::env::var_os("HAECCEITY_JSON_SAMPLES") {
-                    let name = path
-                        .file_name()
-                        .unwrap()
-                        .to_string_lossy()
-                        .to_ascii_lowercase();
-                    let sample = if !samples.0 && name.contains("ctc_01") && name.contains("ap242")
-                    {
-                        samples.0 = true;
-                        Some("CTC-01.step")
-                    } else if !samples.1 && name.contains("ftc_06") && name.contains("ap242") {
-                        samples.1 = true;
-                        Some("FTC-06.step")
-                    } else if !samples.2 && path.starts_with(&corpus) && !name.contains("nist") {
-                        samples.2 = true;
-                        Some("corpus.step")
-                    } else {
-                        None
-                    };
-                    if let Some(sample) = sample {
-                        std::fs::create_dir_all(&dir).unwrap();
-                        std::fs::write(Path::new(&dir).join(sample), output).unwrap();
                     }
                 }
             }

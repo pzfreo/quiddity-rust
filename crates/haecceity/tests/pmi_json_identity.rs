@@ -21,7 +21,7 @@ fn bytes(path: &Path) -> Vec<u8> {
 #[test]
 fn whole_json_identity_ctc02_ftc07_xcaf_and_corpus() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/ap242");
-    for (name, path, input) in [
+    let mut cases = vec![
         (
             "CTC-02",
             root.join("nist/nist_ctc_02_asme1_ap242-e2.stp.gz"),
@@ -46,7 +46,13 @@ fn whole_json_identity_ctc02_ftc07_xcaf_and_corpus() {
             root.join("specify/spool_fits.step.gz"),
             None,
         ),
-    ] {
+    ];
+    if let Some(dir) = std::env::var_os("HAECCEITY_NIST_PMI") {
+        let path = Path::new(&dir).join("nist_ftc_08_asme1_ap242-e2.stp");
+        assert!(path.is_file(), "full NIST archive must contain FTC-08");
+        cases.push(("FTC-08", path, None));
+    }
+    for (name, path, input) in cases {
         let doc = Document::parse(bytes(&path)).unwrap();
         let parts = read_part_definitions(doc.bytes()).unwrap();
         let read = pmi::read(&doc, &parts).unwrap();
@@ -59,7 +65,16 @@ fn whole_json_identity_ctc02_ftc07_xcaf_and_corpus() {
             } else {
                 json::identify(p.clone(), Some(&read.identifiers.parts[i])).unwrap()
             };
-            expected.push(json::to_value(&semantic).unwrap());
+            let encoded = json::to_value(&semantic).unwrap();
+            if let Some(path) = &input {
+                let original: serde_json::Value =
+                    serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+                assert_eq!(
+                    encoded, original,
+                    "producer JSON is compared without resolving away its anchor forms"
+                );
+            }
+            expected.push(encoded);
             requested.push((PartId(i), semantic));
         }
         let drawn_before =
@@ -85,7 +100,7 @@ fn whole_json_identity_ctc02_ftc07_xcaf_and_corpus() {
         let after = Document::parse(output).unwrap();
         let definitions = read_part_definitions(after.bytes()).unwrap();
         let reread = pmi::read(&after, &definitions).unwrap();
-        if name == "CTC-02" {
+        if name == "CTC-02" || name == "FTC-08" {
             let after_semantic =
                 json::identify(reread.parts[0].clone(), Some(&reread.identifiers.parts[0]))
                     .unwrap();
@@ -119,7 +134,7 @@ fn whole_json_identity_ctc02_ftc07_xcaf_and_corpus() {
                 }
             }
             eprintln!(
-                "CTC-02 foreign linked graphics before {}, after {}; removed {:?}",
+                "{name} foreign linked graphics before {}, after {}; removed {:?}",
                 file_graphics(&drawn_before),
                 file_graphics(&drawn_after),
                 &report.presentation_removed[..report.presentation_removed.len().min(8)]

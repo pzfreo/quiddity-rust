@@ -195,6 +195,9 @@ pub struct PartIdentifiers {
     /// JSON transport unit ids/order; default-feature builds have no JSON metadata.
     #[cfg(feature = "json")]
     pub json_units: Option<String>,
+    /// Verified JSON wire topology forms; absent in default-feature builds.
+    #[cfg(feature = "json")]
+    pub json_anchors: Option<String>,
     #[cfg(feature = "json")]
     pub geometry: Vec<Option<String>>,
     #[cfg(feature = "json")]

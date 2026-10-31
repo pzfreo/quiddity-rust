@@ -60,6 +60,7 @@ fn all_anchor_forms_and_precise_units() {
         v["pmi"]["features"][0]["value"]["items"][0]["face"] = face;
         let decoded = json::from_value(&v, &anchors()).unwrap();
         assert_eq!(p, decoded.pmi);
+        assert_eq!(json::to_value(&decoded).unwrap(), v);
         assert_eq!(
             v["pmi"]["dimensions"][0]["value"]["nominal"]["quantity"]["length"]["value"],
             "10.000"
@@ -255,7 +256,7 @@ fn text_parser_refuses_duplicates_at_every_depth() {
 }
 
 #[test]
-fn named_step_faces_use_the_mesh_face_order_and_write_identically() {
+fn named_step_faces_use_mesh_face_order_and_keep_equivalent_native_pmi() {
     use haecceity::p21::{self, Attribute, RawEntity};
     let doc = Document::parse(cube()).unwrap();
     let parts = read_part_definitions(doc.bytes()).unwrap();
@@ -288,16 +289,23 @@ fn named_step_faces_use_the_mesh_face_order_and_write_identically() {
         let mut v = v.clone();
         v["pmi"]["features"][0]["value"]["items"][0]["face"] = face;
         let decoded = json::from_value(&v, &anchors).unwrap();
-        outputs.push(
-            json::write(
-                &doc,
-                &parts,
-                &[(PartId(0), decoded)],
-                pmi::write::PresentationPolicy::RemovePresentation,
-            )
-            .unwrap()
-            .0,
-        );
+        let (output, _) = json::write(
+            &doc,
+            &parts,
+            &[(PartId(0), decoded)],
+            pmi::write::PresentationPolicy::RemovePresentation,
+        )
+        .unwrap();
+        let after = Document::parse(output).unwrap();
+        let definitions = read_part_definitions(after.bytes()).unwrap();
+        assert_eq!(definitions[0].faces, parts[0].faces);
+        let read = pmi::read(&after, &definitions).unwrap();
+        let semantic =
+            json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+        assert_eq!(json::to_value(&semantic).unwrap(), v);
+        // Wire-form metadata differs intentionally; authoritative native PMI and
+        // its actual faces are identical in all three cases.
+        outputs.push(pmi::read_native(&after, &definitions).unwrap().parts);
     }
     assert_eq!(outputs[0], outputs[1]);
     assert_eq!(outputs[0], outputs[2]);
@@ -1001,4 +1009,32 @@ fn native_reference_to_an_equal_valued_twin_is_not_repaired_by_metadata() {
         error.contains("native reference") && error.contains("dim-b"),
         "{error}"
     );
+}
+
+#[test]
+fn wire_fingerprint_forms_and_multiple_support_faces_are_json_step_identity() {
+    let bytes = cube();
+    let doc = Document::parse(bytes.clone()).unwrap();
+    let parts = read_part_definitions(&bytes).unwrap();
+    let mut anchors = Anchors::read(&doc, &parts[0]);
+    anchors
+        .bind_support(2, "verified-part-fingerprint")
+        .unwrap();
+    let base = json::to_value(&json::identify(test_model(), None).unwrap()).unwrap();
+    for face in [
+        json!({"fingerprint":"2:verified-part-fingerprint/0"}),
+        json!({"fingerprint":{"schema":2,"faces":"verified-part-fingerprint","support":[1,0]}}),
+    ] {
+        let mut input = base.clone();
+        input["pmi"]["features"][0]["value"]["items"][0]["face"] = face;
+        let semantic = json::from_value(&input, &anchors).unwrap();
+        assert_eq!(json::to_value(&semantic).unwrap(), input);
+        let (output, _) = json::write_preserving(&doc, &parts, &[(PartId(0), semantic)]).unwrap();
+        let doc = Document::parse(output).unwrap();
+        let parts = read_part_definitions(doc.bytes()).unwrap();
+        let read = pmi::read(&doc, &parts).unwrap();
+        let semantic =
+            json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+        assert_eq!(json::to_value(&semantic).unwrap(), input);
+    }
 }

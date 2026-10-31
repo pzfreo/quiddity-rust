@@ -17,9 +17,11 @@ mod parse;
 pub mod presentation;
 mod preserve;
 mod schema;
+mod topology;
 pub(crate) mod transport;
 mod units;
 pub use parse::parse;
+pub use topology::AnchorBinding;
 
 pub const PMI_SCHEMA: &str = include_str!("../../schema/haecceity.pmi-1.json");
 pub const PRESENTATION_SCHEMA: &str = include_str!("../../schema/haecceity.presentation-1.json");
@@ -71,6 +73,8 @@ pub struct Semantic {
     pub ids: BTreeMap<String, Vec<String>>,
     /// Optional caller unit table; native quantities remain authoritative.
     pub unit_table: Option<Value>,
+    /// Verified original face-name/fingerprint forms; empty for model-only inputs.
+    pub anchor_bindings: Vec<AnchorBinding>,
 }
 
 /// Caller-provided face fingerprint support keys, in the kernel's face order.
@@ -312,6 +316,7 @@ pub fn to_value(p: &Semantic) -> Result<Value> {
             Ok(())
         },
     )?;
+    topology::apply(&mut raw, &p.anchor_bindings)?;
     let out = json!({"schema":"haecceity.pmi/1","units":units,"pmi":raw});
     validate_schema(&out)?;
     Ok(out)
@@ -328,6 +333,7 @@ pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
     let mut used = BTreeSet::new();
     units::validate(&v["units"], &mut used)?;
     let mut raw = v["pmi"].clone();
+    let anchor_bindings = topology::capture(&raw, anchors)?;
     identity::expand_supports(&mut raw, anchors)?;
     schema::walk(
         &mut raw,
@@ -401,6 +407,7 @@ pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
         pmi,
         ids,
         unit_table: Some(v["units"].clone()),
+        anchor_bindings,
     })
 }
 
@@ -421,6 +428,10 @@ pub fn write(
         item_ids.insert(
             "__units".into(),
             vec![serde_json::to_string(&encoded["units"])?],
+        );
+        item_ids.insert(
+            "__anchors".into(),
+            vec![serde_json::to_string(&input.anchor_bindings)?],
         );
         ids.insert(*part, item_ids);
     }

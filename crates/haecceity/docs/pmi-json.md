@@ -307,3 +307,11 @@ Corrupt/stale ordering produces `ReadError::Transport`. `pmi::read_native` reads
 the complete authoritative AP242 model without ordering/alias restoration, for
 audit or recovery. A JSON import replaces stale metadata using those native
 values for its removal plan; its new output still undergoes strict verification.
+
+Name and fingerprint anchor spelling, including the grouping of multi-face
+support keys, is retained through JSON → STEP → JSON. Transport bindings store
+only those wire topology forms and their resolved native support; output refuses
+a binding if the current native support no longer matches. The identity test
+compares the xcaf producer's original whole JSON, without first replacing its
+name anchors with indices. Callers editing a decoded `Semantic` model's topology
+must clear or rebuild its `anchor_bindings` rather than reuse stale bindings.

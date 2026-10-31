@@ -734,12 +734,32 @@ fn write_inner(
                     Err(r) => return Err(WriteError::Removal(Box::new(r))),
                 }
             };
+            #[cfg(feature = "json")]
+            let plan = if let Some(protected) = protected {
+                let mut plan = plan;
+                // Removal can reach kept ink through an annotation plane or another
+                // presentation container even after its associations were detached.
+                // Its complete forward dependency graph must survive unchanged.
+                plan.removed.retain(|id| !protected.contains(id));
+                plan.rewritten.retain(|id, _| !protected.contains(id));
+                plan.presentation_removed
+                    .retain(|(id, _)| !protected.contains(id));
+                plan
+            } else {
+                plan
+            };
             plan.into_edit(&mut edit);
             removed = plan.removed.clone();
             report.removed = plan.removed.iter().copied().collect();
             report.rewritten = plan.rewritten.keys().copied().collect();
             report.presentation_removed = plan.presentation_removed.clone();
             report.presentation_removed.extend(emptied);
+            #[cfg(feature = "json")]
+            if protected.is_some() {
+                report
+                    .presentation_removed
+                    .retain(|(id, _)| removed.contains(id));
+            }
             report.presentation_removed.sort();
             report.left_unreferenced = plan.report.left_unreferenced.clone();
             for (part, _) in &order {

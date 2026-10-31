@@ -20,6 +20,8 @@ type Entries = BTreeMap<String, Vec<Entry>>;
 struct Layout {
     items: Entries,
     units: Value,
+    #[serde(default)]
+    wire_anchors: Vec<AnchorBinding>,
 }
 impl std::ops::Deref for Layout {
     type Target = Entries;
@@ -175,6 +177,12 @@ pub(crate) fn layout(pmi: &PartPmi, ids: &BTreeMap<String, Vec<String>>) -> Resu
     Ok(serde_json::to_string(&Layout {
         items: layout,
         units,
+        wire_anchors: ids
+            .get("__anchors")
+            .and_then(|v| v.first())
+            .map(|s| serde_json::from_str(s))
+            .transpose()?
+            .unwrap_or_default(),
     })?)
 }
 fn ids_mut<'a>(ids: &'a mut PartIdentifiers, c: &str) -> &'a mut Vec<Option<String>> {
@@ -426,6 +434,8 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
             }
         }
         read.identifiers.parts[part].json_units = Some(serde_json::to_string(&layout.units)?);
+        read.identifiers.parts[part].json_anchors =
+            Some(serde_json::to_string(&layout.wire_anchors)?);
         read.parts[part] = pmi;
     }
     Ok(())
