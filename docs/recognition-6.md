@@ -684,7 +684,11 @@ Turned fillets on one valid solid merge arcs only when the raw torus centres,
 axis lines, major/minor radii, material sides and meridian intervals agree at model
 precision. One record retains a leader on an actual source arc and all constituent
 arcs as its exact defining faces. Equal radii on different rings remain separate.
-This uses the existing multi-face record contract and adds no fields or family.
+This uses the existing multi-face record contract and adds no fields or family. Historical fillet inventory floors continue to count constituent
+torus patches (one per source arc), while cylindrical fillets including spherical
+caps still count once. Grouping cannot satisfy a floor by dropping a patch. In the
+cgb202 regression, 708 old occurrences become 542 callout records with the same
+708 primary round patches; the historical floor remains 708.
 
 Planar chamfer and angled-step `corner` is optional/null when unproved. Retention
 requires the published points to reconstruct the measured legs (within 0.005 mm)

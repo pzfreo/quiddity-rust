@@ -350,6 +350,10 @@ fn spanner_flats_preserve_all_three_steps_and_explain_shoulders() {
             f.flats.len(),
             if name == "spindle_flats.step" { 2 } else { 0 }
         );
+        for flat in &f.flats {
+            assert_eq!(flat.across, 20.);
+            assert_eq!(*flat.stock_span, (0., 12.));
+        }
         // Legitimate overlapping slab and shoulder descriptions. The published
         // riser's height_axis is file Y, so -12 is the head's radial extent.
         assert_eq!(f.plates.len(), 1);
