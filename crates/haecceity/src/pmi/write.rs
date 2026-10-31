@@ -351,7 +351,7 @@ pub(crate) fn decimal_carrier(g: &GeneralTolerance, places: Option<u8>) -> bool 
     matches!(g, GeneralTolerance::Table { name, cells } if name.is_empty() && places.is_some() && matches!(cells.as_slice(), [c] if c.decimal_default() == places))
 }
 
-fn note_texture(n: &Note) -> Option<SurfaceTexture> {
+pub(crate) fn note_texture(n: &Note) -> Option<SurfaceTexture> {
     if !["surface texture", "surface finish", "finish"].contains(&n.kind.as_str()) {
         return None;
     }
@@ -3078,6 +3078,9 @@ impl<'a> PartPlan<'a> {
                     &[text],
                 )?;
                 self.identify(em, "notes", i, property)?;
+                #[cfg(feature = "presentation")]
+                st.properties
+                    .insert(crate::presentation::notes::Source::Note(i), property);
             }
             if p != &PartPmi::default()
                 || crate::json::transport::has_units(ids)
@@ -3525,6 +3528,8 @@ impl<'a> PartPlan<'a> {
                     // bare-number slot that would push the control frames away.
                     crate::presentation::placement::Placed {
                         anchor: tip,
+                        text_origin: tip,
+                        text_scale: 1.,
                         origin: tip,
                         normal: [0., 0., 1.],
                         along: [1., 0., 0.],
@@ -3604,7 +3609,7 @@ impl<'a> PartPlan<'a> {
             let measurements = measurements
                 .as_ref()
                 .ok_or_else(|| WriteError::Internal("missing linear measurements".into()))?;
-            let mut ladder = linear::Ladder::new(part.bounds());
+            let mut ladder = linear::Ladder::compact(part.bounds());
             for (i, (_, _, _, plane, lines)) in graphics.iter().enumerate() {
                 if i < symbols.len()
                     || i >= symbols.len() + self.pmi.dimensions.len()
@@ -3617,7 +3622,7 @@ impl<'a> PartPlan<'a> {
                     if i >= symbols.len() && i < symbols.len() + self.pmi.dimensions.len() {
                         ladder.reserve_dimension(b, plane[1], plane[2]);
                     } else {
-                        ladder.reserve(b);
+                        ladder.reserve_annotation(b, plane[1]);
                     }
                 }
             }
@@ -3683,7 +3688,7 @@ impl<'a> PartPlan<'a> {
             if !rows.is_empty() {
                 let c = notes::notes_block(&rows);
                 // Appended annotations stay byte-identical, but still occupy space.
-                local_layout.reserve(&kept_annotation_points(self.doc, em.removed));
+                local_layout.reserve_notes(&kept_notes_points(self.doc, em.removed));
                 let p = local_layout.notes(&c);
                 let scale = local_layout.text_height() / 3.;
                 for (i, text) in c.letters.iter().enumerate() {
@@ -5812,15 +5817,17 @@ impl<'a> PartPlan<'a> {
     }
 }
 
-/// Tessellated/polyline ink of kept callouts, including repositioned tessellated sets.
+/// Tessellated/polyline ink of kept general notes, including repositioned tessellated sets.
 /// Read only: reserve foreign presentation without moving or restating it.
 #[cfg(feature = "presentation")]
-fn kept_annotation_points(doc: &Document, removed: &BTreeSet<u64>) -> Vec<Vec<[f64; 3]>> {
+fn kept_notes_points(doc: &Document, removed: &BTreeSet<u64>) -> Vec<Vec<[f64; 3]>> {
     use crate::geom;
     let mut out = Vec::new();
-    let roots = doc
-        .ids()
-        .filter(|id| !removed.contains(id) && is_a(doc, *id, "draughting_callout"));
+    let roots = doc.ids().filter(|id| {
+        !removed.contains(id)
+            && is_a(doc, *id, "draughting_callout")
+            && attr_str(doc, *id, "representation_item", "name").as_deref() == Some("General notes")
+    });
     for root in roots {
         let identity = ([0.; 3], [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]);
         let mut stack = vec![(root, identity)];

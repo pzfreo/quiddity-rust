@@ -30,6 +30,14 @@ fn ascii_strokes_keep_the_public_domain_font_metrics() {
 }
 
 #[test]
+fn note_ellipsis_has_three_real_dots_without_losing_unicode_text() {
+    assert!(font().supports('…'));
+    let ellipsis = font().text("…", 3.);
+    assert!(ellipsis.missing.is_empty());
+    assert_eq!(ellipsis.lines, font().text("...", 3.).lines);
+}
+
+#[test]
 fn whitespace_has_no_ink_and_blank_lines_keep_their_baseline_spacing() {
     for value in ["", " ", "\t", "\n \t\n", "\u{2003}"] {
         let ink = font().text(value, 3.);
