@@ -123,10 +123,16 @@ fn regenerated_spindle_keeps_its_saved_callouts_near_their_features() {
                 let site = notation::placement::feature_site(&part, &semantic.pmi, feature)
                     .unwrap()
                     .0;
-                let limit = geom::dist(file_origin, site);
+                let saved_distance = geom::dist(file_origin, site);
+                // A long source face can put its old glyph far from the chosen
+                // interior site. Also require an absolute two-capital-height
+                // bound, so the saved distance cannot excuse a floating flag.
+                let near_feature =
+                    2. * notation::placement::text_height(part.bounds().max_extent());
+                let limit = saved_distance.min(near_feature);
                 let distance = geom::dist(placed.origin, site);
                 println!(
-                    "{}: saved={file_origin:?}, regenerated={:?}, feature distance={distance:.6} mm <= saved {limit:.6} mm",
+                    "{}: saved={file_origin:?}, regenerated={:?}, feature distance={distance:.6} mm <= min(saved={saved_distance:.6}, 2h={near_feature:.6})={limit:.6} mm",
                     actual.name, placed.origin
                 );
                 assert!(
