@@ -264,5 +264,66 @@ fn one_source_dimension(original: &pmi::PartPmi) -> pmi::PartPmi {
         }
     }
     output.dimensions.push(dimension);
+    // This sample is the support closure of one source dimension, rather than
+    // the original part's unrelated supplemental/computed geometry caches.
+    let old_derived = std::mem::take(&mut output.derived_geometry);
+    let needed: std::collections::BTreeSet<_> = output
+        .features
+        .iter()
+        .filter_map(|f| match f {
+            Feature::Derived {
+                geometry: Some(g), ..
+            } => Some(g.0),
+            _ => None,
+        })
+        .collect();
+    let map: BTreeMap<_, _> = needed
+        .iter()
+        .enumerate()
+        .map(|(new, old)| (*old, new))
+        .collect();
+    output.derived_geometry = needed.iter().map(|i| old_derived[*i].clone()).collect();
+    for feature in &mut output.features {
+        if let Feature::Derived {
+            geometry: Some(g), ..
+        } = feature
+        {
+            g.0 = map[&g.0];
+        }
+    }
+    let old_geometry = std::mem::take(&mut output.geometry);
+    let mut needed = std::collections::BTreeSet::new();
+    for feature in &output.features {
+        if let Feature::Items(items) = feature {
+            for a in items {
+                if let pmi::Anchor::Geometry(g) = a {
+                    needed.insert(g.0);
+                }
+            }
+        }
+    }
+    for g in &output.derived_geometry {
+        needed.extend(g.supplemental.iter().map(|g| g.0));
+    }
+    let map: BTreeMap<_, _> = needed
+        .iter()
+        .enumerate()
+        .map(|(new, old)| (*old, new))
+        .collect();
+    output.geometry = needed.iter().map(|i| old_geometry[*i].clone()).collect();
+    for feature in &mut output.features {
+        if let Feature::Items(items) = feature {
+            for a in items {
+                if let pmi::Anchor::Geometry(g) = a {
+                    g.0 = map[&g.0];
+                }
+            }
+        }
+    }
+    for g in &mut output.derived_geometry {
+        for g in &mut g.supplemental {
+            g.0 = map[&g.0];
+        }
+    }
     output
 }

@@ -1102,6 +1102,47 @@ impl<'a> Reader<'a> {
             );
         }
 
+        #[cfg(feature = "json")]
+        if !st.prov.transport.is_empty() {
+            // The versioned JSON document can also declare supplemental geometry
+            // with no feature anchor. Read its native constructive representation.
+            for link in self.referrers_by(
+                st.part.shape,
+                "shape_definition_representation",
+                "property_definition_representation",
+                "definition",
+            ) {
+                if let Some(shape) = self.get_ref(
+                    link,
+                    "property_definition_representation",
+                    "used_representation",
+                ) {
+                    for relationship in self.referrers_by(
+                        shape,
+                        "constructive_geometry_representation_relationship",
+                        "representation_relationship",
+                        "rep_1",
+                    ) {
+                        if let Some(rep) =
+                            self.get_ref(relationship, "representation_relationship", "rep_2")
+                            && self.is(rep, "constructive_geometry_representation")
+                        {
+                            for item in self.get_refs(rep, "representation", "items") {
+                                if let Err(why) = self.geometry(st, item, Some(rep)) {
+                                    self.find(
+                                        FindingKind::Unresolved,
+                                        Some(st.id),
+                                        item,
+                                        &[rep],
+                                        why,
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         self.notes_on_faces(st, &aspects);
         self.note_callouts(st);
     }
@@ -2066,6 +2107,9 @@ impl<'a> Reader<'a> {
         st.prov.geometry.push(self::ids(ids));
         st.prov.geometry_items.push(item);
         st.geometry.insert(item, g);
+        #[cfg(feature = "json")]
+        self.json_carriers
+            .insert((st.id, "geometry".into(), g.0), item);
         Ok(g)
     }
 

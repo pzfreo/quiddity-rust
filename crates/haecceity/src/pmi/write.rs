@@ -2898,6 +2898,10 @@ impl<'a> PartPlan<'a> {
         for g in &p.derived_geometry {
             used_geometry.extend(g.supplemental.iter().map(|g| g.0));
         }
+        #[cfg(feature = "json")]
+        if self.identifiers.is_some() {
+            used_geometry.extend(0..p.geometry.len());
+        }
         let mut memo: HashMap<GeometryItem, R> = HashMap::new();
         for &g in &used_geometry {
             if let Some(&old) = self.existing_geometry.get(&g) {
@@ -2913,7 +2917,17 @@ impl<'a> PartPlan<'a> {
                 "constructive_geometry_representation",
                 &[
                     ("name", s("supplemental geometry")),
-                    ("items", refs(new_items.iter().map(|(_, r)| *r))),
+                    ("items", {
+                        let items: Vec<_> = new_items.iter().map(|(_, r)| *r).collect();
+                        #[cfg(feature = "json")]
+                        let items = if self.identifiers.is_some() {
+                            let mut seen = BTreeSet::new();
+                            items.into_iter().filter(|r| seen.insert(*r)).collect()
+                        } else {
+                            items
+                        };
+                        refs(items)
+                    }),
                     ("context_of_items", em.reference(self.context)?.a()),
                 ],
             )?;

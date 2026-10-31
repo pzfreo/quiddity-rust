@@ -911,3 +911,29 @@ fn content_id_has_a_fixed_canonical_json_vector() {
         "dimensions:54593f8dc8d8dfaa8c91406d8a1898ee"
     );
 }
+
+#[test]
+fn unused_supplemental_geometry_roundtrips_as_native_geometry() {
+    let bytes = cube();
+    let doc = Document::parse(bytes.clone()).unwrap();
+    let parts = read_part_definitions(&bytes).unwrap();
+    let geometry = gaps::every_kind().geometry;
+    let input = json::identify(
+        PartPmi {
+            geometry,
+            ..Default::default()
+        },
+        None,
+    )
+    .unwrap();
+    let expected = json::to_value(&input).unwrap();
+    let (out, _) = json::write_preserving(&doc, &parts, &[(PartId(0), input)]).unwrap();
+    let after = Document::parse(out).unwrap();
+    let parts = read_part_definitions(after.bytes()).unwrap();
+    let read = pmi::read(&after, &parts).unwrap();
+    let actual = json::to_value(
+        &json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(actual, expected);
+}

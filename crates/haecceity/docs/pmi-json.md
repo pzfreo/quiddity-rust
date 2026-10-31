@@ -286,3 +286,9 @@ Several nonempty `tolerance class` items under one identified property use
 content id remains stable when distinct classes are reordered or inserted; only
 identical class-text twins receive `~2`, `~3`, … . A dedicated single-class
 property keeps its own `ID_ATTRIBUTE` unchanged, including JSON-written caller IDs.
+
+Declared supplemental geometry is emitted in a native constructive geometry
+representation even when no feature uses it. JSON-tagged reads recover those
+items before applying verified order/alias bindings. Legacy reads/writes retain
+their existing behaviour. Computed derived-geometry records still require their
+deriving feature; an isolated cache record has no standalone native carrier.
