@@ -324,6 +324,33 @@ mod tests {
                 .unwrap()
                 .accepted();
         assert_eq!(found.fillets, rebuilt.fillets);
+
+        // This post-pass actually removes an OD boss before the injected panic. Recovery
+        // must restore that independent boss and remove the failed body and all its faces.
+        let disc = crate::read_step_file(
+            &std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/turned_body_disc.step"),
+        )
+        .unwrap();
+        assert!(features::recognise(&disc).bosses.is_empty());
+        let found = injected("turned_bodies", "suppress_od_bosses", || {
+            features::recognise(&disc)
+        });
+        assert!(found.turned_bodies.is_empty());
+        assert!(
+            found
+                .defining
+                .get("turned_bodies")
+                .is_none_or(Vec::is_empty)
+        );
+        assert_eq!(found.bosses.len(), 1);
+        assert!(!found.defining["bosses"][0].is_empty());
+        let rebuilt =
+            features::inventory_in_with(&features::Context::new(&disc), found.failures.clone())
+                .unwrap()
+                .unwrap()
+                .accepted();
+        assert_eq!(found.bosses, rebuilt.bosses);
     }
 
     #[test]
@@ -381,6 +408,33 @@ mod tests {
         let json = serde_json::to_value(evidence).unwrap();
         assert!(json.get("failures").is_none());
         assert!(json.get("complete").is_none());
+    }
+
+    #[test]
+    fn shared_cli_wheel_and_server_envelope_marks_incomplete() {
+        let bytes = std::fs::read(
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/filleted_plate_with_holes.step"),
+        )
+        .unwrap();
+        let (output, warnings) = injected("pockets", "discover", || {
+            crate::serve::recognise_bytes("part.step", bytes)
+        })
+        .unwrap();
+        assert_eq!(output.document.complete, Some(false));
+        assert!(
+            output
+                .document
+                .failures
+                .iter()
+                .any(|f| f.family == "pockets")
+        );
+        assert!(
+            warnings
+                .iter()
+                .any(|w| w.contains("warning: incomplete recognition"))
+        );
+        assert!(output.document.records.iter().any(|r| r.family == "holes"));
     }
 
     #[test]

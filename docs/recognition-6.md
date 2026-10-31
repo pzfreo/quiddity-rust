@@ -660,7 +660,7 @@ STEP reading, context construction, reconciliation, document assembly and output
 remain fatal/outside the family boundary. The library installs one panic-hook dispatcher:
 a thread-local scope silences only caught family panics, while other threads and uncaught
 panics reach the previously installed hook. Installing a new application hook later replaces
-that policy. No hook is replaced in aborting builds. The CLI retains its successful exit
+that policy. No hook is replaced in aborting builds. The recognition CLI retains its successful exit
 status for a usable partial document and emits its existing-style warning on stderr;
 `quiddity serve` and the Python wheel carry the same recognition fields automatically.
 WASM builds abort on panic, so this isolation has no effect in the browser.
