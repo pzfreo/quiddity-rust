@@ -18,10 +18,10 @@ Measured with rustc 1.99.0 (b940084d7, 2026-09-28), 2026-10-31:
 
 | Features | Raw WASM bytes |
 | --- | ---: |
-| `json` | 5,884,717 |
-| `json-import` | 8,350,505 |
+| `json` | 5,881,274 |
+| `json-import` | 8,351,142 |
 
-The serializer-only artifact is **2,465,788 bytes (29.5%) smaller** in this probe.
+The serializer-only artifact is **2,469,868 bytes (29.6%) smaller** in this probe.
 Neither schema URN occurs in that artifact; both occur in the importer artifact.
 These are not Specify application sizes and do not establish its final ceiling.
 
