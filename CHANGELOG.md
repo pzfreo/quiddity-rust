@@ -6,6 +6,8 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Added
+
 - For #142, opt-in `json` exposes versioned AP242 semantic PMI and As Drawn/generated
   presentation JSON, packaged JSON Schemas, stable requirement ids and face-name/support
   anchors, plus `pmi json export`, `import`, `validate` and `presentation` CLI commands.
@@ -14,6 +16,19 @@ in [docs/alpha1.md](docs/alpha1.md).
   graphics for surviving requirements, and verify every item's id and content on read-back.
   JSON writes retain the existing AP242 refusals;
   complete source STEP closure remains blocked on the documented writer/source cases.
+
+## 0.2.6 (2026-10-30)
+
+Upgrading from 0.2.5: recognition schema `/6` and fingerprints `/3` are unchanged. haecceity's
+PMI writer now adds a tessellated callout (annotation plane, one semantic association) for every
+dimension and tolerance it writes, ISO 1302 symbols for face surface textures, and one
+`General notes` callout for part settings; build without the `presentation` feature for
+semantic-only output. Written semantic PMI also changes shape: multi-face aspects are
+`COMPOSITE_SHAPE_ASPECT`, location dimensions reference their own aspects rather than datum
+features, and with presentation on a datum feature that is also a size is written as separate
+`DATUM_FEATURE` and `DIMENSIONAL_SIZE`. Readers that key on face supports (as Specify does) are
+unaffected; readers that key on entity structure should re-check. Files with no PMI written are
+byte-identical. `PmiRead.identifiers` exposes each requirement's `id_attribute`.
 
 ### Added
 
@@ -36,7 +51,8 @@ in [docs/alpha1.md](docs/alpha1.md).
   leaders start inside their faces in planes containing the outward normal. A physical
   text-height floor and feature-scaled frame offsets improve fit-view legibility.
   Names carry full requirement notation; the notes block uses the tree title `General notes`
-  while retaining its full drawn wording. The feature
+  while retaining its full drawn wording, and clears every callout’s complete drawn extent
+  in principal/isometric projections. The feature
   can be disabled for semantic-only output. Face-specific surface textures get ISO 1302
   symbols, and written material, defaults, process settings and indexed general notes get
   one property-linked notes block per part. Shared wording/geometry comes from Draftwright;
