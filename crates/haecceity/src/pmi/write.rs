@@ -478,7 +478,16 @@ fn write_inner(
             errors,
         })?;
     }
-    let normalized: Vec<_> = pmi.iter().map(|(id, p)| (*id, standard_form(p))).collect();
+    let normalized: Vec<_> = pmi
+        .iter()
+        .map(|(id, p)| {
+            #[cfg(feature = "json")]
+            if identifiers.is_some() {
+                return (*id, p.clone());
+            }
+            (*id, standard_form(p))
+        })
+        .collect();
     let mut order: Vec<&(PartId, PartPmi)> = normalized.iter().collect();
     order.sort_by_key(|(p, _)| *p);
     for w in order.windows(2) {
@@ -3302,7 +3311,29 @@ impl<'a> PartPlan<'a> {
                 .insert(crate::presentation::notes::Source::Texture(_i), _property);
         }
         #[cfg(feature = "json")]
-        if self.identifiers.is_some() {
+        if let Some(ids) = self.identifiers {
+            for (i, note) in p.notes.iter().enumerate() {
+                let a = AttributeSet {
+                    name: note.kind.clone(),
+                    on: note.on,
+                    items: vec![("text".into(), AttributeValue::Text(note.text.clone()))],
+                    description: Some("haecceity.pmi/1 note".into()),
+                    general_property: None,
+                };
+                let property = self.attribute_set(em, &mut st, pd, pds, &a)?;
+                self.identify(em, "notes", i, property)?;
+            }
+            let layout = crate::json::transport::layout(p, ids)
+                .map_err(|e| WriteError::Internal(e.to_string()))?;
+            let item = Self::text_item(em, "ordering", &layout)?;
+            self.property(
+                em,
+                pds,
+                "haecceity.pmi/1 ordering",
+                "Transport ordering and reference aliases; native PMI remains authoritative",
+                "",
+                &[item],
+            )?;
             for (collection, refs) in [
                 ("datum_targets", &st.targets),
                 ("datums", &st.datums),
@@ -4114,7 +4145,16 @@ impl<'a> PartPlan<'a> {
                     "draughting_model_item_association",
                     &[
                         ("name", s("PMI representation to presentation link")),
-                        ("description", s("")),
+                        ("description", {
+                            #[cfg(feature = "json")]
+                            if self.identifiers.is_some() {
+                                s("haecceity.generated/1")
+                            } else {
+                                s("")
+                            }
+                            #[cfg(not(feature = "json"))]
+                            s("")
+                        }),
                         ("definition", definition.a()),
                         ("used_representation", model.a()),
                         ("identified_item", callout.a()),
@@ -4135,11 +4175,24 @@ impl<'a> PartPlan<'a> {
         rep_name: &str,
         items: &[R],
     ) -> Result<R, WriteError> {
+        self.property_optional(em, owner, name, Some(description), rep_name, items)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn property_optional(
+        &self,
+        em: &mut Emitter<'_>,
+        owner: R,
+        name: &str,
+        description: Option<&str>,
+        rep_name: &str,
+        items: &[R],
+    ) -> Result<R, WriteError> {
         let pdef = em.simple(
             "property_definition",
             &[
                 ("name", s(name)),
-                ("description", s(description)),
+                ("description", description.map_or(A::Unset, s)),
                 ("definition", owner.a()),
             ],
         )?;
@@ -5816,6 +5869,40 @@ impl<'a> PartPlan<'a> {
                 }
             });
         }
+        #[cfg(feature = "json")]
+        if self.identifiers.is_some() {
+            let pdef = self.property_optional(
+                em,
+                owner,
+                &a.name,
+                a.description.as_deref(),
+                "haecceity.pmi/1 attribute",
+                &items,
+            )?;
+            if let Some(g) = &a.general_property {
+                let gp = em.simple(
+                    "general_property",
+                    &[
+                        ("id", s(&g.id)),
+                        ("name", s(&g.name)),
+                        (
+                            "description",
+                            g.description.as_ref().map_or(A::Unset, |d| s(d)),
+                        ),
+                    ],
+                )?;
+                em.simple(
+                    "general_property_association",
+                    &[
+                        ("name", s("")),
+                        ("description", A::Unset),
+                        ("base_definition", gp.a()),
+                        ("derived_definition", pdef.a()),
+                    ],
+                )?;
+            }
+            return Ok(pdef);
+        }
         let gp = em.simple(
             "general_property",
             &[
@@ -6495,14 +6582,39 @@ impl SymbolLayout {
 /// two mean the same.
 #[must_use]
 pub fn differences(a: &PartPmi, b: &PartPmi) -> Vec<String> {
+    ordered_differences(a, b, false)
+}
+
+/// Compare native AP242 meaning, ignoring support aliases and collection order.
+/// Use this for the legacy writer's canonicalized native output.
+pub fn differences_by_meaning(a: &PartPmi, b: &PartPmi) -> Vec<String> {
     compare(a, b, false)
+}
+
+/// Native meaning comparison retaining stated decimal text and units.
+pub fn differences_by_meaning_as_stated(a: &PartPmi, b: &PartPmi) -> Vec<String> {
+    compare(a, b, true)
 }
 
 /// [`differences`], with every value compared as stated: its decimal text and its unit (a
 /// round trip writes each value's own digits in its own unit).
 #[must_use]
 pub fn differences_as_stated(a: &PartPmi, b: &PartPmi) -> Vec<String> {
-    compare(a, b, true)
+    ordered_differences(a, b, true)
+}
+
+fn ordered_differences(a: &PartPmi, b: &PartPmi, stated: bool) -> Vec<String> {
+    let mut out = compare(a, b, stated);
+    for (name, equal) in [
+        ("feature order or fields", a.features == b.features),
+        ("attribute order or fields", a.attributes == b.attributes),
+        ("note order or fields", a.notes == b.notes),
+    ] {
+        if !equal {
+            out.push(format!("{name} changed"));
+        }
+    }
+    out
 }
 
 fn compare(a: &PartPmi, b: &PartPmi, stated: bool) -> Vec<String> {

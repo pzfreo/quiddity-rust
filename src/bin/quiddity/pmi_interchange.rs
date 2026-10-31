@@ -69,7 +69,7 @@ pub(super) fn run(args: &[String]) -> Result<String, String> {
             }
             let semantic = interchange::from_value(&read_json(json_path)?, &anchors)
                 .map_err(|e| e.to_string())?;
-            let expected = pmi::write::standard_form(&semantic.pmi);
+            let expected = semantic.pmi.clone();
             let (output, report) = interchange::write(
                 &doc,
                 &defs,
@@ -86,7 +86,7 @@ pub(super) fn run(args: &[String]) -> Result<String, String> {
             }
             atomic_write(out, &output)?;
             Ok(
-                json!({"schema":"haecceity.pmi/1","part":part,"output":out,"added":report.added,"differences":differences}),
+                json!({"schema":"haecceity.pmi/1","part":part,"output":out,"added":report.added,"differences":differences,"presentation_removed":report.presentation_removed}),
             )
         }
         _ => Err(format!("unknown PMI JSON command {command:?}")),

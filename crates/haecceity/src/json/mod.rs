@@ -10,16 +10,22 @@ use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::OnceLock;
 
+mod identity;
 pub(crate) mod invariants;
 mod parse;
 /// The file's As Drawn graphics and generated notation, keyed by semantic id.
 pub mod presentation;
+mod preserve;
 mod schema;
+pub(crate) mod transport;
 pub use parse::parse;
 
 pub const PMI_SCHEMA: &str = include_str!("../../schema/haecceity.pmi-1.json");
 pub const PRESENTATION_SCHEMA: &str = include_str!("../../schema/haecceity.presentation-1.json");
-const COLLECTIONS: &[&str] = &[
+pub(crate) const COLLECTIONS: &[&str] = &[
+    "features",
+    "geometry",
+    "derived_geometry",
     "datum_targets",
     "datums",
     "dimensions",
@@ -162,6 +168,8 @@ fn file_ids<'a>(ids: Option<&'a PartIdentifiers>, name: &str) -> &'a [Option<Str
     let Some(i) = ids else { return &[] };
     match name {
         "features" => &i.features,
+        "geometry" => &i.geometry,
+        "derived_geometry" => &i.derived_geometry,
         "datum_targets" => &i.datum_targets,
         "datums" => &i.datums,
         "dimensions" => &i.dimensions,
@@ -177,38 +185,40 @@ fn file_ids<'a>(ids: Option<&'a PartIdentifiers>, name: &str) -> &'a [Option<Str
     }
 }
 
-/// Assign file ids first, then deterministic collision-free model-order ids.
+/// Assign source ids, otherwise stable content ids. Supports have an independent namespace.
 pub fn identify(pmi: PartPmi, identifiers: Option<&PartIdentifiers>) -> Result<Semantic> {
-    let raw = serde_json::to_value(&pmi)?;
-    let mut used = BTreeSet::new();
+    identify_with_anchors(pmi, identifiers, &Anchors::default())
+}
+
+/// As `identify`, using consumer-verified support fingerprints in content-derived ids.
+pub fn identify_with_anchors(
+    pmi: PartPmi,
+    identifiers: Option<&PartIdentifiers>,
+    anchors: &Anchors,
+) -> Result<Semantic> {
+    identity::identify(pmi, identifiers, anchors)
+}
+
+fn model_schema() -> Value {
+    let mut schema = pmi_schema()["$defs"]["PartPmi"].clone();
     for &c in COLLECTIONS {
-        for id in file_ids(identifiers, c).iter().flatten() {
-            if id.is_empty() || !used.insert(id.clone()) {
-                return Err(Error(format!("duplicate or empty item id {id:?}")));
-            }
-        }
+        schema["properties"][c]["items"] =
+            schema["properties"][c]["items"]["properties"]["value"].clone();
     }
-    let mut ids = BTreeMap::new();
-    for &c in COLLECTIONS {
-        let mut out = Vec::new();
-        for i in 0..raw[c].as_array().map_or(0, Vec::len) {
-            let id = if let Some(Some(id)) = file_ids(identifiers, c).get(i) {
-                id.clone()
-            } else {
-                let base = format!("{c}/{i}");
-                let mut id = base.clone();
-                let mut n = 0;
-                while !used.insert(id.clone()) {
-                    n += 1;
-                    id = format!("{base}~{n}");
-                }
-                id
-            };
-            out.push(id);
-        }
-        ids.insert(c.to_string(), out);
+    schema
+}
+
+fn reference_collection(kind: &str) -> Option<&'static str> {
+    match kind {
+        "FeatureId" => Some("features"),
+        "DatumId" => Some("datums"),
+        "DatumTargetId" => Some("datum_targets"),
+        "DimensionId" => Some("dimensions"),
+        "ToleranceId" => Some("tolerances"),
+        "GeometryId" => Some("geometry"),
+        "DerivedGeometryId" => Some("derived_geometry"),
+        _ => None,
     }
-    Ok(Semantic { pmi, ids })
 }
 
 /// Encode every `PartPmi` field without rounding or changing model order.
@@ -221,6 +231,26 @@ pub fn to_value(p: &Semantic) -> Result<Value> {
         }
     }
     let mut raw = serde_json::to_value(&p.pmi)?;
+    schema::walk(
+        &mut raw,
+        &model_schema(),
+        pmi_schema(),
+        &mut |kind, value| {
+            if let Some(collection) = reference_collection(kind) {
+                let index = value
+                    .as_u64()
+                    .ok_or_else(|| Error(format!("invalid {kind}")))?
+                    as usize;
+                *value = json!(
+                    p.ids
+                        .get(collection)
+                        .and_then(|ids| ids.get(index))
+                        .ok_or_else(|| Error(format!("unknown {collection} index {index}")))?
+                );
+            }
+            Ok(())
+        },
+    )?;
     let mut used = BTreeSet::new();
     for &c in COLLECTIONS {
         let values = raw[c]
@@ -282,11 +312,23 @@ pub fn validate_schema(v: &Value) -> Result<()> {
 pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
     validate_schema(v)?;
     let mut raw = v["pmi"].clone();
+    identity::expand_supports(&mut raw, anchors)?;
     schema::walk(
         &mut raw,
         &pmi_schema()["$defs"]["PartPmi"],
         pmi_schema(),
         &mut |kind, x| {
+            if let Some(collection) = reference_collection(kind) {
+                let id = x
+                    .as_str()
+                    .ok_or_else(|| Error(format!("invalid {kind} id")))?;
+                let index = v["pmi"][collection]
+                    .as_array()
+                    .and_then(|items| items.iter().position(|item| item["id"] == id))
+                    .ok_or_else(|| Error(format!("unknown {collection} id {id:?}")))?;
+                *x = json!(index);
+                return Ok(());
+            }
             match kind {
                 "FaceIndex" => *x = json!(anchors.resolve(x)?),
                 "EdgeIndex" => {
@@ -360,81 +402,42 @@ pub fn write(
     let mut values = Vec::new();
     let mut ids = BTreeMap::new();
     for (part, input) in requested {
-        // Validate ids, even when a caller built Semantic without decoding JSON.
         to_value(input)?;
-        let normalized = pmi::write::standard_form(&input.pmi);
-        let mut item_ids = input.ids.clone();
-        // Legacy notes migrate to AP242 semantic text or surface texture, exactly as
-        // in the ordinary writer. Their external ids follow the migrated item.
-        for (i, note) in input.pmi.notes.iter().enumerate() {
-            let one = PartPmi {
-                notes: vec![note.clone()],
-                ..PartPmi::default()
-            };
-            let migrated = pmi::write::standard_form(&one);
-            let collection = if migrated.surface_textures.is_empty() {
-                "attributes"
-            } else {
-                "surface_textures"
-            };
-            let id = input.ids["notes"][i].clone();
-            item_ids.entry(collection.into()).or_default().push(id);
-        }
-        item_ids.insert("notes".into(), Vec::new());
-        if normalized.general.len() != input.pmi.general.len() {
-            let retained = input
-                .pmi
-                .general
-                .iter()
-                .zip(&input.ids["general"])
-                .filter(|(g, _)| normalized.general.contains(g))
-                .map(|(_, id)| id.clone())
-                .collect();
-            item_ids.insert("general".into(), retained);
-        }
-        values.push((*part, normalized));
-        ids.insert(*part, item_ids);
+        values.push((*part, input.pmi.clone()));
+        ids.insert(*part, input.ids.clone());
     }
-    let (edit, report) = pmi::write::write_identified(doc, parts, &values, &ids, policy)
+    let (base, kept) = preserve::detach(doc, parts, requested)?;
+    let (edit, report) = pmi::write::write_identified(&base, parts, &values, &ids, policy)
         .map_err(|e| Error(e.to_string()))?;
-    let bytes = doc.apply(&edit).map_err(|e| Error(e.to_string()))?.bytes;
+    let bytes = base.apply(&edit).map_err(|e| Error(e.to_string()))?.bytes;
     let definitions =
         crate::step::read_part_definitions(&bytes).map_err(|e| Error(e.to_string()))?;
     let after = Document::parse(bytes.clone()).map_err(|e| Error(e.to_string()))?;
     let before_read = pmi::read(doc, parts).map_err(|e| Error(e.to_string()))?;
     let after_read = pmi::read(&after, &definitions).map_err(|e| Error(e.to_string()))?;
-    pmi::verify(
-        pmi::Snapshot {
-            doc,
-            defs: parts,
-            read: &before_read,
-        },
-        doc,
-        &values,
-        pmi::Mode::Replace,
-        pmi::Snapshot {
-            doc: &after,
-            defs: &definitions,
-            read: &after_read,
-        },
-    )
-    .into_result()
-    .map_err(Error)?;
-    for (part, expected) in &ids {
-        let actual = &after_read.identifiers.parts[part.0];
-        let actual: BTreeSet<_> = COLLECTIONS
-            .iter()
-            .flat_map(|c| file_ids(Some(actual), c).iter().flatten())
-            .collect();
-        for id in expected.values().flatten() {
-            if !actual.contains(id) {
+    let bytes = preserve::attach(&after, &after_read, kept)?;
+    let after = Document::parse(bytes.clone()).map_err(|e| Error(e.to_string()))?;
+    let after_read = pmi::read(&after, &definitions).map_err(|e| Error(e.to_string()))?;
+    for (part, expected) in requested {
+        let actual = &after_read.parts[part.0];
+        if &expected.pmi != actual {
+            return Err(Error(format!(
+                "part {}: JSON identity failed: {:?}",
+                part.0,
+                pmi::write::differences_as_stated(&expected.pmi, actual)
+            )));
+        }
+        let actual = identify(actual.clone(), Some(&after_read.identifiers.parts[part.0]))?;
+        for &collection in COLLECTIONS {
+            if expected.ids[collection] != actual.ids[collection] {
                 return Err(Error(format!(
-                    "part {}: item id {id:?} cannot be represented independently by the AP242 writer",
-                    part.0
+                    "part {}: ids changed collection or item in {collection}: expected {:?}, read {:?}",
+                    part.0, expected.ids[collection], actual.ids[collection]
                 )));
             }
         }
     }
+    let _ = before_read;
     Ok((bytes, report))
 }
 

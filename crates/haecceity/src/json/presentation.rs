@@ -31,6 +31,7 @@ pub enum Source {
 pub struct Presentation {
     pub schema: String,
     pub length_unit: String,
+    pub semantic_ids: Vec<String>,
     pub items: BTreeMap<String, Vec<Graphic>>,
     pub unlinked: Vec<Graphic>,
 }
@@ -39,6 +40,7 @@ impl Default for Presentation {
         Self {
             schema: "haecceity.presentation/1".into(),
             length_unit: "millimetre".into(),
+            semantic_ids: vec![],
             items: BTreeMap::new(),
             unlinked: vec![],
         }
@@ -67,12 +69,12 @@ fn names(doc: &Document, id: u64) -> Vec<String> {
         None => vec![],
     }
 }
-fn is(doc: &Document, id: u64, t: &str) -> bool {
+pub(super) fn is(doc: &Document, id: u64, t: &str) -> bool {
     names(doc, id)
         .iter()
         .any(|n| express::TARGET.is_a(n, t) || express::AP242_ED1.is_a(n, t))
 }
-fn attr<'a>(doc: &'a Document, id: u64, entity: &str, name: &str) -> Option<&'a A> {
+pub(super) fn attr<'a>(doc: &'a Document, id: u64, entity: &str, name: &str) -> Option<&'a A> {
     match doc.get(id)? {
         RawEntity::Simple {
             name: ty,
@@ -98,7 +100,7 @@ fn attr<'a>(doc: &'a Document, id: u64, entity: &str, name: &str) -> Option<&'a 
         }
     }
 }
-fn reference(a: Option<&A>) -> Option<u64> {
+pub(super) fn reference(a: Option<&A>) -> Option<u64> {
     if let Some(A::EntityRef(id)) = a {
         Some(*id)
     } else {
@@ -464,10 +466,41 @@ pub fn read(
             }
         }
     }
-    let mut out = Presentation::default();
+    let mut out = Presentation {
+        semantic_ids: id_set(semantic),
+        ..Presentation::default()
+    };
+    let generated: BTreeSet<_> = doc
+        .ids()
+        .filter(|&id| {
+            is(doc, id, "draughting_model_item_association")
+                && text(attr(
+                    doc,
+                    id,
+                    "item_identified_representation_usage",
+                    "description",
+                )) == "haecceity.generated/1"
+        })
+        .filter_map(|id| {
+            reference(attr(
+                doc,
+                id,
+                "item_identified_representation_usage",
+                "identified_item",
+            ))
+        })
+        .collect();
     for root in roots {
         let mut graphic = Graphic::new(
-            Source::File,
+            if generated.contains(&root)
+                || children(doc, root)
+                    .iter()
+                    .any(|child| generated.contains(child))
+            {
+                Source::Generated
+            } else {
+                Source::File
+            },
             text(attr(doc, root, "representation_item", "name")),
         );
         let scale = scale_for(doc, root);
@@ -585,12 +618,15 @@ pub fn validate(v: &Value) -> Result<()> {
     super::schema::check(v, &schema, &schema, "")
 }
 
-/// Generate current haecceity notation in model-space XY at the origin. Clients
-/// can use `presentation::placement` to arrange these graphics in another frame.
+/// Generate current notation placed on the part's geometry in model millimetres.
 #[cfg(feature = "presentation")]
-pub fn generated(semantic: &Semantic) -> Result<Presentation> {
+pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presentation> {
     use crate::presentation;
-    let mut out = Presentation::default();
+    let mut out = Presentation {
+        semantic_ids: id_set(semantic),
+        ..Presentation::default()
+    };
+    let mut layout = presentation::placement::Layout::new(part.bounds());
     let mut add = |collection: &str, index: usize, callout: presentation::Callout| -> Result<()> {
         let key = semantic
             .ids
@@ -598,11 +634,27 @@ pub fn generated(semantic: &Semantic) -> Result<Presentation> {
             .and_then(|ids| ids.get(index))
             .ok_or_else(|| Error(format!("missing id {collection}/{index}")))?;
         let mut g = Graphic::new(Source::Generated, callout.notation());
-        g.polylines = callout
-            .polylines()
-            .into_iter()
-            .map(|line| line.into_iter().map(|[x, y]| [x, y, 0.]).collect())
-            .collect();
+        let feature = match collection {
+            "dimensions" => match &semantic.pmi.dimensions[index].kind {
+                crate::pmi::DimensionKind::Size { feature, .. } => Some(*feature),
+                crate::pmi::DimensionKind::Location { from, .. } => Some(*from),
+            },
+            "datums" => semantic.pmi.datums[index].feature(),
+            "tolerances" => match semantic.pmi.tolerances[index].target {
+                crate::pmi::ToleranceTarget::Feature(f) => Some(f),
+                _ => None,
+            },
+            "surface_textures" => semantic.pmi.surface_textures[index].on,
+            _ => None,
+        };
+        let placed = if let Some((point, normal, _)) =
+            feature.and_then(|f| presentation::placement::feature_site(part, &semantic.pmi, f))
+        {
+            layout.on_face(point, normal, &callout)
+        } else {
+            layout.notes(&callout)
+        };
+        g.polylines = placed.lines;
         g.text = callout.cells;
         out.items.entry(key.clone()).or_default().push(g);
         Ok(())
@@ -646,14 +698,32 @@ pub fn generated(semantic: &Semantic) -> Result<Presentation> {
     if let Some(material) = &semantic.pmi.material {
         let c = presentation::label(&format!("MATERIAL: {}", material.id));
         let mut g = Graphic::new(self::Source::Generated, c.notation());
-        g.polylines = c
-            .polylines()
-            .into_iter()
-            .map(|l| l.into_iter().map(|[x, y]| [x, y, 0.]).collect())
-            .collect();
+        g.polylines = layout.notes(&c).lines;
         g.text = c.cells;
         out.unlinked.push(g);
     }
     validate(&serde_json::to_value(&out)?)?;
     Ok(out)
+}
+
+fn id_set(semantic: &Semantic) -> Vec<String> {
+    let mut ids: Vec<_> = semantic.ids.values().flatten().cloned().collect();
+    ids.sort();
+    ids
+}
+/// Refuse stale presentation links before use.
+pub fn validate_links(presentation: &Presentation, semantic: &Semantic) -> Result<()> {
+    if presentation.semantic_ids != id_set(semantic) {
+        return Err(Error(
+            "presentation belongs to a different PMI id set".into(),
+        ));
+    }
+    if presentation
+        .items
+        .keys()
+        .any(|id| !presentation.semantic_ids.contains(id))
+    {
+        return Err(Error("presentation contains an unknown semantic id".into()));
+    }
+    Ok(())
 }

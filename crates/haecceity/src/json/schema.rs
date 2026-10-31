@@ -131,6 +131,9 @@ pub(super) fn walk(
 ) -> Result<()> {
     if let Some(r) = s["$ref"].as_str() {
         let name = r.rsplit('/').next().unwrap_or("");
+        if super::reference_collection(name).is_some() {
+            return f(name, v);
+        }
         if [
             "LengthUnit",
             "AngleUnit",

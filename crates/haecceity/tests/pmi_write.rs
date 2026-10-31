@@ -10,8 +10,9 @@ use std::path::{Path, PathBuf};
 use haecceity::express;
 use haecceity::p21::{Attribute, Document, RawEntity};
 use haecceity::pmi::write::{
-    ItemRef, Mode, PresentationPolicy, SchemaChange, WriteError, WriteReport, differences,
-    differences_as_stated,
+    ItemRef, Mode, PresentationPolicy, SchemaChange, WriteError, WriteReport,
+    differences_by_meaning as differences,
+    differences_by_meaning_as_stated as differences_as_stated,
 };
 use haecceity::pmi::{self, *};
 use haecceity::step::{PartDefinition, read_part_definitions};

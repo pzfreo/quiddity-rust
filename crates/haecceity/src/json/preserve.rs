@@ -1,0 +1,138 @@
+//! Keep foreign presentation by rebinding unchanged semantic identities after replacement.
+use super::*;
+use crate::p21::{Edit, RawEntity};
+use presentation::{attr, is, reference};
+
+pub(super) struct Kept {
+    part: pmi::PartId,
+    collection: String,
+    index: usize,
+    definition: u64,
+    record: RawEntity,
+}
+pub(super) fn detach(
+    doc: &Document,
+    parts: &[PartDefinition],
+    requested: &[(pmi::PartId, Semantic)],
+) -> Result<(Document, Vec<Kept>)> {
+    let read = pmi::read(doc, parts).map_err(|e| Error(e.to_string()))?;
+    let mut kept = vec![];
+    let mut edit = Edit::new();
+    for id in doc
+        .ids()
+        .filter(|&id| is(doc, id, "draughting_model_item_association"))
+    {
+        if matches!(attr(doc,id,"item_identified_representation_usage","description"),Some(Attribute::String(s)) if s=="haecceity.generated/1")
+        {
+            continue;
+        }
+        let Some(definition) = reference(attr(
+            doc,
+            id,
+            "item_identified_representation_usage",
+            "definition",
+        )) else {
+            continue;
+        };
+        for ((part, c, index), _) in read
+            .json_carriers
+            .iter()
+            .filter(|(_, carrier)| **carrier == definition)
+        {
+            let Some((_, new)) = requested.iter().find(|(p, _)| p == part) else {
+                continue;
+            };
+            let before = identify(
+                read.parts[part.0].clone(),
+                Some(&read.identifiers.parts[part.0]),
+            )?;
+            let Some(old_id) = before.ids.get(c).and_then(|ids| ids.get(*index)) else {
+                continue;
+            };
+            let Some(new_index) = new
+                .ids
+                .get(c)
+                .and_then(|ids| ids.iter().position(|id| id == old_id))
+            else {
+                continue;
+            };
+            let old_raw = serde_json::to_value(&before.pmi)?;
+            let new_raw = serde_json::to_value(&new.pmi)?;
+            if identity::content(
+                &old_raw,
+                c,
+                *index,
+                &Anchors::default(),
+                &mut BTreeSet::new(),
+            )? != identity::content(
+                &new_raw,
+                c,
+                new_index,
+                &Anchors::default(),
+                &mut BTreeSet::new(),
+            )? {
+                continue;
+            }
+            let record = doc
+                .get(id)
+                .cloned()
+                .ok_or_else(|| Error(format!("missing association #{id}")))?;
+            edit.remove(id);
+            kept.push(Kept {
+                part: *part,
+                collection: c.clone(),
+                index: new_index,
+                definition,
+                record,
+            });
+            break;
+        }
+    }
+    let bytes = doc.apply(&edit).map_err(|e| Error(e.to_string()))?.bytes;
+    Ok((
+        Document::parse(bytes).map_err(|e| Error(e.to_string()))?,
+        kept,
+    ))
+}
+fn replace(a: &mut Attribute, old: u64, new: u64) {
+    match a {
+        Attribute::EntityRef(id) if *id == old => *id = new,
+        Attribute::List(a) => {
+            for x in a {
+                replace(x, old, new)
+            }
+        }
+        Attribute::Typed { value, .. } => replace(value, old, new),
+        _ => {}
+    }
+}
+pub(super) fn attach(doc: &Document, read: &pmi::PmiRead, kept: Vec<Kept>) -> Result<Vec<u8>> {
+    let mut edit = Edit::new();
+    for mut k in kept {
+        let new = *read
+            .json_carriers
+            .get(&(k.part, k.collection.clone(), k.index))
+            .ok_or_else(|| {
+                Error(format!(
+                    "surviving presentation lost {} item {}",
+                    k.collection, k.index
+                ))
+            })?;
+        match &mut k.record {
+            RawEntity::Simple { attributes, .. } => {
+                for a in attributes {
+                    replace(a, k.definition, new)
+                }
+            }
+            RawEntity::Complex { parts, .. } => {
+                for part in parts {
+                    for a in &mut part.attributes {
+                        replace(a, k.definition, new)
+                    }
+                }
+            }
+        }
+        edit.add(k.record);
+    }
+    Ok(doc.apply(&edit).map_err(|e| Error(e.to_string()))?.bytes)
+}

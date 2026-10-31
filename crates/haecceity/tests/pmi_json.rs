@@ -57,7 +57,7 @@ fn all_anchor_forms_and_precise_units() {
         json!({"fingerprint":"support-key"}),
     ] {
         let mut v = v.clone();
-        v["pmi"]["features"][0]["items"][0]["face"] = face;
+        v["pmi"]["features"][0]["value"]["items"][0]["face"] = face;
         let decoded = json::from_value(&v, &anchors()).unwrap();
         assert_eq!(p, decoded.pmi);
         assert_eq!(
@@ -72,18 +72,18 @@ fn refusals_are_explained() {
     for (path, value, reason) in [
         ("/schema", json!("haecceity.pmi/2"), "schema violation"),
         (
-            "/pmi/features/0/items/0/face",
+            "/pmi/features/0/value/items/0/face",
             json!({"name":"absent"}),
             "unknown face name",
         ),
         (
-            "/pmi/features/0/items/0/face",
+            "/pmi/features/0/value/items/0/face",
             json!(1),
             "unknown face index",
         ),
         (
             "/pmi/datums/0/id",
-            json!("dimensions/0"),
+            base["pmi"]["dimensions"][0]["id"].clone(),
             "duplicate item id",
         ),
         (
@@ -152,7 +152,7 @@ fn undefined_datums_and_disallowed_feature_roles() {
         datums: Some(
             DatumSystem::new(vec![Compartment {
                 references: vec![DatumReference {
-                    datum: DatumId(3),
+                    datum: DatumId(0),
                     modifiers: vec![],
                 }],
                 modifiers: vec![],
@@ -162,12 +162,14 @@ fn undefined_datums_and_disallowed_feature_roles() {
         auxiliary: vec![],
         description: None,
     });
-    let v = json::to_value(&json::identify(p, None).unwrap()).unwrap();
+    let mut v = json::to_value(&json::identify(p, None).unwrap()).unwrap();
+    v["pmi"]["tolerances"][0]["value"]["datums"][0]["references"][0]["datum"] =
+        json!("absent datum");
     assert!(
         json::from_value(&v, &anchors())
             .unwrap_err()
             .to_string()
-            .contains("missing datum 3")
+            .contains("unknown datums id")
     );
     let mut p = test_model();
     p.features.push(Feature::Derived {
@@ -216,10 +218,11 @@ fn specify_face_fingerprint_support_key() {
     let mut a = anchors();
     a.bind_support(2, "verified-face-hash").unwrap();
     let mut v = json::to_value(&json::identify(test_model(), None).unwrap()).unwrap();
-    v["pmi"]["features"][0]["items"][0]["face"] =
+    v["pmi"]["features"][0]["value"]["items"][0]["face"] =
         json!({"fingerprint":{"schema":2,"faces":"verified-face-hash","support":[0]}});
     assert_eq!(json::from_value(&v, &a).unwrap().pmi, test_model());
-    v["pmi"]["features"][0]["items"][0]["face"]["fingerprint"]["faces"] = json!("another-part");
+    v["pmi"]["features"][0]["value"]["items"][0]["face"]["fingerprint"]["faces"] =
+        json!("another-part");
     assert!(
         json::from_value(&v, &a)
             .unwrap_err()
@@ -283,7 +286,7 @@ fn named_step_faces_use_the_mesh_face_order_and_write_identically() {
         json!({"fingerprint":{"schema":2,"faces":"verified","support":[0]}}),
     ] {
         let mut v = v.clone();
-        v["pmi"]["features"][0]["items"][0]["face"] = face;
+        v["pmi"]["features"][0]["value"]["items"][0]["face"] = face;
         let decoded = json::from_value(&v, &anchors).unwrap();
         outputs.push(
             json::write(
@@ -410,7 +413,11 @@ fn structural_support_aliases_do_not_duplicate_requirement_ids() {
     assert!(pmi::write::differences(&p, &read.parts[0]).is_empty());
     assert_eq!(
         read.identifiers.parts[0].dimensions,
-        vec![Some("dimensions/0".into())]
+        json::identify(p.clone(), None).unwrap().ids["dimensions"]
+            .iter()
+            .cloned()
+            .map(Some)
+            .collect::<Vec<_>>()
     );
 }
 
@@ -456,7 +463,7 @@ fn json_schema_integer_values_can_have_a_decimal_point() {
         json!(0.0),
         json!({"fingerprint":{"schema":2.0,"faces":"verified","support":[0.0]}}),
     ] {
-        value["pmi"]["features"][0]["items"][0]["face"] = face;
+        value["pmi"]["features"][0]["value"]["items"][0]["face"] = face;
         json::validate_schema(&value).unwrap();
         assert_eq!(json::from_value(&value, &a).unwrap().pmi, expected);
     }

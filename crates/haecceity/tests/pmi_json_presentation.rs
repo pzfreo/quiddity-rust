@@ -123,7 +123,11 @@ fn generated_notation_has_semantic_ids_and_source() {
     let parts = read_part_definitions(&bytes).unwrap();
     let read = pmi::read(&doc, &parts).unwrap();
     let semantic = json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
-    let generated = presentation::generated(&semantic).unwrap();
+    let generated = presentation::generated(
+        &semantic,
+        &haecceity::step::read_part(&bytes, &parts[0]).unwrap(),
+    )
+    .unwrap();
     assert!(!generated.items.is_empty());
     assert!(
         generated

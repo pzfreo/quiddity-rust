@@ -30,11 +30,11 @@ pub(crate) use without::{Kept, without_kept};
 pub use write::{Mode, write};
 
 /// The result of reading a file's PMI.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub struct PmiRead {
     /// Own entity of each independently identified item, used by JSON presentation links.
     #[cfg(feature = "json")]
-    pub json_carriers: std::collections::BTreeMap<(PartId, String, usize), u64>,
+    pub(crate) json_carriers: std::collections::BTreeMap<(PartId, String, usize), u64>,
     /// One per part of `read_part_definitions`, in its order (`PartId` is the index).
     pub parts: Vec<PartPmi>,
     /// What was not read, or was read through a nonconformance, in a deterministic order.
@@ -43,6 +43,17 @@ pub struct PmiRead {
     pub identifiers: Identifiers,
     pub accounting: Accounting,
 }
+
+impl PartialEq for PmiRead {
+    fn eq(&self, other: &Self) -> bool {
+        self.parts == other.parts
+            && self.findings == other.findings
+            && self.provenance == other.provenance
+            && self.identifiers == other.identifiers
+            && self.accounting == other.accounting
+    }
+}
+impl Eq for PmiRead {}
 
 /// Why a file's PMI could not be read at all.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -134,6 +145,8 @@ pub struct Provenance {
 /// The ids behind each item of one [`PartPmi`], index for index.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct PartProvenance {
+    #[cfg(feature = "json")]
+    pub(crate) transport: Vec<u64>,
     pub standards: Vec<Vec<u64>>,
     pub decimal_places: Vec<u64>,
     pub features: Vec<Vec<u64>>,
@@ -172,6 +185,10 @@ pub struct Identifiers {
 /// single requirement entity and are not indexed here.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct PartIdentifiers {
+    #[cfg(feature = "json")]
+    pub geometry: Vec<Option<String>>,
+    #[cfg(feature = "json")]
+    pub derived_geometry: Vec<Option<String>>,
     pub features: Vec<Option<String>>,
     pub datum_targets: Vec<Option<String>>,
     pub datums: Vec<Option<String>>,
@@ -218,6 +235,8 @@ impl PartProvenance {
                 .copied(),
             )
             .collect();
+        #[cfg(feature = "json")]
+        out.extend(&self.transport);
         out.sort_unstable();
         out.dedup();
         out

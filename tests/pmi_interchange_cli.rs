@@ -93,13 +93,7 @@ fn export_validate_import_and_presentation() {
     let doc = Document::parse(input.clone()).unwrap();
     let parts = read_part_definitions(&input).unwrap();
     let decoded = json::from_value(&value, &Anchors::read(&doc, &parts[0])).unwrap();
-    assert!(
-        quiddity::kernel::pmi::write::differences(
-            &quiddity::kernel::pmi::write::standard_form(&model()),
-            &decoded.pmi
-        )
-        .is_empty()
-    );
+    assert!(quiddity::kernel::pmi::write::differences(&model(), &decoded.pmi).is_empty());
     let nist = concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/tests/fixtures/ap242/nist/nist_ctc_01_asme1_ap242-e1.stp.gz"
@@ -125,7 +119,7 @@ fn malformed_and_unknown_faces_refuse_without_output() {
     let out = dir.join("refused.step");
     let _ = std::fs::remove_file(&out);
     let mut value = json::to_value(&json::identify(model(), None).unwrap()).unwrap();
-    value["pmi"]["features"][0]["items"][0]["face"] = json!({"name":"missing"});
+    value["pmi"]["features"][0]["value"]["items"][0]["face"] = json!({"name":"missing"});
     std::fs::write(&path, value.to_string()).unwrap();
     let result = cli(&[
         "pmi",

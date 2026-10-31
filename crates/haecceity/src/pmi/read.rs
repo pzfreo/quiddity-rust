@@ -65,7 +65,8 @@ pub fn read(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadErr
     let mut findings = std::mem::take(&mut r.findings);
     findings.sort();
     findings.dedup();
-    Ok(PmiRead {
+    #[allow(unused_mut)]
+    let mut result = PmiRead {
         parts: out_parts,
         findings,
         provenance,
@@ -73,7 +74,11 @@ pub fn read(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadErr
         accounting,
         #[cfg(feature = "json")]
         json_carriers: r.json_carriers,
-    })
+    };
+    #[cfg(feature = "json")]
+    crate::json::transport::restore(doc, &mut result)
+        .map_err(|e| ReadError::Parts(e.to_string()))?;
+    Ok(result)
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -526,7 +531,6 @@ impl<'a> Reader<'a> {
     /// `id_attribute`s naming `id` (§5.1 Figure 4): part of the item's construct.
     fn id_attributes(&mut self, id: u64) -> Vec<u64> {
         let out = self.referrers_by(id, "id_attribute", "id_attribute", "identified_item");
-        #[cfg(feature = "json")]
         let out = {
             let mut out = out;
             out.extend(self.json_identifications(id));
@@ -535,7 +539,6 @@ impl<'a> Reader<'a> {
         out
     }
 
-    #[cfg(feature = "json")]
     fn json_identifications(&mut self, id: u64) -> Vec<u64> {
         self.referrers_by(
             id,
@@ -572,7 +575,6 @@ impl<'a> Reader<'a> {
             [] => None,
             [attribute] => {
                 let value = self.get_str(*attribute, "id_attribute", "attribute_value");
-                #[cfg(feature = "json")]
                 let value = value.or_else(|| {
                     self.get_str(*attribute, "identification_assignment", "assigned_id")
                 });
@@ -4721,10 +4723,31 @@ impl<'a> Reader<'a> {
                     continue;
                 }
             }
+            #[cfg(feature = "json")]
+            if name == "haecceity.pmi/1 ordering" {
+                st.prov.transport.push(pdef);
+                for (link, rep) in self.property_representations(pdef) {
+                    st.prov.transport.extend([link, rep]);
+                    st.prov
+                        .transport
+                        .extend(self.get_refs(rep, "representation", "items"));
+                }
+                continue;
+            }
+            if description == "haecceity.pmi/1 note" {
+                self.note(st, pdef, &name, on);
+                continue;
+            }
             // User defined attributes (UDA practice §5: associated with a general_property),
             // and editable note text (PMI practice §7.4, UDA practice §6.4.1: 'semantic text',
             // which some files write without the general_property).
-            if !gpas.is_empty() || name == "semantic text" {
+            if !gpas.is_empty()
+                || name == "semantic text"
+                || self
+                    .property_representations(pdef)
+                    .iter()
+                    .any(|(_, rep)| self.name_of(*rep) == "haecceity.pmi/1 attribute")
+            {
                 self.attribute_set(st, pdef, &name, on, &gpas);
                 continue;
             }
@@ -4915,9 +4938,13 @@ impl<'a> Reader<'a> {
                 items.push((key, v));
             }
         }
+        let marked = self
+            .property_representations(pdef)
+            .iter()
+            .any(|(_, rep)| self.name_of(*rep) == "haecceity.pmi/1 attribute");
         let description = self
             .get_str(pdef, "property_definition", "description")
-            .filter(|d| !d.is_empty());
+            .filter(|d| marked || !d.is_empty());
         let general_property = self.general_property(part, pdef, gpas);
         st.pmi.attributes.push(AttributeSet {
             name: name.to_string(),
@@ -4999,6 +5026,7 @@ impl<'a> Reader<'a> {
             );
             return;
         }
+        let mut class_ordinal = 0;
         for (pdr, rep) in reps {
             let mut base = vec![pdef, pdr, rep];
             base.extend(self.id_attributes(pdef));
@@ -5019,12 +5047,17 @@ impl<'a> Reader<'a> {
                     let mut p = base.clone();
                     p.push(item);
                     st.prov.general.push(ids(p));
-                    st.identifiers.general.push(self.item_identifier(
-                        st.id,
-                        "general",
-                        st.pmi.general.len() - 1,
-                        pdef,
-                    ));
+                    class_ordinal += 1;
+                    let identifier = self
+                        .item_identifier(st.id, "general", st.pmi.general.len() - 1, pdef)
+                        .map(|id| {
+                            if class_ordinal == 1 {
+                                id
+                            } else {
+                                format!("{id}/tolerance-class/{class_ordinal}")
+                            }
+                        });
+                    st.identifiers.general.push(identifier);
                     read_any = true;
                 } else {
                     self.find(
