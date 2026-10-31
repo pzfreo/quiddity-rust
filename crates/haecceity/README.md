@@ -42,6 +42,8 @@ let frame = gdt::control_frame("position", "0.05", Some("diameter"), Some("M"),
     &["A".into(), "B-C".into()], &plex_width);
 assert_eq!(frame.cells, ["⌖", "⌀0.05Ⓜ", "A", "B-C"]);
 let label = presentation::label_with_width("⌀10 H7", &plex_width);
+let lines = presentation::label_lines_with_width(&["⌀10 H7", "Ra 10.4"], &plex_width);
+assert_eq!(lines.len(), 2);
 assert_eq!(gdt::symbol("profile_surface"), "⌓");
 assert_eq!(tolerance::HOLE_CLASSES, ["H", "G", "F"]);
 ```
@@ -58,6 +60,21 @@ symbols with the same convention. `notes::removal_marks(MaterialRemoval, short_h
 returns strokes and arcs about the symbol tip. Existing `label`, `surface_texture`,
 `dimension` and `tolerance` use `text_width(value, height)` (Hershey ink width).
 `Callout::letters` is the font-drawn layer; `runs` also includes geometrically drawn symbols.
+
+`label_lines_with_width(lines: &[&str], width: &dyn Fn(&str, f64) -> f64) -> Vec<Callout>`
+returns one independent callout per input line, in order. Each uses capital height 3,
+callback ink width and Hershey ink height (including descenders), with text centred at
+half its size and the ink's lower-left corner at the origin. There is no box padding,
+line spacing or lane placement. Empty lines have zero ink height; an empty slice returns
+no callouts. Pass `&presentation::text_width` for Hershey widths. Other font clients supply
+their widths and own vertical metrics when placing/rendering their text.
+
+`notes::texture_parameters` reads the model's stated `Decimal`, preserving trailing zeros
+and exponents (apart from STEP's terminal decimal point). Micrometres are implicit in
+ISO 1302 parameter notation; other stated units are explicit, e.g. `Ra 0.010400 mm`.
+The same text supplies face symbols and general surface-finish notes. Other requirement
+notation already uses `Decimal`; `dimension_text` only converts through floating point
+when deviation and nominal units differ, to express the band in the nominal's unit.
 
 `tolerance::{HOLE_CLASSES, SHAFT_CLASSES, GRADES}` are ordered arrays for discovery and
 refusal messages; `MAX_NOMINAL_MM` is the inclusive 250 mm table limit. These describe the
@@ -79,6 +96,37 @@ claim that the 2018 edition specifies inline deviations. Sources:
 [ISO 1101:2017](https://www.iso.org/standard/66777.html).
 Draftwright should replace `ø`/`Sø` with `⌀`/`S⌀` in dimension labels and retain the slash
 for inline asymmetric deviations. Geometry may still use an existing font's slashed-ring glyph.
+
+`size_prefix(kind: &SizeKind) -> &'static str` is the exhaustive prefix policy used by
+`dimension_text`, including both ends of limits:
+
+| `SizeKind` | Prefix | Basis |
+| --- | --- | --- |
+| `Diameter` | `⌀` | ISO 129-1:2018 §7.2 |
+| `Radius` | `R` | ISO 129-1:2018 §7.3.1 |
+| `SphericalDiameter`, `SphericalRadius` | `S⌀`, `SR` | ISO 129-1:2018 §7.4 |
+| `ToroidalMinorDiameter`, `ToroidalMajorDiameter`, `ToroidalHighMajorDiameter`, `ToroidalLowMajorDiameter` | `⌀` | Circular diameter, §7.2 |
+| `ToroidalMinorRadius`, `ToroidalMajorRadius`, `ToroidalHighMajorRadius`, `ToroidalLowMajorRadius` | `R` | Circular radius, §7.3.1 |
+| `CurveLength`, `Thickness`, `Other(_)` | none | General curve/linear/custom dimension |
+
+No torus-specific prefix is defined by these standards; major/minor/high/low remain
+semantic distinctions and must be located by the drawing's witnesses or section views.
+ISO 1101:2017 §8.4.2's major/minor/pitch identifiers concern screw threads, not toroidal
+size prefixes; §8.2.2.1.1's `⌀`/`S⌀` describe tolerance-zone shape, not toroidal sizes.
+[ISO 14405-1:2025 §5.2.2](https://standards.iteh.ai/catalog/standards/iso/cd39d8ad-9301-475e-9ead-e1c5ce3bff18/iso-14405-1-2025)
+also distinguishes circular/cylindrical `⌀`, spherical `S⌀` and unprefixed parallel-plane
+sizes; its Annex E addresses circular longitudinal sections of a torus, without a new
+torus prefix. `CurveLength` does not establish a circular arc, so the arc symbol of
+ISO 129-1 §7.6 is not automatically added. Thickness keeps ordinary dimension notation:
+§7.16.1 permits `t=` with a surface leader, which needs a drawing-client placement choice.
+
+For Draftwright #258 / PR #274: replace `pmi.rs::dimension_label`'s spherical-radius `R`
+with `SR`, ensure spherical diameter uses `S⌀`, and handle all eight toroidal variants
+with plain `R`/`⌀` as above (no `T`, major/minor or high/low prefix). Prefer delegating
+requirement text to `dimension_text` and prefix lookup to `size_prefix`. Use
+`notes::texture_parameters` for stated finish values instead of converting through mm;
+consume `label_lines_with_width` for individual unpadded lines while retaining lane
+layout. Existing drawn-precision decisions remain the drawing client's responsibility.
 
 Enable the optional `f3d` feature for `haecceity::f3d::read_f3d_file`: visible Autodesk
 Fusion solid geometry in millimetres, including placements, with no imported PMI.
