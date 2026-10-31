@@ -26,9 +26,17 @@ def _step(step: str | os.PathLike | bytes) -> str | bytes:
     return step if isinstance(step, bytes) else os.fsdecode(os.fspath(step))
 
 
+def _part(part: int | None) -> int | None:
+    if part is not None and (type(part) is not int or not 0 <= part < 2**64):
+        failure = PmiError("part must be a non-negative part index")
+        failure.findings = []
+        raise failure
+    return part
+
+
 def write(geometry: str | os.PathLike | bytes, document: str | dict, *, part: int | None = None) -> bytes:
     """Append PMI losslessly, verify the result, and return AP242 STEP bytes; no files written."""
-    return pmi_write(_step(geometry), _document(document), part)
+    return pmi_write(_step(geometry), _document(document), _part(part))
 
 
 def read(step: str | os.PathLike | bytes, *, part: int | None = None, anchors: str = "index") -> dict:
@@ -37,12 +45,12 @@ def read(step: str | os.PathLike | bytes, *, part: int | None = None, anchors: s
         failure = PmiError("anchors must be 'index' or 'name'")
         failure.findings = []
         raise failure
-    return json.loads(pmi_read(_step(step), part, names=anchors == "name"))
+    return json.loads(pmi_read(_step(step), _part(part), names=anchors == "name"))
 
 
 def presentation(step: str | os.PathLike | bytes, *, part: int | None = None) -> dict:
     """Read the file's haecceity.presentation/1 document, including generated callouts."""
-    return json.loads(pmi_read(_step(step), part, presentation=True))
+    return json.loads(pmi_read(_step(step), _part(part), presentation=True))
 
 
 def validate(document: str | dict) -> None:

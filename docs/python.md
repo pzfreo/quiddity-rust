@@ -36,14 +36,64 @@ the same uncompressed input have identical source digests and JSON. Geometry
 work releases the GIL. Rust input/refusal messages become `ValueError`; wrong input
 types raise `TypeError`, and negative face indices raise `OverflowError`.
 
-`from quiddity import pmi` provides `pmi.read(step, part=None)` →
-`haecceity.pmi/1` JSON and `pmi.write(step, document, output, part=None)` → write
-report JSON. These optional convenience operations use paths, and the wheel
-includes haecceity `json-import`. Multi-part files require an explicit part.
-Writes use the CLI's verified importer and atomic output replacement. Exported
-JSON is bound to its source geometry; supply it to that geometry's importer.
-Reading does not promise that every source item is writable: the importer retains
-haecceity's explicit refusals, including dimensions without nominal values.
+## XCAF/other producers → AP242 STEP
+
+`quiddity.pmi` calls haecceity's `json-import` API directly in process. Geometry
+accepts STEP bytes, a path string, or `os.PathLike` (paths may be gzipped). JSON
+input accepts a dict or JSON string, retaining stated decimal strings and IDs.
+
+```python
+from pathlib import Path
+from quiddity import pmi, PmiError
+
+# The producer (for example xcaf-pmi) supplies these two in-memory values:
+# geometry_step: bytes containing its STEP geometry, with the same face names
+# semantic: dict in haecceity.pmi/1, with producer IDs and name/index face anchors
+pmi.validate(semantic)
+try:
+    ap242_step = pmi.write(geometry_step, semantic)  # bytes; no temporary files
+except PmiError as error:
+    print(str(error), error.findings)
+    raise
+
+# Save only if the caller wants a file (or write bytes to a CLI's stdout.buffer).
+Path("annotated.step").write_bytes(ap242_step)
+assert pmi.read(ap242_step)["schema"] == "haecceity.pmi/1"
+drawing = pmi.presentation(ap242_step)  # haecceity.presentation/1 dict
+```
+
+| API | Result |
+| --- | --- |
+| `pmi.write(geometry, document, *, part=None)` | AP242 STEP **bytes**, with generated callouts enabled |
+| `pmi.read(step, *, part=None, anchors="index")` | PMI **dict**, with face indices by default |
+| `pmi.read(step, *, part=None, anchors="name")` | PMI dict with STEP face names; missing or ambiguous referenced names are refused |
+| `pmi.presentation(step, *, part=None)` | File-owned/generated presentation dict |
+| `pmi.validate(document)` | None on success; schema, references and the same geometry-independent authoring checks as import |
+| `pmi.SCHEMA`, `pmi.PRESENTATION_SCHEMA` | Packaged JSON Schema dicts |
+
+The schemas are also installed as `quiddity/schema/haecceity.pmi-1.json` and
+`quiddity/schema/haecceity.presentation-1.json`, byte-identical to haecceity's.
+Other producers can load these files with their own JSON Schema validator.
+Geometry-independent validation treats face anchors as opaque; existence and
+uniqueness are checked against the actual STEP during `write`.
+
+`write` uses lossless STEP editing and the same `write_preserving` importer as
+`quiddity pmi json import`. It verifies model fields, IDs and units by reading
+back before returning any bytes. Existing foreign graphics on unchanged surviving
+requirements are retained under that import policy; the geometry is not rebuilt.
+Multi-part files require `part=`. Face indices refer to the supplied part, and
+name anchors must identify exactly one face in that geometry snapshot.
+
+Refusals raise `quiddity.PmiError`, a `ValueError` subclass carrying haecceity's
+reason text. Its `.findings` list retains available input-reader diagnostics as
+`{kind, part, ids, entity, detail}` dicts; it is empty when no structured findings
+are available (including schema/JSON parse failures). Reading does not promise
+that every source item is writable: dimensions without nominal values, for
+example, remain explicit authoring refusals. Nothing is silently dropped.
+
+The provisional path/output/report PMI helpers from the first wheel draft were
+replaced; they had no consumer in this repository beyond its tests and docs.
+Recognition and the other wheel APIs retain their existing signatures and output.
 
 `quiddity ...` and `python -m quiddity ...` execute the Rust CLI dispatcher,
 including `serve`, `parts`, `correspond`, `brep`, `pmi` and `pmi json` commands.

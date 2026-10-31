@@ -8,6 +8,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Added
 
+- In-process Python PMI interchange: STEP path/bytes plus a PMI dict/JSON string
+  produce verified AP242 STEP bytes without temporary files. PMI/presentation reads
+  return dicts, named/index anchors are selectable, `PmiError` preserves reasons and
+  available findings, and both JSON Schemas ship as dicts and package resources.
+  This replaces the provisional Python CLI-path wrappers; recognition is unchanged.
+
 - A dependency-free `quiddity` 0.4.0 Python wheel (`crates/quiddity-py`), using
   PyO3 abi3 for CPython 3.12+, with STEP path/byte recognition, evidence, anchors,
   fingerprints, correspondence, capabilities, verified PMI JSON import/export,

@@ -92,6 +92,9 @@ def test_paths_and_part_selection(authored, tmp_path):
     assert pmi.read(pmi.write(path, pmi.read(path), part=0)) == pmi.read(path)
     with pytest.raises(quiddity.PmiError, match="unknown part"):
         pmi.read(authored, part=999)
+    for invalid in (-1, 2**64, True):
+        with pytest.raises(quiddity.PmiError, match="part must be"):
+            pmi.read(authored, part=invalid)
     assembly = FIXTURES / "ap242/specify/assembly_plate_pin.step.gz"
     with pytest.raises(quiddity.PmiError, match="select part explicitly"):
         pmi.read(assembly)
@@ -104,7 +107,7 @@ def test_outside_producer_refusals(producer, numeric):
     document = deepcopy(original)
     if numeric:
         document["pmi"]["datums"][0]["value"]["feature"] = 0
-        reason = "string"
+        reason = "/pmi/datums/0/value/feature"
         with pytest.raises(quiddity.PmiError, match=reason):
             pmi.validate(document)
     else:
