@@ -8,6 +8,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
+- PMI import repairs strictly reversed dimension limits and signed deviations with
+  a non-fatal nonconformance finding identifying the source instances. Equal bounds
+  and reversals whose nominal lies outside the corrected absolute limits remain refused.
+- Plain face aspects composing an indivisible datum feature retain the owning feature
+  identity when referenced by tolerances, properties or presentation; their faces are
+  collected once. All-around groups and per-member datum groups keep their semantics.
+
 - Generated part notes share one numbered GENERAL NOTES block in JSON and STEP,
   retaining each requirement's semantic link and the bounds-relative placement.
 

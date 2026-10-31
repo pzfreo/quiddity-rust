@@ -1707,3 +1707,48 @@ median planes, including their deriving face indices, with supplemental geometry
 against the result. The derivation rules, record schema, tolerance policy and consumer
 migration are specified in [Derived PMI geometry](pmi-derived-geometry.md). This supersedes
 the earlier omission of plain derived shape aspects' explicit geometry described above.
+
+
+### PMI import repairs (2026-10-31)
+
+The reader repairs a strict reversal of paired dimension limits: if the stated upper
+value is below the lower value, exchange the two complete `Value`s (including units
+and decimal qualifiers). The supplied nominal, when present, must lie in the corrected
+absolute interval. Equal bounds, duplicate/incomplete bound pairs, incompatible measures and
+conflicting tolerance forms remain refused; no successful-repair finding is emitted
+for a refused dimension. `Bounds::new` remains strict. Values retain their stated text:
+Solid Edge's extra decimal digits are not rounded away.
+
+The same ordering repair applies to `tolerance_value` deviations on dimensions.
+These are offsets, not absolute limits: do not compare the nominal with their interval,
+and do not invert signs or require the interval to include zero. Both deviations may
+be positive or both negative (PMI practice §5.2.3). Each accepted repair is a
+`FindingKind::Nonconformance`, with the dimension, representation/range and value
+instances as evidence; it says that the values were stated reversed and were swapped.
+This existing kind already describes read-through nonconformances and remains visible
+to consumers. The writer reads the corrected model and writes ascending bounds.
+
+PMI practice §§6.5.1–6.5.2, Figures 36/38, defines a datum feature as an indivisible
+union, possibly composed of several geometric elements/shape aspects. A plain
+composition `shape_aspect_relationship` has the datum feature as `relating_shape_aspect`
+and the constituent as `related_shape_aspect`. Its optional name/description is not
+a discriminator; Solid Edge's description `'datum feature'` is a conventional label.
+A plain constituent with one owning datum feature resolves to that feature, including
+when requested before its parent; composition retains and deduplicates all faces.
+The owning datum is available through `Datum::feature()`. Constituents shared by several
+owners and group datums applying separately to each member are not collapsed into one
+union alias. Dimensional, deriving, target and affected-plane relations are still excluded
+by the existing composition rules.
+
+In the Solid Edge sample, #220/#222 are constituents of #26/#27. Their faces #2480/#2502
+were already included in datum A/C; the fix restores their identities rather than adding
+geometry. The empty-description relations #24/#25 instead start at #17, an
+`all_around_shape_aspect`: #24 names member #224, while #25 has an unset mandatory
+`related_shape_aspect` and cannot identify another member. They are not datum composition.
+
+For integration with #166, aspect #222 and datum feature #27 name `Feature(FeatureId(1))`
+of part 0, which establishes datum C, `Datum(DatumId(1))`. Callout #258's DMIA #180 must
+therefore resolve to that feature; the callout's existing DMIA #68 supplies the same
+feature and datum. A consumer extending datum aliases to plain constituents can obtain
+`Datum(DatumId(1))` from that feature as well. This branch does not introduce #166's
+presentation types or change presentation extraction.
