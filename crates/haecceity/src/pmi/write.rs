@@ -7,6 +7,10 @@
 //! `removal.rs`, seeded with the part's [`Provenance`](super::Provenance)) and writes the new
 //! items, so that afterwards `read(part) == new`; [`Mode::Remove`] is a replace with nothing.
 //! Every untouched byte of the file is kept ([`Document::apply`]).
+//! On an AP214 upgrade gaining PMI, the closed identical-attribute subtype table in
+//! `upgrade.rs` changes only entity keywords, recorded in [`WriteReport::edition_rewrites`].
+//! Currently `PRODUCT_TYPE` becomes `PRODUCT_RELATED_PRODUCT_CATEGORY`, keeping its id,
+//! name, description, products and all other record bytes. Other undeclared types block upgrades.
 //!
 //! **Typed emission.** Records are made only through the emitter below: measures only through
 //! [`Emitter::length_measure`] and [`Emitter::angle_measure`] (and the measure representation
@@ -60,7 +64,8 @@
 //! pass `express` validation against the table of the file's edition (the target edition for
 //! an AP242 edition without a table, and for an AP214/AP203 file that gains PMI, whose every
 //! instance must then pass, after only the closed R1 approval assignment and R2 conversion
-//! unit dimensions repairs in `upgrade.rs`, each recorded in [`WriteReport::repairs`]); and `express_rules::check_all` of the result (the WHERE, UNIQUE
+//! unit dimensions repairs in `upgrade.rs`, each recorded in [`WriteReport::repairs`], plus
+//! the keyword table above); and `express_rules::check_all` of the result (the WHERE, UNIQUE
 //! and global rules it evaluates, `restrict_representation_for_surface_condition` among them)
 //! must have no violation the original lacked except the exact registered conflicts above.
 //! Violations the original already had are
@@ -267,6 +272,14 @@ pub struct UpgradeRepair {
     pub new_record: String,
 }
 
+/// An edition upgrade's keyword-only rewrite; all other record bytes are preserved.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct EditionRewrite {
+    pub id: u64,
+    pub from: &'static str,
+    pub to: &'static str,
+}
+
 impl std::fmt::Display for UpgradeRepair {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -284,6 +297,8 @@ pub struct WriteReport {
     pub schema: SchemaChange,
     /// R1/R2 upgrade repairs, in instance id order; empty whenever no upgrade occurs.
     pub repairs: Vec<UpgradeRepair>,
+    /// Closed AP214 subtype-to-supertype keyword rewrites, ascending by instance id.
+    pub edition_rewrites: Vec<EditionRewrite>,
     /// The `FILE_SCHEMA` of the table the written instances were validated against.
     pub validated_against: &'static str,
     /// Instances added.
@@ -653,6 +668,7 @@ fn write_inner(
     let mut report = WriteReport {
         schema: SchemaChange::Kept(schema.clone()),
         repairs: Vec::new(),
+        edition_rewrites: Vec::new(),
         validated_against: edition.file_schema,
         added: 0,
         removed: Vec::new(),
@@ -857,6 +873,9 @@ fn write_inner(
             .copied()
             .chain(report.rewritten.iter().copied())
             .collect();
+        if first.to_ascii_uppercase().starts_with("AUTOMOTIVE_DESIGN") {
+            report.edition_rewrites = upgrade::rewrite_entities(doc, &mut edit, &excluded);
+        }
         let (repairs, added_dimensions) =
             upgrade::repair(doc, &mut edit, &excluded, emitted_dimensions)?;
         report.added += added_dimensions;

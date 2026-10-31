@@ -8,6 +8,9 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
+- For pzfreo/specify-core#89, write PMI into legacy AP214 files containing
+  `PRODUCT_TYPE`, changing only that keyword to `PRODUCT_RELATED_PRODUCT_CATEGORY`
+  and reporting each edition rewrite with its instance id and entity names.
 - For #161, isolate panicking recognition families and block their dependents while
   preserving independent results. Incomplete recognition/6 and evidence/1 documents
   add optional `failures` and `complete: false`; successful output is unchanged.

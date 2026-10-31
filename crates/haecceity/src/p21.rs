@@ -303,6 +303,7 @@ pub struct Edit {
 #[derive(Debug, Clone)]
 enum Op {
     Replace(u64, Record),
+    Rename(u64, String),
     Remove(u64),
     FileSchema(Vec<String>),
 }
@@ -323,6 +324,12 @@ impl Edit {
     /// Replaces instance `#id`'s record, keeping its id and its place in the file.
     pub fn replace(&mut self, id: u64, record: impl Into<Record>) {
         self.ops.push(Op::Replace(id, record.into()));
+    }
+
+    /// Changes only a simple instance's entity keyword, preserving every other byte.
+    /// Reserved for the PMI writer's closed edition rewrite table.
+    pub(crate) fn rename_entity(&mut self, id: u64, name: &str) {
+        self.ops.push(Op::Rename(id, name.to_string()));
     }
 
     /// Removes instance `#id`.
@@ -543,20 +550,34 @@ impl Document {
     /// nothing written, when a reference would dangle or a removed instance is still referenced.
     pub fn apply(&self, edit: &Edit) -> Result<Written, P21Error> {
         let mut replaced: BTreeMap<u64, &Record> = BTreeMap::new();
+        let mut renamed = BTreeMap::new();
         let mut removed: BTreeSet<u64> = BTreeSet::new();
         let mut schema: Option<&Vec<String>> = None;
         for op in &edit.ops {
             match op {
-                Op::Replace(id, _) | Op::Remove(id) => {
+                Op::Replace(id, _) | Op::Rename(id, _) | Op::Remove(id) => {
                     if !self.graph.entities.contains_key(id) {
                         return Err(P21Error::Missing(*id));
                     }
-                    if replaced.contains_key(id) || removed.contains(id) {
+                    if replaced.contains_key(id) || renamed.contains_key(id) || removed.contains(id)
+                    {
                         return Err(P21Error::EditedTwice(Some(*id)));
                     }
                     match op {
                         Op::Replace(_, r) => {
                             replaced.insert(*id, r);
+                        }
+                        Op::Rename(_, name) => {
+                            if !matches!(self.get(*id), Some(RawEntity::Simple { .. }))
+                                || name.is_empty()
+                                || !name.as_bytes()[0].is_ascii_alphabetic()
+                                || !name.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'_')
+                            {
+                                return Err(P21Error::Encode(format!(
+                                    "invalid entity rename #{id}"
+                                )));
+                            }
+                            renamed.insert(*id, name);
                         }
                         _ => {
                             removed.insert(*id);
@@ -653,6 +674,25 @@ impl Document {
 
         // Patches over the original bytes: (range, text), applied in order.
         let mut patches: Vec<(Range<usize>, String)> = Vec::new();
+        for (&id, name) in &renamed {
+            let span = &self.spans[&id];
+            let b = &self.bytes;
+            let mut pos = span.start + 1; // #, then the instance number
+            while b[pos].is_ascii_digit() {
+                pos += 1;
+            }
+            pos = skip_blank(b, pos).ok_or_else(|| P21Error::Encode("rename comment".into()))?;
+            if b[pos] != b'=' {
+                return Err(P21Error::Encode(format!("rename #{id}: expected '='")));
+            }
+            let start =
+                skip_blank(b, pos + 1).ok_or_else(|| P21Error::Encode("rename comment".into()))?;
+            let mut end = start;
+            while b[end].is_ascii_alphanumeric() || b[end] == b'_' {
+                end += 1;
+            }
+            patches.push((start..end, (*name).clone()));
+        }
         for &id in replaced.keys() {
             patches.push((self.spans[&id].clone(), format!("#{id}={};", texts[&id])));
         }

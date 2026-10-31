@@ -413,7 +413,7 @@ These override anything below and any stream brief that says otherwise.
    AP214 and AP203 cannot carry semantic PMI: its `FILE_SCHEMA` becomes the target AP242
    edition's identifier, and that claim must be true, so every instance of the edited file must
    pass `validate_document` against the target table; otherwise the edit is refused, naming the
-   violating instances. Only two named upgrade repairs are allowed, only when an AP203/AP214
+   violating instances. Besides the closed AP214 keyword table below, only two named upgrade repairs are allowed, only when an AP203/AP214
    file gains PMI: **R1 approval assignment**, a `cc_design_approval` with items outside
    `approved_item` but all in `approval_item` becomes `applied_approval_assignment`, keeping
    its attributes and id; **R2 conversion unit dimensions**, a conversion unit's `named_unit(*)`
@@ -428,6 +428,44 @@ These override anything below and any stream brief that says otherwise.
    An AP242 file stays AP242 and receives no upgrade repairs. Which corpus and NIST AP214/AP203
    files pass without repairs, pass with the listed repairs, or are refused is pinned per file;
    the original violations keep their verdicts and reasons.
+
+   **AP214 keyword table (For pzfreo/specify-core#89).** Only when an
+   `AUTOMOTIVE_DESIGN` file gains PMI, simple `PRODUCT_TYPE` instances become
+   `PRODUCT_RELATED_PRODUCT_CATEGORY`. This is an explicit one-entry table, never an
+   automatic search for a declared ancestor. The instance id, attribute tokens, comments,
+   whitespace and every other record byte stay exact; only the entity keyword changes.
+   Complex instances are not rewritten. The usual complete target-schema and rule checks
+   still apply; malformed attributes are not repaired. AP203 and AP242 receive no such rewrite.
+   Empty adds and removes receive none either.
+
+   Attribute comparison: OCCT's legacy AP214 CD `ProductType`, generated from EXPRESS,
+   [inherits `ProductRelatedProductCategory` without adding fields](https://github.com/Open-Cascade-SAS/OCCT/blob/V6_9_1/src/StepBasic/StepBasic_ProductType.cdl).
+   Its [STEP reader/writer](https://github.com/Open-Cascade-SAS/OCCT/blob/V7_9_0/src/RWStepBasic/RWStepBasic_RWProductType.cxx)
+   consumes exactly the three inherited fields. Both EXPRESS schemas carried by haecceity,
+   [N8324, edition 1](https://github.com/stepcode/stepcode/blob/74b6fe45751bd60be749bc80766f38745d29ed72/data/ap242/242_n8324_mim_lf.exp)
+   and [N11521, edition 4](https://github.com/stepcode/stepcode/blob/8cc8fc75905a10333e5bf29b6e6a568d737dffa3/data/ap242/242_mim_lf.exp),
+   declare the supertype with exactly `name: label`, `description: OPTIONAL text`
+   (inherited from `product_category`), then `products: SET [1:?] OF product`.
+   Neither declares `product_type`. The regression test pins order, owners, types,
+   optionality, aggregate bounds and absence of redeclarations in both tables.
+
+   `WriteReport.edition_rewrites` lists `{id, from, to}` in ascending instance-id order,
+   with canonical uppercase names; it is separate from R1/R2 `repairs` and presentation
+   `rewritten`. The CLI/Python writer report exposes `edition_rewrites` only when nonempty,
+   includes these instances in its replaced count, and otherwise keeps its previous output.
+
+   Survey (2026-10-31): all 46 STEP files under dw-examples `steps/` (FreeCAD, OCCT,
+   text-to-cad, build123d, NIST and gramil) and all 100 pinned corpus files were scanned,
+   including compressed files: 31 and 90 respectively declare AP214. The only entity
+   keyword absent from the target was `PRODUCT_TYPE`: nine instances across exactly the
+   six issue files, none in the corpus. No other table entries are justified by these inputs.
+   Comparing the AP214 edition 3 EXPRESS entity inventory with N11521 finds 45 other
+   AP214-only declarations, none used in those AP214 inputs. In particular `seam_edge`
+   adds `pcurve_reference: pcurve` to `oriented_edge`, so their explicit attributes differ
+   and it must remain refused. `application_context_relationship` has no AP242 counterpart
+   and also stays refused (the regression test pins the unchanged undeclared-entity message).
+   The AP214 edition 3 long form itself no longer declares the older CD `product_type`;
+   the legacy declaration evidence above is therefore necessary.
 2. **Material as specify-core writes it.** The writer writes the material's name in the CAx-IF
    'material name' construct exactly as specify-core's files carry it (a `REPRESENTATION('material
    name', …)` whose `DESCRIPTIVE_REPRESENTATION_ITEM` holds the name, related to the part as
