@@ -194,7 +194,7 @@
   {
     "file": "nist_stc_10_asme1_ap242-e2.stp.gz",
     "source_sha256": "fba4f46cab1ce1402362038036884631b4a41afe1c9efc5681d358c39db7ed5f",
-    "semantic_sha256": "cb52358c5df31edc2b87bfb78ff515fa3a0199e7163482ab882e50ec6e117687",
+    "semantic_sha256": "20837022874fd00528b381d0f234b514f61040ebef40ec05fb79aa264fd6d1f9",
     "dimensions_stated": 27,
     "dimensions_read": 27,
     "tolerances_stated": 37,

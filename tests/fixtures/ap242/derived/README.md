@@ -27,3 +27,11 @@ requires exact equality after the change, protecting all previously read data an
 Set `QUIDDITY_CORPUS` to include the external ten files; the seven committed fixtures
 are always checked. Refused dimension/tolerance counts mean stated roots minus read roots,
 not the number of findings (which can concern other constructs or read-through defects).
+
+Reader `/12` (2026-10-31) refreshes only STC10's semantic expectation: seven plain
+constituents now alias their owning datum features instead of adding duplicate features
+(173 → 166), so feature references are reindexed. Source hashes, dimension/tolerance
+counts, refusal counts and every other row remain unchanged. The structural source chains
+and face identities are checked by `pmi_import_repairs.rs`; the Rust PMI snapshot records
+the complete changed structure. This retains the existing exact-output audit; it adds no
+hash-based test and changes no known-difference record.

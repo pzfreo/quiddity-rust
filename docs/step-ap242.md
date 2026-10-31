@@ -1760,5 +1760,7 @@ by its existing version/output guard when semantic output changes. This is read-
 metadata only; the JSON form stays version 2. The STC10 snapshot removes seven duplicate
 constituent features and reindexes references to their owning datum features; all
 resolved geometry and requirement values are unchanged. Other PMI snapshot entries
-only change their reader binding. The existing compatibility pin is refreshed for
-this documented semantic change; structural tests establish correctness independently.
+only change their reader binding. The existing reader-version pin and the STC10 row
+of the historical derived-geometry audit are refreshed for this documented semantic
+change; source hashes, requirement/refusal counts and other audit rows stay fixed.
+Structural tests establish correctness independently.
