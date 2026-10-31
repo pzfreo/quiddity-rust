@@ -70,7 +70,8 @@ item content and verified fingerprint keys (when supplied) for indices; a
 specified FNV-1a 128-bit digest names the collection and content. The digest
 input is UTF-8 JSON with recursively sorted object keys, no insignificant
 whitespace and arrays retained in order; no Unicode or decimal-text
-normalisation is applied. This is independent of serde's map-order features. Only identical
+normalisation is applied. `Note.callouts` are presentation observations and are
+excluded from semantic identity. This is independent of serde's map-order features. Only identical
 twins acquire `~2`, `~3`, … suffixes. Different content with a hash collision is
 refused. Reading an unrelated extra item cannot shift existing IDs. Without a
 verified fingerprint namespace, topology indices are used as the explicit
