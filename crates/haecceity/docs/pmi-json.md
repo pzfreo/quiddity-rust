@@ -160,8 +160,8 @@ ISO table helper types `Iso2768`, `LinearClass` (`f`, `m`, `c`, `v`) and
 `GeometricClass` (`H`, `K`, `L`) map the `limits_and_fits`/general-tolerance
 classification (PMI §4.1, ISO 2768). Supplemental `geometry`, computed
 `derived_geometry` and `holes` remain plain arrays: they have no independently
-identified requirement entity in `PartIdentifiers`; their owning feature has
-an external id. The requirement collections listed above carry `{id,value}`; `features` remain
+identified requirement entity in `PartIdentifiers`; they are reached through
+indexed support features and the requirements that reference those features. The requirement collections listed above carry `{id,value}`; `features` remain
 plain indexed support objects.
 
 `SupportKey` maps the verified geometric namespace used by Specify #65/#77:
