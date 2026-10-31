@@ -1552,3 +1552,101 @@ fn step_representation_symmetries_keep_geometry_and_terminal_roles() {
         ));
     }
 }
+
+/// #160: published corners must reconstruct the record and its entire removed
+/// wedge must be empty. The independent OCCT check also runs against these 41.
+#[test]
+fn mfcadpp_bevel_corners_are_reconstructible_or_absent() {
+    use quiddity::kernel::{
+        classify::material_at,
+        geom,
+        rays::RayCaster,
+        volume::{Probe, common_volume, probe_volume},
+    };
+    let Some(dir) = common::corpus_dir() else {
+        return;
+    };
+    let mut count = 0;
+    let mut retained = 0;
+    for entry in common::load("corpus.json")["files"].as_array().unwrap() {
+        let file = entry["file"].as_str().unwrap();
+        if !(file.starts_with("mfcadpp/") || file.starts_with("mfcadpp_holdout/")) {
+            continue;
+        }
+        let (part, reading, _) =
+            serve::recognise_step(&dir.join(file).to_string_lossy(), &IDENTITY).unwrap();
+        let doc = recognition::document(&reading, part.faces.len());
+        let ctx = features::Context::new(&part);
+        for record in doc
+            .records
+            .iter()
+            .filter(|r| matches!(r.family.as_str(), "chamfers" | "angled_steps"))
+        {
+            count += 1;
+            let p = &record.parameters;
+            if p["corner"].is_null() {
+                continue;
+            }
+            retained += 1;
+            let point =
+                |key: &str| -> [f64; 3] { std::array::from_fn(|i| p[key][i].as_f64().unwrap()) };
+            let (at, corner) = (point("at"), point("corner"));
+            let d = geom::sub(at, corner);
+            let mut legs = [p["leg1"].as_f64().unwrap(), p["leg2"].as_f64().unwrap()];
+            legs.sort_by(|a, b| b.total_cmp(a));
+            if let Some(axis) = p["axis"].as_str() {
+                let axis = match axis {
+                    "x" => 0,
+                    "y" => 1,
+                    _ => 2,
+                };
+                let t: Vec<_> = (0..3).filter(|&i| i != axis).collect();
+                let mut implied = [2. * d[t[0]].abs(), 2. * d[t[1]].abs()];
+                implied.sort_by(|a, b| b.total_cmp(a));
+                assert!(
+                    implied.iter().zip(legs).all(|(a, b)| (a - b).abs() < 0.05),
+                    "{file} {}",
+                    record.id
+                );
+                assert!(
+                    (implied[1].atan2(implied[0]).to_degrees() - p["angle"].as_f64().unwrap())
+                        .abs()
+                        < 0.2
+                );
+                let mut run = [0.; 3];
+                run[axis] = 1.;
+                let (lo, hi) = part.extent_along(&record.faces, run);
+                let mut a = corner;
+                a[axis] = lo;
+                let mut b = a;
+                b[t[0]] += 2. * d[t[0]];
+                let mut c = a;
+                c[t[1]] += 2. * d[t[1]];
+                let low = [a, b, c];
+                let high = low.map(|mut q| {
+                    q[axis] = hi;
+                    q
+                });
+                let wedge = features::support_patches::ruled_prism(&low, &high).unwrap();
+                let probe = Probe::Solid(RayCaster::for_solid(&wedge, 0));
+                let share = common_volume(ctx.classifier(), &probe).unwrap()
+                    / probe_volume(&probe).unwrap();
+                assert!(share < 0.01, "{file} {}: {share}", record.id);
+            } else {
+                let run: [f64; 3] = std::array::from_fn(|i| p["axis"][i].as_f64().unwrap());
+                let transverse = geom::sub(d, geom::scale(run, geom::dot(d, run)));
+                assert!((2. * geom::norm(transverse) - legs[0].hypot(legs[1])).abs() < 0.01);
+            }
+            assert!(
+                !material_at(ctx.classifier(), geom::add(corner, geom::scale(d, 2. / 3.))),
+                "{file} {}",
+                record.id
+            );
+        }
+    }
+    assert_eq!(
+        count, 41,
+        "keep every feature even when its optional corner cannot be proved"
+    );
+    assert!(retained >= 3, "retain the proved oblique records");
+}

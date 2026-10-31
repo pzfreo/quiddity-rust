@@ -666,3 +666,29 @@ that policy. No hook is replaced in aborting builds. The recognition CLI retains
 status for a usable partial document and emits its existing-style warning on stderr;
 `quiddity serve` and the Python wheel carry the same recognition fields automatically.
 WASM builds abort on panic, so this isolation has no effect in the browser.
+
+## Interrupted turning and proved corners (For #157, #159, #160)
+
+Turned steps retain the OD-fill and square-section guards. A section flattened by
+proved stock flats may bypass only the square-section guard: all other supports
+must have one common revolution axis, the flats must be parallel to it at model
+precision, and complete external coaxial cylindrical bands must cover more than
+half the solid's axial length (overlaps counted once). A wholly D-section extrusion
+or incidental cylinders on a prism do not establish this majority. Turned bodies
+use the same exception; their meridian profile describes the revolved supports,
+while the separate `flats` records describe the planar interruptions. Body claims
+still include the entire boundary, including shoulders and flats; OD is the stock
+diameter, including the interrupted bands.
+
+Turned fillets on one valid solid merge arcs only when the raw torus centres,
+axis lines, major/minor radii, material sides and meridian intervals agree at model
+precision. One record retains a leader on an actual source arc and all constituent
+arcs as its exact defining faces. Equal radii on different rings remain separate.
+This uses the existing multi-face record contract and adds no fields or family.
+
+Planar chamfer and angled-step `corner` is optional/null when unproved. Retention
+requires the published points to reconstruct the measured legs (within 0.005 mm)
+and angle (within 0.05 degrees), and a volume proof that the entire implied
+triangular prism over the defining faces' run span is empty of material. A centroid
+and nearest support intersection alone are insufficient. Recognition schema 6 and
+fingerprint format 3 stay unchanged.

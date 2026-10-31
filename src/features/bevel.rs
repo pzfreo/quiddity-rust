@@ -163,6 +163,60 @@ pub(crate) fn proved_bevel_planes(
     proved.map(|(_, planes)| planes)
 }
 
+/// Publish a reconstructible corner only after checking the PUBLISHED point grid
+/// against the measured legs/angle and proving the entire implied wedge empty.
+/// A face centroid is generally not the midpoint of a bevel section; nearest stock
+/// planes and a single near-corner probe alone therefore cannot prove this contract.
+pub(crate) fn proved_published_corner(
+    ctx: &Context<'_>,
+    faces: &[usize],
+    axis: usize,
+    at: V3,
+    corner: V3,
+    legs: [f64; 2],
+    angle: f64,
+) -> Option<super::placed::Placed<V3>> {
+    use super::placed::{Grid, Placed};
+    use crate::kernel::{
+        geom, py,
+        rays::RayCaster,
+        volume::{Probe, fills_at_most},
+    };
+    let at = *Placed::new(at, Grid::Decimals(3));
+    let corner = Placed::new(corner, Grid::Decimals(3));
+    let transverse: Vec<_> = (0..3).filter(|&i| i != axis).collect();
+    let delta = geom::sub(at, *corner);
+    let mut implied = transverse
+        .iter()
+        .map(|&i| 2. * delta[i].abs())
+        .collect::<Vec<_>>();
+    implied.sort_by(|a, b| b.total_cmp(a));
+    let mut legs = legs.map(py::round_to3);
+    legs.sort_by(|a, b| b.total_cmp(a));
+    if implied.iter().zip(legs).any(|(a, b)| (a - b).abs() > 0.005)
+        || (implied[1].atan2(implied[0]).to_degrees() - py::round_to(angle, 2)).abs() > 0.05
+    {
+        return None;
+    }
+    let mut run = [0.; 3];
+    run[axis] = 1.;
+    let (lo, hi) = ctx.part.extent_along(faces, run);
+    let mut a = *corner;
+    a[axis] = lo;
+    let mut b = a;
+    b[transverse[0]] += 2. * delta[transverse[0]];
+    let mut c = a;
+    c[transverse[1]] += 2. * delta[transverse[1]];
+    let low = [a, b, c];
+    let high = low.map(|mut p| {
+        p[axis] = hi;
+        p
+    });
+    let wedge = super::support_patches::ruled_prism(&low, &high)?;
+    let probe = Probe::Solid(RayCaster::for_solid(&wedge, 0));
+    fills_at_most(ctx.classifier(), &probe, 0.).then_some(corner)
+}
+
 /// The two supporting planes intersected at a station along the run. Their normals and the
 /// corner are measured in caller coordinates; the planes need not be principal planes.
 pub(crate) struct TransverseCorner {

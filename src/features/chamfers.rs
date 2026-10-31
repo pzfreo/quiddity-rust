@@ -27,7 +27,8 @@ pub struct Chamfer {
     pub angle: f64,
     pub at: Placed<V3>,
     pub turned: bool,
-    /// The virtual sharp corner a planar chamfer replaces; `None` for a turned chamfer.
+    /// The virtual sharp corner a planar chamfer replaces; `None` for turned chamfers
+    /// or when reconstruction/empty-wedge proof fails.
     pub corner: Option<Placed<V3>>,
 }
 
@@ -110,6 +111,14 @@ pub fn discover(ctx: &Context<'_>, opts: &ChamferOptions) -> Vec<Occurrence<Cham
     }
     let external = turned::external_cylinders(ctx);
     out.extend((0..part.faces.len()).filter_map(|f| turned(part, f, tol, max_leg, &external)));
+    for o in &mut out {
+        if let Some(corner) = o.record.corner {
+            let r = &o.record;
+            o.record.corner = super::bevel::proved_published_corner(ctx, &o.defining,
+                match r.axis {'x'=>0,'y'=>1,_=>2}, *r.at.raw(), *corner.raw(),
+                [r.leg1,r.leg2], r.angle);
+        }
+    }
     out.sort_by(|a, b| {
         a.record
             .axis

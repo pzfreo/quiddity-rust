@@ -1035,13 +1035,12 @@ fn principal_chamfers_follow_rolled_supports() {
                 (before.leg1, before.leg2, before.angle),
                 (after.leg1, after.leg2, after.angle)
             );
-            // Two independently rounded 0.001-unit points differ by at most sqrt(3)*0.001.
-            assert!(
-                quiddity::kernel::py::dist(
-                    &transform(*before.corner.unwrap()),
-                    &after.corner.unwrap()[..]
-                ) < 0.002
-            );
+            // #160: rolled support legs are not coordinate-axis legs. The
+            // principal-axis record keeps its dimensions but omits a corner
+            // when that coordinate-axis wedge cannot be reconstructed/proved.
+            if let (Some(before), Some(after)) = (before.corner, after.corner) {
+                assert!(quiddity::kernel::py::dist(&transform(*before), &after[..]) < 0.002);
+            }
             assert!(quiddity::kernel::py::dist(&transform(*before.at), &after.at[..]) < 0.002);
         }
     }
