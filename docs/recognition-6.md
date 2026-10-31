@@ -501,13 +501,15 @@ not fillets: their walls fail tangency. Existing records keep their IDs and para
 
 ## Turned bodies (For #123)
 
-Optional `turned_bodies` publishes one `TurnedBody` for each valid solid whose entire
-boundary consists of analytic surfaces of revolution about one common line. A plane
+By default, optional `turned_bodies` publishes one `TurnedBody` for each valid solid
+whose entire boundary consists of analytic surfaces of revolution about one common
+line. The proved stock-flat exception in the #157 section below extends this rule. A plane
 must be square to that line; cylinders, cones and tori must have that axis; sphere
 centres must lie on it (their parameter polar axes are immaterial). NURBS planes also qualify when positive weights and the complete control net
 certify the support inside the same plane-precision slab. A sampled fit alone
-cannot establish a plane. Other unsupported surfaces, flats, keyways, cross holes and offset/second revolution axes refuse the
-whole solid. There is no principal-frame or number-of-diameters gate. The linear
+cannot establish a plane. Other unsupported surfaces, keyways, cross holes and
+offset/second revolution axes refuse the whole solid. Flats require the proved
+interruption exception below. There is no principal-frame or number-of-diameters gate. The linear
 precision is `max(file_uncertainty, COORD_FLOOR)`; parallelism is tested as the sine
 of the axis angle times the body's largest intrinsic directional extent (or support
 radius, whichever is greater), against that same precision. Axis-line offsets use
@@ -517,8 +519,9 @@ conventional representative that follows rigid motion, without limiting eligibil
 
 `axis` is a positive principal letter or a unit vector, and `axis_point` is the
 midpoint of the axial extent on that line, published on the 1e-8 mm point grid.
-`od` is the maximum transverse extent (including spherical/toroidal extrema), and
-`length` is the exact axial extent. `bores` lists internal cylinder diameters and
+For an uninterrupted body, `od` is the maximum transverse extent (including
+spherical/toroidal extrema); interrupted stock uses its nominal band diameter as
+described below. `length` is the exact axial extent. `bores` lists internal cylinder diameters and
 `span: [lo,hi]`, signed distances from `axis_point` along `axis`; touching axial
 splits of the same diameter merge within model precision. Diameters come from the
 analytic support, and disconnected axial spans remain separate.
