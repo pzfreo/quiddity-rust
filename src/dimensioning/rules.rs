@@ -21,10 +21,13 @@ fn across(k: usize) -> [usize; 2] {
     }
 }
 pub(super) fn group_id(members: &[String]) -> String {
+    member_group_id("pattern", members)
+}
+fn member_group_id(family: &str, members: &[String]) -> String {
     let mut members = members.to_vec();
     members.sort();
     members.dedup();
-    format!("pattern[{}]", members.join(","))
+    format!("{family}[{}]", members.join(","))
 }
 fn tolerance(input: &Input) -> Tolerance {
     if input.policy.general_tolerance {
@@ -270,32 +273,11 @@ pub(super) fn origin(input: &Input, axis: usize) -> Support {
         }
         _ => {}
     }
-    let at = input.bounds[usize::from(input.policy.origins[axis] == Origin::Maximum)][axis];
-    let mut supports: Vec<_> = input
-        .planes
-        .iter()
-        .filter(|p| p.axis == axis && near(p.support.at[axis], at))
-        .collect();
-    supports.sort_by(|a, b| a.support.feature.cmp(&b.support.feature));
-    if let Some(p) = supports.first() {
-        return p.support.clone();
-    }
-    let mut point = [0.; 3];
-    point[axis] = at;
-    Support {
-        feature: format!(
-            "envelope:{axis}:{}",
-            if input.policy.origins[axis] == Origin::Maximum {
-                "max"
-            } else {
-                "min"
-            }
-        ),
-        faces: vec![],
-        body: None,
-        at: point,
-        plane: true,
-    }
+    super::levels::envelope(
+        input,
+        axis,
+        usize::from(input.policy.origins[axis] == Origin::Maximum),
+    )
 }
 fn locate(
     owner: &Support,
@@ -317,18 +299,24 @@ fn pitch(
     owner: &Support,
     axis: usize,
     values: &[f64],
+    members: &[&Hole],
     covers: &[String],
     input: &Input,
 ) -> Required {
-    let mut a = owner.clone();
-    let mut b = owner.clone();
-    a.feature = format!("{}:station:{axis}:{}", owner.feature, key(values[0]));
-    b.feature = format!("{}:station:{axis}:{}", owner.feature, key(values[1]));
-    a.at[axis] = values[0];
-    b.at[axis] = values[1];
+    // A grid station may have several members. One actual member witnesses each
+    // endpoint; the pattern's pitch applies to the remaining parallel rows too.
+    let station = |value| {
+        &members
+            .iter()
+            .filter(|m| near(m.support.at[axis], value))
+            .min_by_key(|m| &m.support.feature)
+            .expect("occupied pattern station")
+            .support
+    };
+    let (a, b) = (station(values[0]), station(values[1]));
     let mut r = location(
-        &a,
-        &b,
+        a,
+        b,
         axis,
         Some(PatternRole::Pitch {
             intervals: values.len() - 1,
@@ -390,7 +378,7 @@ pub(super) fn plan(input: &Input) -> (Vec<Required>, Vec<Conveyed>) {
                 owner.at = c;
                 for (axis, values) in across(k).into_iter().zip([cols, rows]) {
                     if values.len() > 1 {
-                        spacing.push(pitch(&owner, axis, &values, &p.members, input));
+                        spacing.push(pitch(&owner, axis, &values, &members, &p.members, input));
                     }
                 }
                 PatternRole::Centre
@@ -400,7 +388,7 @@ pub(super) fn plan(input: &Input) -> (Vec<Required>, Vec<Conveyed>) {
                     continue;
                 };
                 owner.at = *centres.iter().find(|c| near(c[axis], values[0])).unwrap();
-                spacing.push(pitch(&owner, axis, &values, &p.members, input));
+                spacing.push(pitch(&owner, axis, &values, &members, &p.members, input));
                 PatternRole::FirstMember
             }
             Arrangement::BoltCircle { centre, diameter } => {
@@ -424,7 +412,17 @@ pub(super) fn plan(input: &Input) -> (Vec<Required>, Vec<Conveyed>) {
         };
         taken.extend(p.members.iter().cloned());
         let shared_sizes = sizes(&owner.feature, &members, input);
-        let shared_locations = locate(&owner, k, Some(role), &p.members, input);
+        let location_owner = if role == PatternRole::FirstMember {
+            &members
+                .iter()
+                .filter(|m| m.support.at == owner.at)
+                .min_by_key(|m| &m.support.feature)
+                .unwrap()
+                .support
+        } else {
+            &owner
+        };
+        let shared_locations = locate(location_owner, k, Some(role), &p.members, input);
         for m in &members {
             for r in sizes(&m.support.feature, &[m], input) {
                 let Kind::Size { role, .. } = &r.kind else {
@@ -446,7 +444,7 @@ pub(super) fn plan(input: &Input) -> (Vec<Required>, Vec<Conveyed>) {
                 let Kind::Location { axis, .. } = r.kind else {
                     unreachable!()
                 };
-                let by = shared_locations
+                let by: Vec<_> = shared_locations
                     .iter()
                     .chain(&spacing)
                     .filter(|s| {
@@ -455,11 +453,17 @@ pub(super) fn plan(input: &Input) -> (Vec<Required>, Vec<Conveyed>) {
                     })
                     .map(|r| r.id.clone())
                     .collect();
-                conveyed.push(Conveyed {
-                    id: r.id,
-                    by,
-                    why: "pattern origin and spacing locate the member".into(),
-                });
+                if shared_locations.iter().any(|s| s.id == r.id) {
+                    continue; // This member is the retained first-member location itself.
+                } else if by.is_empty() {
+                    out.push(r);
+                } else {
+                    conveyed.push(Conveyed {
+                        id: r.id,
+                        by,
+                        why: "pattern origin and spacing locate the member".into(),
+                    });
+                }
             }
         }
         out.extend(shared_sizes);
@@ -478,7 +482,8 @@ pub(super) fn plan(input: &Input) -> (Vec<Required>, Vec<Conveyed>) {
         let owner = if members.len() == 1 {
             members[0].support.feature.clone()
         } else {
-            group_id(
+            member_group_id(
+                "multiple",
                 &members
                     .iter()
                     .map(|m| m.support.feature.clone())
@@ -513,7 +518,22 @@ pub(super) fn plan(input: &Input) -> (Vec<Required>, Vec<Conveyed>) {
     }
     out.extend(super::levels::requirements(input));
     let specified: BTreeSet<_> = input.specified.iter().map(|r| r.id.clone()).collect();
-    out.retain(|r| !specified.contains(&r.id));
+    // An authored claim replaces its generated equivalent even when it supplies a
+    // different tolerance. Do this before coincident generated claims merge covers.
+    out.retain(|r| {
+        if let Some(authority) = input.specified.iter().filter(|s| specified_equivalent(s, r))
+            .min_by_key(|s| &s.id) {
+            if authority.id != r.id {
+                conveyed.push(Conveyed {
+                    id: r.id.clone(), by: vec![authority.id.clone()],
+                    why: "specified requirement replaces the same feature and span regardless of tolerance".into(),
+                });
+            }
+            false
+        } else {
+            !specified.contains(&r.id)
+        }
+    });
     out.extend(input.specified.clone());
     let (required, mut conveyed) = consolidate(out, conveyed, &specified, input.policy.references);
     conveyed.extend(input.deferred.iter().map(|d| Conveyed {
@@ -535,6 +555,41 @@ fn span(r: &Required) -> Option<(usize, f64, f64)> {
         ))
     } else {
         None
+    }
+}
+fn specified_equivalent(a: &Required, b: &Required) -> bool {
+    let canonical = |ids: &[String]| ids.iter().cloned().collect::<BTreeSet<_>>();
+    if a.count != b.count
+        || matches!(a.pattern, Some(PatternRole::Pitch { .. }))
+            != matches!(b.pattern, Some(PatternRole::Pitch { .. }))
+        || (matches!(a.pattern, Some(PatternRole::Pitch { .. })) && a.pattern != b.pattern)
+        || !near(a.nominal, b.nominal)
+    {
+        return false;
+    }
+    match (&a.kind, &b.kind) {
+        (
+            Kind::Location {
+                from: af,
+                to: at,
+                axis: ak,
+            },
+            Kind::Location {
+                from: bf,
+                to: bt,
+                axis: bk,
+            },
+        ) => {
+            let support = |a: &Support, b: &Support| {
+                a.feature == b.feature
+                    && a.body == b.body
+                    && near(a.at[*ak], b.at[*ak])
+                    && a.faces.iter().collect::<BTreeSet<_>>() == b.faces.iter().collect()
+            };
+            ak == bk
+                && ((support(af, bf) && support(at, bt)) || (support(af, bt) && support(at, bf)))
+        }
+        _ => a.kind == b.kind && canonical(&a.covers) == canonical(&b.covers),
     }
 }
 fn same(a: &Required, b: &Required) -> bool {
@@ -565,7 +620,11 @@ fn same(a: &Required, b: &Required) -> bool {
 fn plane_span(r: &Required) -> Option<(usize, f64, f64)> {
     match &r.kind {
         Kind::Location { from, to, .. }
-            if from.plane && to.plane && r.pattern.is_none() && r.reference.is_none() =>
+            if from.plane
+                && to.plane
+                && r.count == 1
+                && r.pattern.is_none()
+                && r.reference.is_none() =>
         {
             span(r)
         }
@@ -583,7 +642,7 @@ fn path(edges: &[(usize, f64, f64, Id)], target: (usize, f64, f64)) -> Option<Ve
     while cursor < queue.len() {
         let (at, route) = queue[cursor].clone();
         cursor += 1;
-        if near(at, hi) {
+        if near(at, hi) && !route.is_empty() {
             return Some(route);
         }
         for (k, a, b, id) in edges {

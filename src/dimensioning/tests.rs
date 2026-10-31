@@ -587,11 +587,294 @@ fn specified_member_remains_an_authority_without_a_conveyed_self_reference() {
     i.holes = vec![hole(1, 10., 20.), hole(2, 30., 20.)];
     i.patterns.push(pattern(&i, Arrangement::Line));
     let mut r = super::rules::test_member_location(&i);
+    let generated = r.id.clone();
+    r.id = "specified:first-member".into();
     r.tolerance = Tolerance::Basic;
     i.specified.push(r.clone());
     let (rs, cs) = plan(&i);
     assert!(rs.contains(&r));
+    assert!(!rs.iter().any(|r| r.id == generated));
+    assert_eq!(
+        cs.iter().find(|c| c.id == generated).unwrap().by,
+        [r.id.clone()]
+    );
+    assert!(
+        cs.iter()
+            .find(|c| c.id == generated)
+            .unwrap()
+            .why
+            .contains("regardless of tolerance")
+    );
     assert!(!cs.iter().any(|c| c.id == r.id));
+}
+
+#[test]
+fn specified_tolerance_replaces_generated_equivalent_without_merging_other_features() {
+    let mut i = input();
+    i.holes = vec![hole(1, 10., 20.)];
+    let generated = super::rules::test_member_location(&i);
+    let mut specified = generated.clone();
+    specified.id = "specified:basic-location".into();
+    specified.tolerance = Tolerance::Basic;
+    i.specified.push(specified.clone());
+    let (rs, cs) = plan(&i);
+    assert!(rs.contains(&specified));
+    assert!(!rs.iter().any(|r| r.id == generated.id));
+    let retired = cs.iter().find(|c| c.id == generated.id).unwrap();
+    assert_eq!(retired.by, [specified.id]);
+    assert!(retired.why.contains("regardless of tolerance"));
+    // Equal scalar spans on a different feature remain generated general claims.
+    i.holes[0].support.feature = "hole:other".into();
+    assert!(
+        plan(&i)
+            .0
+            .iter()
+            .any(|r| r.nominal == 10. && r.tolerance == Tolerance::General)
+    );
+    // Sizes obey the same specified-wins rule.
+    let mut size = plan(&i)
+        .0
+        .into_iter()
+        .find(|r| matches!(r.kind, Kind::Size { .. }))
+        .unwrap();
+    let id = size.id.clone();
+    size.id = "specified:basic-size".into();
+    size.tolerance = Tolerance::Basic;
+    i.specified.push(size.clone());
+    let (rs, cs) = plan(&i);
+    assert!(rs.contains(&size));
+    assert!(!rs.iter().any(|r| r.id == id));
+    assert_eq!(cs.iter().find(|c| c.id == id).unwrap().by, [size.id]);
+}
+
+#[test]
+fn pitch_endpoints_are_actual_members_with_only_their_own_faces() {
+    for arrangement in [Arrangement::Line, Arrangement::Grid] {
+        let mut i = input();
+        for x in [10., 30., 50.] {
+            for y in if arrangement == Arrangement::Grid {
+                vec![15., 45.]
+            } else {
+                vec![15.]
+            } {
+                let mut h = hole(i.holes.len(), x, y);
+                h.support.faces = vec![100 + i.holes.len()];
+                i.holes.push(h);
+            }
+        }
+        i.patterns.push(pattern(&i, arrangement));
+        let rs = plan(&i).0;
+        for r in rs
+            .iter()
+            .filter(|r| matches!(r.pattern, Some(PatternRole::Pitch { .. })))
+        {
+            let Kind::Location { from, to, axis } = &r.kind else {
+                panic!("pitch must be a location")
+            };
+            for endpoint in [from, to] {
+                let member = i
+                    .holes
+                    .iter()
+                    .find(|h| h.support.feature == endpoint.feature)
+                    .unwrap();
+                assert_eq!(endpoint, &member.support);
+                assert_eq!(endpoint.faces.len(), 1);
+            }
+            assert!((to.at[*axis] - from.at[*axis] - r.nominal).abs() < 1e-6);
+        }
+        i.holes.reverse();
+        i.patterns[0].members.reverse();
+        assert_eq!(rs, plan(&i).0);
+    }
+}
+
+#[test]
+fn unpatterned_counted_sizes_have_multiple_elements_identity() {
+    let mut i = input();
+    i.holes = vec![hole(1, 10., 20.), hole(2, 31., 40.)];
+    let rs = plan(&i).0;
+    let size = rs
+        .iter()
+        .find(|r| matches!(r.kind, Kind::Size { .. }))
+        .unwrap();
+    assert!(
+        matches!(&size.kind, Kind::Size { feature, .. } if feature == "multiple[hole:1,hole:2]")
+    );
+    assert_eq!(size.count, 2);
+    assert!(!rs.iter().any(|r| r.id.contains("pattern[")));
+}
+
+#[test]
+fn curved_envelope_side_has_one_identity_for_holes_and_overall() {
+    for origin in [Origin::Minimum, Origin::Maximum] {
+        let mut i = input(); // no principal plane at either curved side
+        i.holes = vec![hole(1, 20., 30.)];
+        i.policy.origins[0] = origin.clone();
+        let rs = plan(&i).0;
+        let endpoint = if origin == Origin::Maximum {
+            "max"
+        } else {
+            "min"
+        };
+        let expected = format!("envelope:0:{endpoint}");
+        let from_hole = rs
+            .iter()
+            .find_map(|r| match &r.kind {
+                Kind::Location { from, to, axis: 0 } if to.feature == "hole:1" => Some(from),
+                _ => None,
+            })
+            .unwrap();
+        let from_overall = rs
+            .iter()
+            .find_map(|r| match &r.kind {
+                Kind::Location { from, to, axis: 0 } if r.nominal == 100. => {
+                    Some(if origin == Origin::Maximum { to } else { from })
+                }
+                _ => None,
+            })
+            .unwrap();
+        assert_eq!(from_hole.feature, expected);
+        assert_eq!(from_hole, from_overall);
+    }
+}
+
+#[test]
+fn zero_length_paths_and_patterns_on_both_origins_never_convey_by_nothing() {
+    let (rs, cs) = merged(vec![loc("zero", 0., 0., true)], &[], false);
+    assert_eq!(rs.len(), 1);
+    assert!(cs.is_empty());
+    for arrangement in [Arrangement::Line, Arrangement::Grid] {
+        let mut i = input();
+        i.bounds[0] = [-100., -100., 0.];
+        i.holes = if arrangement == Arrangement::Line {
+            vec![hole(1, 0., 0.), hole(2, 10., 0.), hole(3, 20., 0.)]
+        } else {
+            vec![
+                hole(1, -10., -10.),
+                hole(2, -10., 10.),
+                hole(3, 10., -10.),
+                hole(4, 10., 10.),
+            ]
+        };
+        for k in 0..2 {
+            let mut s = support(&format!("datum:{k}"), [0.; 3], true);
+            s.faces = vec![900 + k];
+            i.planes.push(Plane {
+                support: s,
+                axis: k,
+                body: 0,
+            });
+            i.datums.push(Datum {
+                label: format!("D{k}"),
+                faces: vec![900 + k],
+            });
+        }
+        i.patterns.push(pattern(&i, arrangement));
+        let (rs, cs) = plan(&i);
+        assert!(!rs.iter().any(|r| matches!(
+            r.pattern,
+            Some(PatternRole::Centre | PatternRole::FirstMember)
+        )));
+        assert!(
+            cs.iter()
+                .all(|c| !c.by.is_empty() && c.by.iter().all(|id| rs.iter().any(|r| r.id == *id)))
+        );
+    }
+}
+
+#[test]
+fn step_and_hole_origins_follow_top_datum_maximum_and_x_max_datum() {
+    for choice in 0..3 {
+        let mut i = input();
+        add_planes(&mut i, 0, &[0., 25., 100.]);
+        add_planes(&mut i, 2, &[0., 3., 10.]);
+        for (j, p) in i.planes.iter_mut().enumerate() {
+            p.support.faces = vec![j];
+        }
+        i.steps.heights = vec![i.planes[4].support.clone()];
+        i.steps.shoulders = vec![i.planes[1].clone()];
+        i.holes = vec![hole(1, 20., 30.)];
+        // A hole along Y needs both X and Z locations.
+        i.holes[0].direction = [0., 1., 0.];
+        i.holes[0].support.at[2] = 2.;
+        let axis = if choice == 2 { 0 } else { 2 };
+        let top = i.planes[if axis == 0 { 2 } else { 5 }].support.clone();
+        let nominal = |rs: &[Required], target: &str, axis| {
+            rs.iter()
+                .find_map(|r| match &r.kind {
+                    Kind::Location { to, axis: k, .. } if to.feature == target && *k == axis => {
+                        Some(r.nominal)
+                    }
+                    _ => None,
+                })
+                .unwrap()
+        };
+        let baseline = plan(&i).0;
+        if choice == 1 {
+            i.policy.origins[2] = Origin::Maximum;
+        } else {
+            i.datums.push(Datum {
+                label: "A".into(),
+                faces: top.faces,
+            });
+        }
+        let rs = plan(&i).0;
+        let target = if axis == 0 {
+            &i.steps.shoulders[0].support.feature
+        } else {
+            &i.steps.heights[0].feature
+        };
+        assert_eq!(
+            nominal(&baseline, "hole:1", axis),
+            if axis == 0 { 20. } else { 2. }
+        );
+        assert_eq!(
+            nominal(&rs, "hole:1", axis),
+            if axis == 0 { 80. } else { 8. }
+        );
+        assert_eq!(
+            nominal(&baseline, target, axis),
+            if axis == 0 { 25. } else { 3. }
+        );
+        assert_eq!(nominal(&rs, target, axis), if axis == 0 { 75. } else { 7. });
+        assert!(
+            rs.iter()
+                .filter_map(|r| match &r.kind {
+                    Kind::Location { from, to, axis: k }
+                        if *k == axis && (to.feature == "hole:1" || &to.feature == target) =>
+                        Some(from.feature.as_str()),
+                    _ => None,
+                })
+                .all(|id| id == top.feature)
+        );
+    }
+}
+
+#[test]
+fn counted_step_ladder_reverses_at_maximum_and_expands_at_interior_origin() {
+    let mut i = input();
+    i.bounds[1][2] = 40.;
+    add_planes(&mut i, 2, &[0., 10., 20., 30., 40.]);
+    for (j, p) in i.planes.iter_mut().enumerate() {
+        p.support.faces = vec![j];
+    }
+    i.steps.heights = i.planes[1..4].iter().map(|p| p.support.clone()).collect();
+    i.policy.origins[2] = Origin::Maximum;
+    let rs = plan(&i).0;
+    let repeat = rs.iter().find(|r| r.count == 4).unwrap();
+    assert_eq!(repeat.nominal, 10.);
+    assert!(
+        matches!(&repeat.kind, Kind::Location { from, to, .. } if from.at[2] == 40. && to.at[2] == 30.)
+    );
+    assert_eq!(rs.len(), 4); // counted repeats are not lint station paths in Draftwright
+    i.datums.push(Datum {
+        label: "A".into(),
+        faces: vec![2],
+    });
+    i.policy.origins[2] = Origin::Automatic;
+    let rs = plan(&i).0;
+    assert!(rs.iter().all(|r| r.count == 1));
+    assert!(!rs.iter().any(|r| r.nominal == 0.));
 }
 
 #[test]
@@ -858,4 +1141,45 @@ fn annular_counterbore_floor_is_owned_by_the_hole_depth_not_the_ladder() {
             .iter()
             .any(|r| matches!(&r.kind,Kind::Size {role,..} if role=="counterbore.depth"))
     );
+}
+
+#[test]
+fn counted_repeats_are_not_exact_station_edges_in_draftwright_lint() {
+    let mut repeat = loc("a-repeat", 0., 10., true);
+    repeat.count = 4;
+    let (rs, cs) = merged(
+        vec![
+            repeat,
+            loc("b-tail", 10., 40., true),
+            loc("c-overall", 0., 40., true),
+        ],
+        &[],
+        true,
+    );
+    assert_eq!(rs.len(), 3);
+    assert!(rs.iter().all(|r| r.reference.is_none()));
+    assert!(cs.is_empty());
+}
+
+#[test]
+fn inclined_hex_recess_walls_are_not_missing_step_levels_10038() {
+    let Some(corpus) = std::env::var_os("QUIDDITY_CORPUS") else {
+        return;
+    };
+    let path = std::path::PathBuf::from(corpus).join("mfcadpp/10038.step");
+    let part = crate::read_step_file(&path).unwrap();
+    let i = Input::from_recognition(&part, vec![], Policy::default()).unwrap();
+    assert_eq!(i.steps.heights.len(), 1);
+    assert_eq!(i.steps.heights[0].faces, [4]);
+    let height = i.steps.heights[0].at[2] - i.bounds[0][2];
+    assert!((height - 7.167971980549).abs() < 1e-6);
+    for face in [45, 48] {
+        let d = i
+            .deferred
+            .iter()
+            .find(|d| d.family == "section_recesses" && d.faces.contains(&face))
+            .unwrap();
+        assert!(plan(&i).1.iter().any(|c| c.id == d.id && c.by.is_empty()));
+        assert!(i.steps.heights.iter().all(|s| !s.faces.contains(&face)));
+    }
 }

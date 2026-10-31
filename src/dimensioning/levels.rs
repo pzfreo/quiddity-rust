@@ -586,7 +586,7 @@ pub(super) fn recognise(
     (steps, cartesian, deferreds)
 }
 
-fn envelope(input: &Input, axis: usize, end: usize) -> Support {
+pub(super) fn envelope(input: &Input, axis: usize, end: usize) -> Support {
     input
         .planes
         .iter()
@@ -594,7 +594,7 @@ fn envelope(input: &Input, axis: usize, end: usize) -> Support {
         .min_by(|a, b| a.support.feature.cmp(&b.support.feature))
         .map(|p| p.support.clone())
         .unwrap_or_else(|| Support {
-            feature: format!("envelope:{axis}:{end}"),
+            feature: format!("envelope:{axis}:{}", if end == 0 { "min" } else { "max" }),
             faces: vec![],
             body: None,
             at: input.bounds[end],
@@ -620,24 +620,38 @@ pub(super) fn requirements(input: &Input) -> Vec<Required> {
             .total_cmp(&b.at[axis])
             .then(a.feature.cmp(&b.feature))
     });
-    let base = envelope(input, axis, 0);
+    let base = super::rules::origin(input, axis);
+    // Traverse a maximum-origin ladder downwards. An interior origin cannot make
+    // the full ladder a single run, so use individual baseline locations there.
+    let descending = (base.at[axis] - input.bounds[1][axis]).abs() < 1e-4;
+    if descending {
+        heights.reverse();
+    }
+    let sign = if descending { -1. } else { 1. };
     let rises: Vec<_> = heights
         .iter()
         .scan(base.at[axis], |last, s| {
-            let d = s.at[axis] - *last;
+            let d = sign * (s.at[axis] - *last);
             *last = s.at[axis];
             Some(d)
         })
         .collect();
     let mean = rises.iter().sum::<f64>() / rises.len().max(1) as f64;
-    let repeat =
-        heights.len() >= 3 && mean > 0. && rises.iter().all(|r| ((r - mean) / mean).abs() <= 0.10);
+    let repeat = heights.len() >= 3
+        && ((base.at[axis] - input.bounds[0][axis]).abs() < 1e-4 || descending)
+        && mean > 0.
+        && rises.iter().all(|r| ((r - mean) / mean).abs() <= 0.10);
     if repeat {
         let mut r = super::rules::location(&base, &heights[0], axis, None, input);
         r.nominal = mean;
         r.count = heights.len()
             + usize::from(
-                ((input.bounds[1][axis] - heights.last().unwrap().at[axis] - mean) / mean).abs()
+                ((sign
+                    * (input.bounds[usize::from(!descending)][axis]
+                        - heights.last().unwrap().at[axis])
+                    - mean)
+                    / mean)
+                    .abs()
                     <= 0.10,
             );
         r.covers = heights.iter().map(|s| s.feature.clone()).collect();
@@ -651,8 +665,13 @@ pub(super) fn requirements(input: &Input) -> Vec<Required> {
         }
     }
     for p in &input.steps.shoulders {
-        let r =
-            super::rules::location(&envelope(input, p.axis, 0), &p.support, p.axis, None, input);
+        let r = super::rules::location(
+            &super::rules::origin(input, p.axis),
+            &p.support,
+            p.axis,
+            None,
+            input,
+        );
         if r.nominal > 1e-6 {
             out.push(r);
         }

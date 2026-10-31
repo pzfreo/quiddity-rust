@@ -40,6 +40,12 @@ whose two radial diameters exactly fill the box establishes a round envelope eve
 without a turned-step record (for example a threaded axial body). Later slices will
 supply the owner's diameter/length/across-flats grammar.
 
+The ladder axis comes from the **file orientation**: the inferred frame's directions
+are named by their nearest file axes, and its Z direction is the height ladder.
+Rotating the file can therefore choose a different ladder direction; this is the
+same geometric convention as Draftwright's default front projection, not a layout
+choice or a claim of rotational invariance for the requirement grammar.
+
 The height ladder uses only interior horizontal support proposals (0.5 mm clustering,
 1% projected area, interior margin min(0.6 mm, a quarter of the body's height)).
 Pocket/recess floors and walls, slot walls, boss/pad tops, turned faces, chamfers,
@@ -73,14 +79,21 @@ atomic requirement count are therefore different measurements.
 
 `Support` retains feature id, face set, body, point and whether it is a physical
 plane rather than a point/axis. Requirement ids derive from faces and semantic
-roles; group ids derive from sorted member ids. They are stable under recognition
+roles; group ids derive from sorted member ids. Actual patterns use `pattern[...]`;
+counted unpatterned sizes use `multiple[...]` (MultipleElements). Pitch endpoints
+are actual member-hole supports, with that member's stable id and faces. On a grid,
+the lexical first member at each station witnesses its pitch; other rows are
+covered by the pattern membership and interval count. First-member line locations
+also name the actual first hole. They are stable under recognition
 list permutations, not across arbitrary renumbering of the source B-rep. Use
 quiddity correspondence to transport ids across changed topology. Characteristic
 numbers can attach to these ids. `Conveyed` explicitly maps retired member or
 coincident requirements to surviving ids with a reason. Its `by` is flattened;
 consumers need not follow chains of omitted ids. Explicit deferrals are also returned
 as `Conveyed` with an empty `by` and `why = "deferred: owned by <family> (later slice)"`;
-these records promise no surviving requirement. Their typed metadata is in
+these records promise no surviving requirement. An empty `by` always means a
+deferral; a zero-length station walk cannot convey a requirement, and a member
+location without a nonempty pattern proof stays required. Their typed metadata is in
 `input.deferred`. `covers` retains displaced claims.
 
 `Required::dimension_kind(resolve)` returns haecceity's `pmi::DimensionKind` using a
@@ -111,7 +124,9 @@ Adapted from pzfreo/draftwright-rust `origin/main` **1c830977** (same copyright 
 - `dims/pmi_policy.rs::{origins,selected_origins}`: Automatic uses the first usable
   datum ordered by label then face set per axis; otherwise the box minimum. Policy
   Minimum/Maximum/Datum overrides it. A missing or unusable datum falls back to
-  minimum. Zero distance creates no dimension.
+  minimum. The same origin selector applies to holes, step heights and shoulders
+  on every axis. Maximum origins traverse a counted height ladder downwards;
+  interior origins use individual baseline heights. Zero distance creates no dimension.
 - `dims/levels.rs::{ownership,project,repeat}` and `dims/steps.rs` ownership boundary:
   one height ladder, base to each unowned level, plus riser shoulders located from
   the part box. Vertical risers must have their foot on a retained body level; ramps
@@ -127,7 +142,12 @@ Adapted from pzfreo/draftwright-rust `origin/main` **1c830977** (same copyright 
 - `dims/holes.rs::{merge,consolidate}` and `dims/redundancy.rs`: coincident raw spans
   merge only with equal tolerance contracts, count and pitch intervals, within
   0.0001 mm, independently of views or labels. General, Basic, Untoleranced and
-  exact Explicit contracts are distinct. A specified requirement wins, then lexical
+  exact Explicit contracts are distinct between generated claims. A specified
+  requirement replaces the generated equivalent for the same feature and physical
+  span **regardless of tolerance**, with an explicit conveyance reason; a counted
+  size must still cover the same members and count. Equivalent locations can have
+  reversed endpoints, and a plain authored location can replace a generated
+  first-member location. Remaining coincident claims prefer specified then lexical
   id; all covered claims survive. Pitch and non-pitch never merge. Different bodies
   never merge coincident supports.
 - `lint/redundancy.rs::path`: a bounded breadth-first station walk detects closed
@@ -136,7 +156,11 @@ Adapted from pzfreo/draftwright-rust `origin/main` **1c830977** (same copyright 
   retains that interval’s graph ownership. Already specified requirements are authoritative;
   generated determined intervals are conveyed by the existing path. With
   `policy.references`, untoleranced determined intervals remain as references.
-  Toleranced requirements never become references. Unrelated equal values do not
+  Toleranced requirements never become references. Counted step repeats retain
+  their overall height: Draftwright lint's `level_span` recognizes only
+  `step_height.length.h...`, deliberately excluding the aggregate
+  `step_height.length` repeat from its station graph. We follow that boundary and
+  do not expand an approximate mean rise into exact virtual plane stations. Unrelated equal values do not
   determine one another. Layout and optional sheet references play no role.
 
 Defaults request general tolerance, automatic origins and no references. There is
