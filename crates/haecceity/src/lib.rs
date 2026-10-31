@@ -59,3 +59,7 @@ pub mod removal;
 pub mod presentation;
 
 mod stroke_font;
+
+/// Versioned semantic PMI JSON and its presentation companion.
+#[cfg(feature = "json")]
+pub mod json;

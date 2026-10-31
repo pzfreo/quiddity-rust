@@ -329,6 +329,7 @@ dependencies = [
  "cadmpeg-ir",
  "flate2",
  "i_overlay",
+ "serde",
  "serde_json",
  "spade",
  "step-io",

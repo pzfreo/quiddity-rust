@@ -34,6 +34,26 @@ use crate::step::PartDefinition;
 /// Reads the semantic PMI of every part of `doc`. `parts` are `read_part_definitions` of the
 /// same bytes.
 pub fn read(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadError> {
+    read_impl(
+        doc,
+        parts,
+        #[cfg(feature = "json")]
+        true,
+    )
+}
+
+/// Read authoritative native AP242 values and ids without applying JSON transport
+/// order/aliases. Useful for auditing or recovering stale ordering metadata.
+#[cfg(feature = "json")]
+pub fn read_native(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadError> {
+    read_impl(doc, parts, false)
+}
+
+fn read_impl(
+    doc: &Document,
+    parts: &[PartDefinition],
+    #[cfg(feature = "json")] restore: bool,
+) -> Result<PmiRead, ReadError> {
     for p in parts {
         for id in [p.product_definition, p.shape] {
             if doc.get(id).is_none() {
@@ -65,13 +85,22 @@ pub fn read(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadErr
     let mut findings = std::mem::take(&mut r.findings);
     findings.sort();
     findings.dedup();
-    Ok(PmiRead {
+    #[allow(unused_mut)]
+    let mut result = PmiRead {
         parts: out_parts,
         findings,
         provenance,
         identifiers,
         accounting,
-    })
+        #[cfg(feature = "json")]
+        json_carriers: r.json_carriers,
+    };
+    #[cfg(feature = "json")]
+    if restore {
+        crate::json::transport::restore(doc, &mut result)
+            .map_err(|e| ReadError::Transport(e.to_string()))?;
+    }
+    Ok(result)
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -128,6 +157,8 @@ impl MeasureError {
 }
 
 struct Reader<'a> {
+    #[cfg(feature = "json")]
+    json_carriers: BTreeMap<(PartId, String, usize), u64>,
     doc: &'a Document,
     parts: &'a [PartDefinition],
     edition: &'static Edition,
@@ -345,6 +376,8 @@ impl<'a> Reader<'a> {
             .map(|(i, p)| (p.shape, i))
             .collect();
         Reader {
+            #[cfg(feature = "json")]
+            json_carriers: BTreeMap::new(),
             doc,
             parts,
             edition,
@@ -519,7 +552,39 @@ impl<'a> Reader<'a> {
 
     /// `id_attribute`s naming `id` (§5.1 Figure 4): part of the item's construct.
     fn id_attributes(&mut self, id: u64) -> Vec<u64> {
-        self.referrers_by(id, "id_attribute", "id_attribute", "identified_item")
+        let mut out = self.referrers_by(id, "id_attribute", "id_attribute", "identified_item");
+        out.extend(self.json_identifications(id));
+        out
+    }
+
+    fn json_identifications(&mut self, id: u64) -> Vec<u64> {
+        self.referrers_by(
+            id,
+            "applied_identification_assignment",
+            "applied_identification_assignment",
+            "items",
+        )
+        .into_iter()
+        .filter(|&r| {
+            self.get_ref(r, "identification_assignment", "role")
+                .and_then(|role| self.get_str(role, "identification_role", "name"))
+                .as_deref()
+                == Some("haecceity.pmi/1 item id")
+        })
+        .collect()
+    }
+
+    fn item_identifier(
+        &mut self,
+        part: PartId,
+        _collection: &str,
+        _index: usize,
+        id: u64,
+    ) -> Option<String> {
+        #[cfg(feature = "json")]
+        self.json_carriers
+            .insert((part, _collection.to_string(), _index), id);
+        self.identifier(part, id)
     }
 
     fn identifier(&mut self, part: PartId, id: u64) -> Option<String> {
@@ -528,6 +593,9 @@ impl<'a> Reader<'a> {
             [] => None,
             [attribute] => {
                 let value = self.get_str(*attribute, "id_attribute", "attribute_value");
+                let value = value.or_else(|| {
+                    self.get_str(*attribute, "identification_assignment", "assigned_id")
+                });
                 if value.is_none() {
                     self.find(
                         FindingKind::Nonconformance,
@@ -1056,6 +1124,47 @@ impl<'a> Reader<'a> {
             );
         }
 
+        #[cfg(feature = "json")]
+        if !st.prov.transport.is_empty() {
+            // The versioned JSON document can also declare supplemental geometry
+            // with no feature anchor. Read its native constructive representation.
+            for link in self.referrers_by(
+                st.part.shape,
+                "shape_definition_representation",
+                "property_definition_representation",
+                "definition",
+            ) {
+                if let Some(shape) = self.get_ref(
+                    link,
+                    "property_definition_representation",
+                    "used_representation",
+                ) {
+                    for relationship in self.referrers_by(
+                        shape,
+                        "constructive_geometry_representation_relationship",
+                        "representation_relationship",
+                        "rep_1",
+                    ) {
+                        if let Some(rep) =
+                            self.get_ref(relationship, "representation_relationship", "rep_2")
+                            && self.is(rep, "constructive_geometry_representation")
+                        {
+                            for item in self.get_refs(rep, "representation", "items") {
+                                if let Err(why) = self.geometry(st, item, Some(rep)) {
+                                    self.find(
+                                        FindingKind::Unresolved,
+                                        Some(st.id),
+                                        item,
+                                        &[rep],
+                                        why,
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         self.notes_on_faces(st, &aspects);
         self.note_callouts(st);
     }
@@ -1368,7 +1477,12 @@ impl<'a> Reader<'a> {
                 let fid = FeatureId(st.pmi.features.len());
                 st.pmi.features.push(f);
                 st.prov.features.push(ids(prov));
-                st.identifiers.features.push(self.identifier(st.id, id));
+                st.identifiers.features.push(self.item_identifier(
+                    st.id,
+                    "features",
+                    st.pmi.features.len() - 1,
+                    id,
+                ));
                 if let Some((definition, placement)) = st.holes.remove(&id) {
                     st.pmi.holes.push(Hole {
                         feature: fid,
@@ -2015,6 +2129,9 @@ impl<'a> Reader<'a> {
         st.prov.geometry.push(self::ids(ids));
         st.prov.geometry_items.push(item);
         st.geometry.insert(item, g);
+        #[cfg(feature = "json")]
+        self.json_carriers
+            .insert((st.id, "geometry".into(), g.0), item);
         Ok(g)
     }
 
@@ -2268,7 +2385,12 @@ impl<'a> Reader<'a> {
                     let id = DatumId(st.pmi.datums.len());
                     st.pmi.datums.push(datum);
                     st.prov.datums.push(ids(prov));
-                    st.identifiers.datums.push(self.identifier(st.id, d));
+                    st.identifiers.datums.push(self.item_identifier(
+                        st.id,
+                        "datums",
+                        st.pmi.datums.len() - 1,
+                        d,
+                    ));
                     st.datums.insert(d, id);
                 }
                 Err(e) => self.find(FindingKind::Nonconformance, part, d, &[], e.0),
@@ -2311,9 +2433,12 @@ impl<'a> Reader<'a> {
         let fid = FeatureId(st.pmi.features.len());
         st.pmi.features.push(Feature::Items(dedup_anchors(anchors)));
         st.prov.features.push(ids(prov));
-        st.identifiers
-            .features
-            .push(self.identifier(st.id, feature));
+        st.identifiers.features.push(self.item_identifier(
+            st.id,
+            "features",
+            st.pmi.features.len() - 1,
+            feature,
+        ));
         st.features.insert(feature, Some(fid));
     }
 
@@ -2542,9 +2667,12 @@ impl<'a> Reader<'a> {
                 let tid = DatumTargetId(st.pmi.datum_targets.len());
                 st.pmi.datum_targets.push(t);
                 st.prov.datum_targets.push(ids(prov));
-                st.identifiers
-                    .datum_targets
-                    .push(self.identifier(st.id, id));
+                st.identifiers.datum_targets.push(self.item_identifier(
+                    st.id,
+                    "datum_targets",
+                    st.pmi.datum_targets.len() - 1,
+                    id,
+                ));
                 Some(tid)
             }
             Err(e) => {
@@ -3148,7 +3276,12 @@ impl<'a> Reader<'a> {
             principle,
         });
         st.prov.dimensions.push(ids(prov));
-        st.identifiers.dimensions.push(self.identifier(st.id, id));
+        st.identifiers.dimensions.push(self.item_identifier(
+            st.id,
+            "dimensions",
+            st.pmi.dimensions.len() - 1,
+            id,
+        ));
         Some(did)
     }
 
@@ -3630,7 +3763,12 @@ impl<'a> Reader<'a> {
             description,
         });
         st.prov.tolerances.push(ids(prov));
-        st.identifiers.tolerances.push(self.identifier(st.id, id));
+        st.identifiers.tolerances.push(self.item_identifier(
+            st.id,
+            "tolerances",
+            st.pmi.tolerances.len() - 1,
+            id,
+        ));
         Some(tid)
     }
 
@@ -4184,7 +4322,12 @@ impl<'a> Reader<'a> {
             st.prov.tolerance_relations.push(ids(prov));
             st.identifiers
                 .tolerance_relations
-                .push(self.identifier(st.id, r));
+                .push(self.item_identifier(
+                    st.id,
+                    "tolerance_relations",
+                    st.pmi.tolerance_relations.len() - 1,
+                    r,
+                ));
         }
     }
 
@@ -4390,16 +4533,22 @@ impl<'a> Reader<'a> {
                             Item::Thread(t) => {
                                 st.pmi.threads.push(t);
                                 st.prov.threads.push(ids(prov));
-                                st.identifiers
-                                    .threads
-                                    .push(self.identifier(st.id, def_shape));
+                                st.identifiers.threads.push(self.item_identifier(
+                                    st.id,
+                                    "threads",
+                                    st.pmi.threads.len() - 1,
+                                    def_shape,
+                                ));
                             }
                             Item::Knurl(k) => {
                                 st.pmi.knurls.push(k);
                                 st.prov.knurls.push(ids(prov));
-                                st.identifiers
-                                    .knurls
-                                    .push(self.identifier(st.id, def_shape));
+                                st.identifiers.knurls.push(self.item_identifier(
+                                    st.id,
+                                    "knurls",
+                                    st.pmi.knurls.len() - 1,
+                                    def_shape,
+                                ));
                             }
                         }
                     }
@@ -4636,10 +4785,27 @@ impl<'a> Reader<'a> {
                     continue;
                 }
             }
+            #[cfg(feature = "json")]
+            if name == "haecceity.pmi/1 ordering" {
+                st.prov.transport.push(pdef);
+                for (link, rep) in self.property_representations(pdef) {
+                    st.prov.transport.extend([link, rep]);
+                    st.prov
+                        .transport
+                        .extend(self.get_refs(rep, "representation", "items"));
+                }
+                continue;
+            }
             // User defined attributes (UDA practice §5: associated with a general_property),
             // and editable note text (PMI practice §7.4, UDA practice §6.4.1: 'semantic text',
             // which some files write without the general_property).
-            if !gpas.is_empty() || name == "semantic text" {
+            if !gpas.is_empty()
+                || name == "semantic text"
+                || self
+                    .property_representations(pdef)
+                    .iter()
+                    .any(|(_, rep)| self.name_of(*rep) == "haecceity.pmi/1 attribute")
+            {
                 self.attribute_set(st, pdef, &name, on, &gpas);
                 continue;
             }
@@ -4830,9 +4996,13 @@ impl<'a> Reader<'a> {
                 items.push((key, v));
             }
         }
+        let marked = self
+            .property_representations(pdef)
+            .iter()
+            .any(|(_, rep)| self.name_of(*rep) == "haecceity.pmi/1 attribute");
         let description = self
             .get_str(pdef, "property_definition", "description")
-            .filter(|d| !d.is_empty());
+            .filter(|d| marked || !d.is_empty());
         let general_property = self.general_property(part, pdef, gpas);
         st.pmi.attributes.push(AttributeSet {
             name: name.to_string(),
@@ -4842,7 +5012,12 @@ impl<'a> Reader<'a> {
             general_property,
         });
         st.prov.attributes.push(ids(prov));
-        st.identifiers.attributes.push(self.identifier(st.id, pdef));
+        st.identifiers.attributes.push(self.item_identifier(
+            st.id,
+            "attributes",
+            st.pmi.attributes.len() - 1,
+            pdef,
+        ));
     }
 
     /// The `general_property` an attribute's property definition is associated with by its
@@ -4909,6 +5084,20 @@ impl<'a> Reader<'a> {
             );
             return;
         }
+        let mut class_count = 0;
+        for (_, rep) in &reps {
+            for item in self.get_refs(*rep, "representation", "items") {
+                if self.is(item, "descriptive_representation_item")
+                    && self.name_of(item) == "tolerance class"
+                    && self
+                        .get_str(item, "descriptive_representation_item", "description")
+                        .is_some_and(|text| !text.trim().is_empty())
+                {
+                    class_count += 1;
+                }
+            }
+        }
+        let mut class_twins = BTreeMap::<String, usize>::new();
         for (pdr, rep) in reps {
             let mut base = vec![pdef, pdr, rep];
             base.extend(self.id_attributes(pdef));
@@ -4923,13 +5112,34 @@ impl<'a> Reader<'a> {
                         continue; // §4.1 Figure 3 writes '' when only the table applies
                     }
                     let standard = Iso2768::recognise(&text);
+                    let twin = class_twins.entry(text.clone()).or_default();
+                    *twin += 1;
+                    let identifier = self
+                        .item_identifier(st.id, "general", st.pmi.general.len(), pdef)
+                        .map(|id| {
+                            if class_count <= 1 || id.is_empty() {
+                                id
+                            } else {
+                                let qualifier = text
+                                    .as_bytes()
+                                    .iter()
+                                    .map(|byte| format!("{byte:02x}"))
+                                    .collect::<String>();
+                                let base = format!("{id}/tolerance-class/{qualifier}");
+                                if *twin == 1 {
+                                    base
+                                } else {
+                                    format!("{base}~{twin}")
+                                }
+                            }
+                        });
                     st.pmi
                         .general
                         .push(GeneralTolerance::Class { text, standard });
                     let mut p = base.clone();
                     p.push(item);
                     st.prov.general.push(ids(p));
-                    st.identifiers.general.push(self.identifier(st.id, pdef));
+                    st.identifiers.general.push(identifier);
                     read_any = true;
                 } else {
                     self.find(
@@ -5031,7 +5241,12 @@ impl<'a> Reader<'a> {
                         .general
                         .push(GeneralTolerance::Table { name: tname, cells });
                     st.prov.general.push(ids(p));
-                    st.identifiers.general.push(self.identifier(st.id, table));
+                    st.identifiers.general.push(self.item_identifier(
+                        st.id,
+                        "general",
+                        st.pmi.general.len() - 1,
+                        table,
+                    ));
                 }
                 read_any = true;
             }
@@ -5247,7 +5462,12 @@ impl<'a> Reader<'a> {
             callouts: Vec::new(),
         });
         st.prov.notes.push(ids(prov));
-        st.identifiers.notes.push(self.identifier(st.id, pdef));
+        st.identifiers.notes.push(self.item_identifier(
+            st.id,
+            "notes",
+            st.pmi.notes.len() - 1,
+            pdef,
+        ));
     }
 
     /// Whether a 'surface texture parameter' is related from a 'surface texture' property
@@ -5504,9 +5724,12 @@ impl<'a> Reader<'a> {
             parameters,
         });
         st.prov.surface_textures.push(ids(prov));
-        st.identifiers
-            .surface_textures
-            .push(self.identifier(st.id, pdef));
+        st.identifiers.surface_textures.push(self.item_identifier(
+            st.id,
+            "surface_textures",
+            st.pmi.surface_textures.len() - 1,
+            pdef,
+        ));
     }
 
     // --- accounting -----------------------------------------------------------------------

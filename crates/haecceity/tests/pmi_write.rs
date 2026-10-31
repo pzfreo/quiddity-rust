@@ -7188,3 +7188,46 @@ fn assert_texture_tip(
         "symbol rises outward from the face"
     );
 }
+
+// Native STEP may renumber support aspects and reorder properties without changing meaning.
+#[test]
+fn differences_accept_native_feature_aliases_and_attribute_canonicalization() {
+    let p = PartPmi {
+        features: vec![
+            Feature::Items(vec![Anchor::Face(FaceIndex(0))]),
+            Feature::Items(vec![Anchor::Face(FaceIndex(1))]),
+        ],
+        attributes: vec![
+            AttributeSet {
+                name: "a".into(),
+                on: Some(NoteOwner::Feature(FeatureId(0))),
+                items: vec![("value".into(), AttributeValue::Text("x".into()))],
+                description: None,
+                general_property: None,
+            },
+            AttributeSet {
+                name: "b".into(),
+                on: Some(NoteOwner::Feature(FeatureId(1))),
+                items: vec![("value".into(), AttributeValue::Text("y".into()))],
+                description: None,
+                general_property: None,
+            },
+        ],
+        ..PartPmi::default()
+    };
+    let mut canonicalized = p.clone();
+    canonicalized.features.swap(0, 1);
+    canonicalized.attributes[0].on = Some(NoteOwner::Feature(FeatureId(1)));
+    canonicalized.attributes[1].on = Some(NoteOwner::Feature(FeatureId(0)));
+    canonicalized.attributes.swap(0, 1);
+    canonicalized.attributes[0].description = Some("user defined attribute".into());
+    // Equal-content support aliases are also accepted by the original comparator.
+    canonicalized
+        .features
+        .push(canonicalized.features[1].clone());
+    canonicalized.attributes[1].on = Some(NoteOwner::Feature(FeatureId(2)));
+    assert!(differences(&p, &canonicalized).is_empty());
+    assert!(differences_as_stated(&p, &canonicalized).is_empty());
+    #[cfg(feature = "json")]
+    assert!(!haecceity::json::identity_differences(&p, &canonicalized).is_empty());
+}

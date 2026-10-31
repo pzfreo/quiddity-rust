@@ -333,3 +333,43 @@ fn writer_append_preserves_identifiers_and_their_original_records() {
         );
     }
 }
+
+#[test]
+fn json_assignment_role_is_read_without_the_json_feature() {
+    // Use a dimension with no existing id_attribute; identification assignments are
+    // standard AP242 source metadata, independent of serde/the JSON feature.
+    let text = plate();
+    let (doc, initial) = read(&text);
+    let carrier=doc.ids().find(|&id|matches!(doc.get(id),Some(haecceity::p21::RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("dimensional_size")) && !doc.referrers(id).iter().any(|&r|matches!(doc.get(r),Some(haecceity::p21::RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("id_attribute"))));
+    let carrier = carrier.unwrap_or(DIMENSIONS[0].0);
+    let mut edit = haecceity::p21::Edit::new();
+    for &id in doc.referrers(carrier) {
+        if matches!(doc.get(id),Some(haecceity::p21::RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("id_attribute"))
+        {
+            edit.remove(id);
+        }
+    }
+    use haecceity::p21::{Attribute as A, simple};
+    let role = edit.add(simple(
+        "IDENTIFICATION_ROLE",
+        vec![A::String("haecceity.pmi/1 item id".into()), A::Unset],
+    ));
+    edit.add(simple(
+        "APPLIED_IDENTIFICATION_ASSIGNMENT",
+        vec![
+            A::String("role-based requirement".into()),
+            role.to_ref(),
+            A::List(vec![A::EntityRef(carrier)]),
+        ],
+    ));
+    let output = doc.apply(&edit).unwrap().bytes;
+    let parts = read_part_definitions(&output).unwrap();
+    let actual = pmi::read(&Document::parse(output).unwrap(), &parts).unwrap();
+    assert_eq!(actual.parts, initial.parts);
+    assert!(actual.identifiers.parts.iter().any(|part| {
+        part.dimensions
+            .iter()
+            .flatten()
+            .any(|id| id == "role-based requirement")
+    }));
+}

@@ -7,15 +7,18 @@ repository = "https://github.com/pzfreo/quiddity-rust"
 keywords = ["cad", "step", "brep", "geometry", "ap242"]
 categories = ["science", "mathematics", "parser-implementations"]
 readme = "README.md"
-include = ["/src", "/README.md", "/LICENSE", "/NOTICE", "/tests/fixtures/generated_unit_cube.f3d", "/tests/fixtures/README.md"]
+include = ["/docs/pmi-json.md", "/schema", "/src", "/README.md", "/LICENSE", "/NOTICE", "/tests/fixtures/generated_unit_cube.f3d", "/tests/fixtures/README.md"]
 description = "An exact B-rep geometry kernel in pure Rust: STEP import, rays, classification, volumes and surface recovery."
 
 [features]
 default = ["presentation"]
 presentation = []
+json = ["dep:serde", "dep:serde_json"]
 f3d = ["dep:cadmpeg-codec-f3d", "dep:cadmpeg-codec-step", "dep:cadmpeg-core", "dep:cadmpeg-ir"]
 
 [dependencies]
+serde = { version = "1.0.229", features = ["derive"], optional = true }
+serde_json = { version = "1.0.151", optional = true }
 cadmpeg-codec-f3d = { version = "=0.6.7", optional = true }
 cadmpeg-codec-step = { version = "=0.6.7", optional = true }
 cadmpeg-core = { version = "=0.6.7", optional = true }

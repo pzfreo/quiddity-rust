@@ -342,7 +342,7 @@ pub fn standard_form(p: &PartPmi) -> PartPmi {
     out
 }
 
-fn decimal_carrier(g: &GeneralTolerance, places: Option<u8>) -> bool {
+pub(crate) fn decimal_carrier(g: &GeneralTolerance, places: Option<u8>) -> bool {
     matches!(g, GeneralTolerance::Table { name, cells } if name.is_empty() && places.is_some() && matches!(cells.as_slice(), [c] if c.decimal_default() == places))
 }
 
@@ -440,6 +440,49 @@ pub fn write(
     mode: Mode,
     policy: PresentationPolicy,
 ) -> Result<(Edit, WriteReport), WriteError> {
+    write_inner(
+        doc,
+        parts,
+        pmi,
+        mode,
+        policy,
+        #[cfg(feature = "json")]
+        None,
+        #[cfg(feature = "json")]
+        None,
+    )
+}
+
+/// The JSON path supplies item ids; the ordinary writer always supplies None.
+#[cfg(feature = "json")]
+pub(crate) fn write_identified(
+    doc: &Document,
+    parts: &[PartDefinition],
+    pmi: &[(PartId, PartPmi)],
+    ids: &BTreeMap<PartId, BTreeMap<String, Vec<String>>>,
+    protected: &BTreeSet<u64>,
+    policy: PresentationPolicy,
+) -> Result<(Edit, WriteReport), WriteError> {
+    write_inner(
+        doc,
+        parts,
+        pmi,
+        Mode::Replace,
+        policy,
+        Some(ids),
+        Some(protected),
+    )
+}
+
+fn write_inner(
+    doc: &Document,
+    parts: &[PartDefinition],
+    pmi: &[(PartId, PartPmi)],
+    mode: Mode,
+    policy: PresentationPolicy,
+    #[cfg(feature = "json")] identifiers: Option<&BTreeMap<PartId, BTreeMap<String, Vec<String>>>>,
+    #[cfg(feature = "json")] protected: Option<&BTreeSet<u64>>,
+) -> Result<(Edit, WriteReport), WriteError> {
     // Validate the input before migration (in particular every note's owner).
     for (part, p) in pmi {
         p.validate().map_err(|errors| WriteError::Invalid {
@@ -447,7 +490,16 @@ pub fn write(
             errors,
         })?;
     }
-    let normalized: Vec<_> = pmi.iter().map(|(id, p)| (*id, standard_form(p))).collect();
+    let normalized: Vec<_> = pmi
+        .iter()
+        .map(|(id, p)| {
+            #[cfg(feature = "json")]
+            if identifiers.is_some() {
+                return (*id, p.clone());
+            }
+            (*id, standard_form(p))
+        })
+        .collect();
     let mut order: Vec<&(PartId, PartPmi)> = normalized.iter().collect();
     order.sort_by_key(|(p, _)| *p);
     for w in order.windows(2) {
@@ -473,6 +525,14 @@ pub fn write(
             .validate()
             .map_err(|errors| WriteError::Invalid { part: *p, errors })?;
     }
+    #[cfg(feature = "json")]
+    let read = if identifiers.is_some() {
+        super::read_native(doc, parts)
+    } else {
+        super::read(doc, parts)
+    }
+    .map_err(WriteError::Read)?;
+    #[cfg(not(feature = "json"))]
     let read = super::read(doc, parts).map_err(WriteError::Read)?;
 
     // The file's edition and the table written instances are checked against.
@@ -482,7 +542,15 @@ pub fn write(
         .trim()
         .to_ascii_uppercase()
         .starts_with("AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF");
-    let edition: &'static Edition = if ap242 {
+    #[cfg(feature = "json")]
+    let json_upgrade = identifiers.is_some()
+        && express::edition(&first).is_some_and(|e| std::ptr::eq(e, &express::AP242_ED1))
+        && pmi.iter().any(|(_, p)| !p.tolerance_relations.is_empty());
+    #[cfg(not(feature = "json"))]
+    let json_upgrade = false;
+    let edition: &'static Edition = if json_upgrade {
+        express::TARGET
+    } else if ap242 {
         express::edition(&first).unwrap_or(express::TARGET)
     } else {
         express::TARGET
@@ -493,6 +561,21 @@ pub fn write(
     let mut plans = Vec::new();
     for (p, part_pmi) in &order {
         let plan = PartPlan::new(doc, &parts[p.0], *p, part_pmi, &read, mode)?;
+        #[cfg(feature = "json")]
+        let plan = {
+            let mut plan = PartPlan {
+                identifiers: identifiers.and_then(|ids| ids.get(p)),
+                ..plan
+            };
+            if plan.identifiers.is_some() {
+                for role in plan.roles.values_mut() {
+                    if matches!(role, Role::DatumFeatureOfSize(_)) {
+                        *role = Role::DatumFeature;
+                    }
+                }
+            }
+            plan
+        };
         let original = &pmi
             .iter()
             .find(|(id, _)| id == p)
@@ -592,7 +675,13 @@ pub fn write(
             // Supplemental geometry is the part's geometry, not PMI: it is kept (and used
             // again by what is written, matched by value), never removed.
             let geometry: BTreeSet<u64> = prov.geometry.iter().flatten().copied().collect();
-            seeds.extend(prov.all().into_iter().filter(|id| !geometry.contains(id)));
+            seeds.extend(prov.all().into_iter().filter(|id| {
+                #[cfg(feature = "json")]
+                if protected.is_some_and(|ids| ids.contains(id)) {
+                    return false;
+                }
+                !geometry.contains(id)
+            }));
         }
         if !seeds.is_empty() {
             // A presentation model (draughting model, view) the removal would empty is the
@@ -645,12 +734,32 @@ pub fn write(
                     Err(r) => return Err(WriteError::Removal(Box::new(r))),
                 }
             };
+            #[cfg(feature = "json")]
+            let plan = if let Some(protected) = protected {
+                let mut plan = plan;
+                // Removal can reach kept ink through an annotation plane or another
+                // presentation container even after its associations were detached.
+                // Its complete forward dependency graph must survive unchanged.
+                plan.removed.retain(|id| !protected.contains(id));
+                plan.rewritten.retain(|id, _| !protected.contains(id));
+                plan.presentation_removed
+                    .retain(|(id, _)| !protected.contains(id));
+                plan
+            } else {
+                plan
+            };
             plan.into_edit(&mut edit);
             removed = plan.removed.clone();
             report.removed = plan.removed.iter().copied().collect();
             report.rewritten = plan.rewritten.keys().copied().collect();
             report.presentation_removed = plan.presentation_removed.clone();
             report.presentation_removed.extend(emptied);
+            #[cfg(feature = "json")]
+            if protected.is_some() {
+                report
+                    .presentation_removed
+                    .retain(|(id, _)| removed.contains(id));
+            }
             report.presentation_removed.sort();
             report.left_unreferenced = plan.report.left_unreferenced.clone();
             for (part, _) in &order {
@@ -723,7 +832,7 @@ pub fn write(
     report.added = added;
 
     // Decision 1: an AP214/AP203 file that gains PMI becomes AP242, if it can.
-    let upgrade = added > 0 && !ap242;
+    let upgrade = added > 0 && (!ap242 || json_upgrade);
     let repaired = if upgrade {
         // Work on the original records; removal/presentation rewrites are never repaired.
         let excluded = removed
@@ -1823,6 +1932,8 @@ enum Role {
 }
 
 struct PartPlan<'a> {
+    #[cfg(feature = "json")]
+    identifiers: Option<&'a BTreeMap<String, Vec<String>>>,
     doc: &'a Document,
     def: &'a PartDefinition,
     id: PartId,
@@ -1849,6 +1960,48 @@ struct PartPlan<'a> {
 }
 
 impl<'a> PartPlan<'a> {
+    #[cfg(feature = "json")]
+    fn identify(
+        &self,
+        em: &mut Emitter<'_>,
+        collection: &str,
+        index: usize,
+        carrier: R,
+    ) -> Result<(), WriteError> {
+        let Some(ids) = self.identifiers else {
+            return Ok(());
+        };
+        let id = ids
+            .get(collection)
+            .and_then(|v| v.get(index))
+            .ok_or_else(|| WriteError::Internal(format!("missing JSON id {collection}/{index}")))?;
+        if collection == "tolerance_relations" {
+            // geometric_tolerance_relationship is not in id_attribute_select.
+            // AP242 ed4 identification_item explicitly includes it.
+            let role = em.simple(
+                "identification_role",
+                &[
+                    ("name", s("haecceity.pmi/1 item id")),
+                    ("description", A::Unset),
+                ],
+            )?;
+            em.simple(
+                "applied_identification_assignment",
+                &[
+                    ("assigned_id", s(id)),
+                    ("role", role.a()),
+                    ("items", refs([carrier])),
+                ],
+            )?;
+        } else {
+            em.simple(
+                "id_attribute",
+                &[("attribute_value", s(id)), ("identified_item", carrier.a())],
+            )?;
+        }
+        Ok(())
+    }
+
     fn new(
         doc: &'a Document,
         def: &'a PartDefinition,
@@ -1882,6 +2035,8 @@ impl<'a> PartPlan<'a> {
                 WriteError::Parts(format!("shape representation #{shape_rep} has no context"))
             })?;
         let mut plan = PartPlan {
+            #[cfg(feature = "json")]
+            identifiers: None,
             doc,
             def,
             id,
@@ -2781,6 +2936,10 @@ impl<'a> PartPlan<'a> {
         for g in &p.derived_geometry {
             used_geometry.extend(g.supplemental.iter().map(|g| g.0));
         }
+        #[cfg(feature = "json")]
+        if self.identifiers.is_some() {
+            used_geometry.extend(0..p.geometry.len());
+        }
         let mut memo: HashMap<GeometryItem, R> = HashMap::new();
         for &g in &used_geometry {
             if let Some(&old) = self.existing_geometry.get(&g) {
@@ -2796,7 +2955,17 @@ impl<'a> PartPlan<'a> {
                 "constructive_geometry_representation",
                 &[
                     ("name", s("supplemental geometry")),
-                    ("items", refs(new_items.iter().map(|(_, r)| *r))),
+                    ("items", {
+                        let items: Vec<_> = new_items.iter().map(|(_, r)| *r).collect();
+                        #[cfg(feature = "json")]
+                        let items = if self.identifiers.is_some() {
+                            let mut seen = BTreeSet::new();
+                            items.into_iter().filter(|r| seen.insert(*r)).collect()
+                        } else {
+                            items
+                        };
+                        refs(items)
+                    }),
                     ("context_of_items", em.reference(self.context)?.a()),
                 ],
             )?;
@@ -3027,13 +3196,18 @@ impl<'a> PartPlan<'a> {
             let r = self.tolerance(em, &mut st, pds, t, &mut names)?;
             st.tolerances.insert(i, r);
         }
-        for r in &p.tolerance_relations {
+        let tolerance_relations = p.tolerance_relations.iter();
+        #[cfg(feature = "json")]
+        let tolerance_relations = tolerance_relations.enumerate();
+        #[cfg(not(feature = "json"))]
+        let tolerance_relations = tolerance_relations.map(|item| ((), item));
+        for (_i, r) in tolerance_relations {
             let name = match r.kind {
                 RelationKind::Composite => "composite",
                 RelationKind::Precedence => "precedence",
                 RelationKind::Simultaneity => "simultaneity",
             };
-            em.simple(
+            let _carrier = em.simple(
                 "geometric_tolerance_relationship",
                 &[
                     ("name", s(name)),
@@ -3048,15 +3222,22 @@ impl<'a> PartPlan<'a> {
                     ),
                 ],
             )?;
+            #[cfg(feature = "json")]
+            self.identify(em, "tolerance_relations", _i, _carrier)?;
         }
         let general = p.general.iter();
-        #[cfg(feature = "presentation")]
+        #[cfg(any(feature = "presentation", feature = "json"))]
         let general = general.enumerate();
-        #[cfg(not(feature = "presentation"))]
+        #[cfg(not(any(feature = "presentation", feature = "json")))]
         let general = general.map(|item| ((), item));
         for (_i, g) in general {
             if let GeneralTolerance::Table { name, cells } = g {
+                #[cfg(feature = "json")]
+                let _table = self.tolerance_table(em, pds, name, cells)?;
+                #[cfg(not(feature = "json"))]
                 self.tolerance_table(em, pds, name, cells)?;
+                #[cfg(feature = "json")]
+                self.identify(em, "general", _i, _table)?;
             }
             if let GeneralTolerance::Class { text, .. } = g {
                 let item = em.simple(
@@ -3071,6 +3252,8 @@ impl<'a> PartPlan<'a> {
                     "default tolerances",
                     &[item],
                 )?;
+                #[cfg(feature = "json")]
+                self.identify(em, "general", _i, _property)?;
                 #[cfg(feature = "presentation")]
                 st.properties
                     .insert(crate::presentation::notes::Source::General(_i), _property);
@@ -3080,11 +3263,35 @@ impl<'a> PartPlan<'a> {
             && !p.general.iter().any(|g| matches!(g, GeneralTolerance::Table { cells, .. } if cells.iter().any(|c| c.items.iter().any(|(n,_)| n == "number of decimal places")))) {
             self.tolerance_table(em, pds, "", &[ToleranceCell { items: vec![("number of decimal places".into(), CellValue::Count(Decimal::parse(&places.to_string()).map_err(|e| WriteError::Internal(e.0))?))] }])?;
         }
-        for t in &p.threads {
-            self.thread(em, &mut st, pds, t)?;
+        let threads = p.threads.iter();
+        #[cfg(feature = "json")]
+        let threads = threads.enumerate();
+        #[cfg(not(feature = "json"))]
+        let threads = threads.map(|item| ((), item));
+        for (_i, t) in threads {
+            self.thread(
+                em,
+                &mut st,
+                pds,
+                t,
+                #[cfg(feature = "json")]
+                _i,
+            )?;
         }
-        for k in &p.knurls {
-            self.knurl(em, &mut st, pds, k)?;
+        let knurls = p.knurls.iter();
+        #[cfg(feature = "json")]
+        let knurls = knurls.enumerate();
+        #[cfg(not(feature = "json"))]
+        let knurls = knurls.map(|item| ((), item));
+        for (_i, k) in knurls {
+            self.knurl(
+                em,
+                &mut st,
+                pds,
+                k,
+                #[cfg(feature = "json")]
+                _i,
+            )?;
         }
         if let Some(m) = &p.material {
             let item = em.simple(
@@ -3148,26 +3355,78 @@ impl<'a> PartPlan<'a> {
             self.property(em, pd, "material property", "density", "density", &[item])?;
         }
         let attributes = p.attributes.iter();
-        #[cfg(feature = "presentation")]
+        #[cfg(any(feature = "presentation", feature = "json"))]
         let attributes = attributes.enumerate();
-        #[cfg(not(feature = "presentation"))]
+        #[cfg(not(any(feature = "presentation", feature = "json")))]
         let attributes = attributes.map(|item| ((), item));
         for (_i, a) in attributes {
             let _property = self.attribute_set(em, &mut st, pd, pds, a)?;
+            #[cfg(feature = "json")]
+            self.identify(em, "attributes", _i, _property)?;
             #[cfg(feature = "presentation")]
             st.properties
                 .insert(crate::presentation::notes::Source::Attribute(_i), _property);
         }
         let surface_textures = p.surface_textures.iter();
-        #[cfg(feature = "presentation")]
+        #[cfg(any(feature = "presentation", feature = "json"))]
         let surface_textures = surface_textures.enumerate();
-        #[cfg(not(feature = "presentation"))]
+        #[cfg(not(any(feature = "presentation", feature = "json")))]
         let surface_textures = surface_textures.map(|item| ((), item));
         for (_i, t) in surface_textures {
             let _property = self.surface_texture(em, &mut st, pds, t)?;
+            #[cfg(feature = "json")]
+            self.identify(em, "surface_textures", _i, _property)?;
             #[cfg(feature = "presentation")]
             st.properties
                 .insert(crate::presentation::notes::Source::Texture(_i), _property);
+        }
+        #[cfg(feature = "json")]
+        if let Some(ids) = self.identifiers {
+            for (i, note) in p.notes.iter().enumerate() {
+                let owner = match note.on {
+                    None => pds,
+                    Some(NoteOwner::Feature(f)) => self.feature(em, &mut st, pds, f.0)?,
+                    Some(NoteOwner::Dimension(d)) => self.dimension(em, &mut st, pds, d.0)?,
+                    Some(NoteOwner::Tolerance(t)) => st.tolerances[&t.0],
+                    Some(NoteOwner::DatumTarget(t)) => st.targets[&t.0],
+                };
+                let text = Self::text_item(em, "note text", &note.text)?;
+                let property = self.property(
+                    em,
+                    owner,
+                    "manufacturing requirement",
+                    &note.kind,
+                    "",
+                    &[text],
+                )?;
+                self.identify(em, "notes", i, property)?;
+            }
+            if p != &PartPmi::default()
+                || crate::json::transport::has_units(ids)
+                    .map_err(|e| WriteError::Internal(e.to_string()))?
+            {
+                let layout = crate::json::transport::layout(p, ids)
+                    .map_err(|e| WriteError::Internal(e.to_string()))?;
+                let item = Self::text_item(em, "ordering", &layout)?;
+                self.property(
+                    em,
+                    pds,
+                    "haecceity.pmi/1 ordering",
+                    "Transport ordering and reference aliases; native PMI remains authoritative",
+                    "",
+                    &[item],
+                )?;
+            }
+            for (collection, refs) in [
+                ("datum_targets", &st.targets),
+                ("datums", &st.datums),
+                ("dimensions", &st.dimensions),
+                ("tolerances", &st.tolerances),
+            ] {
+                for (&i, &carrier) in refs {
+                    self.identify(em, collection, i, carrier)?;
+                }
+            }
         }
         #[cfg(feature = "presentation")]
         self.datum_symbols(em, &symbols, &st, report, presentation_reader)?;
@@ -3313,7 +3572,7 @@ impl<'a> PartPlan<'a> {
         pds: R,
         name: &str,
         cells: &[ToleranceCell],
-    ) -> Result<(), WriteError> {
+    ) -> Result<TableIdentity, WriteError> {
         let context = em.simple(
             "representation_context",
             &[
@@ -3402,7 +3661,14 @@ impl<'a> PartPlan<'a> {
                 ("rep_2", rep.a()),
             ],
         )?;
-        Ok(())
+        #[cfg(feature = "json")]
+        {
+            Ok(table)
+        }
+        #[cfg(not(feature = "json"))]
+        {
+            Ok(())
+        }
     }
 
     /// A point of feature `f` in the part's coordinates: of its first face, edge or
@@ -3962,7 +4228,16 @@ impl<'a> PartPlan<'a> {
                     "draughting_model_item_association",
                     &[
                         ("name", s("PMI representation to presentation link")),
-                        ("description", s("")),
+                        ("description", {
+                            #[cfg(feature = "json")]
+                            if self.identifiers.is_some() {
+                                s("haecceity.generated/1")
+                            } else {
+                                s("")
+                            }
+                            #[cfg(not(feature = "json"))]
+                            s("")
+                        }),
                         ("definition", definition.a()),
                         ("used_representation", model.a()),
                         ("identified_item", callout.a()),
@@ -3983,11 +4258,24 @@ impl<'a> PartPlan<'a> {
         rep_name: &str,
         items: &[R],
     ) -> Result<R, WriteError> {
+        self.property_optional(em, owner, name, Some(description), rep_name, items)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn property_optional(
+        &self,
+        em: &mut Emitter<'_>,
+        owner: R,
+        name: &str,
+        description: Option<&str>,
+        rep_name: &str,
+        items: &[R],
+    ) -> Result<R, WriteError> {
         let pdef = em.simple(
             "property_definition",
             &[
                 ("name", s(name)),
-                ("description", s(description)),
+                ("description", description.map_or(A::Unset, s)),
                 ("definition", owner.a()),
             ],
         )?;
@@ -5385,9 +5673,12 @@ impl<'a> PartPlan<'a> {
         st: &mut Emitted,
         pds: R,
         t: &Thread,
+        #[cfg(feature = "json")] index: usize,
     ) -> Result<(), WriteError> {
         let def = em.simple("thread", &[("name", s("")), ("description", s(""))])?;
         let shape = self.applied(em, st, pds, def, t.feature)?;
+        #[cfg(feature = "json")]
+        self.identify(em, "threads", index, shape)?;
         let area = match t.partial_area {
             Some(f) => Some(self.role_instance(em, st, pds, f, Role::AppliedArea)?),
             None => None,
@@ -5489,6 +5780,7 @@ impl<'a> PartPlan<'a> {
         st: &mut Emitted,
         pds: R,
         k: &Knurl,
+        #[cfg(feature = "json")] index: usize,
     ) -> Result<(), WriteError> {
         let pattern = match k.pattern {
             KnurlPattern::Diamond => "diamond",
@@ -5500,6 +5792,8 @@ impl<'a> PartPlan<'a> {
             &[("name", s("")), ("description", s(pattern))],
         )?;
         let shape = self.applied(em, st, pds, def, k.feature)?;
+        #[cfg(feature = "json")]
+        self.identify(em, "knurls", index, shape)?;
         let area = self.role_instance(em, st, pds, k.feature, Role::AppliedArea)?;
         // turned_knurl WR11 (as thread WR12): exactly one 'partial area occurrence' with one
         // 'applied area usage' from an applied_area: the knurled faces themselves (the model
@@ -5657,6 +5951,40 @@ impl<'a> PartPlan<'a> {
                     }
                 }
             });
+        }
+        #[cfg(feature = "json")]
+        if self.identifiers.is_some() {
+            let pdef = self.property_optional(
+                em,
+                owner,
+                &a.name,
+                a.description.as_deref(),
+                "haecceity.pmi/1 attribute",
+                &items,
+            )?;
+            if let Some(g) = &a.general_property {
+                let gp = em.simple(
+                    "general_property",
+                    &[
+                        ("id", s(&g.id)),
+                        ("name", s(&g.name)),
+                        (
+                            "description",
+                            g.description.as_ref().map_or(A::Unset, |d| s(d)),
+                        ),
+                    ],
+                )?;
+                em.simple(
+                    "general_property_association",
+                    &[
+                        ("name", s("")),
+                        ("description", A::Unset),
+                        ("base_definition", gp.a()),
+                        ("derived_definition", pdef.a()),
+                    ],
+                )?;
+            }
+            return Ok(pdef);
         }
         let gp = em.simple(
             "general_property",
@@ -5905,6 +6233,12 @@ fn needs_callouts(p: &PartPmi) -> bool {
         false
     }
 }
+
+// Preserve the ordinary writer's return type when JSON identity emission is disabled.
+#[cfg(feature = "json")]
+type TableIdentity = R;
+#[cfg(not(feature = "json"))]
+type TableIdentity = ();
 
 /// What a part's emission has made so far.
 #[derive(Default)]

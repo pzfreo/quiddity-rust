@@ -65,6 +65,18 @@ use quiddity::part_input;
 use quiddity::pmi_json::{self, Binding};
 use quiddity::serve::{self, Failure};
 
+#[cfg(feature = "json")]
+#[path = "quiddity/pmi_interchange.rs"]
+mod pmi_interchange;
+
+#[cfg(feature = "json")]
+const JSON_USAGE: &str = "PMI interchange (--features json):
+       quiddity pmi json export <file.step> [--part N]
+       quiddity pmi json import <geometry.step> <pmi.json> -o <out.step> [--part N]
+                         [--anchors <verified-face-namespace.json>]
+       quiddity pmi json validate <pmi-or-presentation.json>
+       quiddity pmi json presentation <file.step> [--part N]";
+
 const USAGE: &str = "usage: quiddity <file.step>
        quiddity correspond <old.json|old.step> <new.json|new.step>
        quiddity serve
@@ -88,6 +100,8 @@ fn main() -> ExitCode {
     let result = match args.as_slice() {
         [flag] if flag == "-h" || flag == "--help" => {
             println!("{USAGE}");
+            #[cfg(feature = "json")]
+            println!("\n{JSON_USAGE}");
             return ExitCode::SUCCESS;
         }
         [command] if command == "serve" => {
@@ -110,6 +124,10 @@ fn main() -> ExitCode {
                 return ExitCode::from(2);
             }
         },
+        #[cfg(feature = "json")]
+        [command, format, rest @ ..] if command == "pmi" && format == "json" => {
+            pmi_interchange::run(rest)
+        }
         [command, read, path] if command == "pmi" && read == "read" => pmi_read(path, None),
         [command, read, path, flag, n]
             if command == "pmi" && read == "read" && flag == "--part" =>

@@ -6,6 +6,17 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Added
+
+- For #142, opt-in `json` exposes versioned AP242 semantic PMI and As Drawn/generated
+  presentation JSON, packaged JSON Schemas, stable requirement ids and face-name/support
+  anchors, plus `pmi json export`, `import`, `validate` and `presentation` CLI commands.
+  V1 references use item ids; fallback ids derive from content. JSON writes preserve
+  collection order, support projections, notes and attribute fields, keep foreign
+  graphics for surviving requirements, and verify every item's id and content on read-back.
+  JSON writes retain the existing AP242 refusals;
+  complete source STEP closure remains blocked on the documented writer/source cases.
+
 ## 0.2.6 (2026-10-30)
 
 Upgrading from 0.2.5: recognition schema `/6` and fingerprints `/3` are unchanged. haecceity's
