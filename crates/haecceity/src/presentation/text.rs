@@ -22,6 +22,9 @@ fn ring(c: P, r: f64) -> Vec<P> {
 }
 /// A glyph at capital height 21. Unsupported characters are explicit, never substituted.
 pub fn glyph(c: char) -> Option<(f64, Vec<Vec<P>>)> {
+    if c.is_whitespace() && c != '\n' {
+        return Some((if c == '\t' { 64. } else { 16. }, Vec::new()));
+    }
     if let Some((advance, lines)) = crate::stroke_font::glyph(c) {
         return Some((
             advance,

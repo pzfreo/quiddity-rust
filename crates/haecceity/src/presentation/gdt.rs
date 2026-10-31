@@ -18,8 +18,12 @@ fn circle(c: P2, r: f64) -> [f64; 5] {
     [c[0], c[1], r, 0.0, 360.0]
 }
 
-/// The ISO 1101 symbol of draftwright's characteristic, as the text layer states it.
-fn symbol(characteristic: &str) -> &'static str {
+/// ISO 1101 symbol for the model's GD&T name: `straightness`, `flatness`,
+/// `circularity`, `cylindricity`, `profile_line`, `profile_surface`, `angularity`,
+/// `perpendicularity`, `parallelism`, `position`, `concentricity`, `coaxiality`,
+/// `symmetry`, `circular_runout`, or `total_runout`.
+/// Unknown names retain the historical total-runout fallback.
+pub fn symbol(characteristic: &str) -> &'static str {
     match characteristic {
         "straightness" => "⏤",
         "flatness" => "⏥",
@@ -41,7 +45,7 @@ fn symbol(characteristic: &str) -> &'static str {
 /// The characteristic's strokes about *c* (`_characteristic_edges`, s = 0.42 h). Coaxiality,
 /// which draftwright's frame does not know, is drawn as concentricity's symbol, which ISO 1101
 /// gives both.
-fn characteristic(name: &str, c: P2, laid: &mut Laid) {
+pub fn characteristic(name: &str, c: P2, laid: &mut Laid) {
     let s = 0.42 * TEXT;
     let p = |x: f64, y: f64| [c[0] + x * s, c[1] + y * s];
     let mut st: Vec<[P2; 2]> = Vec::new();
@@ -114,18 +118,17 @@ fn characteristic(name: &str, c: P2, laid: &mut Laid) {
     laid.arcs.extend(arcs);
 }
 
-/// The width of *s*'s ink at *size* in the labels' font.
-fn width(s: &str, size: f64) -> f64 {
-    let l = super::font().text(s, size);
-    l.max[0] - l.min[0]
-}
-
+/// A local ISO 1101 frame from plain cells, independent of `PartPmi`.
+/// `width` measures text ink at the supplied capital height in drawing units.
+/// `zone` is `diameter` or `spherical_diameter`; `material` is `M` or `L`.
+/// Datums are already formatted compartments (for example `A-B`).
 pub fn control_frame(
     name: &str,
     tolerance: &str,
     zone: Option<&str>,
     material: Option<&str>,
     datums: &[String],
+    width: &dyn Fn(&str, f64) -> f64,
 ) -> Laid {
     let mut laid = Laid::default();
     let cy = H / 2.0;
@@ -269,7 +272,14 @@ mod tests {
     // checks stay there; the same requirements here are already semantic PMI.
     #[test]
     fn position_frame_and_datum_state_the_same_cells_as_draftwright() {
-        let frame = control_frame("position", "0.1", Some("diameter"), None, &["A".into()]);
+        let frame = control_frame(
+            "position",
+            "0.1",
+            Some("diameter"),
+            None,
+            &["A".into()],
+            &super::super::text_width,
+        );
         assert_eq!(frame.cells.join(" | "), "⌖ | ⌀0.1 | A");
         assert_eq!(
             frame
@@ -286,7 +296,14 @@ mod tests {
     }
     #[test]
     fn a_flatness_control_on_a_face_draws_its_frame() {
-        let frame = control_frame("flatness", "0.05", None, None, &[]);
+        let frame = control_frame(
+            "flatness",
+            "0.05",
+            None,
+            None,
+            &[],
+            &super::super::text_width,
+        );
         assert_eq!(frame.cells.join(" | "), "⏥ | 0.05");
         assert_eq!(
             frame
@@ -306,6 +323,7 @@ mod tests {
             Some("spherical_diameter"),
             Some("M"),
             &["A".into(), "B".into()],
+            &super::super::text_width,
         );
         assert_eq!(frame.cells, ["⌖", "S⌀0.0254Ⓜ", "A", "B"]);
         assert_eq!(frame.letters[0].text, "Sø0.0254");

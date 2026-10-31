@@ -146,11 +146,14 @@ pub fn notes_block(rows: &[Row]) -> Callout {
             if matches!(r.source, Source::Attribute(_)) {
                 number += 1;
                 // Draftwright notes.rs::rows: first line numbered, continuations indented.
+                let first_ink = r.text.split('\n').position(|line| !line.trim().is_empty());
                 r.text
-                    .lines()
+                    .split('\n')
                     .enumerate()
                     .map(|(i, line)| {
-                        if i == 0 {
+                        if line.trim().is_empty() {
+                            line.to_string()
+                        } else if Some(i) == first_ink {
                             format!("{number}  {line}")
                         } else {
                             format!("   {line}")
@@ -170,7 +173,11 @@ pub fn notes_block(rows: &[Row]) -> Callout {
         .iter()
         .map(|l| {
             let ink = font().text(l, height);
-            (ink.max[1] - ink.min[1]).max(height)
+            let mut extent = (ink.max[1] - ink.min[1]).max(height);
+            if l.split('\n').any(|line| line.trim().is_empty()) {
+                extent = extent.max(height + l.matches('\n').count() as f64 * 1.6 * height);
+            }
+            extent
         })
         .collect();
     c.size = [
@@ -179,9 +186,20 @@ pub fn notes_block(rows: &[Row]) -> Callout {
     ];
     let mut top = c.size[1] - 1.8;
     for (line, row_height) in lines.iter().zip(heights) {
+        // Font::text centres on ink, so restore the authored position of leading
+        // and trailing blank baselines inside the space reserved for this row.
+        let leading = line.split('\n').take_while(|s| s.trim().is_empty()).count();
+        let trailing = line
+            .rsplit('\n')
+            .take_while(|s| s.trim().is_empty())
+            .count();
+        let blank_shift = (trailing as f64 - leading as f64) * 0.8 * height;
         let text = Text {
             text: line.clone(),
-            at: [1.8 + width(line, height) / 2., top - row_height / 2.],
+            at: [
+                1.8 + width(line, height) / 2.,
+                top - row_height / 2. + blank_shift,
+            ],
             size: height,
         };
         c.letters.push(text.clone());
@@ -194,6 +212,11 @@ pub fn notes_block(rows: &[Row]) -> Callout {
 
 /// Draftwright's two 60-degree legs, parameter bar and removal mark, in text-height units.
 pub fn surface_texture(t: &SurfaceTexture) -> Callout {
+    surface_texture_with_width(t, &width)
+}
+
+/// ISO 1302 symbol sized with the caller's text ink width at a capital height.
+pub fn surface_texture_with_width(t: &SurfaceTexture, width: &dyn Fn(&str, f64) -> f64) -> Callout {
     let lines = texture_parameters(t);
     let text = 3.0_f64;
     let gap = 0.3 * text;
@@ -219,16 +242,12 @@ pub fn surface_texture(t: &SurfaceTexture) -> Callout {
         cells: lines.clone(),
         ..Callout::default()
     };
-    match t.material_removal {
-        MaterialRemoval::Required => c
-            .strokes
-            .push([at([-short * cot, short]), at([short * cot, short])]),
-        MaterialRemoval::NotAllowed => {
-            let [x, y] = at([0., 2. * short / 3.]);
-            c.arcs.push([x, y, short / 3., 0., 360.]);
-        }
-        MaterialRemoval::AnyProcessAllowed => (),
-    }
+    let (strokes, arcs) = removal_marks(t.material_removal, short);
+    c.strokes.extend(strokes.into_iter().map(|s| s.map(at)));
+    c.arcs.extend(arcs.into_iter().map(|[x, y, r, a, b]| {
+        let [x, y] = at([x, y]);
+        [x, y, r, a, b]
+    }));
     for (i, line) in lines.iter().enumerate() {
         let t = Text {
             text: line.clone(),
@@ -242,4 +261,22 @@ pub fn surface_texture(t: &SurfaceTexture) -> Callout {
         c.runs.push(t);
     }
     c
+}
+
+/// ISO 1302 removal condition about a symbol tip at the origin.
+/// `short` is the short leg's height. Returns line segments and circular arcs
+/// (`[cx, cy, radius, start_degrees, end_degrees]`) in the same drawing units.
+pub fn removal_marks(removal: MaterialRemoval, short: f64) -> (Vec<[[f64; 2]; 2]>, Vec<[f64; 5]>) {
+    let cot = 1. / 3f64.sqrt();
+    match removal {
+        MaterialRemoval::Required => (
+            vec![[[-short * cot, short], [short * cot, short]]],
+            Vec::new(),
+        ),
+        MaterialRemoval::NotAllowed => (
+            Vec::new(),
+            vec![[0., 2. * short / 3., short / 3., 0., 360.]],
+        ),
+        MaterialRemoval::AnyProcessAllowed => (Vec::new(), Vec::new()),
+    }
 }

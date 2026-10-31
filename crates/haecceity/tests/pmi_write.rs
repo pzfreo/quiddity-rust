@@ -5456,6 +5456,11 @@ fn all_three_specify_samples_have_real_linear_dimensions_and_local_callouts() {
         assert_notes_clear(&w.doc);
         sample_linear_dimensions(&w.doc, &w.read, &f.parts[0]);
         sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
+        assert_frames_and_diameters_clear(&w.doc);
+        if let Some(dir) = std::env::var_os("HAECCEITY_PMI_SAMPLE_DIR") {
+            std::fs::create_dir_all(&dir).unwrap();
+            std::fs::write(Path::new(&dir).join(format!("{name}.step")), w.doc.bytes()).unwrap();
+        }
     }
 }
 
@@ -6289,7 +6294,7 @@ fn read_back_deviations_use_notation_numbers() {
         w.read.parts[0]
             .dimensions
             .iter()
-            .zip(["⌀10 ±1.0", "⌀10 +0.5 -1.0", "⌀10 +1E-2 0"])
+            .zip(["⌀10 ±1.0", "⌀10 +0.5/-1.0", "⌀10 +1E-2/0"])
     {
         assert_eq!(haecceity::presentation::dimension(d).notation(), expected);
         assert!(
@@ -6512,6 +6517,8 @@ fn composite_features_and_locations_have_non_datum_geometry_carriers() {
         assert_composite_components(&w.doc);
         assert_eq!(w.read.parts[0].datums.len(), count);
         sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
+        #[cfg(feature = "presentation")]
+        assert_frames_and_diameters_clear(&w.doc);
     }
 }
 
@@ -7133,6 +7140,7 @@ fn full_notes_and_face_finishes_clear_the_three_sample_parts_without_moving_dime
         assert_notes_clear(&w.doc);
         sample_linear_dimensions(&w.doc, &w.read, &f.parts[0]);
         sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
+        assert_frames_and_diameters_clear(&w.doc);
         let textures: Vec<_> = w
             .added()
             .into_iter()
@@ -7230,4 +7238,158 @@ fn differences_accept_native_feature_aliases_and_attribute_canonicalization() {
     assert!(differences_as_stated(&p, &canonicalized).is_empty());
     #[cfg(feature = "json")]
     assert!(!haecceity::json::identity_differences(&p, &canonicalized).is_empty());
+}
+
+#[cfg(feature = "presentation")]
+#[test]
+fn blank_notes_emit_no_empty_curves_and_keep_row_spacing() {
+    use haecceity::presentation::notes;
+    let f = gap_spool();
+    let mut p = PartPmi::default();
+    for (i, text) in ["First", "", " \t ", "Middle\n\n \t\nLast\n", "End"]
+        .iter()
+        .enumerate()
+    {
+        p.attributes.push(AttributeSet {
+            name: "semantic text".into(),
+            on: None,
+            description: None,
+            general_property: None,
+            items: vec![
+                ("general note".into(), AttributeValue::Text((*text).into())),
+                ("note index".into(), AttributeValue::Integer(i as i64 + 1)),
+            ],
+        });
+    }
+    let block = notes::notes_block(&notes::general_notes(&p));
+    assert_eq!(block.letters.len(), 6);
+    assert!(block.letters[1].at[1] - block.letters[4].at[1] > 3. * 4.8);
+    let w = written(&f, &p);
+    assert_verified(&f, &w, &p);
+    assert_reads_back(&w, PartId(0), &p);
+    assert!(new_violations(&f.doc, &w.doc).is_empty());
+    let mut curves = 0;
+    for id in w
+        .added()
+        .into_iter()
+        .filter(|&id| w.names(id) == ["tessellated_curve_set"])
+    {
+        curves += 1;
+        let Some(Attribute::List(strips)) =
+            test_attribute(&w.doc, id, "tessellated_curve_set", "line_strips")
+        else {
+            panic!("strips")
+        };
+        assert!(!strips.is_empty(), "curve #{id}");
+        assert!(
+            strips
+                .iter()
+                .all(|s| matches!(s, Attribute::List(points) if points.len() >= 2))
+        );
+    }
+    assert_eq!(
+        curves, 3,
+        "blank requirements have no tessellated occurrences"
+    );
+}
+
+#[cfg(feature = "presentation")]
+fn assert_frames_and_diameters_clear(doc: &Document) {
+    use haecceity::{geom, presentation::linear};
+    let mut ink = Vec::new();
+    for id in doc.ids().filter(|&id| matches!(doc.get(id), Some(RawEntity::Simple { name, .. }) if name.eq_ignore_ascii_case("draughting_callout"))) {
+        let occurrence = refs_of(doc, id)[0];
+        let set = *refs_of(doc, occurrence).last().unwrap();
+        let Some(Attribute::String(kind)) = test_attribute(doc, set, "representation_item", "name") else { panic!("kind") };
+        if matches!(kind.as_str(), "linear dimension" | "datum" | "note" | "surface roughness") { continue; }
+        let mut lines = graphic_lines(doc, id);
+        let leader = lines.pop().unwrap();
+        let (_, normal, along) = annotation_basis(doc, id);
+        let up = geom::cross(normal, along);
+        let interval = |axis| lines.iter().flatten().map(|p| geom::dot(*p, axis)).fold([f64::INFINITY, f64::NEG_INFINITY], |r, t| [r[0].min(t), r[1].max(t)]);
+        let x = interval(along); let y = interval(up);
+        // Independent oriented ink rectangle from serialized strokes, not layout metadata.
+        let depth = geom::dot(lines[0][0], normal);
+        let polygon: Vec<_> = [(x[0], y[0]), (x[1], y[0]), (x[1], y[1]), (x[0], y[1])].into_iter().map(|(x,y)| geom::add(geom::scale(normal, depth), geom::add(geom::scale(along, x), geom::scale(up, y)))).collect();
+        ink.push((id, polygon, leader, normal, lines));
+    }
+    fn clearance(polygon: &[geom::V3], other: &[geom::V3], view: geom::V3) -> f64 {
+        let mut clearance = linear::projected_clearance(polygon, other, view);
+        let n = geom::unit(view).unwrap();
+        for axis in [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]] {
+            let Some(axis) = geom::unit(geom::sub(axis, geom::scale(n, geom::dot(axis, n)))) else {
+                continue;
+            };
+            let interval = |p: &[geom::V3]| {
+                p.iter()
+                    .map(|p| geom::dot(*p, axis))
+                    .fold([f64::INFINITY, f64::NEG_INFINITY], |r, t| {
+                        [r[0].min(t), r[1].max(t)]
+                    })
+            };
+            let x = interval(polygon);
+            let y = interval(other);
+            clearance = clearance.max((x[0] - y[1]).max(y[0] - x[1]));
+        }
+        clearance
+    }
+    let mut worst = (f64::INFINITY, 0, 0, [0.; 3]);
+    for (i, (a, polygon, leader, normal, strokes)) in ink.iter().enumerate() {
+        for (b, other, other_leader, other_normal, other_strokes) in &ink[..i] {
+            for view in linear::VIEWS {
+                // Proper crossings of actual ink, including both leaders, in every
+                // view. Collinear collapsed edge-on strokes and shared attachment
+                // endpoints are not transverse crossings.
+                let n = geom::unit(view).unwrap();
+                for x in strokes
+                    .iter()
+                    .chain(std::iter::once(leader))
+                    .flat_map(|l| l.windows(2))
+                {
+                    for y in other_strokes
+                        .iter()
+                        .chain(std::iter::once(other_leader))
+                        .flat_map(|l| l.windows(2))
+                    {
+                        let dx = geom::sub(x[1], x[0]);
+                        let dy = geom::sub(y[1], y[0]);
+                        let delta = geom::sub(y[0], x[0]);
+                        let cross = |u, v| geom::dot(n, geom::cross(u, v));
+                        let den = cross(dx, dy);
+                        if den.abs() < 1e-10 {
+                            continue;
+                        }
+                        let t = cross(delta, dy) / den;
+                        let u = cross(delta, dx) / den;
+                        assert!(
+                            !(t > 1e-7 && t < 1. - 1e-7 && u > 1e-7 && u < 1. - 1e-7),
+                            "frame/diameter crossing #{a} / #{b}, view {view:?}, {x:?} / {y:?}"
+                        );
+                    }
+                }
+                if geom::dot(*normal, view).abs() < 1e-8
+                    || geom::dot(*other_normal, view).abs() < 1e-8
+                {
+                    continue;
+                }
+                for (x, y) in std::iter::once((polygon.as_slice(), other.as_slice()))
+                    .chain(other_leader.windows(2).map(|l| (polygon.as_slice(), l)))
+                    .chain(leader.windows(2).map(|l| (l, other.as_slice())))
+                {
+                    let gap = clearance(x, y, view);
+                    assert!(
+                        gap > 1e-8,
+                        "frame/diameter #{a} / #{b} view {view:?}: {gap}, {x:?} / {y:?}"
+                    );
+                    if gap < worst.0 {
+                        worst = (gap, *a, *b, view);
+                    }
+                }
+            }
+        }
+    }
+    println!(
+        "frame/diameter clearance {:.9} mm, #{} / #{}, view {:?}",
+        worst.0, worst.1, worst.2, worst.3
+    );
 }

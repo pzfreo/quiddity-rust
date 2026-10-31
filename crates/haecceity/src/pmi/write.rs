@@ -3897,7 +3897,7 @@ impl<'a> PartPlan<'a> {
                                 1.
                             },
                         );
-                        local_layout.on_feature(tip, axis, &c, extent)
+                        local_layout.on_axis(tip, axis, &c, extent)
                     } else {
                         local_layout.place(tip, None, &c)
                     }
@@ -4114,6 +4114,12 @@ impl<'a> PartPlan<'a> {
                 };
                 #[cfg(not(feature = "presentation"))]
                 let source_lines = &lines;
+                // Blank note rows still occupy their measured height in the block,
+                // but AP242 tessellated_curve_set requires nonempty line strips.
+                #[cfg(feature = "presentation")]
+                if source_lines.is_empty() {
+                    continue;
+                }
                 let coordinates: Vec<A> = source_lines
                     .iter()
                     .flatten()

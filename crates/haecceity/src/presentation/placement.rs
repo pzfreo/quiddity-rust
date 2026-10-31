@@ -18,6 +18,7 @@ pub struct Layout {
     axes: [usize; 3],
     height: f64,
     occupied: Vec<Bounds>,
+    callouts: Vec<Vec<V3>>,
 }
 impl Layout {
     pub fn new(bounds: Bounds) -> Self {
@@ -40,6 +41,7 @@ impl Layout {
             axes,
             height: text_height(largest * mm_per_unit) / mm_per_unit,
             occupied: Vec::new(),
+            callouts: Vec::new(),
         }
     }
     pub fn text_height(&self) -> f64 {
@@ -279,6 +281,41 @@ impl Layout {
             self.face_callout(anchor, outward, c, Some(extent))
         }
     }
+    /// End-on frames on axial features use either radial side and a corner
+    /// attachment, keeping their leaders short and their projected ink separated.
+    pub(crate) fn on_axis(&mut self, anchor: V3, axis: V3, c: &Callout, extent: f64) -> Placed {
+        let mut best = None;
+        // End-on is also a valid plane for an axial tolerance. It lets a frame
+        // share the diameter's plane instead of crossing it in isometric views.
+        let along = self.along(axis);
+        let radial = geom::unit(geom::cross(axis, along)).unwrap_or([0., 1., 0.]);
+        for outward in [radial, geom::scale(radial, -1.)] {
+            let mut candidate = self.clone();
+            let placed = candidate.draw_columns(
+                anchor,
+                [along, outward, axis],
+                c,
+                (true, Some(extent)),
+                Some(&[-1., 1., -2., 2., -3., 3.]),
+            );
+            let reach = placed
+                .lines
+                .last()
+                .into_iter()
+                .flatten()
+                .map(|p| geom::dist(anchor, *p))
+                .fold(0., f64::max);
+            if best.as_ref().is_none_or(|(r, _, _)| reach < *r) {
+                best = Some((reach, placed, candidate));
+            }
+        }
+        if let Some((_, placed, layout)) = best {
+            *self = layout;
+            placed
+        } else {
+            self.on_feature(anchor, axis, c, extent)
+        }
+    }
     fn face_callout(
         &mut self,
         anchor: V3,
@@ -303,6 +340,17 @@ impl Layout {
         face: bool,
         feature_extent: Option<f64>,
     ) -> Placed {
+        self.draw_columns(anchor, basis, c, (face, feature_extent), None)
+    }
+    fn draw_columns(
+        &mut self,
+        anchor: V3,
+        basis: [V3; 3],
+        c: &Callout,
+        placement: (bool, Option<f64>),
+        columns: Option<&[f64]>,
+    ) -> Placed {
+        let (face, feature_extent) = placement;
         let [along, outward, normal] = basis;
         let h = self.height;
         let scale = (h / 3.).min(0.32 * self.bounds.max_extent().max(h) / c.size[0].max(1.));
@@ -311,11 +359,25 @@ impl Layout {
         let up = geom::cross(normal, along);
         let mut chosen = anchor;
         let mut chosen_box = Bounds::empty();
-        let columns: &[f64] = if face && c.cells.len() == 1 {
+        let projected = !face || c.cells.len() > 1;
+        let rectangle = |centre| {
+            [(-1., -1.), (1., -1.), (1., 1.), (-1., 1.)]
+                .map(|(x, y)| {
+                    geom::add(
+                        centre,
+                        geom::add(
+                            geom::scale(along, x * width / 2.),
+                            geom::scale(up, y * height / 2.),
+                        ),
+                    )
+                })
+                .to_vec()
+        };
+        let columns: &[f64] = columns.unwrap_or(if face && c.cells.len() == 1 {
             &[0.]
         } else {
             &[0., -1., 1., -2., 2., -3., 3.]
-        };
+        });
         let gap = feature_extent.map_or(0.6 * h, |e| (0.6 * h).min(0.12 * e))
             + 2.4 * f64::from(c.leader_rings > 0) * h;
         let mut candidates: Vec<_> = (0..8)
@@ -350,11 +412,27 @@ impl Layout {
             }
             chosen = centre;
             chosen_box = b;
-            if !self.occupied.iter().any(|r| boxes_overlap(b, *r, 0.2 * h)) {
+            if !self.occupied.iter().any(|r| boxes_overlap(b, *r, 0.2 * h))
+                && (!projected
+                    || self.callouts.iter().all(|other| {
+                        let other_normal = geom::cross(
+                            geom::sub(other[1], other[0]),
+                            geom::sub(other[3], other[0]),
+                        );
+                        super::linear::VIEWS.into_iter().all(|view| {
+                            (geom::dot(normal, view).abs() < 1e-8
+                                && geom::dot(other_normal, view).abs() < 1e-8)
+                                || polygon_clearance(&rectangle(centre), other, view) >= 0.2 * h
+                        })
+                    }))
+            {
                 break;
             }
         }
         self.occupied.push(chosen_box);
+        if projected {
+            self.callouts.push(rectangle(chosen));
+        }
         let local = c.polylines();
         let mut ink = Bounds::empty();
         for p in local.iter().flatten() {
@@ -424,6 +502,27 @@ impl Layout {
         }
     }
 }
+/// Include coordinate axes for edge-on projections as well as polygon edge normals.
+fn polygon_clearance(a: &[V3], b: &[V3], view: V3) -> f64 {
+    let n = geom::unit(view).unwrap_or(view);
+    [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]
+        .into_iter()
+        .filter_map(|axis| geom::unit(geom::sub(axis, geom::scale(n, geom::dot(axis, n)))))
+        .map(|axis| {
+            let interval = |p: &[V3]| {
+                p.iter()
+                    .map(|p| geom::dot(*p, axis))
+                    .fold([f64::INFINITY, f64::NEG_INFINITY], |r, t| {
+                        [r[0].min(t), r[1].max(t)]
+                    })
+            };
+            let x = interval(a);
+            let y = interval(b);
+            (x[0] - y[1]).max(y[0] - x[1])
+        })
+        .fold(super::linear::projected_clearance(a, b, view), f64::max)
+}
+
 /// Compare annotations in parallel planes by their projected boxes too.
 pub(crate) fn boxes_overlap(a: Bounds, b: Bounds, padding: f64) -> bool {
     (0..3)
