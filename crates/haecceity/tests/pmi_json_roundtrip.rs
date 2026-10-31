@@ -67,7 +67,7 @@ fn nist_and_corpus_roundtrip() {
     let manifest = Path::new(env!("CARGO_MANIFEST_DIR"));
     let corpus = std::env::var_os("QUIDDITY_CORPUS")
         .map(PathBuf::from)
-        .unwrap_or_else(|| manifest.join("../../../quiddity/tests/corpus"));
+        .unwrap_or_else(|| manifest.join("../../../quiddity-corpus"));
     if std::env::var_os("QUIDDITY_CORPUS_REQUIRED").is_some() {
         assert!(corpus.is_dir(), "QUIDDITY_CORPUS_REQUIRED: corpus missing");
     }

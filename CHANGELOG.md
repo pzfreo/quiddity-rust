@@ -6,6 +6,15 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Fixed
+
+- Haecceity presentation surface-finish values now use the stated Decimal and unit,
+  avoiding float noise such as `10.400000000000002` for `10.4` µm. Non-micrometre
+  units are explicit; precision is retained in face symbols and general notes.
+- Make the complete dimension prefix policy explicit and exhaustively tested:
+  spherical `SR`/`S⌀`, circular and toroidal `R`/`⌀`, with no invented torus prefix
+  (ISO 129-1:2018 §§7.2–7.4). Existing prefix output is unchanged.
+
 ### Added
 
 - In-process Python PMI interchange: STEP path/bytes plus a PMI dict/JSON string
@@ -13,7 +22,6 @@ in [docs/alpha1.md](docs/alpha1.md).
   return dicts, named/index anchors are selectable, `PmiError` preserves reasons and
   available findings, and both JSON Schemas ship as dicts and package resources.
   This replaces the provisional Python CLI-path wrappers; recognition is unchanged.
-
 - A dependency-free `quiddity` 0.4.0 Python wheel (`crates/quiddity-py`), using
   PyO3 abi3 for CPython 3.12+, with STEP path/byte recognition, evidence, anchors,
   fingerprints, correspondence, capabilities, verified PMI JSON import/export,
@@ -21,8 +29,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 - Additive `quiddity-rust/evidence/1` JSON with records, defining/constituent,
   instance and host faces, source STEP identities and reconciliation candidates;
   `quiddity evidence <step> [--framed]`, `fingerprints` and `capabilities` commands.
-- Python smoke/corpus tests and a five-platform wheel/sdist workflow. PyPI publishing
-  requires an explicit manual dispatch on main; pushes and tags never publish.
+- Python smoke/corpus tests and a five-platform wheel/sdist workflow. A published GitHub
+  release (or a manual dispatch) publishes to PyPI after checking that the tag, wheel
+  and crate versions agree; pushes never publish.
+- Public `presentation::size_prefix` for drawing clients, and
+  `presentation::label_lines_with_width` for independent, unpadded per-line geometry
+  with caller-supplied ink widths. Existing padded labels retain their geometry.
 
 ## 0.2.8 (2026-10-31)
 

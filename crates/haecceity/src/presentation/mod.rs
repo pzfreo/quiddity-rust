@@ -101,28 +101,35 @@ fn in_units(v: &Value, nominal: &Value) -> Decimal {
     }
 }
 
-/// Text and CAx-IF annotation type for a dimension. Limits remain limits; a fit remains its
+/// Prefix for a size value (ISO 129-1:2018 §§7.2, 7.3.1 and 7.4).
+/// Toroidal sizes use the ordinary circular radius/diameter symbols: these standards
+/// define no torus-specific prefix. ISO 1101:2017 §8.4.2's major/minor identifiers
+/// concern screw threads, not tori. See also ISO 14405-1:2025 §5.2.2 and Annex E.
+/// A general curve length need not be a circular arc (§7.6); thickness does not
+/// require the optional surface-leader notation `t=` (§7.16.1). Both stay unprefixed.
+pub fn size_prefix(kind: &SizeKind) -> &'static str {
+    match kind {
+        SizeKind::Diameter
+        | SizeKind::ToroidalMinorDiameter
+        | SizeKind::ToroidalMajorDiameter
+        | SizeKind::ToroidalHighMajorDiameter
+        | SizeKind::ToroidalLowMajorDiameter => "⌀",
+        SizeKind::SphericalDiameter => "S⌀",
+        SizeKind::Radius
+        | SizeKind::ToroidalMinorRadius
+        | SizeKind::ToroidalMajorRadius
+        | SizeKind::ToroidalHighMajorRadius
+        | SizeKind::ToroidalLowMajorRadius => "R",
+        SizeKind::SphericalRadius => "SR",
+        SizeKind::CurveLength | SizeKind::Thickness | SizeKind::Other(_) => "",
+    }
+}
+
+/// Text for a dimension. Limits remain limits; a fit remains its
 /// ISO 286 class when no limits are stated. Zero deviations have no sign (ISO 129-1).
 pub fn dimension_text(d: &Dimension) -> String {
     let (prefix, angular) = match &d.kind {
-        DimensionKind::Size { kind, angle, .. } => (
-            match kind {
-                SizeKind::Diameter
-                | SizeKind::ToroidalMinorDiameter
-                | SizeKind::ToroidalMajorDiameter
-                | SizeKind::ToroidalHighMajorDiameter
-                | SizeKind::ToroidalLowMajorDiameter => "⌀",
-                SizeKind::SphericalDiameter => "S⌀",
-                SizeKind::Radius
-                | SizeKind::ToroidalMinorRadius
-                | SizeKind::ToroidalMajorRadius
-                | SizeKind::ToroidalHighMajorRadius
-                | SizeKind::ToroidalLowMajorRadius => "R",
-                SizeKind::SphericalRadius => "SR",
-                _ => "",
-            },
-            angle.is_some(),
-        ),
+        DimensionKind::Size { kind, angle, .. } => (size_prefix(kind), angle.is_some()),
         DimensionKind::Location { angle, .. } => ("", angle.is_some()),
     };
     let suffix = if angular
@@ -242,6 +249,34 @@ pub fn label_with_width(value: &str, width: &dyn Fn(&str, f64) -> f64) -> Callou
         size,
         ..Default::default()
     }
+}
+
+/// Independent, unpadded lines, in input order, for a caller that owns lane layout.
+/// Each callout has its own lower-left origin and no inter-line offset or box padding.
+/// The width callback receives each line at capital height 3, in drawing units.
+/// Height is the Hershey ink extent (including descenders); an empty line has zero
+/// ink height. Text is centred at half the returned size. An empty slice returns no
+/// callouts. Use one string per line, and `text_width` for the built-in font.
+pub fn label_lines_with_width(lines: &[&str], width: &dyn Fn(&str, f64) -> f64) -> Vec<Callout> {
+    lines
+        .iter()
+        .map(|line| {
+            let ink = font().text(line, 3.0);
+            let size = [width(line, 3.0), ink.max[1] - ink.min[1]];
+            let text = Text {
+                text: (*line).into(),
+                at: [size[0] / 2.0, size[1] / 2.0],
+                size: 3.0,
+            };
+            Callout {
+                letters: vec![text.clone()],
+                runs: vec![text],
+                cells: vec![(*line).into()],
+                size,
+                ..Default::default()
+            }
+        })
+        .collect()
 }
 
 pub fn tolerance_type(t: &GeometricTolerance) -> &'static str {

@@ -24,14 +24,32 @@ pub struct Row {
     pub text: String,
 }
 
-/// Surface parameters in micrometres, as Draftwright's face symbol states them.
+/// Surface parameters in their stated units and decimal precision.
+/// Micrometres are implicit in ISO 1302 notation; other units are explicit.
 pub fn texture_parameters(t: &SurfaceTexture) -> Vec<String> {
     t.parameters
         .iter()
         .map(|p| {
-            let v = p.value.mm() * 1000.;
-            // Do not round the manufacturing requirement to sheet precision.
-            format!("{} {}", p.characteristic, v)
+            let unit = match &p.value.unit {
+                LengthUnit::Micrometre => "",
+                LengthUnit::Millimetre => " mm",
+                LengthUnit::Centimetre => " cm",
+                LengthUnit::Metre => " m",
+                LengthUnit::Inch => " in",
+                LengthUnit::Foot => " ft",
+                LengthUnit::Other { name, .. } => {
+                    return format!(
+                        "{} {} {name}",
+                        p.characteristic,
+                        super::tolerance::number(&p.value.value)
+                    );
+                }
+            };
+            format!(
+                "{} {}{unit}",
+                p.characteristic,
+                super::tolerance::number(&p.value.value)
+            )
         })
         .collect()
 }
