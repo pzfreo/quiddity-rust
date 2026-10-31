@@ -27,7 +27,8 @@ These are not Specify application sizes and do not establish its final ceiling.
 
 The export feature excludes the embedded schemas, runtime schema parsing and
 validation, model deserialization, JSON parser/importer and ordering restoration.
-A generated typed traversal replaces schema-tree walks and per-item schema clones.
+A generated typed traversal replaces schema-tree walks, per-node JSON-pointer
+formatting and per-item schema clones.
 Canonical identity JSON appends to one buffer instead of formatting/joining a
 new allocation at each node; digest hex encoding also avoids general formatting.
 The pre-split spindle fixture pins identical exported values and content ids.
