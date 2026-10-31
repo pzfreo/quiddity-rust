@@ -91,6 +91,7 @@ fn note_kind(kind: &str) -> &str {
         "surface treatment" | "coating" => "surface treatment",
         "heat treatment" => "heat treatment",
         "general note" | "semantic text" => "general note",
+        _ if kind.starts_with("general note ") => "general note",
         _ => "other",
     }
 }
@@ -129,7 +130,11 @@ fn prose_rows(p: &PartPmi, kind: &str) -> Vec<Row> {
             }
         });
         for (key, value) in &a.items {
-            if note_kind(key) == kind
+            // Unknown attribute fields can carry opaque CAD-font symbols,
+            // not prose notes. Keep those semantic fields and file graphics;
+            // only explicitly submitted Notes use the catch-all category.
+            if kind != "other"
+                && note_kind(key) == kind
                 && let AttributeValue::Text(text) = value
             {
                 items.push((

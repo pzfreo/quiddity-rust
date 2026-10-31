@@ -277,7 +277,9 @@ category retains input order (structured settings, text attributes, then unstruc
 notes); general notes use explicit positive note indices
 first, then input order. Unstructured notes retain their own `notes` ids; recognized
 finish parameters use the writer's explicit-unit parser, preserving stated precision
-without guessing units. No submitted settings means no block. Retained file
+without guessing units. Generic attribute fields of unknown kind remain opaque;
+they can carry unavailable CAD-font symbols rather than note prose. Explicitly
+submitted unstructured part notes may use other kinds. No submitted settings means no block. Retained file
 graphics and notes are unchanged.
 
 Generated general notes use a front annotation plane (X right, Z up, Y at the
