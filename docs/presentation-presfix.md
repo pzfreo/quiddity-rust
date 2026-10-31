@@ -63,13 +63,22 @@ any outside annotation. Clearance is defined in the notes plane, not every camer
 
 ## Specify follow-up
 
-- `src/pmi_scene.rs`: add an optional boolean to the scene text-placement type and
-  copy `stroked` from each haecceity placement, preserving absent/false/true rather
-  than deriving it from graphic source. Keep `text_index`, text, and placement metadata.
-- `api.d.ts`: expose the same `stroked?: boolean` on the matching placement interface.
-- Test pass-through for generated true, file literal absent, and explicit false.
-  The editor should skip the text drawing pass only when `stroked === true`.
-  Views use existing direction/up/graphics fields; fit geometry plus member ink.
+- Update Specify's haecceity dependency to this exporter. In `src/pmi_scene.rs`,
+  `encode` already serializes the complete `presentation::Presentation`; keep
+  that direct serialization and the merge's whole-graphic cloning, so `stroked`
+  passes through without a new source heuristic or field allowlist. Add scene
+  regressions for generated true, file literal absent, and imported explicit false.
+- In the same file, filtering existing foreign datums removes graphics and planes.
+  Also remove their view memberships/drop empty views now that generated views
+  exist; keep merged view ids/memberships intact. No new text-placement Rust DTO
+  is needed by the current release adapter.
+- In `crates/specify-core-wasm/api.d.ts`, expose `stroked?: boolean` on the decoded
+  presentation's text-placement contract. Its current `pmiScene` transport returns
+  a JSON string; keep that signature and add a named placement interface if needed.
+  The property belongs on each placement, never on the whole graphic or source.
+- The editor skips the text drawing pass only when `stroked === true`, while
+  retaining text for editing/accessibility. Views use existing direction/up/graphics
+  fields; fit geometry plus member ink.
 
 ## Changed feature-on goldens
 
@@ -94,3 +103,24 @@ pass; only their STEP sha256 changes. No reference verdicts change. The snapshot
 provenance updates exactly these sixteen input hashes; all 2,700 snapshot payloads
 remain untouched. Feature-off goldens and recognition source/output are unchanged.
 Text flags and generated JSON views have no existing golden payload to refresh.
+
+## Validation
+
+Initial `uptime`: load 3.77 / 10.74 / 14.48. Observed load stayed below 19.
+Test binaries within each run execute serially; the snapshot replay uses two
+threads and two build jobs. No work touches `src/features`.
+
+- `cargo fmt --all -- --check`: passed.
+- `cargo clippy --workspace --all-targets --release -- -D warnings`: passed,
+  also with `--no-default-features` and with `--features json-import`.
+- Haecceity lib plus all `pmi_*`/`presentation_*` test binaries: passed in
+  default (244 tests), feature-off (195), and JSON-import (302) modes.
+- Root `pmi_cli`, `brep_write`, `cli`: passed in those same three modes, 41 tests each.
+- Packaged schema equality against the rebuilt Python extension: passed.
+- Eight fresh OCP captures and the legacy Specify Python loader: passed.
+- `cargo run -p snapshot-tool --release -- --check`: passed on code commit
+  `f59968fc`; HEAD reproduces all 2,700 snapshots byte for byte. The final
+  follow-up commit changes only this validation/Specify documentation.
+
+All corpus-dependent runs use the requested pinned `QUIDDITY_CORPUS` path with
+`QUIDDITY_CORPUS_REQUIRED=1`. No push or external posting is performed.
