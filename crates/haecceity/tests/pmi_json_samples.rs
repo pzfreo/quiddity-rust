@@ -160,7 +160,9 @@ fn write_sfa_samples_from_json() {
         }
 
         for (i, p) in models.iter().enumerate() {
-            assert!(pmi::write::differences(p, &reread.parts[i]).is_empty());
+            let expected = pmi::write::standard_form(p);
+            let differences = pmi::write::differences(&expected, &reread.parts[i]);
+            assert!(differences.is_empty(), "{name}: {differences:?}");
         }
         std::fs::write(out.join(format!("{name}.step")), written).unwrap();
         std::fs::write(
@@ -168,7 +170,7 @@ fn write_sfa_samples_from_json() {
             serde_json::to_vec_pretty(&wire[0]).unwrap(),
         )
         .unwrap();
-        let audit = serde_json::json!({"source":path,"selected_source_part":selected,"geometry":"clean AP242 B-rep copy with preserved face order","complete_source_roundtrip":false,"refused":refused,"parts":models.len(),"source_parts":read.parts.len(),"source_dimensions":read.parts[selected].dimensions.len(),"sample_dimensions":models[0].dimensions.len(),"source_tolerances":read.parts[selected].tolerances.len(),"sample_tolerances":models[0].tolerances.len(),"schema":report.validated_against,"differences":"empty against explicitly recorded supported subset"});
+        let audit = serde_json::json!({"source":path,"selected_source_part":selected,"geometry":"clean AP242 B-rep copy with preserved face order","complete_source_roundtrip":false,"legacy_note_migration":"existing writer standard_form","corpus_geometry_source":if name == "corpus" { Some("cadgenbench/flanged_spool_132.step") } else { None },"refused":refused,"parts":models.len(),"source_parts":read.parts.len(),"source_dimensions":read.parts[selected].dimensions.len(),"sample_dimensions":models[0].dimensions.len(),"source_tolerances":read.parts[selected].tolerances.len(),"sample_tolerances":models[0].tolerances.len(),"schema":report.validated_against,"differences":"empty against explicitly recorded supported subset"});
         std::fs::write(
             out.join(format!("{name}.audit.json")),
             serde_json::to_vec_pretty(&audit).unwrap(),
