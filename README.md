@@ -162,7 +162,7 @@ quiddity-rust began as a port of the Python quiddity library. It no longer depen
 and the archived comparison is in [docs/history](docs/history/python-parity.md).
 
 
-With `--features json-import` (`json` remains an alias), the command line also exposes haecceity's versioned PMI
+With `--features json-import`, the command line also exposes haecceity's versioned PMI
 interchange (see [the reference](docs/pmi-json.md)):
 
 ```sh

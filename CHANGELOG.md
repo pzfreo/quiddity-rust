@@ -8,9 +8,10 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Added
 
-- For #142, opt-in `json` exposes versioned AP242 semantic PMI and As Drawn/generated
-  presentation JSON, packaged JSON Schemas, stable requirement ids and face-name/support
-  anchors, plus `pmi json export`, `import`, `validate` and `presentation` CLI commands.
+- For #142, opt-in `json` exports versioned AP242 semantic PMI and As Drawn/generated
+  presentation JSON with stable requirement ids. `json-import` adds packaged JSON Schemas,
+  validation, import and face-name/support anchors, plus `pmi json export`, `import`,
+  `validate` and `presentation` CLI commands.
   V1 references use item ids; fallback ids derive from content. JSON writes preserve
   collection order, support projections, notes and attribute fields, keep foreign
   graphics for surviving requirements, and verify every item's id and content on read-back.
@@ -29,7 +30,7 @@ in [docs/alpha1.md](docs/alpha1.md).
   units of SI kilogram per CAx-IF UDA Annex C.1/C.4.2; only affected mass-unit goldens change.
   Compact producer ordering metadata omits native defaults and uses ordinal references.
   Haecceity `json` now serializes without schemas/import; `json-import` adds those APIs,
-  and the CLI uses `json-import` (`json` remains its compatibility alias).
+  and the CLI requires `json-import`. Both crate levels use the same feature split.
 
 - For #142, presentation JSON adds optional text placements, annotation planes,
   graphic ids and saved-view memberships while retaining schema `/1`. Datum-feature

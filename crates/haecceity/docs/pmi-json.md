@@ -56,8 +56,8 @@ exports use index anchors; supplied typed semantic values retain their ids.
 `haecceity/json-import` implies `json` and adds parsing, schema constants,
 validation, `from_value`/`from_str`, writing and checked transport restoration.
 This is the feature for lossless re-import of a JSON producer's custom aliases.
-The CLI's `json-import` feature enables the complete command set; its previous
-`json` feature is retained as a compatibility alias. `presentation` stays separate.
+The CLI requires `json-import` for the complete command set. At both crate levels,
+`json` enables export only, and `json-import` implies `json`. `presentation` stays separate.
 `examples/json_wasm_size.rs` provides a reproducible WASM size probe.
 
 A document is `{ "schema": "haecceity.pmi/1", "units": { "length": [...],
