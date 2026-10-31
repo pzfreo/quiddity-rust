@@ -6294,7 +6294,7 @@ fn read_back_deviations_use_notation_numbers() {
         w.read.parts[0]
             .dimensions
             .iter()
-            .zip(["⌀10 ±1.0", "⌀10 +0.5 -1.0", "⌀10 +1E-2 0"])
+            .zip(["⌀10 ±1.0", "⌀10 +0.5/-1.0", "⌀10 +1E-2/0"])
     {
         assert_eq!(haecceity::presentation::dimension(d).notation(), expected);
         assert!(
