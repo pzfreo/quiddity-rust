@@ -76,8 +76,27 @@ fn dimensions_choose_the_cax_if_type_and_real_prefix() {
         (SizeKind::SphericalDiameter, "S⌀", "diameter dimension"),
         (SizeKind::Radius, "R", "radial dimension"),
         (SizeKind::SphericalRadius, "SR", "radial dimension"),
+        (SizeKind::ToroidalMinorDiameter, "⌀", "diameter dimension"),
+        (SizeKind::ToroidalMajorDiameter, "⌀", "diameter dimension"),
+        (
+            SizeKind::ToroidalHighMajorDiameter,
+            "⌀",
+            "diameter dimension",
+        ),
+        (
+            SizeKind::ToroidalLowMajorDiameter,
+            "⌀",
+            "diameter dimension",
+        ),
+        (SizeKind::ToroidalMinorRadius, "R", "radial dimension"),
+        (SizeKind::ToroidalMajorRadius, "R", "radial dimension"),
+        (SizeKind::ToroidalHighMajorRadius, "R", "radial dimension"),
+        (SizeKind::ToroidalLowMajorRadius, "R", "radial dimension"),
+        (SizeKind::CurveLength, "", "linear dimension"),
         (SizeKind::Thickness, "", "linear dimension"),
+        (SizeKind::Other("custom".into()), "", "linear dimension"),
     ] {
+        assert_eq!(presentation::size_prefix(&kind), prefix);
         let mut d = dimension(DimTolerance::None);
         if let DimensionKind::Size { kind: k, .. } = &mut d.kind {
             *k = kind;
@@ -85,6 +104,11 @@ fn dimensions_choose_the_cax_if_type_and_real_prefix() {
         assert_eq!(presentation::dimension_type(&d), name);
         assert_eq!(presentation::dimension_text(&d), format!("{prefix}10.0"));
         assert!(!presentation::dimension(&d).polylines().is_empty());
+        d.tolerance = DimTolerance::Limits(Bounds::new(mm("10.1"), mm("9.9")).unwrap());
+        assert_eq!(
+            presentation::dimension_text(&d),
+            format!("{prefix}9.9 - {prefix}10.1")
+        );
     }
     let mut d = dimension(DimTolerance::None);
     d.kind = DimensionKind::Size {
@@ -379,7 +403,7 @@ fn surface_texture_uses_draftwrights_iso_1302_legs_bar_and_removal_marks() {
             },
         ],
     };
-    assert_eq!(notes::texture_parameters(&t), ["Ra 3.2", "Rz 4"]);
+    assert_eq!(notes::texture_parameters(&t), ["Ra 3.2", "Rz 0.004 mm"]);
     let basic = notes::surface_texture(&t);
     assert_eq!(basic.strokes.len(), 3);
     assert!(basic.arcs.is_empty());
@@ -401,7 +425,7 @@ fn surface_texture_uses_draftwrights_iso_1302_legs_bar_and_removal_marks() {
             .iter()
             .map(|r| r.text.as_str())
             .collect::<Vec<_>>(),
-        ["Ra 3.2", "Rz 4"]
+        ["Ra 3.2", "Rz 0.004 mm"]
     );
     t.material_removal = MaterialRemoval::Required;
     let required = notes::surface_texture(&t);
@@ -718,4 +742,97 @@ fn leading_and_trailing_blank_note_lines_keep_their_actual_stations() {
         text: "\n \t\nVisible\n".into(),
     }]);
     assert_eq!(block.cells[1], "\n \t\n1  Visible\n");
+}
+
+#[test]
+fn surface_texture_keeps_stated_decimals_and_units_without_float_noise() {
+    use presentation::notes;
+    // ISO 1302 preferred Ra series, plus the reported non-series value and precision.
+    let values = [
+        "50", "25", "12.5", "6.3", "3.2", "1.6", "0.8", "0.4", "0.2", "0.1", "0.05", "0.025",
+        "10.4", "10.400", "1.04E1",
+    ];
+    let mut texture = SurfaceTexture {
+        on: None,
+        material_removal: MaterialRemoval::AnyProcessAllowed,
+        parameters: values
+            .iter()
+            .map(|s| SurfaceTextureParameter {
+                characteristic: "Ra".into(),
+                value: Length {
+                    value: decimal(s),
+                    unit: LengthUnit::Micrometre,
+                },
+            })
+            .collect(),
+    };
+    let expected: Vec<_> = values.iter().map(|s| format!("Ra {s}")).collect();
+    assert_eq!(notes::texture_parameters(&texture), expected);
+    let mut pmi = PartPmi::default();
+    pmi.surface_textures.push(texture.clone());
+    assert_eq!(
+        notes::general_notes(&pmi)[0].text,
+        format!(
+            "SURFACE FINISH {} UNLESS OTHERWISE STATED",
+            expected.join(", ")
+        )
+    );
+    for (unit, suffix) in [
+        (LengthUnit::Millimetre, "mm"),
+        (LengthUnit::Centimetre, "cm"),
+        (LengthUnit::Metre, "m"),
+        (LengthUnit::Inch, "in"),
+        (LengthUnit::Foot, "ft"),
+        (
+            LengthUnit::Other {
+                name: "custom".into(),
+                metres: decimal("0.002"),
+            },
+            "custom",
+        ),
+    ] {
+        texture.parameters = vec![SurfaceTextureParameter {
+            characteristic: "Ra".into(),
+            value: Length {
+                value: decimal("0.010400"),
+                unit,
+            },
+        }];
+        let expected = format!("Ra 0.010400 {suffix}");
+        assert_eq!(notes::texture_parameters(&texture), std::slice::from_ref(&expected));
+        assert_eq!(notes::surface_texture(&texture).letters[0].text, expected);
+    }
+}
+
+#[test]
+fn independent_label_lines_have_unpadded_geometry_and_no_lane_offsets() {
+    use std::cell::RefCell;
+    let measured = RefCell::new(Vec::new());
+    let lines = ["ABC", "gyp", "", "⌀10 ±0.1"];
+    let labels = presentation::label_lines_with_width(&lines, &|s, h| {
+        measured.borrow_mut().push((s.to_owned(), h));
+        presentation::text_width(s, h)
+    });
+    assert_eq!(*measured.borrow(), lines.map(|s| (s.to_owned(), 3.)));
+    for (value, c) in lines.iter().zip(&labels) {
+        let ink = presentation::font().text(value, 3.);
+        assert_eq!(c.size, [ink.max[0] - ink.min[0], ink.max[1] - ink.min[1]]);
+        assert_eq!(c.cells, [*value]);
+        assert_eq!(c.runs[0].text, *value);
+        assert_eq!(c.letters[0].at, [c.size[0] / 2., c.size[1] / 2.]);
+        assert!(c.strokes.is_empty() && c.arcs.is_empty());
+        for point in c.polylines().iter().flatten() {
+            for (k, coordinate) in point.iter().enumerate() {
+                assert!(*coordinate >= -1e-12 && *coordinate <= c.size[k] + 1e-12);
+            }
+        }
+    }
+    assert_eq!(labels[2].size, [0., 0.]);
+    let custom = presentation::label_lines_with_width(&["A", "B"], &|_, h| 4. * h);
+    assert!(
+        custom
+            .iter()
+            .all(|c| c.size == [12., 3.] && c.letters[0].at == [6., 1.5])
+    );
+    assert!(presentation::label_lines_with_width(&[], &|_, _| panic!("empty input")).is_empty());
 }
