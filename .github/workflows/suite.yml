@@ -48,7 +48,7 @@ jobs:
     name: test (${{ inputs.os }}, ${{ matrix.shard }})
     runs-on: ${{ inputs.os }}
     env:
-      QUIDDITY_CORPUS: ${{ github.workspace }}/quiddity/tests/corpus
+      QUIDDITY_CORPUS: ${{ github.workspace }}/quiddity-corpus
       QUIDDITY_CORPUS_REQUIRED: "1"
       QUIDDITY_SNAPSHOT_VERIFY_DIR: ${{ github.workspace }}/snapshot-verified
       # Extracted into the workspace, so target/release/quiddity is where CARGO_BIN_EXE_quiddity
@@ -61,14 +61,14 @@ jobs:
       # The fixtures, at the path the binaries were built at (tests find them through
       # CARGO_MANIFEST_DIR, fixed at compile time).
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      # The corpus lives in the Python repository, pinned to the revision tests/fixtures/corpus.json
-      # was exported at (its quiddity_revision; tests/corpus_files.rs checks the files' digests).
+      # The corpus lives in pzfreo/quiddity-corpus (split from the Python repository's tests/corpus,
+      # identical to it at tests/fixtures/corpus.json's quiddity_revision); tests/corpus_files.rs
+      # checks the files' digests.
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          repository: pzfreo/quiddity
-          ref: 6d544e060cd0eeb4442d2196e5df757b5a15ea55
-          path: quiddity
-          sparse-checkout: tests/corpus
+          repository: pzfreo/quiddity-corpus
+          ref: 3ef06590a7a27ed65ca1f1a6e7f7ea4d5c328f1f
+          path: quiddity-corpus
       - uses: taiki-e/install-action@7623a79cdfecb99d681017af368ca353d9f49bb5 # v2.87.19
         with:
           tool: nextest@0.9.146
@@ -99,10 +99,9 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          repository: pzfreo/quiddity
-          ref: 6d544e060cd0eeb4442d2196e5df757b5a15ea55
-          path: quiddity
-          sparse-checkout: tests/corpus
+          repository: pzfreo/quiddity-corpus
+          ref: 3ef06590a7a27ed65ca1f1a6e7f7ea4d5c328f1f
+          path: quiddity-corpus
       - run: rustup toolchain install
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -111,8 +110,8 @@ jobs:
           path: snapshot-verified
           merge-multiple: true
       - run: |
-          echo /quiddity/ >> .git/info/exclude
+          echo /quiddity-corpus/ >> .git/info/exclude
           echo /snapshot-verified/ >> .git/info/exclude
       - run: cargo run -p snapshot-tool --release -- --check --coverage-only --verify-dir snapshot-verified
         env:
-          QUIDDITY_CORPUS: ${{ github.workspace }}/quiddity/tests/corpus
+          QUIDDITY_CORPUS: ${{ github.workspace }}/quiddity-corpus

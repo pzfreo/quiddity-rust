@@ -127,7 +127,7 @@ full sweeps over every fixture, every captured fixture, every corpus part and ev
 fixture's PMI (about 20 minutes of CPU) are ignored by default:
 
 ```text
-QUIDDITY_CORPUS=../quiddity/tests/corpus cargo test --release --test brep_write -- --ignored
+QUIDDITY_CORPUS=../quiddity-corpus cargo test --release --test brep_write -- --ignored
 ```
 
 2026-10-21, on step-io 0.3 (main at `edeb8cb`), the full sweeps:

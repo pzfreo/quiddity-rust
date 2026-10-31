@@ -6,6 +6,20 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Fixed
+
+- Haecceity presentation surface-finish values now use the stated Decimal and unit,
+  avoiding float noise such as `10.400000000000002` for `10.4` µm. Non-micrometre
+  units are explicit; precision is retained in face symbols and general notes.
+- Make the complete dimension prefix policy explicit and exhaustively tested:
+  spherical `SR`/`S⌀`, circular and toroidal `R`/`⌀`, with no invented torus prefix
+  (ISO 129-1:2018 §§7.2–7.4). Existing prefix output is unchanged.
+
+### Added
+
+- Public `presentation::size_prefix` for drawing clients, and
+  `presentation::label_lines_with_width` for independent, unpadded per-line geometry
+  with caller-supplied ink widths. Existing padded labels retain their geometry.
 - For #141, add `quiddity::dimensioning`: shared, view-independent requirements for
   prismatic holes, patterns and plane levels, with face-derived ids, datum origins,
   tolerance-aware consolidation and explicit conveyance/reference relationships.
