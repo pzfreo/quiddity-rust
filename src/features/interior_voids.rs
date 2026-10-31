@@ -49,6 +49,7 @@ pub struct InteriorVoidRefusal {
     pub reason: &'static str,
 }
 
+#[derive(Default)]
 pub(super) struct Analysis {
     pub accepted: Vec<Occurrence<InteriorVoid>>,
     pub refusals: Vec<InteriorVoidRefusal>,

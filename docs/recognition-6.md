@@ -614,3 +614,55 @@ the same moments are carried rigidly into its face fingerprint instead of being
 integrated again. Other projection directions retain signed surface quadrature.
 haecceity's kernel and PMI models do not consume `BossRecord.height`, and PMI face
 anchors continue to refer to the original defining faces. No PMI schema changes.
+
+## Incomplete recognition (For #161)
+
+The design follows xu9299's proposal in Python quiddity [#806](https://github.com/pzfreo/quiddity/issues/806) and [PR #807](https://github.com/pzfreo/quiddity/pull/807).
+
+Family isolation is always on in native builds with unwinding. If discovery or a
+family post-pass panics, independent families still return results. Only incomplete
+runs add these top-level fields to the `/6` document:
+
+```json
+{
+  "failures": [
+    {"family": "countersinks", "stage": "discover", "message": "example panic"},
+    {"family": "hole_patterns", "stage": "discover", "blocked_by": ["countersinks", "holes"]},
+    {"family": "holes", "stage": "discover", "blocked_by": ["countersinks"]}
+  ],
+  "complete": false
+}
+```
+
+This excerpt omits the ordinary document fields and other blocked families. `failures`
+is sorted by family, then stage; `blocked_by` is sorted. Each entry has `family`,
+`stage` and exactly one of `message` or `blocked_by`. Family names are the internal
+source names, before oriented-family merging (`section_passages` for passages).
+An empty failed or blocked family means *not evaluated*, never "none found".
+Panic payloads retain their string message (`&str` or `String`); other payloads use
+`"non-string panic payload"`. Successful runs omit both fields and retain identical bytes.
+
+The dependency map is countersinks → holes → hole patterns (whose members also carry
+countersinks); passages → oriented slots and V channels; plates and channels → through
+notches; thin walls and modelled-thread claims → freeform surfaces; step levels → risers;
+and accepted holes, gusset ribs, slots, pockets and oriented slots → their patterns.
+Section recesses depend on all eight recess source families. Residual cylindrical profiles
+and face grooves depend on all specific accepted face claims and refusals, with face grooves
+also depending on cylindrical profiles. OD-boss suppression consumes bosses and turned bodies.
+Shared geometry caches are retryable `OnceLock`s, not family dependencies.
+
+Stages are `discover`, `section_recess_projection`, `claim_drill_point`,
+`claim_rectangular_end_walls`, `claim_terminal_cap`, `append`, or `suppress_od_bosses`.
+A failed family contributes no candidates, defining faces, claims or refusals to
+reconciliation/publication. A failed mutating post-pass discards its result and rebuilds
+reconciliation with that family revoked before any later post-pass runs. Existing ordinary geometry refusals retain their
+contract; they are distinct from panics.
+
+STEP reading, context construction, reconciliation, document assembly and output validation
+remain fatal/outside the family boundary. The library installs one panic-hook dispatcher:
+a thread-local scope silences only caught family panics, while other threads and uncaught
+panics reach the previously installed hook. Installing a new application hook later replaces
+that policy. No hook is replaced in aborting builds. The recognition CLI retains its successful exit
+status for a usable partial document and emits its existing-style warning on stderr;
+`quiddity serve` and the Python wheel carry the same recognition fields automatically.
+WASM builds abort on panic, so this isolation has no effect in the browser.

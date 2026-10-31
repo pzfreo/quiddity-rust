@@ -6,6 +6,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Fixed
+
+- For #161, isolate panicking recognition families and block their dependents while
+  preserving independent results. Incomplete recognition/6 and evidence/1 documents
+  add optional `failures` and `complete: false`; successful output is unchanged.
 - Haecceity presentation v1 adds optional per-text `stroked` metadata, avoiding
   duplicate generated labels, and orthographic views for generated annotation planes.
   Generated general notes now form a bounds-relative column two capital heights

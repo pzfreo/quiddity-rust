@@ -39,9 +39,7 @@ use serde_json::Value;
 
 use crate::features::outer_profile::planar_outer_profile;
 use crate::features::reconcile::{Disposition, Family, Outcome, ReasonCode, ReconcileError};
-use crate::features::section_recess_family::{
-    SectionRecessFamilyError, SectionRecessProjection, section_recess_projection,
-};
+use crate::features::section_recess_family::{SectionRecessFamilyError, SectionRecessProjection};
 use crate::features::{
     self, Context, Features, Inventory, angled_steps, bosses, circular_face_patterns, holes,
     interior_voids, policy, polygonal_bosses, section_passages, thin_walls,
@@ -240,8 +238,10 @@ internal_entry! {
 pub fn build_recognition_evidence(
     part: &Part,
 ) -> Result<RecognitionEvidence<'_>, EvidenceViewError> {
-    features::take_inventory(part, |_, inventory| {
-        project(part, inventory, section_recess_projection(part)?)
+    features::take_inventory(part, |ctx, mut inventory| {
+        let projection = features::project_recesses(ctx, &mut inventory).transpose()?
+            .unwrap_or(SectionRecessProjection { section_recesses: Vec::new(), refusals: Vec::new(), patterns: Vec::new() });
+        project(part, inventory, projection)
     })?
 }
 }
@@ -306,20 +306,49 @@ fn faces(part: &Part, inventory: &Inventory) -> Result<Faces, EvidenceViewError>
             .collect()
     };
     wider.insert("holes", own("holes"));
-    wider.insert("bosses", pairs(bosses::discover(&ctx)));
-    wider.insert("angled_steps", pairs(angled_steps::discover(&ctx)));
+    macro_rules! wider {
+        ($family:literal, $value:expr) => {
+            if !inventory
+                .physical
+                .failures
+                .iter()
+                .any(|f| f.family == $family)
+            {
+                $value
+            } else {
+                Vec::new()
+            }
+        };
+    }
+    wider.insert("bosses", wider!("bosses", pairs(bosses::discover(&ctx))));
+    wider.insert(
+        "angled_steps",
+        wider!("angled_steps", pairs(angled_steps::discover(&ctx))),
+    );
     wider.insert(
         "polygonal_bosses",
-        pairs(polygonal_bosses::discover(&ctx, &Default::default())),
+        wider!(
+            "polygonal_bosses",
+            pairs(polygonal_bosses::discover(&ctx, &Default::default()))
+        ),
     );
-    wider.insert("interior_voids", pairs(interior_voids::discover(&ctx)));
-    wider.insert("thin_wall_bodies", pairs(thin_walls::discover(&ctx)));
+    wider.insert(
+        "interior_voids",
+        wider!("interior_voids", pairs(interior_voids::discover(&ctx))),
+    );
+    wider.insert(
+        "thin_wall_bodies",
+        wider!("thin_wall_bodies", pairs(thin_walls::discover(&ctx))),
+    );
     wider.insert("prismatic_pockets", own("prismatic_pockets"));
     wider.insert(
         "edge_open_circular_pockets",
         own("edge_open_circular_pockets"),
     );
-    let patterns = circular_face_patterns::discover_with_groups(&ctx);
+    let patterns = wider!(
+        "circular_face_patterns",
+        circular_face_patterns::discover_with_groups(&ctx)
+    );
     let groups: Vec<Vec<Vec<usize>>> = patterns
         .iter()
         .map(|(_, groups)| groups.iter().map(|g| sorted(g)).collect())
@@ -671,6 +700,10 @@ fn axial_hosts(
 /// input STEP part, including when the geometry was transformed to a local frame.
 #[derive(Clone, Debug, Serialize)]
 pub struct EvidenceDocument {
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub failures: Vec<features::FamilyFailure>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub complete: Option<bool>,
     pub schema_version: &'static str,
     pub coordinate_space: &'static str,
     pub frame: Option<crate::frames::PartFrame>,
@@ -737,6 +770,8 @@ pub fn document(part: &Part, framed: bool) -> Result<EvidenceDocument, EvidenceV
         })
         .collect();
     Ok(EvidenceDocument {
+        complete: (!view.result.failures.is_empty()).then_some(false),
+        failures: view.result.failures.clone(),
         schema_version: "quiddity-rust/evidence/1",
         coordinate_space: if framed { "part" } else { "file" },
         frame,

@@ -19,6 +19,8 @@ pub mod channels;
 pub mod circular_blind_steps;
 pub mod circular_face_patterns;
 mod edge_treatments;
+mod isolation;
+pub use isolation::FamilyFailure;
 pub mod through_notches;
 pub mod v_channels;
 internal_entry! { pub mod context; }
@@ -119,6 +121,9 @@ use crate::kernel::brep::Part;
 /// only; `inventory` keeps every candidate and the decisions.
 #[derive(Clone, Debug, Default, Serialize)]
 pub struct Features {
+    /// Panicking or blocked families; absent from legacy family-array serialization.
+    #[serde(skip)]
+    pub failures: Vec<FamilyFailure>,
     /// The completed run, independent of the thread-local retry flag after recognition.
     #[serde(skip)]
     pub run_mode: evidence::RunMode,
@@ -269,8 +274,8 @@ pub(crate) fn recognise_with<T>(part: &Part, then: impl FnOnce(&Context<'_>, Fea
 }
 
 /// `recognise` over one completed run.
-pub(crate) fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
-    let projection = section_recess_family::section_recess_projection_in(ctx, &inventory);
+pub(crate) fn recognise_in(ctx: &Context<'_>, mut inventory: Inventory) -> Features {
+    let projection = project_recesses(ctx, &mut inventory);
     let constituents = |family: &str| -> BTreeMap<Vec<usize>, Vec<usize>> {
         inventory.physical.defining[family]
             .iter()
@@ -282,8 +287,9 @@ pub(crate) fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features 
     let boss_constituents = constituents("polygonal_bosses");
     let mut features = inventory.accepted();
     let (section_recesses, refusals, patterns, refusal) = match projection {
-        Ok(p) => (p.section_recesses, p.refusals, p.patterns, None),
-        Err(e) => (Vec::new(), Vec::new(), Vec::new(), Some(e)),
+        Some(Ok(p)) => (p.section_recesses, p.refusals, p.patterns, None),
+        Some(Err(e)) => (Vec::new(), Vec::new(), Vec::new(), Some(e)),
+        None => (Vec::new(), Vec::new(), Vec::new(), None),
     };
     let defining = section_recesses
         .iter()
@@ -307,37 +313,94 @@ pub(crate) fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features 
     features.section_recess_refusals = refusals;
     features.section_recess_patterns = patterns;
     features.section_recess_refusal = refusal;
-    // Complete published face claims only after every recognition, reconciliation
-    // and projection decision. Constituent geometry must not alter family selection.
-    for (record, faces) in features
-        .holes
-        .iter()
-        .zip(features.defining.get_mut("holes").unwrap())
-    {
-        if let Some(constituent) = hole_constituents.get(faces) {
-            holes::claim_drill_point(ctx.part, record, faces, constituent);
+    let mut failures = std::mem::take(&mut features.failures);
+    let before = failures.len();
+    macro_rules! post {
+        ($family:literal, $stage:literal, $work:expr $(,)?) => {
+            // Never let a later pass inspect state mutated by a panicking pass.
+            if failures.len() == before {
+                isolation::guarded(&mut failures, $family, $stage, $work);
+            }
+        };
+    }
+    post!("holes", "claim_drill_point", || {
+        // Complete published face claims only after every recognition, reconciliation
+        // and projection decision. Constituent geometry must not alter family selection.
+        for (record, faces) in features
+            .holes
+            .iter()
+            .zip(features.defining.get_mut("holes").unwrap())
+        {
+            if let Some(constituent) = hole_constituents.get(faces) {
+                holes::claim_drill_point(ctx.part, record, faces, constituent);
+            }
         }
-    }
-    for (record, faces) in features
-        .slots
-        .iter()
-        .zip(features.defining.get_mut("slots").unwrap())
-    {
-        slots::claim_rectangular_end_walls(ctx.part, record, faces);
-    }
-    for (record, faces) in features
-        .polygonal_bosses
-        .iter()
-        .zip(features.defining.get_mut("polygonal_bosses").unwrap())
-    {
-        if let Some(constituent) = boss_constituents.get(faces) {
-            polygonal_bosses::claim_terminal_cap(ctx.part, record, faces, constituent);
+    });
+    post!("slots", "claim_rectangular_end_walls", || {
+        for (record, faces) in features
+            .slots
+            .iter()
+            .zip(features.defining.get_mut("slots").unwrap())
+        {
+            slots::claim_rectangular_end_walls(ctx.part, record, faces);
         }
+    });
+    post!("polygonal_bosses", "claim_terminal_cap", || {
+        for (record, faces) in features
+            .polygonal_bosses
+            .iter()
+            .zip(features.defining.get_mut("polygonal_bosses").unwrap())
+        {
+            if let Some(constituent) = boss_constituents.get(faces) {
+                polygonal_bosses::claim_terminal_cap(ctx.part, record, faces, constituent);
+            }
+        }
+    });
+    post!("cylindrical_profiles", "append", || {
+        cylindrical_profiles::append(ctx, &mut features)
+    });
+    post!("turned_bodies", "suppress_od_bosses", || {
+        turned_bodies::suppress_od_bosses(ctx.part, &mut features)
+    });
+    post!("face_grooves", "append", || {
+        face_grooves::append(ctx, &mut features)
+    });
+    if failures.len() != before {
+        // A post-pass may already have mutated records or claims. Discard everything,
+        // then rediscover and reconcile with the failed/blocked families revoked.
+        let inventory = inventory_in_with(ctx, failures)
+            .expect("reconciliation remains outside the panic boundary")
+            .expect("a completed run retains its degradation mode");
+        return recognise_in(ctx, inventory);
     }
-    cylindrical_profiles::append(ctx, &mut features);
-    turned_bodies::suppress_od_bosses(ctx.part, &mut features);
-    face_grooves::append(ctx, &mut features);
+    failures.sort_by(|a, b| (&a.family, &a.stage).cmp(&(&b.family, &b.stage)));
+    features.failures = failures;
     features
+}
+
+/// Both consumers of the recess projection share the same boundary and failure ledger.
+pub(crate) fn project_recesses(
+    ctx: &Context<'_>,
+    inventory: &mut Inventory,
+) -> Option<
+    Result<
+        section_recess_family::SectionRecessProjection,
+        section_recess_family::SectionRecessFamilyError,
+    >,
+> {
+    let mut failures = std::mem::take(&mut inventory.physical.failures);
+    let projection = isolation::guarded(
+        &mut failures,
+        "section_recesses",
+        "section_recess_projection",
+        || {
+            Some(section_recess_family::section_recess_projection_in(
+                ctx, inventory,
+            ))
+        },
+    );
+    inventory.physical.failures = failures;
+    projection
 }
 
 /// One run's physical candidates and the aggregate's decisions on them (Python's
@@ -437,12 +500,13 @@ impl Inventory {
                     drop_rejected(statuses, &gone);
                 }
             }
-            f.hole_patterns = hole_patterns::recognise_hole_patterns(&f.holes);
-            f.gusset_rib_patterns = gussets::recognise_gusset_rib_patterns(&f.gusset_ribs);
-            f.slot_patterns = recess_patterns::recognise_slot_patterns(&f.slots);
-            f.pocket_patterns = recess_patterns::recognise_pocket_patterns(&f.pockets);
+            f.hole_patterns = isolation::guarded(&mut f.failures, "hole_patterns", "discover", || hole_patterns::recognise_hole_patterns(&f.holes));
+            f.gusset_rib_patterns = isolation::guarded(&mut f.failures, "gusset_rib_patterns", "discover", || gussets::recognise_gusset_rib_patterns(&f.gusset_ribs));
+            f.slot_patterns = isolation::guarded(&mut f.failures, "slot_patterns", "discover", || recess_patterns::recognise_slot_patterns(&f.slots));
+            f.pocket_patterns = isolation::guarded(&mut f.failures, "pocket_patterns", "discover", || recess_patterns::recognise_pocket_patterns(&f.pockets));
             f.oriented_slot_patterns =
-                oriented_slots::recognise_oriented_slot_patterns(&f.oriented_slots);
+                isolation::guarded(&mut f.failures, "oriented_slot_patterns", "discover", || oriented_slots::recognise_oriented_slot_patterns(&f.oriented_slots));
+            f.failures.sort_by(|a, b| (&a.family, &a.stage).cmp(&(&b.family, &b.stage)));
             f
         }
     }
@@ -521,13 +585,30 @@ fn skip_unproved<R>(part: &Part, found: Vec<Occurrence<R>>) -> Vec<Occurrence<R>
 pub(crate) fn inventory_in(
     ctx: &Context<'_>,
 ) -> Result<Option<Inventory>, reconcile::ReconcileError> {
+    inventory_in_with(ctx, Vec::new())
+}
+
+fn inventory_in_with(
+    ctx: &Context<'_>,
+    mut failures: Vec<FamilyFailure>,
+) -> Result<Option<Inventory>, reconcile::ReconcileError> {
+    isolation::install_hook();
+    macro_rules! discover {
+        ($family:literal, $value:expr) => {
+            isolation::guarded(&mut failures, $family, "discover", || $value)
+        };
+    }
     let part = ctx.part;
-    let seats = countersinks::discover(ctx);
-    let found_holes = holes::discover(ctx, &seats);
-    if !evidence::local_degradation() && holes::strict_refusal_retries(part, &seats, &found_holes) {
+    let seats = discover!("countersinks", countersinks::discover(ctx));
+    let (found_holes, retry) = discover!("holes", {
+        let found = holes::discover(ctx, &seats);
+        let retry =
+            !evidence::local_degradation() && holes::strict_refusal_retries(part, &seats, &found);
+        (skip_unproved(part, found), retry)
+    });
+    if retry {
         return Ok(None);
     }
-    let found_holes = skip_unproved(part, found_holes);
     let mut defining = Kept {
         part,
         claimed: Defining::new(),
@@ -537,57 +618,85 @@ pub(crate) fn inventory_in(
     };
     let holes = kept(&mut defining, "holes", found_holes);
     let countersinks = kept(&mut defining, "countersinks", seats);
-    let gusset_ribs = kept(&mut defining, "gusset_ribs", gussets::discover(ctx));
+    let gusset_ribs = kept(
+        &mut defining,
+        "gusset_ribs",
+        discover!("gusset_ribs", gussets::discover(ctx)),
+    );
     let slots = kept(
         &mut defining,
         "slots",
-        skip_unproved(part, slots::discover(ctx)),
+        discover!("slots", skip_unproved(part, slots::discover(ctx))),
     );
-    let pocket_occurrences = skip_unproved(part, pockets::discover(ctx));
-    let thin_wall_bodies =
-        kept_shared(&mut defining, "thin_wall_bodies", thin_walls::discover(ctx));
+    let pocket_occurrences = discover!("pockets", skip_unproved(part, pockets::discover(ctx)));
+    let thin_wall_bodies = kept_shared(
+        &mut defining,
+        "thin_wall_bodies",
+        discover!("thin_wall_bodies", thin_walls::discover(ctx)),
+    );
     let mut discovery_refusals = BTreeMap::new();
-    let passages = match passages::discover(ctx) {
-        Ok(found) => found,
-        Err(error) => {
-            let faces = passages::proposal_faces(ctx);
-            discovery_refusals.insert(
-                "section_passage_refusals",
-                vec![discovery::DiscoveryRefusal::new(error, faces)],
-            );
-            Vec::new()
-        }
-    };
-    // Reconciliation must read the same completed passages; a refused family has no
-    // compatibility views and cannot suppress a pocket or slot.
-    let compatibility = if discovery_refusals.contains_key("section_passage_refusals") {
-        Vec::new()
-    } else {
-        passages::compatibility_views(ctx)?
-    };
+    let (passages, compatibility) =
+        isolation::guarded(&mut failures, "section_passages", "discover", || {
+            Some((|| {
+                let passages = match passages::discover(ctx) {
+                    Ok(found) => found,
+                    Err(error) => {
+                        let faces = passages::proposal_faces(ctx);
+                        discovery_refusals.insert(
+                            "section_passage_refusals",
+                            vec![discovery::DiscoveryRefusal::new(error, faces)],
+                        );
+                        Vec::new()
+                    }
+                };
+                // Reconciliation must read the same completed passages; a refused family has no
+                // compatibility views and cannot suppress a pocket or slot.
+                let compatibility = if discovery_refusals.contains_key("section_passage_refusals") {
+                    Vec::new()
+                } else {
+                    passages::compatibility_views(ctx)?
+                };
+                Ok::<_, reconcile::ReconcileError>((passages, compatibility))
+            })())
+        })
+        .unwrap_or(Ok(Default::default()))?;
     let evidence = reconcile::Evidence::with_passage_views(ctx, &pocket_occurrences, compatibility);
     let pockets = kept(&mut defining, "pockets", pocket_occurrences);
     let oriented_slots = kept(
         &mut defining,
         "oriented_slots",
-        match oriented_slots::discover(ctx, &passages) {
-            Ok(found) => found,
-            Err(error) => {
-                discovery_refusals.insert(
-                    "oriented_slot_refusals",
-                    vec![discovery::DiscoveryRefusal::new(
-                        error,
-                        passages
-                            .iter()
-                            .flat_map(|p| p.defining.iter().chain(&p.context))
-                            .copied(),
-                    )],
-                );
-                Vec::new()
+        discover!(
+            "oriented_slots",
+            match oriented_slots::discover(ctx, &passages) {
+                Ok(found) => found,
+                Err(error) => {
+                    discovery_refusals.insert(
+                        "oriented_slot_refusals",
+                        vec![discovery::DiscoveryRefusal::new(
+                            error,
+                            passages
+                                .iter()
+                                .flat_map(|p| p.defining.iter().chain(&p.context))
+                                .copied(),
+                        )],
+                    );
+                    Vec::new()
+                }
             }
-        },
+        ),
     );
-    let thread_analysis = ctx.modelled_threads();
+    // A panic after an ordinary refusal must also revoke that family's refusal faces.
+    for (family, refusals) in [
+        ("section_passages", "section_passage_refusals"),
+        ("oriented_slots", "oriented_slot_refusals"),
+    ] {
+        if failures.iter().any(|failure| failure.family == family) {
+            discovery_refusals.remove(refusals);
+        }
+    }
+    let empty_threads = modelled_threads::ThreadAnalysis::default();
+    let thread_analysis =
+        discover!("modelled_threads", Some(ctx.modelled_threads())).unwrap_or(&empty_threads);
     let claimed: BTreeSet<_> = thread_analysis
         .threads
         .iter()
@@ -605,31 +714,46 @@ pub(crate) fn inventory_in(
     let freeform_surfaces = kept_shared(
         &mut defining,
         "freeform_surfaces",
-        freeform_surfaces::discover(ctx, &thin_wall_bodies)
-            .into_iter()
-            .filter(|o| !claimed.contains(&o.record.face))
-            .collect(),
+        discover!(
+            "freeform_surfaces",
+            freeform_surfaces::discover(ctx, &thin_wall_bodies)
+                .into_iter()
+                .filter(|o| !claimed.contains(&o.record.face))
+                .collect()
+        ),
     );
     // A degraded run's risers carry the step levels it kept, as Python's carry that run's
     // completed levels (`levels::proved` skips only in a degraded run).
-    let step_level_occurrences = degraded_skip(levels::discover_step_levels(ctx), |o| {
-        evidence::locally_valid_solid(part, &o.defining).is_some()
-    });
-    let found_risers = degraded_skip(levels::discover_risers(ctx, &step_level_occurrences), |o| {
-        evidence::locally_valid_solid(part, &o.defining).is_some()
-    });
+    let step_level_occurrences = discover!(
+        "step_levels",
+        degraded_skip(levels::discover_step_levels(ctx), |o| {
+            evidence::locally_valid_solid(part, &o.defining).is_some()
+        })
+    );
+    let found_risers = discover!(
+        "risers",
+        degraded_skip(levels::discover_risers(ctx, &step_level_occurrences), |o| {
+            evidence::locally_valid_solid(part, &o.defining).is_some()
+        })
+    );
     let risers = kept(&mut defining, "risers", found_risers);
     let step_levels = kept(&mut defining, "step_levels", step_level_occurrences);
-    let void_analysis = interior_voids::analyse(ctx);
-    let plate_occurrences = plates::discover(ctx, &Default::default());
-    let channel_occurrences = skip_unproved(part, channels::discover(ctx));
-    let notches = through_notches::discover(ctx, &plate_occurrences, &channel_occurrences);
-    let boss_analysis = polygonal_bosses::analyse(ctx, &Default::default());
+    let void_analysis = discover!("interior_voids", interior_voids::analyse(ctx));
+    let plate_occurrences = discover!("plates", plates::discover(ctx, &Default::default()));
+    let channel_occurrences = discover!("channels", skip_unproved(part, channels::discover(ctx)));
+    let notches = discover!(
+        "rectangular_through_notches",
+        through_notches::discover(ctx, &plate_occurrences, &channel_occurrences)
+    );
+    let boss_analysis = discover!(
+        "polygonal_bosses",
+        polygonal_bosses::analyse(ctx, &Default::default())
+    );
     if !boss_analysis.refusals.is_empty() {
         discovery_refusals.insert("polygonal_boss_refusals", boss_analysis.refusals);
     }
-    let pad_analysis = pads::analyse(ctx, &Default::default());
-    let prismatic_analysis = prismatic_pockets::analyse(ctx);
+    let pad_analysis = discover!("pads", pads::analyse(ctx, &Default::default()));
+    let prismatic_analysis = discover!("prismatic_pockets", prismatic_pockets::analyse(ctx));
     if !pad_analysis.refusals.is_empty() {
         discovery_refusals.insert("pad_refusals", pad_analysis.refusals);
     }
@@ -644,34 +768,59 @@ pub(crate) fn inventory_in(
             evidence::RunMode::Strict
         },
         cylindrical_profiles: Vec::new(),
-        chamfers: kept(&mut defining, "chamfers", ctx.reported_chamfers().to_vec()),
-        bosses: kept(&mut defining, "bosses", bosses::discover(ctx)),
-        angled_steps: kept(&mut defining, "angled_steps", angled_steps::discover(ctx)),
-        flats: kept(&mut defining, "flats", flats::discover(ctx)),
+        chamfers: kept(
+            &mut defining,
+            "chamfers",
+            discover!("chamfers", ctx.reported_chamfers().to_vec()),
+        ),
+        bosses: kept(
+            &mut defining,
+            "bosses",
+            discover!("bosses", bosses::discover(ctx)),
+        ),
+        angled_steps: kept(
+            &mut defining,
+            "angled_steps",
+            discover!("angled_steps", angled_steps::discover(ctx)),
+        ),
+        flats: kept(
+            &mut defining,
+            "flats",
+            discover!("flats", flats::discover(ctx)),
+        ),
         paired_ramp_steps: kept(
             &mut defining,
             "paired_ramp_steps",
-            paired_ramp_steps::discover(ctx),
+            discover!("paired_ramp_steps", paired_ramp_steps::discover(ctx)),
         ),
         oriented_chamfers: kept(
             &mut defining,
             "oriented_chamfers",
-            ctx.reported_oriented_chamfers().to_vec(),
+            discover!(
+                "oriented_chamfers",
+                ctx.reported_oriented_chamfers().to_vec()
+            ),
         ),
         circular_face_patterns: kept(
             &mut defining,
             "circular_face_patterns",
-            circular_face_patterns::discover(ctx),
+            discover!(
+                "circular_face_patterns",
+                circular_face_patterns::discover(ctx)
+            ),
         ),
         oblique_through_steps: kept(
             &mut defining,
             "oblique_through_steps",
-            oblique_through_steps::discover(ctx),
+            discover!(
+                "oblique_through_steps",
+                oblique_through_steps::discover(ctx)
+            ),
         ),
         circular_blind_steps: kept(
             &mut defining,
             "circular_blind_steps",
-            circular_blind_steps::discover(ctx),
+            discover!("circular_blind_steps", circular_blind_steps::discover(ctx)),
         ),
         hole_patterns: Vec::new(),
         holes,
@@ -681,15 +830,26 @@ pub(crate) fn inventory_in(
         thin_wall_bodies,
         interior_voids: kept(&mut defining, "interior_voids", void_analysis.accepted),
         interior_void_refusals: void_analysis.refusals,
-        through_steps: kept(&mut defining, "through_steps", through_steps::discover(ctx)),
+        through_steps: kept(
+            &mut defining,
+            "through_steps",
+            discover!("through_steps", through_steps::discover(ctx)),
+        ),
         turned_steps: kept(
             &mut defining,
             "turned_steps",
-            turned_steps::sorted_occurrences(turned_steps::discover(ctx)),
+            discover!(
+                "turned_steps",
+                turned_steps::sorted_occurrences(turned_steps::discover(ctx))
+            ),
         ),
-        grooves: kept(&mut defining, "grooves", grooves::discover(ctx)),
+        grooves: kept(
+            &mut defining,
+            "grooves",
+            discover!("grooves", grooves::discover(ctx)),
+        ),
         annular_grooves: {
-            let found = annular_grooves::discover(ctx);
+            let found = discover!("annular_grooves", annular_grooves::discover(ctx));
             if found.is_empty() {
                 Vec::new()
             } else {
@@ -699,7 +859,7 @@ pub(crate) fn inventory_in(
         face_grooves: Vec::new(),
         plates: kept_shared(&mut defining, "plates", plate_occurrences),
         turned_bodies: {
-            let found = turned_bodies::discover(ctx);
+            let found = discover!("turned_bodies", turned_bodies::discover(ctx));
             if found.is_empty() {
                 Vec::new()
             } else {
@@ -709,10 +869,16 @@ pub(crate) fn inventory_in(
         round_bottom_blind_slots: kept(
             &mut defining,
             "round_bottom_blind_slots",
-            round_bottom_slots::discover(ctx),
+            discover!(
+                "round_bottom_blind_slots",
+                round_bottom_slots::discover(ctx)
+            ),
         ),
         semicircular_blind_slots: {
-            let found = semicircular_blind_slots::discover(ctx);
+            let found = discover!(
+                "semicircular_blind_slots",
+                semicircular_blind_slots::discover(ctx)
+            );
             if found.is_empty() {
                 Vec::new()
             } else {
@@ -722,35 +888,48 @@ pub(crate) fn inventory_in(
         rectangular_blind_slots: kept(
             &mut defining,
             "rectangular_blind_slots",
-            rectangular_blind_slots::discover(ctx),
+            discover!(
+                "rectangular_blind_slots",
+                rectangular_blind_slots::discover(ctx)
+            ),
         ),
         double_d_bores: kept(
             &mut defining,
             "double_d_bores",
-            profiled_bores::discover(ctx),
+            discover!("double_d_bores", profiled_bores::discover(ctx)),
         ),
         edge_open_circular_pockets: kept(
             &mut defining,
             "edge_open_circular_pockets",
-            skip_unproved(part, edge_open_circular::discover(ctx)),
+            discover!(
+                "edge_open_circular_pockets",
+                skip_unproved(part, edge_open_circular::discover(ctx))
+            ),
         ),
         edge_open_prismatic_recesses: kept(
             &mut defining,
             "edge_open_prismatic_recesses",
-            skip_unproved(part, edge_open_prismatic::discover(ctx)),
+            discover!(
+                "edge_open_prismatic_recesses",
+                skip_unproved(part, edge_open_prismatic::discover(ctx))
+            ),
         ),
-        blends: kept_shared(&mut defining, "blends", blends::discover(ctx)),
+        blends: kept_shared(
+            &mut defining,
+            "blends",
+            discover!("blends", blends::discover(ctx)),
+        ),
         sheet_metal_bodies: kept_shared(
             &mut defining,
             "sheet_metal_bodies",
-            sheet_metal::discover(ctx),
+            discover!("sheet_metal_bodies", sheet_metal::discover(ctx)),
         ),
         slot_patterns: Vec::new(),
         slots,
         pocket_patterns: Vec::new(),
         pockets,
         v_channels: {
-            let found = v_channels::discover(ctx, &passages);
+            let found = discover!("v_channels", v_channels::discover(ctx, &passages));
             if found.is_empty() {
                 Vec::new()
             } else {
@@ -766,7 +945,10 @@ pub(crate) fn inventory_in(
         repeating_radial_profiles: kept(
             &mut defining,
             "repeating_radial_profiles",
-            repeating_profiles::discover(ctx),
+            discover!(
+                "repeating_radial_profiles",
+                repeating_profiles::discover(ctx)
+            ),
         ),
         freeform_surfaces,
         modelled_threads,
@@ -775,7 +957,10 @@ pub(crate) fn inventory_in(
         polygonal_stock: kept_shared(
             &mut defining,
             "polygonal_stock",
-            polygonal_bosses::discover_stock(ctx, &Default::default()),
+            discover!(
+                "polygonal_stock",
+                polygonal_bosses::discover_stock(ctx, &Default::default())
+            ),
         ),
         section_passages: kept(&mut defining, "section_passages", passages),
         prismatic_pockets: kept(
@@ -795,8 +980,12 @@ pub(crate) fn inventory_in(
         fillets: kept_shared(
             &mut defining,
             "fillets",
-            skip_unproved(part, ctx.reported_fillets().to_vec()),
+            discover!(
+                "fillets",
+                skip_unproved(part, ctx.reported_fillets().to_vec())
+            ),
         ),
+        failures,
         defining: defining.defining,
         evidence_status: defining.evidence_status,
     };
@@ -860,7 +1049,7 @@ pub(crate) fn inventory_in(
         .fillets
         .iter()
         .any(|f| f.side == "concave")
-        && let Ok(projection) = section_recess_family::section_recess_projection_in(ctx, &inventory)
+        && let Some(Ok(projection)) = project_recesses(ctx, &mut inventory)
     {
         let reserved: BTreeSet<_> = projection
             .section_recesses
