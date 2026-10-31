@@ -146,13 +146,14 @@ pub fn notes_block(rows: &[Row]) -> Callout {
             if matches!(r.source, Source::Attribute(_)) {
                 number += 1;
                 // Draftwright notes.rs::rows: first line numbered, continuations indented.
+                let first_ink = r.text.split('\n').position(|line| !line.trim().is_empty());
                 r.text
                     .split('\n')
                     .enumerate()
                     .map(|(i, line)| {
                         if line.trim().is_empty() {
                             line.to_string()
-                        } else if i == 0 {
+                        } else if Some(i) == first_ink {
                             format!("{number}  {line}")
                         } else {
                             format!("   {line}")
@@ -185,9 +186,20 @@ pub fn notes_block(rows: &[Row]) -> Callout {
     ];
     let mut top = c.size[1] - 1.8;
     for (line, row_height) in lines.iter().zip(heights) {
+        // Font::text centres on ink, so restore the authored position of leading
+        // and trailing blank baselines inside the space reserved for this row.
+        let leading = line.split('\n').take_while(|s| s.trim().is_empty()).count();
+        let trailing = line
+            .rsplit('\n')
+            .take_while(|s| s.trim().is_empty())
+            .count();
+        let blank_shift = (trailing as f64 - leading as f64) * 0.8 * height;
         let text = Text {
             text: line.clone(),
-            at: [1.8 + width(line, height) / 2., top - row_height / 2.],
+            at: [
+                1.8 + width(line, height) / 2.,
+                top - row_height / 2. + blank_shift,
+            ],
             size: height,
         };
         c.letters.push(text.clone());

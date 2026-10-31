@@ -697,3 +697,25 @@ fn public_fit_discovery_lists_are_ordered_and_match_the_table() {
         }
     }
 }
+
+#[test]
+fn leading_and_trailing_blank_note_lines_keep_their_actual_stations() {
+    use presentation::notes::{self, Row, Source};
+    let rows: Vec<_> = ["A", "\nB", "C\n", "D"]
+        .into_iter()
+        .map(|text| Row {
+            source: Source::Material,
+            text: text.into(),
+        })
+        .collect();
+    let block = notes::notes_block(&rows);
+    let centres: Vec<_> = block.letters.iter().skip(1).map(|t| t.at[1]).collect();
+    for (pair, expected) in centres.windows(2).zip([9.6, 4.8, 9.6]) {
+        assert!((pair[0] - pair[1] - expected).abs() < 1e-12);
+    }
+    let block = notes::notes_block(&[Row {
+        source: Source::Attribute(0),
+        text: "\n \t\nVisible\n".into(),
+    }]);
+    assert_eq!(block.cells[1], "\n \t\n1  Visible\n");
+}
