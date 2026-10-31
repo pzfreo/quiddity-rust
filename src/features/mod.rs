@@ -269,7 +269,7 @@ pub(crate) fn recognise_with<T>(part: &Part, then: impl FnOnce(&Context<'_>, Fea
 }
 
 /// `recognise` over one completed run.
-fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
+pub(crate) fn recognise_in(ctx: &Context<'_>, inventory: Inventory) -> Features {
     let projection = section_recess_family::section_recess_projection_in(ctx, &inventory);
     let constituents = |family: &str| -> BTreeMap<Vec<usize>, Vec<usize>> {
         inventory.physical.defining[family]

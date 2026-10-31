@@ -1,7 +1,6 @@
 use super::*;
 use crate::features::{hole_patterns::HolePattern, holes::Bottom};
 use crate::kernel::geom::Surface;
-use std::collections::BTreeSet;
 
 pub(super) fn face_id(role: &str, faces: &[usize]) -> String {
     let mut faces = faces.to_vec();
@@ -26,12 +25,29 @@ impl Input {
         datums: Vec<Datum>,
         policy: Policy,
     ) -> Result<Self, String> {
-        let frame = crate::frames::infer_part_frame(part)
+        let inferred = crate::frames::infer_part_frame(part)
             .map_err(|r| format!("dimensioning frame: {}", r.as_str()))?;
+        let frame = super::levels::planning_frame(inferred);
         let local = part
             .transformed(&frame.normalisation())
             .map_err(|e| format!("dimensioning frame transform: {e:?}"))?;
-        let found = crate::features::recognise(&local);
+        // Keep the accepted run's constituent faces: pocket floors are consulted evidence,
+        // not defining walls, so the public record projection alone cannot assign ownership.
+        let (found, constituents) = crate::features::take_inventory(&local, |ctx, inventory| {
+            let constituents: std::collections::BTreeMap<_, _> = inventory
+                .physical
+                .defining
+                .iter()
+                .flat_map(|(family, records)| {
+                    records
+                        .iter()
+                        .zip(&inventory.constituent[family])
+                        .map(|(faces, all)| (face_id(family, faces), all.clone()))
+                })
+                .collect();
+            (crate::features::recognise_in(ctx, inventory), constituents)
+        })
+        .map_err(|e| format!("dimensioning recognition: {e}"))?;
         let bounds = local.bounds();
         let bounds = [bounds.min, bounds.max];
         let holes: Vec<_> = found
@@ -129,57 +145,6 @@ impl Input {
                 })
             })
             .collect();
-        // A hole/recess/boss owns its local floor or cap, not the generic step ladder.
-        // Envelope planes always survive. Through-step and plate supports remain ladder input.
-        let excluded: BTreeSet<_> = found
-            .defining
-            .iter()
-            .filter(|(family, _)| {
-                matches!(
-                    **family,
-                    "holes"
-                        | "bosses"
-                        | "slots"
-                        | "oriented_slots"
-                        | "section_recesses"
-                        | "prismatic_pockets"
-                        | "pads"
-                        | "cylindrical_pockets"
-                        | "turned_steps"
-                        | "turned_bodies"
-                )
-            })
-            .flat_map(|(_, records)| records.iter().flatten().copied())
-            .collect();
-        // Use recognition's support-plane proposal and area/end bands on each axis,
-        // rather than treating every small planar facet as a manufacturing step.
-        let mut level_faces = BTreeSet::new();
-        for axis in 0..3 {
-            let axes = [(axis + 1) % 3, (axis + 2) % 3, axis];
-            let rotation = axes.map(|k| {
-                let mut row = [0.; 4];
-                row[k] = 1.;
-                row
-            });
-            let rotated = local
-                .transformed(&rotation)
-                .map_err(|e| format!("dimensioning level frame: {e:?}"))?;
-            let opts = crate::FaceLevelOptions {
-                tol: Some(0.01),
-                min_area_frac: 0.01,
-            };
-            for (level, faces) in crate::features::levels::face_levels_with_faces(&rotated, &opts) {
-                let bounds = faces
-                    .first()
-                    .and_then(|&f| rotated.faces[f].solid)
-                    .map_or_else(|| rotated.bounds(), |body| rotated.solid_bounds(body));
-                let margin =
-                    crate::features::levels::bounded_end_margin(bounds.max[2] - bounds.min[2]);
-                if level.z > bounds.min[2] + margin && level.z < bounds.max[2] - margin {
-                    level_faces.extend(faces);
-                }
-            }
-        }
         let mut planes: Vec<Plane> = Vec::new();
         for (i, face) in local.faces.iter().enumerate() {
             let Surface::Plane { frame: plane } = &face.surface else {
@@ -189,11 +154,6 @@ impl Input {
                 continue;
             };
             let at = plane.origin[axis];
-            let outer = bounds.iter().any(|p| (at - p[axis]).abs() < 1e-4);
-            let datum = datums.iter().any(|d| d.faces.contains(&i));
-            if !outer && !datum && (excluded.contains(&i) || !level_faces.contains(&i)) {
-                continue;
-            }
             let body = face.solid.unwrap_or(usize::MAX);
             if let Some(p) = planes.iter_mut().find(|p| {
                 p.body == body && p.axis == axis && (p.support.at[axis] - at).abs() < 1e-6
@@ -218,6 +178,8 @@ impl Input {
         for p in &mut planes {
             p.support.feature = face_id("plane", &p.support.faces);
         }
+        let (steps, cartesian_envelope, deferred) =
+            super::levels::recognise(&local, &found, &planes, &constituents);
         let round_axes = found.bosses.iter().map(|b| (b.location, b.axis)).collect();
         Ok(Self {
             frame,
@@ -225,6 +187,9 @@ impl Input {
             holes,
             patterns,
             planes,
+            steps,
+            cartesian_envelope,
+            deferred,
             datums,
             round_axes,
             specified: vec![],

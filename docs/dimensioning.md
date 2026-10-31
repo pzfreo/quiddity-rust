@@ -19,22 +19,33 @@ required set and conveyance records as JSON. This is an example, not a new CLI p
 ## Input and coordinates
 
 `Input::from_recognition(&Part, Vec<Datum>, Policy) -> Result<Input, String>` infers
-the part frame, transforms the part in memory, and runs the existing recognition
-once. Face indices remain those of the caller's part. All input supports, hole axes,
-pattern centres, plane coordinates and bounds use **that part frame**, in mm. Use
-`input.frame.to_world(point)` to recover file coordinates. Frame refusal is an error.
-The frame may permute or reverse file axes: the minimum of an inferred axis need not
-be the minimum of a file axis. Supply physical datum face sets to choose a particular
-end. Frame gauge ambiguities retain recognition's existing deterministic representative.
+the part frame, names its directions by their nearest file axes (positive towards
+those axes when this remains a proper rotation), transforms the part in memory,
+and runs recognition. This geometric convention chooses the height direction
+that Draftwright's front projection uses without introducing views. A strongly
+rolled frame whose nearest signed axes would reflect it retains the recogniser's
+proper representative. Face indices remain those of the caller. Coordinates are
+in **that part frame**, in mm; `input.frame.to_world(point)` recovers file coordinates.
+Frame refusal is an error. Recognition and its normal frame API remain unchanged.
 
-The adapter supplies typed `holes`, `patterns`, `planes`, `round_axes`, `bounds`,
-`datums`, `specified` and `policy`. Round axes only corroborate small bolt circles;
-no boss requirements are generated. Planar supports use recognition’s plane-level proposals in each axis (0.01 mm
-station clustering, 1% projected area threshold, interior margin at most 0.6 mm or
-a quarter of the body span), grouped by body, principal normal and station. Hole/recess floors and boss/pad caps belong to their features,
-not the generic ladder; envelope faces and datum faces survive this exclusion.
-Turned-feature shoulders are excluded from the generic ladder. Curved envelope
-sides receive synthetic envelope supports; these have no face anchors.
+The adapter supplies `holes`, `patterns`, all principal `planes` (including later-slice
+planes for datum lookup), `steps`, `cartesian_envelope`, `deferred`, `round_axes`,
+`bounds`, `datums`, `specified` and `policy`. `StepLevels` contains the ladder axis,
+its accepted height supports and tied shoulder planes. Merely appearing in `planes`
+does **not** make a plane a requirement. `Deferred` contains a face-derived id,
+faces and the owning family. A deferral counts an ownership claim, not a dimension:
+several recognised families can describe the same face. A turned/round or whole-stock
+envelope has three explicit deferred Cartesian extent claims. Later slices will
+supply the owner's diameter/length/across-flats grammar.
+
+The height ladder uses only interior horizontal support proposals (0.5 mm clustering,
+1% projected area, interior margin min(0.6 mm, a quarter of the body's height)).
+Pocket/recess floors and walls, slot walls, boss/pad tops, turned faces, chamfers,
+fillets and other later-slice feature faces remain owned by their accepted families;
+they never become raw plane intervals. Hole floors belong to their hole depth.
+Unclaimed interior planes outside the ladder/shoulders are explicitly deferred as
+`non-step plane`. Outer prismatic extents remain required; a curved prismatic side
+can use a synthetic support. A turned envelope acquires no Cartesian requirements.
 
 Consumers with existing recognition can build `Input` directly, using the same
 contract: unique face-derived feature ids, sorted face sets, finite coordinates,
@@ -63,7 +74,10 @@ list permutations, not across arbitrary renumbering of the source B-rep. Use
 quiddity correspondence to transport ids across changed topology. Characteristic
 numbers can attach to these ids. `Conveyed` explicitly maps retired member or
 coincident requirements to surviving ids with a reason. Its `by` is flattened;
-consumers need not follow chains of omitted ids. `covers` retains displaced claims.
+consumers need not follow chains of omitted ids. Explicit deferrals are also returned
+as `Conveyed` with an empty `by` and `why = "deferred: owned by <family> (later slice)"`;
+these records promise no surviving requirement. Their typed metadata is in
+`input.deferred`. `covers` retains displaced claims.
 
 `Required::dimension_kind(resolve)` returns haecceity's `pmi::DimensionKind` using a
 consumer-supplied feature-arena resolver. Planner string ids never pretend to be
@@ -94,12 +108,18 @@ Adapted from pzfreo/draftwright-rust `origin/main` **1c830977** (same copyright 
   datum ordered by label then face set per axis; otherwise the box minimum. Policy
   Minimum/Maximum/Datum overrides it. A missing or unusable datum falls back to
   minimum. Zero distance creates no dimension.
-- `dims/levels.rs::ownership`: one owner per support-plane interval. Slice 1 uses
-  the common axis-neutral support table: overall extents plus baseline locations
-  to internal step planes in all three axes. Out-of-scope feature floors/caps are
-  excluded by the adapter rather than acquiring a second ladder owner. Draftwright's
-  plate/pad/through-step fixed-point grammar and equal-rise printed ladders are not
-  imported; those owners need slice 2/3 feature requirements first.
+- `dims/levels.rs::{ownership,project,repeat}` and `dims/steps.rs` ownership boundary:
+  one height ladder, base to each unowned level, plus riser shoulders located from
+  the part box. Vertical risers must have their foot on a retained body level; ramps
+  need both ends on retained levels or the envelope. Equal shoulder stations merge
+  to the thousandth. Three or more uniform rises (within 10% of their mean) share
+  one counted rise, including the rise to the top when it matches. Multi-axis plate
+  base tops belong to plate thicknesses. Through-step ownership is resolved to a
+  fixed point against levels, shoulders, plates and extents: sections that need
+  their own leg grammar own their corner levels and box-ended shoulder sites and
+  are explicitly deferred. A recognised turned profile has no prismatic ladder.
+  Plate thickness and independent through-step section requirements are later-slice
+  feature owners, not anonymous baseline intervals.
 - `dims/holes.rs::{merge,consolidate}` and `dims/redundancy.rs`: coincident raw spans
   merge only with equal tolerance contracts, count and pitch intervals, within
   0.0001 mm, independently of views or labels. General, Basic, Untoleranced and
@@ -128,9 +148,9 @@ corroboration, slit drilling counts), `dimension_rules` (grid, blind/through,
 counterbore/spotface/countersink quantities, determinism), `repeated_dimensions`
 (shared parallel-row pitch, distinct pitch stations, location/level ownership),
 `ownership_rules` (one statement per span, toleranced dimensions never reference),
-`coverage_holes` (every shoulder station), and `h5_chains`/`lint/redundancy` (physical
+`coverage_holes` (each accepted shoulder station), and `h5_chains`/`lint/redundancy` (physical
 station paths, closed chains and optional references). Additional tests exercise
-PMI lowering, body isolation, the real recognition adapter and conveyed-id validity.
+PMI lowering, body isolation, the real recognition adapter, pocket-floor and turned-envelope deferral, counted step ladders and conveyed-id validity.
 
 Skipped deliberately: holes' oblique-view ordering/rim tips and slot/boss precedence;
 bridge JSON field parsing (typed input), boss-frame parsing and rendering checks;
@@ -149,5 +169,4 @@ quantity and its source id. It includes unplaced wants, restores wants conveyed
 by hole tables from their `covered` records, and expands compound callouts. Axis matching maps the inferred frame back onto file axes; a reversed
 origin can still produce complementary offsets. Use the original plate (its SHA is
 in the issue's recorded binding), not Specify's annotated output, which selects
-Draftwright's authored-PMI policy. The supplied binary may predate the source;
-record its version/date with comparison results. Reports are not snapshot goldens.
+Draftwright's authored-PMI policy. Build the read-only Draftwright source into a scratch target directory and record its revision/version with comparison results. Reports are not snapshot goldens.

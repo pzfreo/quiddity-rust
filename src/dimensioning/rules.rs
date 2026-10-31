@@ -36,7 +36,7 @@ fn tolerance(input: &Input) -> Tolerance {
 fn size_id(feature: &str, role: &str) -> String {
     format!("dim:{feature}/{role}")
 }
-fn location(
+pub(super) fn location(
     from: &Support,
     to: &Support,
     axis: usize,
@@ -240,7 +240,7 @@ fn established<'a>(
     }
     Some(members)
 }
-fn origin(input: &Input, axis: usize) -> Support {
+pub(super) fn origin(input: &Input, axis: usize) -> Support {
     let mut datums = input.datums.clone();
     datums.sort_by(|a, b| a.label.cmp(&b.label).then(a.faces.cmp(&b.faces)));
     let datum = |label: Option<&str>| {
@@ -511,62 +511,19 @@ pub(super) fn plan(input: &Input) -> (Vec<Required>, Vec<Conveyed>) {
         }
         out.extend(shared);
     }
-    // One baseline owner per physical support plane. Extents remain overall measurements.
-    let mut planes = input.planes.clone();
-    planes.sort_by(|a, b| {
-        a.body
-            .cmp(&b.body)
-            .then(a.axis.cmp(&b.axis))
-            .then(a.support.at[a.axis].total_cmp(&b.support.at[b.axis]))
-            .then(a.support.feature.cmp(&b.support.feature))
-    });
-    let mut bodies: BTreeMap<(usize, usize), Vec<&Plane>> = BTreeMap::new();
-    for p in &planes {
-        if p.axis < 3 {
-            bodies.entry((p.body, p.axis)).or_default().push(p);
-        }
-    }
-    for ((_, axis), ps) in bodies {
-        if ps.len() < 2 {
-            continue;
-        }
-        let (lo, hi) = (&ps[0].support, &ps[ps.len() - 1].support);
-        let mut overall = location(lo, hi, axis, None, input);
-        overall.covers = vec![lo.feature.clone(), hi.feature.clone()];
-        if overall.nominal > NEAR {
-            out.push(overall);
-        }
-        for p in &ps[1..ps.len() - 1] {
-            let r = location(&origin(input, axis), &p.support, axis, None, input);
-            if r.nominal > NEAR {
-                out.push(r);
-            }
-        }
-    }
-    // A curved outer side may have no plane; still state the envelope extent once.
-    for axis in 0..3 {
-        let lo = input.bounds[0][axis];
-        let hi = input.bounds[1][axis];
-        if hi - lo <= NEAR
-            || out
-                .iter()
-                .any(|r| span(r).is_some_and(|(k, a, b)| k == axis && near(a, lo) && near(b, hi)))
-        {
-            continue;
-        }
-        let support = |end: usize| Support {
-            feature: format!("envelope:{axis}:{end}"),
-            faces: vec![],
-            body: None,
-            at: input.bounds[end],
-            plane: true,
-        };
-        out.push(location(&support(0), &support(1), axis, None, input));
-    }
+    out.extend(super::levels::requirements(input));
     let specified: BTreeSet<_> = input.specified.iter().map(|r| r.id.clone()).collect();
     out.retain(|r| !specified.contains(&r.id));
     out.extend(input.specified.clone());
-    consolidate(out, conveyed, &specified, input.policy.references)
+    let (required, mut conveyed) = consolidate(out, conveyed, &specified, input.policy.references);
+    conveyed.extend(input.deferred.iter().map(|d| Conveyed {
+        id: d.id.clone(),
+        by: vec![],
+        why: format!("deferred: owned by {} (later slice)", d.family),
+    }));
+    conveyed.sort_by(|a, b| a.id.cmp(&b.id));
+    conveyed.dedup_by(|a, b| a.id == b.id);
+    (required, conveyed)
 }
 
 fn span(r: &Required) -> Option<(usize, f64, f64)> {

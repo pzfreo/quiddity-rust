@@ -8,6 +8,7 @@
 //! View selection, labels, layout and editor schemes are deliberately absent.
 //! See `docs/dimensioning.md` for the input contract and slice boundary.
 
+mod levels;
 mod recognition;
 mod rules;
 #[cfg(test)]
@@ -79,6 +80,29 @@ pub struct Plane {
     /// Separate solids never acquire a common plane interval owner.
     pub body: usize,
 }
+/// Recognised step supports after feature ownership, in the part's height direction.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct StepLevels {
+    pub axis: usize,
+    pub heights: Vec<Support>,
+    pub shoulders: Vec<Plane>,
+}
+impl Default for StepLevels {
+    fn default() -> Self {
+        Self {
+            axis: 2,
+            heights: vec![],
+            shoulders: vec![],
+        }
+    }
+}
+/// An explicit boundary of this slice, anchored to physical faces where available.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Deferred {
+    pub id: Id,
+    pub faces: Vec<usize>,
+    pub family: String,
+}
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Datum {
     pub label: String,
@@ -127,7 +151,12 @@ pub struct Input {
     pub bounds: [Point; 2],
     pub holes: Vec<Hole>,
     pub patterns: Vec<Pattern>,
+    /// All principal planes, including deferred ones, remain available to datum lookup.
     pub planes: Vec<Plane>,
+    pub steps: StepLevels,
+    /// False when the envelope belongs to a later-slice round/turned/stock owner.
+    pub cartesian_envelope: bool,
+    pub deferred: Vec<Deferred>,
     pub datums: Vec<Datum>,
     /// Round axes may corroborate small bolt circles; they are not dimensioned in slice 1.
     pub round_axes: Vec<(Point, Point)>,
@@ -170,6 +199,7 @@ pub struct Required {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Conveyed {
     pub id: Id,
+    /// Empty only for explicit later-slice deferrals (why starts with "deferred:").
     pub by: Vec<Id>,
     pub why: String,
 }

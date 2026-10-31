@@ -14,6 +14,9 @@ fn input() -> Input {
         holes: vec![],
         patterns: vec![],
         planes: vec![],
+        steps: StepLevels::default(),
+        cartesian_envelope: true,
+        deferred: vec![],
         datums: vec![],
         round_axes: vec![],
         specified: vec![],
@@ -454,7 +457,7 @@ fn add_planes(i: &mut Input, axis: usize, stations: &[f64]) {
     }
 }
 #[test]
-fn every_prismatic_shoulder_and_outer_level_has_one_owner_in_each_axis() {
+fn explicit_step_heights_and_tied_shoulders_have_one_owner() {
     let mut i = input();
     for (axis, stations) in [
         (0, vec![0., 20., 80., 100.]),
@@ -463,6 +466,22 @@ fn every_prismatic_shoulder_and_outer_level_has_one_owner_in_each_axis() {
     ] {
         add_planes(&mut i, axis, &stations);
     }
+    i.steps.heights = vec![i.planes.last().unwrap().support.clone()];
+    i.steps.heights[0] = i
+        .planes
+        .iter()
+        .find(|p| p.axis == 2 && p.support.at[2] == 4.)
+        .unwrap()
+        .support
+        .clone();
+    i.steps.shoulders = i
+        .planes
+        .iter()
+        .filter(|p| {
+            p.axis < 2 && p.support.at[p.axis] > 0. && p.support.at[p.axis] < i.bounds[1][p.axis]
+        })
+        .cloned()
+        .collect();
     let rs = plan(&i).0;
     assert_eq!(rs.len(), 7);
     for nominal in [100., 60., 10., 20., 80., 30., 4.] {
@@ -655,6 +674,8 @@ fn merged_point_survivor_retains_its_physical_plane_chain_ownership() {
 fn an_overall_extent_does_not_claim_to_locate_interior_steps() {
     let mut i = input();
     add_planes(&mut i, 0, &[0., 20., 80., 100.]);
+    i.steps.axis = 0;
+    i.steps.heights = i.planes[1..3].iter().map(|p| p.support.clone()).collect();
     let rs = plan(&i).0;
     let overall = rs.iter().find(|r| r.nominal == 100.).unwrap();
     assert_eq!(overall.covers, ["plane:0:0", "plane:0:3"]);
@@ -664,4 +685,71 @@ fn an_overall_extent_does_not_claim_to_locate_interior_steps() {
             [feature]
         );
     }
+}
+
+#[test]
+fn pocket_floor_is_deferred_and_never_acquires_a_step_height() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/ties/square_pocket.step");
+    let part = crate::read_step_file(&path).unwrap();
+    let i = Input::from_recognition(&part, vec![], Policy::default()).unwrap();
+    let pockets: Vec<_> = i
+        .deferred
+        .iter()
+        .filter(|d| d.family.contains("pocket") || d.family.contains("recess"))
+        .collect();
+    assert!(!pockets.is_empty());
+    assert!(i.steps.heights.is_empty());
+    let (rs, cs) = plan(&i);
+    assert_eq!(rs.len(), 3); // envelope only
+    assert!(pockets.iter().all(|d| {
+        cs.iter()
+            .any(|c| c.id == d.id && c.by.is_empty() && c.why.starts_with("deferred: owned by "))
+    }));
+}
+
+#[test]
+fn step_ladder_uses_base_heights_and_consolidates_equal_rises() {
+    let mut i = input();
+    i.bounds[1][2] = 40.;
+    add_planes(&mut i, 2, &[0., 10., 20., 30., 40.]);
+    i.steps.heights = i.planes[1..4].iter().map(|p| p.support.clone()).collect();
+    let rs = plan(&i).0;
+    let ladder: Vec<_> = rs.iter().filter(|r| r.count == 4).collect();
+    assert_eq!(ladder.len(), 1);
+    assert_eq!(ladder[0].nominal, 10.);
+    assert_eq!(ladder[0].covers.len(), 3);
+    assert_eq!(rs.len(), 4); // three envelope extents plus a counted rise
+    i.steps.heights[1].at[2] = 23.;
+    let rs = plan(&i).0;
+    assert_eq!(rs.len(), 6);
+    assert!(rs.iter().any(|r| r.nominal == 23. && r.count == 1));
+}
+
+#[test]
+fn arbitrary_interior_planes_are_not_step_requirements() {
+    let mut i = input();
+    for k in 0..3 {
+        let top = i.bounds[1][k];
+        add_planes(&mut i, k, &[0., 2., top]);
+    }
+    assert_eq!(plan(&i).0.len(), 3);
+}
+
+#[test]
+fn turned_body_envelope_is_explicitly_deferred() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/turned_body_disc.step");
+    let part = crate::read_step_file(&path).unwrap();
+    let i = Input::from_recognition(&part, vec![], Policy::default()).unwrap();
+    assert!(!i.cartesian_envelope);
+    let (rs, cs) = plan(&i);
+    assert!(rs.iter().all(|r| matches!(r.kind, Kind::Size { .. })
+        || r.covers.iter().all(|c| !c.starts_with("envelope:"))));
+    assert_eq!(
+        cs.iter()
+            .filter(|c| c.id.starts_with("deferred:envelope:"))
+            .count(),
+        3
+    );
 }

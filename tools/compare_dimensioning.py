@@ -4,7 +4,7 @@
 Build `cargo build --release --example dimension_plan` first. Run:
   python3 tools/compare_dimensioning.py --draftwright /path/to/draftwright \
     --quality-list /path/to/dw/tools/quality_parts.txt --corpus /path/to/corpus \
-    --plate /path/to/plate.step > /tmp/dimensioning-comparison.json
+    --plate /path/to/plate.step > /path/to/scratchpad/dimensioning-comparison.json
 
 Each executable runs sequentially. The comparison expands compound hole callouts into
 atomic quantities, ignores placement, and lists EVERY unmatched quantity. Counts include
@@ -122,6 +122,7 @@ def main():
     p.add_argument("--plate", type=pathlib.Path, required=True)
     p.add_argument("--cache", type=pathlib.Path, help="optional raw JSON cache outside the repository")
     p.add_argument("--planner", type=pathlib.Path, default=pathlib.Path("target/release/examples/dimension_plan"))
+    p.add_argument("--check", action="store_true", help="fail on excess atomic requirements, size/count differences, or execution errors")
     args = p.parse_args()
     files = [("plate", args.plate)] + [(s, args.corpus / s) for s in args.quality_list.read_text().splitlines() if s and not s.startswith("#")]
     rows = []
@@ -141,10 +142,16 @@ def main():
             n, ds = dw_quantities(d)
             qs = q_quantities(q)
             extra, missing = difference(qs, ds)
-            rows.append({"part": name, "holes": len(q["input"]["holes"]), "planes": len(q["input"]["planes"]), "required": len(qs), "dw_statements": n, "dw_quantities": len(ds), "planner_only": extra, "draftwright_only": missing})
+            rows.append({"part": name, "holes": len(q["input"]["holes"]), "planes": len(q["input"]["planes"]), "required": len(qs), "deferred": len(q["input"].get("deferred", [])), "dw_statements": n, "dw_quantities": len(ds), "planner_only": extra, "draftwright_only": missing})
         except (RuntimeError, OSError, KeyError) as e:
             rows.append({"part": name, "error": str(e)})
         print(json.dumps(rows[-1]), flush=True)
+    if args.check:
+        failures = [row for row in rows if "error" in row or row["required"] > row["dw_quantities"]
+                    or any(q["key"][0] not in ("location", "pitch")
+                           for q in row["planner_only"] + row["draftwright_only"])]
+        if failures:
+            raise SystemExit(1)
 
 
 if __name__ == "__main__":

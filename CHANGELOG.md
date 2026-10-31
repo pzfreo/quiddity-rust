@@ -9,6 +9,8 @@ in [docs/alpha1.md](docs/alpha1.md).
 - For #141, add `quiddity::dimensioning`: shared, view-independent requirements for
   prismatic holes, patterns and plane levels, with face-derived ids, datum origins,
   tolerance-aware consolidation and explicit conveyance/reference relationships.
+  Step heights and tied shoulders replace raw interior plane intervals; later-slice
+  feature planes and turned envelopes are explicitly deferred.
 
 ## 0.2.8 (2026-10-31)
 
