@@ -799,7 +799,10 @@ fn surface_texture_keeps_stated_decimals_and_units_without_float_noise() {
             },
         }];
         let expected = format!("Ra 0.010400 {suffix}");
-        assert_eq!(notes::texture_parameters(&texture), std::slice::from_ref(&expected));
+        assert_eq!(
+            notes::texture_parameters(&texture),
+            std::slice::from_ref(&expected)
+        );
         assert_eq!(notes::surface_texture(&texture).letters[0].text, expected);
     }
 }
