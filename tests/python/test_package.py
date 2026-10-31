@@ -69,6 +69,12 @@ def test_evidence(framed):
     assert json.loads(run.stdout) == data
 
 
+def test_framed_evidence_refusal():
+    sphere = FIXTURES / "captured/frames/sphere.step"
+    with pytest.raises(ValueError, match="no part frame"):
+        quiddity.evidence(str(sphere), framed=True)
+
+
 def test_anchor_and_fingerprints():
     anchor = json.loads(quiddity.anchor(str(PLATE), 0))
     assert anchor == json.loads(quiddity.anchor(PLATE.read_bytes(), 0))
@@ -98,6 +104,7 @@ def test_capabilities_version_and_console_script():
     assert not importlib.metadata.requires("quiddity")
     caps = json.loads(quiddity.capabilities())
     assert caps["evidence"] == "quiddity-rust/evidence/1"
+    assert caps["fingerprints"] == "quiddity-rust/fingerprint/3"
     assert caps["pmi_json_import"] is True
     assert caps == json.loads(cli("capabilities").stdout)
     executable = Path(sys.executable).parent / ("quiddity.exe" if os.name == "nt" else "quiddity")

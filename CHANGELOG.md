@@ -6,6 +6,18 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Added
+
+- A dependency-free `quiddity` 0.4.0 Python wheel (`crates/quiddity-py`), using
+  PyO3 abi3 for CPython 3.12+, with STEP path/byte recognition, evidence, anchors,
+  fingerprints, correspondence, capabilities, verified PMI JSON import/export,
+  and the shared Rust CLI. This replaces the Python 0.3.11 API; see `docs/python.md`.
+- Additive `quiddity-rust/evidence/1` JSON with records, defining/constituent,
+  instance and host faces, source STEP identities and reconciliation candidates;
+  `quiddity evidence <step> [--framed]`, `fingerprints` and `capabilities` commands.
+- Python smoke/corpus tests and a five-platform wheel/sdist workflow. PyPI publishing
+  requires an explicit manual dispatch on main; pushes and tags never publish.
+
 ## 0.2.8 (2026-10-31)
 
 Upgrading from 0.2.7: recognition schema `/6` and fingerprints `/3` are unchanged.

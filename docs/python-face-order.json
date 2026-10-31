@@ -1,0 +1,131 @@
+{
+  "build123d_version": "0.13.0",
+  "quiddity_version": "0.4.0",
+  "tolerance_mm": 1e-06,
+  "cases": [
+    {
+      "shape": "box_with_hole",
+      "face_count": 7,
+      "standard_export_order_matches": true,
+      "standard_export_index_to_original": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "geometric_bijection_verified": true,
+      "named_export_order_matches": true,
+      "named_export_bijection_verified": true,
+      "named_export_missing_original_faces": [],
+      "named_export_index_to_original": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "shape": "turned_part",
+      "face_count": 6,
+      "standard_export_order_matches": true,
+      "standard_export_index_to_original": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "geometric_bijection_verified": true,
+      "named_export_order_matches": true,
+      "named_export_bijection_verified": true,
+      "named_export_missing_original_faces": [],
+      "named_export_index_to_original": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "shape": "fillet_heavy",
+      "face_count": 27,
+      "standard_export_order_matches": true,
+      "standard_export_index_to_original": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ],
+      "geometric_bijection_verified": true,
+      "named_export_order_matches": false,
+      "named_export_bijection_verified": false,
+      "named_export_missing_original_faces": [
+        0,
+        7,
+        12,
+        24
+      ],
+      "named_export_index_to_original": [
+        null,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        null,
+        8,
+        9,
+        10,
+        11,
+        null,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        null,
+        25,
+        26
+      ]
+    }
+  ]
+}
