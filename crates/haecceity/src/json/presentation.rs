@@ -879,20 +879,30 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
         }
         let mut best = None;
         for outward in candidates {
-            let mut candidate = ladder.clone();
-            let mut measurement = m.clone();
-            measurement.outward = outward;
-            let p = candidate.draw(&measurement, &c).placed;
-            let delta = geom::sub(p.origin, reference);
-            let distance = geom::norm(geom::sub(
-                delta,
-                geom::scale(p.normal, geom::dot(delta, p.normal)),
-            ));
-            if best
-                .as_ref()
-                .is_none_or(|(d, _, _, _)| distance < *d - 1e-8)
+            let cross = geom::unit(geom::cross(m.direction, outward))
+                .ok_or_else(|| Error("degenerate annotation plane".into()))?;
+            let mut normal = cross;
+            let dominant = geom::dominant_axis_preferring_z(normal);
+            if (dominant == 1 && normal[dominant] > 0.) || (dominant != 1 && normal[dominant] < 0.)
             {
-                best = Some((distance, p, candidate, outward));
+                normal = geom::scale(normal, -1.);
+            }
+            // Prefer the normal front/top/side camera on a tie; also allow the
+            // opposite outer plane when the actual feature lies nearer that side.
+            for normal in [normal, geom::scale(normal, -1.)] {
+                let mut candidate = ladder.clone();
+                let mut measurement = m.clone();
+                measurement.outward = outward;
+                let p = candidate
+                    .draw_in_view(&measurement, &c, Some(normal))
+                    .placed;
+                let distance = geom::dist(p.origin, reference);
+                if best
+                    .as_ref()
+                    .is_none_or(|(d, _, _, _)| distance < *d - 1e-8)
+                {
+                    best = Some((distance, p, candidate, outward));
+                }
             }
         }
         let (_, p, chosen, outward) =

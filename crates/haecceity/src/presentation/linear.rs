@@ -641,6 +641,14 @@ impl Ladder {
         self.reserve(bounds);
     }
     pub fn draw(&mut self, m: &Measurement, c: &Callout) -> LinearPlaced {
+        self.draw_in_view(m, c, None)
+    }
+    pub(crate) fn draw_in_view(
+        &mut self,
+        m: &Measurement,
+        c: &Callout,
+        camera_normal: Option<V3>,
+    ) -> LinearPlaced {
         let d = m.direction;
         let v = m.outward;
         // Front XZ reads from -Y; top XY from +Z; side YZ from +X.
@@ -649,6 +657,7 @@ impl Ladder {
         if geom::dominant_axis_preferring_z(normal) == 1 {
             normal = geom::scale(normal, -1.);
         }
+        normal = camera_normal.unwrap_or(normal);
         let up = geom::cross(normal, d);
         // A ladder's plane is determined by the part, never by the individual witness
         // section. Thus top-face axes and mid-thickness face witnesses share one plane.
