@@ -140,7 +140,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<TurnedStep>> {
     };
     let mut out = Vec::new();
     for scope in &scopes {
-        for (step, over) in proposals_one(part, scope) {
+        for (step, over) in proposals_one(ctx, scope) {
             out.push(Occurrence {
                 record: step,
                 defining: over.iter().map(|c| c.face).collect(),
@@ -155,7 +155,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<TurnedStep>> {
 type Proposal<'c> = (TurnedStep, Vec<&'c CylinderEvidence>);
 
 /// `_turned_step_proposals_one`: the body's profiles, one per supported axis line.
-fn proposals_one<'c>(part: &Part, scope: &Scope<'c>) -> Vec<Proposal<'c>> {
+fn proposals_one<'c>(ctx: &Context<'_>, scope: &Scope<'c>) -> Vec<Proposal<'c>> {
     let ext: Vec<&CylinderEvidence> = scope.cyls.iter().copied().filter(|c| c.external).collect();
     let owned: Vec<CylinderEvidence> = ext.iter().map(|c| (*c).clone()).collect();
     let supported = full_cylinders(&owned);
@@ -196,17 +196,18 @@ fn proposals_one<'c>(part: &Part, scope: &Scope<'c>) -> Vec<Proposal<'c>> {
     groups.sort_by(|a, b| py::tuple_order(&a.0, &b.0));
     groups
         .iter()
-        .flat_map(|(_, bands)| proposals_coaxial(part, scope, axis, bands))
+        .flat_map(|(_, bands)| proposals_coaxial(ctx, scope, axis, bands))
         .collect()
 }
 
 /// `_turned_step_proposals_coaxial`: shoulders and local diameters along one axis line.
 fn proposals_coaxial<'c>(
-    part: &Part,
+    ctx: &Context<'_>,
     scope: &Scope<'c>,
     axis: usize,
     bands: &[&'c CylinderEvidence],
 ) -> Vec<Proposal<'c>> {
+    let part = ctx.part;
     let mut diameters: Vec<f64> = bands.iter().map(|c| py::round_to(c.diameter, 2)).collect();
     diameters.sort_by(|a, b| py::order(*a, *b));
     diameters.dedup();
@@ -227,7 +228,8 @@ fn proposals_coaxial<'c>(
         .fold(f64::NEG_INFINITY, f64::max);
     if cross <= 0.0
         || max_od < OD_FILL_MIN * cross
-        || (perp[0] - perp[1]).abs() > SQUARENESS_TOL * cross
+        || ((perp[0] - perp[1]).abs() > SQUARENESS_TOL * cross
+            && super::turned_bodies::flat_interrupted_faces(ctx, &scope.faces).is_none())
     {
         return vec![];
     }

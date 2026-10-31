@@ -501,13 +501,15 @@ not fillets: their walls fail tangency. Existing records keep their IDs and para
 
 ## Turned bodies (For #123)
 
-Optional `turned_bodies` publishes one `TurnedBody` for each valid solid whose entire
-boundary consists of analytic surfaces of revolution about one common line. A plane
+By default, optional `turned_bodies` publishes one `TurnedBody` for each valid solid
+whose entire boundary consists of analytic surfaces of revolution about one common
+line. The proved stock-flat exception in the #157 section below extends this rule. A plane
 must be square to that line; cylinders, cones and tori must have that axis; sphere
 centres must lie on it (their parameter polar axes are immaterial). NURBS planes also qualify when positive weights and the complete control net
 certify the support inside the same plane-precision slab. A sampled fit alone
-cannot establish a plane. Other unsupported surfaces, flats, keyways, cross holes and offset/second revolution axes refuse the
-whole solid. There is no principal-frame or number-of-diameters gate. The linear
+cannot establish a plane. Other unsupported surfaces, keyways, cross holes and
+offset/second revolution axes refuse the whole solid. Flats require the proved
+interruption exception below. There is no principal-frame or number-of-diameters gate. The linear
 precision is `max(file_uncertainty, COORD_FLOOR)`; parallelism is tested as the sine
 of the axis angle times the body's largest intrinsic directional extent (or support
 radius, whichever is greater), against that same precision. Axis-line offsets use
@@ -517,8 +519,9 @@ conventional representative that follows rigid motion, without limiting eligibil
 
 `axis` is a positive principal letter or a unit vector, and `axis_point` is the
 midpoint of the axial extent on that line, published on the 1e-8 mm point grid.
-`od` is the maximum transverse extent (including spherical/toroidal extrema), and
-`length` is the exact axial extent. `bores` lists internal cylinder diameters and
+For an uninterrupted body, `od` is the maximum transverse extent (including
+spherical/toroidal extrema); interrupted stock uses its nominal band diameter as
+described below. `length` is the exact axial extent. `bores` lists internal cylinder diameters and
 `span: [lo,hi]`, signed distances from `axis_point` along `axis`; touching axial
 splits of the same diameter merge within model precision. Diameters come from the
 analytic support, and disconnected axial spans remain separate.
@@ -666,3 +669,41 @@ that policy. No hook is replaced in aborting builds. The recognition CLI retains
 status for a usable partial document and emits its existing-style warning on stderr;
 `quiddity serve` and the Python wheel carry the same recognition fields automatically.
 WASM builds abort on panic, so this isolation has no effect in the browser.
+
+## Interrupted turning and proved corners (For #157, #159, #160)
+
+Turned steps retain the OD-fill and square-section guards. A section flattened by
+proved stock flats may bypass only the square-section guard: all other supports
+must have one common revolution axis, the flats must be parallel to it at model
+precision, and complete external coaxial cylindrical bands must cover more than
+half the solid's axial length (overlaps counted once). A wholly D-section extrusion
+or incidental cylinders on a prism do not establish this majority. Turned bodies
+use the same exception; their meridian profile describes the revolved supports,
+while the separate `flats` records describe the planar interruptions. Body claims
+still include the entire boundary, including shoulders and flats; OD is the stock
+diameter, including the interrupted bands.
+
+Turned fillets on one valid solid merge arcs only when the raw torus centres,
+axis lines, major/minor radii, material sides and meridian intervals agree at model
+precision. One record retains a leader on an actual source arc and all constituent
+arcs as its exact defining faces. Equal radii on different rings remain separate.
+This uses the existing multi-face record contract and adds no fields or family. Historical fillet inventory floors continue to count constituent
+torus patches (one per source arc), while cylindrical fillets including spherical
+caps still count once. Grouping cannot satisfy a floor by dropping a patch. In the
+cgb202 regression, 708 old occurrences become 542 callout records with the same
+708 primary round patches; the historical floor remains 708.
+
+Planar chamfer and angled-step `corner` is optional/null when unproved. Retention
+requires consistency of the measured legs and angle with the corner/anchor points
+at their published precision (0.001 mm for points and legs, 0.01 degrees for angles).
+The point uncertainty is propagated into the transverse support basis and angle
+interval; a fixed angular tolerance would reject correctly rounded short legs.
+Rolled walls use their actual support directions. The volume proof uses unrounded
+geometry and the common span of the two straight spring edges (including collinear
+splits), excluding curved/oblique terminal extensions and attached caps. Where
+that pair is unavailable the entire bevel-face span must pass. Its triangular prism is inset on every side by the modelling
+precision plus the coordinate uncertainty of `2*at-corner` (sqrt(3) times 0.0015 mm).
+Thus boundary contact is allowed, while any material volume in the remaining
+interior refuses the corner; there is no allowed occupied-volume fraction. A
+centroid and nearest support intersection alone are insufficient. Recognition
+schema 6 and fingerprint format 3 stay unchanged.

@@ -6,6 +6,25 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Fixed
+
+- For #157, #159, #160, retain turned steps on stock with proved spanner flats,
+  group interrupted coaxial torus fillets with exact defining faces, and omit
+  chamfer/angled-step corners unless their wedge is consistent at published
+  precision and has no material interior, retaining correct boundary-touching corners. Recognition /6 and fingerprints /3 are unchanged.
+  **At your next pin:** affected parts' fillet records renumber their run-local ids where
+  interrupted arcs merge (64 groups in the corpus), and some `corner` values become null
+  where they could not be proven. Turned parts with flats gain their turned steps.
+
+## 0.4.1 (2026-10-31)
+
+Upgrading from 0.4.0: recognition schema `/6` and fingerprints `/3` are unchanged, and successful recognition output is byte-identical.
+- **Panic isolation (#161):** a panicking family no longer aborts the run. Incomplete documents add optional `failures` and `complete: false`.
+- **Presentation:** text placements carry optional `stroked`; generated general notes are one numbered GENERAL NOTES block beside the part; regenerated ladders and datum flags sit by their features again; generated presentations gain one view per annotation plane. Feature-on (written PMI) graphics change accordingly.
+- **Callout reading (#166):** `PmiRead.callouts` lists decoded graphical PMI annotations and their semantic links.
+- **API note:** `haecceity::pmi::PmiRead` gains the public field `callouts`; code that builds `PmiRead` with a struct literal must add it. Code that receives it from `pmi::read` is unaffected.
+- **AP214:** files with FreeCAD's `PRODUCT_TYPE` now take PMI (pzfreo/specify-core#89), with each keyword rewrite reported in `edition_rewrites`.
+
 ### Added
 
 - Haecceity `PmiRead.callouts` lists decoded graphical PMI annotations and every
@@ -123,7 +142,6 @@ Upgrading from 0.2.7: recognition schema `/6` and fingerprints `/3` are unchange
   including distinct tokens for equal REAL values. Dimension/tolerance-owned notes
   use direct AP242 characterized-item properties, upgrading edition 1 JSON writes
   to edition 4. Validation now shares geometry-independent writer refusals with import.
-
 
 ## 0.2.7 (2026-10-31)
 

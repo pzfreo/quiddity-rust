@@ -27,7 +27,7 @@ with open("part.step", "rb") as stream:
 | `fingerprints(step)` | The existing fingerprints/3 document |
 | `correspond(old_step, new_step)` | The existing Rust revision correspondence document |
 | `capabilities()` | Versioned supported formats, inputs, operations and PMI import availability |
-| `__version__` | `"0.4.0"` (a Python string) |
+| `__version__` | the package version, e.g. `"0.4.1"` (a Python string) |
 
 Every geometry argument accepts a string path or STEP bytes. A string is always a
 path, never inline STEP text. Path inputs also accept the existing `.step.gz` /
@@ -199,7 +199,7 @@ help with legacy reconstruction, but its family registry differs from `/6`.
 
 ```sh
 maturin build --release -m crates/quiddity-py/Cargo.toml
-python -m pip install target/wheels/quiddity-0.4.0-*.whl
+python -m pip install target/wheels/quiddity-*.whl
 python -m pytest tests/python -q
 # Optional: export QUIDDITY_CORPUS=/path/to/tests/corpus
 ```
