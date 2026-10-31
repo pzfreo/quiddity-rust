@@ -7527,3 +7527,167 @@ fn occt_density_repair_requires_exactly_two_mass_and_length_factors() {
         );
     }
 }
+
+/// The only closed subtype rewrite has the same explicit attribute layout in both carried
+/// EXPRESS schemas (including inherited attributes, optionality, types and aggregate bounds).
+#[test]
+fn ap214_product_type_attribute_contract() {
+    use express::{AggregateKind, Ty};
+    for edition in express::EDITIONS {
+        assert!(!edition.is_declared("product_type"));
+        let slots = edition
+            .explicit_attributes("product_related_product_category")
+            .unwrap();
+        assert_eq!(slots.len(), 3);
+        for (slot, name, owner, optional) in [
+            (&slots[0], "name", "product_category", false),
+            (&slots[1], "description", "product_category", true),
+            (
+                &slots[2],
+                "products",
+                "product_related_product_category",
+                false,
+            ),
+        ] {
+            assert_eq!(
+                (slot.name, slot.entity, slot.optional),
+                (name, owner, optional)
+            );
+            assert!(!slot.derived && slot.redeclared.is_empty());
+        }
+        assert!(matches!(slots[0].ty, Ty::Named("label")));
+        assert!(matches!(slots[1].ty, Ty::Named("text")));
+        let Ty::Aggregate(products) = slots[2].ty else {
+            panic!("products is a SET")
+        };
+        assert_eq!(products.kind, AggregateKind::Set);
+        assert_eq!((products.lower, products.upper), (Some(1), None));
+        assert!(!products.optional && !products.unique);
+        assert!(matches!(products.of, Ty::Named("product")));
+    }
+}
+
+fn product_type_pmi() -> PartPmi {
+    PartPmi {
+        // Face 3 of the original analytic disc is its upper annular plane.
+        features: vec![faces(&[3])],
+        tolerances: vec![tolerance(
+            ToleranceKind::Flatness,
+            ToleranceTarget::Feature(FeatureId(0)),
+            "0.05",
+        )],
+        material: Some(Material {
+            id: "6061-T6".into(),
+            name: None,
+            density: None,
+        }),
+        ..PartPmi::default()
+    }
+}
+
+#[test]
+fn ap214_product_type_keyword_only_and_readback() {
+    use haecceity::pmi::write::EditionRewrite;
+    let f =
+        open(&Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/ap214_product_type.step"));
+    let empty = write(&f, &[(PartId(0), PartPmi::default())], Mode::Add).unwrap();
+    assert_eq!(empty.doc.bytes(), f.doc.bytes());
+    assert!(empty.report.edition_rewrites.is_empty());
+    let p = product_type_pmi();
+    let w = write(&f, &[(PartId(0), p.clone())], Mode::Add).unwrap();
+    assert_reads_back(&w, PartId(0), &p);
+    assert_verified_as(&f, &w, &p, Mode::Add);
+    assert_eq!(
+        w.report.edition_rewrites,
+        [EditionRewrite {
+            id: 132,
+            from: "PRODUCT_TYPE",
+            to: "PRODUCT_RELATED_PRODUCT_CATEGORY",
+        }]
+    );
+    assert!(w.report.repairs.is_empty());
+    for id in f.doc.ids() {
+        let before = &f.doc.bytes()[f.doc.span(id).unwrap()];
+        let after = &w.doc.bytes()[w.doc.span(id).unwrap()];
+        if id == 132 {
+            assert_eq!(
+                after,
+                String::from_utf8(before.to_vec())
+                    .unwrap()
+                    .replace("PrOdUcT_TyPe", "PRODUCT_RELATED_PRODUCT_CATEGORY")
+                    .as_bytes()
+            );
+        } else {
+            assert_eq!(before, after, "#{id} changed");
+        }
+    }
+    // Reverse only the schema edit, remove additions, and reverse the keyword: all bytes,
+    // including whitespace/comments between records, return exactly to the input.
+    let mut undo = haecceity::p21::Edit::new();
+    undo.set_file_schema(f.doc.file_schema().unwrap());
+    for id in w.doc.ids().filter(|id| *id > f.doc.max_id()) {
+        undo.remove(id);
+    }
+    let bytes = w.doc.apply(&undo).unwrap().bytes;
+    let restored = String::from_utf8(bytes).unwrap().replacen(
+        "PRODUCT_RELATED_PRODUCT_CATEGORY /* category */",
+        "PrOdUcT_TyPe /* category */",
+        1,
+    );
+    assert_eq!(restored.as_bytes(), f.doc.bytes());
+
+    // Neither AP242 nor AP203 qualifies for an AP214 rewrite. AP242 keeps its preexisting
+    // undeclared instance (as before); AP203 must pass a complete upgrade and refuses.
+    for schema in [express::TARGET_SCHEMA, "CONFIG_CONTROL_DESIGN"] {
+        let mut edit = haecceity::p21::Edit::new();
+        edit.set_file_schema(vec![schema.into()]);
+        let other = open_bytes(f.doc.apply(&edit).unwrap().bytes);
+        let result = write(&other, &[(PartId(0), p.clone())], Mode::Add);
+        if schema == express::TARGET_SCHEMA {
+            let w = result.unwrap();
+            assert!(w.report.edition_rewrites.is_empty());
+            assert_eq!(
+                &w.doc.bytes()[w.doc.span(132).unwrap()],
+                &other.doc.bytes()[other.doc.span(132).unwrap()]
+            );
+        } else {
+            assert!(matches!(result, Err(WriteError::Edition { .. })));
+        }
+    }
+}
+
+#[test]
+fn ap214_non_table_entity_still_refuses() {
+    // AP214's APPLICATION_CONTEXT_RELATIONSHIP is absent from AP242. No guessed mapping.
+    let f = ap214_with_records("#900000000=APPLICATION_CONTEXT_RELATIONSHIP('',$,#2,#2);\n");
+    let e = write(&f, &[(PartId(0), upgrade_datum())], Mode::Add)
+        .err()
+        .expect("undeclared entity must refuse");
+    assert!(e.to_string().contains("#900000000 application_context_relationship undeclared: application_context_relationship is not declared in AP242_"), "{e}");
+    assert!(matches!(e, WriteError::Edition { .. }));
+}
+
+#[test]
+fn ap214_extra_attributes_are_not_dropped() {
+    let f =
+        open(&Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/ap214_product_type.step"));
+    let Some(RawEntity::Simple { attributes, .. }) = f.doc.get(132) else {
+        panic!("simple")
+    };
+    let mut attributes = attributes.clone();
+    attributes.push(Attribute::Unset);
+    let mut edit = haecceity::p21::Edit::new();
+    edit.replace(132, haecceity::p21::simple("PRODUCT_TYPE", attributes));
+    let f = open_bytes(f.doc.apply(&edit).unwrap().bytes);
+    let e = write(&f, &[(PartId(0), product_type_pmi())], Mode::Add)
+        .err()
+        .expect("extra attribute must refuse");
+    let WriteError::Edition { violations, .. } = e else {
+        panic!("{e}")
+    };
+    assert!(
+        violations
+            .iter()
+            .any(|v| v.id == 132 && v.kind == express::Kind::AttributeCount)
+    );
+}

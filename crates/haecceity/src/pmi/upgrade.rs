@@ -1,12 +1,40 @@
 //! Closed, reported repairs for an AP203/AP214 file gaining PMI. No general cleanup.
 
-use super::{UpgradeRepairKind, WriteError, attr, attr_ref, is_a, leaf_names};
+use super::{EditionRewrite, UpgradeRepairKind, WriteError, attr, attr_ref, is_a, leaf_names};
 use crate::express::{self, Kind, TypeDef};
 use crate::p21::{self, Attribute as A, Complex, Document, Edit, RawEntity};
 use std::collections::BTreeSet;
 
 type Dimensions = [f64; 7];
 type Repairs = Vec<(u64, UpgradeRepairKind)>;
+
+// Deliberate exceptions, never a general walk up the subtype graph. PRODUCT_TYPE has no
+// explicit attributes of its own (OCCT's AP214 CD StepBasic_ProductType). Both carried
+// AP242 EXPRESS tables (N8324 and N11521) give PRODUCT_RELATED_PRODUCT_CATEGORY exactly
+// the inherited name: label, description: OPTIONAL text, products: SET [1:?] OF product.
+// The schema comparison and source references are recorded in docs/step-ap242.md.
+const AP214_SUBTYPES: &[(&str, &str)] = &[("PRODUCT_TYPE", "PRODUCT_RELATED_PRODUCT_CATEGORY")];
+
+pub(super) fn rewrite_entities(
+    doc: &Document,
+    edit: &mut Edit,
+    excluded: &BTreeSet<u64>,
+) -> Vec<EditionRewrite> {
+    let mut rewrites = Vec::new();
+    for id in doc.ids().filter(|id| !excluded.contains(id)) {
+        let Some(RawEntity::Simple { name, .. }) = doc.get(id) else {
+            continue;
+        };
+        if let Some(&(from, to)) = AP214_SUBTYPES
+            .iter()
+            .find(|(from, _)| name.eq_ignore_ascii_case(from))
+        {
+            edit.rename_entity(id, to);
+            rewrites.push(EditionRewrite { id, from, to });
+        }
+    }
+    rewrites
+}
 
 /// Exact record text, never a lossy decoding of original bytes.
 pub(super) fn record_text(doc: &Document, id: u64) -> Result<String, WriteError> {

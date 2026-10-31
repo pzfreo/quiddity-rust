@@ -141,6 +141,7 @@ fn writer_findings(writer: &Value) -> Vec<Value> {
         "preexisting_rule_violations",
         "practice_schema_conflicts",
         "repairs",
+        "edition_rewrites",
         "left_unreferenced",
         "note_migrations",
         "note_presentation_removed",

@@ -6,6 +6,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Added
+
+- Haecceity `PmiRead.callouts` lists decoded graphical PMI annotations and every
+  DMIA semantic link, including unresolved definitions, independently of the existing
+  presentation accounting count. Links use part-qualified model ids and follow JSON
+  transport ordering; note callout reading remains compatible.
+
 ### Fixed
 
 - PMI import repairs strictly reversed dimension limits and signed deviations with
@@ -18,12 +25,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 - Generated part notes share one numbered GENERAL NOTES block in JSON and STEP,
   retaining each requirement's semantic link and the bounds-relative placement.
-
 - Regenerated PMI uses measured, compact dimension ladders and reserves datum
   flags before labels. Saved-view packing keeps labels near their features and
   text placements use the actual stroke transform, including clipped short spans.
   Written linear ladders share the compact ink spacing and retain seven-view clearance.
-
+- For pzfreo/specify-core#89, write PMI into legacy AP214 files containing
+  `PRODUCT_TYPE`, changing only that keyword to `PRODUCT_RELATED_PRODUCT_CATEGORY`
+  and reporting each edition rewrite with its instance id and entity names.
 - For #161, isolate panicking recognition families and block their dependents while
   preserving independent results. Incomplete recognition/6 and evidence/1 documents
   add optional `failures` and `complete: false`; successful output is unchanged.

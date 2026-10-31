@@ -1465,3 +1465,28 @@ fn derived_geometry_does_not_regress_any_nist_pmi() {
     }
     assert!(checked >= 7, "the committed AP242 files are always checked");
 }
+
+#[test]
+fn ap214_product_type_rewrites_are_reported() {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("crates/haecceity/tests/fixtures/ap214_product_type.step");
+    let step = path.to_str().unwrap();
+    let (mut doc, _) = ok(&["pmi", "read", step]);
+    doc["parts"] = json!([{"part": 0, "pmi": {
+        "features": [{"items": [{"face": 3}]}],
+        "tolerances": [{"kind": "flatness", "target": {"feature": 0},
+            "magnitude": {"value": "0.05", "unit": "mm"}}],
+        "material": {"id": "6061-T6"},
+    }}]);
+    let (out, output) = write_cli(step, &doc, "product-type", &[]);
+    let (report, _) = write_ok(&output, "product-type");
+    assert_eq!(
+        report["edition_rewrites"],
+        json!([{
+            "id": 132, "from": "PRODUCT_TYPE", "to": "PRODUCT_RELATED_PRODUCT_CATEGORY",
+        }])
+    );
+    assert_eq!(report["instances"]["replaced"], 1);
+    let (back, _) = ok(&["pmi", "read", out.to_str().unwrap()]);
+    assert!(read_back_differences(&doc, &back, "add").is_empty());
+}

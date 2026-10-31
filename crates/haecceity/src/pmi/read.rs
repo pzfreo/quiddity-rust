@@ -24,8 +24,8 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use super::model::*;
 use super::standards::Iso2768;
 use super::{
-    Accounting, Finding, FindingKind, Identifiers, PartIdentifiers, PartProvenance, PmiRead,
-    Provenance, ReadError,
+    Accounting, CalloutLink, CalloutTarget, Finding, FindingKind, GraphicalCallout, Identifiers,
+    PartIdentifiers, PartProvenance, PmiRead, PresentedItem, Provenance, ReadError,
 };
 use crate::express::{self, Edition, Family};
 use crate::p21::{Attribute, Document, RawEntity, visit_attributes};
@@ -71,6 +71,7 @@ fn read_impl(
     for (i, part) in parts.iter().enumerate() {
         let mut st = PartState::new(PartId(i), part);
         r.read_part(&mut st);
+        r.callout_aliases(&st);
         let PartState {
             pmi,
             prov,
@@ -82,6 +83,7 @@ fn read_impl(
         identifiers.parts.push(part_identifiers);
     }
     let accounting = r.account(&provenance);
+    let callouts = r.read_callouts();
     let mut findings = std::mem::take(&mut r.findings);
     findings.sort();
     findings.dedup();
@@ -92,6 +94,7 @@ fn read_impl(
         provenance,
         identifiers,
         accounting,
+        callouts,
         #[cfg(feature = "json")]
         json_carriers: r.json_carriers,
     };
@@ -159,6 +162,8 @@ impl MeasureError {
 struct Reader<'a> {
     #[cfg(feature = "json")]
     json_carriers: BTreeMap<(PartId, String, usize), u64>,
+    callout_targets: HashMap<u64, Vec<CalloutTarget>>,
+    graphic_items: BTreeSet<u64>,
     doc: &'a Document,
     parts: &'a [PartDefinition],
     edition: &'static Edition,
@@ -378,6 +383,8 @@ impl<'a> Reader<'a> {
         Reader {
             #[cfg(feature = "json")]
             json_carriers: BTreeMap::new(),
+            callout_targets: HashMap::new(),
+            graphic_items: BTreeSet::new(),
             doc,
             parts,
             edition,
@@ -584,6 +591,24 @@ impl<'a> Reader<'a> {
         #[cfg(feature = "json")]
         self.json_carriers
             .insert((part, _collection.to_string(), _index), id);
+        let item = match _collection {
+            "features" => PresentedItem::Feature(FeatureId(_index)),
+            "dimensions" => PresentedItem::Dimension(DimensionId(_index)),
+            "tolerances" => PresentedItem::Tolerance(ToleranceId(_index)),
+            "datums" => PresentedItem::Datum(DatumId(_index)),
+            "datum_targets" => PresentedItem::DatumTarget(DatumTargetId(_index)),
+            "notes" => PresentedItem::Note(_index),
+            "attributes" => PresentedItem::Attribute(_index),
+            "surface_textures" => PresentedItem::SurfaceTexture(_index),
+            "general" => PresentedItem::General(_index),
+            "threads" => PresentedItem::Thread(_index),
+            "knurls" => PresentedItem::Knurl(_index),
+            _ => return self.identifier(part, id),
+        };
+        self.callout_targets
+            .entry(id)
+            .or_default()
+            .push(CalloutTarget { part, item });
         self.identifier(part, id)
     }
 
@@ -1297,7 +1322,7 @@ impl<'a> Reader<'a> {
             }
             let mut callouts = BTreeSet::new();
             for s in subjects {
-                for assoc in self.referrers_by(s, DMIA, IIRU, "definition") {
+                for assoc in self.presentation_associations(s, "definition") {
                     for item in self.get_refs(assoc, IIRU, "identified_item") {
                         if self.is(item, "draughting_callout")
                             || self.is(item, "annotation_occurrence")
@@ -1322,7 +1347,7 @@ impl<'a> Reader<'a> {
             let mut held = Vec::new();
             for c in callouts {
                 let mut features = BTreeSet::new();
-                for assoc in self.referrers_by(c, DMIA, IIRU, "identified_item") {
+                for assoc in self.presentation_associations(c, "identified_item") {
                     let Some(d) = self.get_ref(assoc, IIRU, "definition") else {
                         continue;
                     };
@@ -5962,6 +5987,173 @@ impl<'a> Reader<'a> {
         ));
     }
 
+    fn presentation_associations(&mut self, id: u64, attribute: &str) -> Vec<u64> {
+        self.referrers_by(
+            id,
+            "draughting_model_item_association",
+            "item_identified_representation_usage",
+            attribute,
+        )
+    }
+
+    /// Include aliases absorbed by composite features and merged datums, without interpreting
+    /// every consumed support instance as an independently presented semantic item.
+    fn callout_aliases(&mut self, st: &PartState) {
+        for (&id, feature) in &st.features {
+            if let Some(feature) = feature {
+                self.callout_targets
+                    .entry(id)
+                    .or_default()
+                    .push(CalloutTarget {
+                        part: st.id,
+                        item: PresentedItem::Feature(*feature),
+                    });
+                if self.is(id, "datum_feature") {
+                    for (i, datum) in st.pmi.datums.iter().enumerate() {
+                        if datum.feature() == Some(*feature) {
+                            self.callout_targets
+                                .entry(id)
+                                .or_default()
+                                .push(CalloutTarget {
+                                    part: st.id,
+                                    item: PresentedItem::Datum(DatumId(i)),
+                                });
+                        }
+                    }
+                }
+            }
+        }
+        // A property definition may state several general requirements; none has that
+        // definition as its unique identifier carrier. Material is a part-level singleton.
+        for (i, prov) in st.prov.general.iter().enumerate() {
+            for &id in prov {
+                if self.is(id, "property_definition") {
+                    self.callout_targets
+                        .entry(id)
+                        .or_default()
+                        .push(CalloutTarget {
+                            part: st.id,
+                            item: PresentedItem::General(i),
+                        });
+                }
+            }
+        }
+        for &id in &st.prov.material {
+            if self.is(id, "property_definition") && st.pmi.material.is_some() {
+                self.callout_targets
+                    .entry(id)
+                    .or_default()
+                    .push(CalloutTarget {
+                        part: st.id,
+                        item: PresentedItem::Material,
+                    });
+            }
+        }
+        for (&id, &datum) in &st.datums {
+            self.callout_targets
+                .entry(id)
+                .or_default()
+                .push(CalloutTarget {
+                    part: st.id,
+                    item: PresentedItem::Datum(datum),
+                });
+        }
+    }
+
+    /// Only presentation content, never styles, geometry, or a shared context.
+    fn annotation_children(&mut self, id: u64) -> Vec<u64> {
+        if self.is(id, "draughting_callout") {
+            self.get_refs(id, "draughting_callout", "contents")
+        } else if self.is(id, "annotation_plane") {
+            self.get_refs(id, "annotation_plane", "elements")
+        } else if self.is(id, "styled_item") {
+            self.get_refs(id, "styled_item", "item")
+                .into_iter()
+                .filter(|child| self.graphic_items.contains(child))
+                .collect()
+        } else {
+            Vec::new()
+        }
+    }
+
+    fn read_callouts(&mut self) -> Vec<GraphicalCallout> {
+        let graphics: Vec<_> = self.graphic_items.iter().copied().collect();
+        let mut contained = BTreeSet::new();
+        let mut trees = BTreeMap::new();
+        let mut planes: HashMap<u64, Vec<u64>> = HashMap::new();
+        for &id in &graphics {
+            if self.is(id, "annotation_plane") {
+                for child in self.annotation_children(id) {
+                    planes.entry(child).or_default().push(id);
+                }
+            }
+            if !self.is(id, "draughting_callout") {
+                continue;
+            }
+            let mut seen = BTreeSet::from([id]);
+            let mut pending = self.annotation_children(id);
+            while let Some(child) = pending.pop() {
+                if seen.insert(child) {
+                    contained.insert(child);
+                    pending.extend(self.annotation_children(child));
+                }
+            }
+            trees.insert(id, seen);
+        }
+        let mut out = Vec::new();
+        for id in graphics {
+            if self.is(id, "annotation_plane")
+                || (contained.contains(&id) && !self.is(id, "draughting_callout"))
+            {
+                continue;
+            }
+            let mut members = trees.remove(&id).unwrap_or_else(|| BTreeSet::from([id]));
+            // An association can identify the holding plane rather than its element.
+            let mut pending: Vec<_> = members.iter().copied().collect();
+            while let Some(child) = pending.pop() {
+                for &plane in planes.get(&child).into_iter().flatten() {
+                    if members.insert(plane) {
+                        pending.push(plane);
+                    }
+                }
+            }
+            let associations: BTreeSet<_> = members
+                .into_iter()
+                .flat_map(|member| self.presentation_associations(member, "identified_item"))
+                .collect();
+            let mut links = Vec::new();
+            for association in associations {
+                // A malformed/dangling definition still remains an unresolved link.
+                let definition = self
+                    .get_ref(
+                        association,
+                        "item_identified_representation_usage",
+                        "definition",
+                    )
+                    .unwrap_or(0);
+                let mut targets = self
+                    .callout_targets
+                    .get(&definition)
+                    .cloned()
+                    .unwrap_or_default();
+                targets.sort();
+                targets.dedup();
+                links.push(CalloutLink {
+                    association,
+                    definition,
+                    targets,
+                    entity: self.entity_label(definition),
+                });
+            }
+            out.push(GraphicalCallout {
+                id,
+                name: self.name_of(id),
+                links,
+            });
+        }
+        out
+    }
+
     // --- accounting -----------------------------------------------------------------------
 
     /// Graphic annotations, plus the models/views that actually carry them. The EXPRESS
@@ -5976,6 +6168,7 @@ impl<'a> Reader<'a> {
         for id in all {
             if self.is(id, "annotation_occurrence") || self.is(id, "draughting_callout") {
                 graphic.insert(id);
+                self.graphic_items.insert(id);
             }
             let children = if self.is(id, "draughting_model")
                 || self.is(id, "presentation_representation")

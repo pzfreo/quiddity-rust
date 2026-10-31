@@ -594,6 +594,36 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
                 }
             }
         }
+        // Callout targets use the returned model's indices, including restored ordering
+        // and aliases (one native feature can project to several caller feature ids).
+        for callout in &mut read.callouts {
+            for link in &mut callout.links {
+                link.targets = link
+                    .targets
+                    .iter()
+                    .flat_map(|target| {
+                        if target.part != PartId(part) {
+                            return vec![target.clone()];
+                        }
+                        let (collection, old) = target.item.collection_index();
+                        let Some(order) = maps.get(collection) else {
+                            return vec![target.clone()];
+                        };
+                        order
+                            .iter()
+                            .enumerate()
+                            .filter(|&(_, &native)| native == old)
+                            .map(|(new, _)| crate::pmi::CalloutTarget {
+                                part: target.part,
+                                item: target.item.at_index(new),
+                            })
+                            .collect()
+                    })
+                    .collect();
+                link.targets.sort();
+                link.targets.dedup();
+            }
+        }
         read.identifiers.parts[part].json_units = Some(serde_json::to_string(&layout.units)?);
         read.identifiers.parts[part].json_anchors =
             Some(serde_json::to_string(&layout.wire_anchors)?);
