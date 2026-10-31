@@ -6,6 +6,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Added
+
+- Haecceity `PmiRead.callouts` lists decoded graphical PMI annotations and every
+  DMIA semantic link, including unresolved definitions, independently of the existing
+  presentation accounting count. Links use part-qualified model ids and follow JSON
+  transport ordering; note callout reading remains compatible.
+
 ### Fixed
 
 - Generated part notes share one numbered GENERAL NOTES block in JSON and STEP,

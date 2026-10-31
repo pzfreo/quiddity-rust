@@ -44,6 +44,8 @@ pub struct PmiRead {
     pub provenance: Provenance,
     pub identifiers: Identifiers,
     pub accounting: Accounting,
+    /// Presented annotations in STEP instance order, including graphic-only callouts.
+    pub callouts: Vec<GraphicalCallout>,
 }
 
 impl PartialEq for PmiRead {
@@ -53,9 +55,99 @@ impl PartialEq for PmiRead {
             && self.provenance == other.provenance
             && self.identifiers == other.identifiers
             && self.accounting == other.accounting
+            && self.callouts == other.callouts
     }
 }
 impl Eq for PmiRead {}
+
+/// One presented annotation: a draughting callout, or an occurrence outside all callouts.
+/// Annotation planes are containers; their elements are listed instead. Read-only evidence,
+/// separate from the semantic model and its replace/consumption policy.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct GraphicalCallout {
+    /// The annotation's STEP instance id (without the `#`, like `Finding.ids`).
+    pub id: u64,
+    /// Its decoded representation-item name.
+    pub name: String,
+    /// Every DMIA on it or its contained annotations, ordered by association instance.
+    /// Empty means graphic-only. An unresolved association is never graphic-only.
+    pub links: Vec<CalloutLink>,
+}
+
+/// A `draughting_model_item_association` (including subtypes) and its semantic definition.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CalloutLink {
+    pub association: u64,
+    /// The definition's STEP instance, retained even when it is not modelled.
+    pub definition: u64,
+    /// Model items named by the definition. Empty means unresolved; `entity` explains what
+    /// was associated instead. Plain shape-aspect definitions resolve to their features only.
+    pub targets: Vec<CalloutTarget>,
+    /// The definition's entity type, lower case (complex leaves joined by `+`).
+    pub entity: String,
+}
+
+/// A part-qualified reference into the returned semantic model.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct CalloutTarget {
+    pub part: PartId,
+    pub item: PresentedItem,
+}
+
+/// The semantic item a graphical annotation presents. A datum feature names its `Feature`
+/// and any `Datum` it establishes. Plain shape aspects name features only.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum PresentedItem {
+    Feature(FeatureId),
+    Dimension(DimensionId),
+    Tolerance(ToleranceId),
+    Datum(DatumId),
+    DatumTarget(DatumTargetId),
+    Note(usize),
+    Attribute(usize),
+    SurfaceTexture(usize),
+    General(usize),
+    Thread(usize),
+    Knurl(usize),
+    Material,
+}
+
+#[cfg(feature = "json-import")]
+impl PresentedItem {
+    pub(crate) fn collection_index(&self) -> (&'static str, usize) {
+        match *self {
+            Self::Feature(id) => ("features", id.0),
+            Self::Dimension(id) => ("dimensions", id.0),
+            Self::Tolerance(id) => ("tolerances", id.0),
+            Self::Datum(id) => ("datums", id.0),
+            Self::DatumTarget(id) => ("datum_targets", id.0),
+            Self::Note(i) => ("notes", i),
+            Self::Attribute(i) => ("attributes", i),
+            Self::SurfaceTexture(i) => ("surface_textures", i),
+            Self::General(i) => ("general", i),
+            Self::Thread(i) => ("threads", i),
+            Self::Knurl(i) => ("knurls", i),
+            Self::Material => ("material", 0),
+        }
+    }
+
+    pub(crate) fn at_index(&self, i: usize) -> Self {
+        match self {
+            Self::Feature(_) => Self::Feature(FeatureId(i)),
+            Self::Dimension(_) => Self::Dimension(DimensionId(i)),
+            Self::Tolerance(_) => Self::Tolerance(ToleranceId(i)),
+            Self::Datum(_) => Self::Datum(DatumId(i)),
+            Self::DatumTarget(_) => Self::DatumTarget(DatumTargetId(i)),
+            Self::Note(_) => Self::Note(i),
+            Self::Attribute(_) => Self::Attribute(i),
+            Self::SurfaceTexture(_) => Self::SurfaceTexture(i),
+            Self::General(_) => Self::General(i),
+            Self::Thread(_) => Self::Thread(i),
+            Self::Knurl(_) => Self::Knurl(i),
+            Self::Material => Self::Material,
+        }
+    }
+}
 
 /// Why a file's PMI could not be read at all.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -266,7 +358,7 @@ pub struct Accounting {
     pub consumed: usize,
     /// Of them, not consumed but named by a finding.
     pub reported: usize,
-    /// Graphic PMI instances (counted, not interpreted): annotation occurrences (including
+    /// Graphic PMI instances (including the annotations read in `PmiRead.callouts`): occurrences (including
     /// planes and tessellated occurrences), draughting callouts, and their models/views.
     /// Geometry styling, layers, colours and invisibility are excluded.
     pub presentation: usize,
