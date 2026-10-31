@@ -937,3 +937,68 @@ fn unused_supplemental_geometry_roundtrips_as_native_geometry() {
     .unwrap();
     assert_eq!(actual, expected);
 }
+
+#[test]
+fn native_reference_to_an_equal_valued_twin_is_not_repaired_by_metadata() {
+    use haecceity::p21::{self, Attribute as A, RawEntity};
+    let bytes = cube();
+    let doc = Document::parse(bytes.clone()).unwrap();
+    let parts = read_part_definitions(&bytes).unwrap();
+    let mut model = test_model();
+    model.dimensions.push(model.dimensions[0].clone());
+    model.notes.push(Note {
+        kind: "semantic text".into(),
+        text: "Inspect first dimension".into(),
+        on: Some(NoteOwner::Dimension(DimensionId(0))),
+        callouts: vec![],
+    });
+    let mut semantic = json::identify(model, None).unwrap();
+    semantic
+        .ids
+        .insert("dimensions".into(), vec!["dim-a".into(), "dim-b".into()]);
+    semantic.ids.insert("notes".into(), vec!["note-a".into()]);
+    let (bytes, _) = json::write_preserving(&doc, &parts, &[(PartId(0), semantic)]).unwrap();
+    let doc = Document::parse(bytes).unwrap();
+    let parts = read_part_definitions(doc.bytes()).unwrap();
+    let carrier = |wanted: &str| {
+        doc.ids()
+            .find_map(|id| match doc.get(id) {
+                Some(RawEntity::Simple {
+                    name, attributes, ..
+                }) if name.eq_ignore_ascii_case("id_attribute") => match attributes.as_slice() {
+                    [A::String(value), A::EntityRef(target)] if value == wanted => Some(*target),
+                    _ => None,
+                },
+                _ => None,
+            })
+            .unwrap()
+    };
+    let note = carrier("note-a");
+    let dim_b = carrier("dim-b");
+    let mut record = doc.get(note).unwrap().clone();
+    if let RawEntity::Simple {
+        name, attributes, ..
+    } = &mut record
+    {
+        assert!(name.eq_ignore_ascii_case("property_definition"));
+        attributes[2] = A::EntityRef(dim_b);
+    } else {
+        panic!("note property expected");
+    }
+    let mut edit = p21::Edit::new();
+    edit.replace(note, record);
+    let changed = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    let native = pmi::read_native(&changed, &parts).unwrap();
+    let Some(NoteOwner::Dimension(owner)) = native.parts[0].notes[0].on else {
+        panic!("dimension owner expected");
+    };
+    assert_eq!(
+        native.identifiers.parts[0].dimensions[owner.0].as_deref(),
+        Some("dim-b")
+    );
+    let error = pmi::read(&changed, &parts).unwrap_err().to_string();
+    assert!(
+        error.contains("native reference") && error.contains("dim-b"),
+        "{error}"
+    );
+}

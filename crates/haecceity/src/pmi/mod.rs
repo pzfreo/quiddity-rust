@@ -24,6 +24,8 @@ pub mod write;
 
 pub use model::*;
 pub use read::read;
+#[cfg(feature = "json")]
+pub use read::read_native;
 pub use verify::{Problem, Snapshot, Verification, verify};
 pub use without::without;
 pub(crate) use without::{Kept, without_kept};
@@ -60,12 +62,17 @@ impl Eq for PmiRead {}
 pub enum ReadError {
     /// The part definitions do not belong to this document (an id is not an instance of it).
     Parts(String),
+    /// JSON transport metadata disagrees with the authoritative native STEP.
+    #[cfg(feature = "json")]
+    Transport(String),
 }
 
 impl std::fmt::Display for ReadError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ReadError::Parts(s) => write!(f, "part definitions do not match the document: {s}"),
+            #[cfg(feature = "json")]
+            ReadError::Transport(s) => write!(f, "invalid PMI JSON transport metadata: {s}"),
         }
     }
 }

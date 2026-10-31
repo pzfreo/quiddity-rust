@@ -34,6 +34,26 @@ use crate::step::PartDefinition;
 /// Reads the semantic PMI of every part of `doc`. `parts` are `read_part_definitions` of the
 /// same bytes.
 pub fn read(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadError> {
+    read_impl(
+        doc,
+        parts,
+        #[cfg(feature = "json")]
+        true,
+    )
+}
+
+/// Read authoritative native AP242 values and ids without applying JSON transport
+/// order/aliases. Useful for auditing or recovering stale ordering metadata.
+#[cfg(feature = "json")]
+pub fn read_native(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadError> {
+    read_impl(doc, parts, false)
+}
+
+fn read_impl(
+    doc: &Document,
+    parts: &[PartDefinition],
+    #[cfg(feature = "json")] restore: bool,
+) -> Result<PmiRead, ReadError> {
     for p in parts {
         for id in [p.product_definition, p.shape] {
             if doc.get(id).is_none() {
@@ -76,8 +96,10 @@ pub fn read(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadErr
         json_carriers: r.json_carriers,
     };
     #[cfg(feature = "json")]
-    crate::json::transport::restore(doc, &mut result)
-        .map_err(|e| ReadError::Parts(e.to_string()))?;
+    if restore {
+        crate::json::transport::restore(doc, &mut result)
+            .map_err(|e| ReadError::Transport(e.to_string()))?;
+    }
     Ok(result)
 }
 

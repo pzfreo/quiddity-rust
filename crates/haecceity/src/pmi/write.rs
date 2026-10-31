@@ -342,7 +342,7 @@ pub fn standard_form(p: &PartPmi) -> PartPmi {
     out
 }
 
-fn decimal_carrier(g: &GeneralTolerance, places: Option<u8>) -> bool {
+pub(crate) fn decimal_carrier(g: &GeneralTolerance, places: Option<u8>) -> bool {
     matches!(g, GeneralTolerance::Table { name, cells } if name.is_empty() && places.is_some() && matches!(cells.as_slice(), [c] if c.decimal_default() == places))
 }
 
@@ -525,6 +525,14 @@ fn write_inner(
             .validate()
             .map_err(|errors| WriteError::Invalid { part: *p, errors })?;
     }
+    #[cfg(feature = "json")]
+    let read = if identifiers.is_some() {
+        super::read_native(doc, parts)
+    } else {
+        super::read(doc, parts)
+    }
+    .map_err(WriteError::Read)?;
+    #[cfg(not(feature = "json"))]
     let read = super::read(doc, parts).map_err(WriteError::Read)?;
 
     // The file's edition and the table written instances are checked against.
@@ -554,9 +562,19 @@ fn write_inner(
     for (p, part_pmi) in &order {
         let plan = PartPlan::new(doc, &parts[p.0], *p, part_pmi, &read, mode)?;
         #[cfg(feature = "json")]
-        let plan = PartPlan {
-            identifiers: identifiers.and_then(|ids| ids.get(p)),
-            ..plan
+        let plan = {
+            let mut plan = PartPlan {
+                identifiers: identifiers.and_then(|ids| ids.get(p)),
+                ..plan
+            };
+            if plan.identifiers.is_some() {
+                for role in plan.roles.values_mut() {
+                    if matches!(role, Role::DatumFeatureOfSize(_)) {
+                        *role = Role::DatumFeature;
+                    }
+                }
+            }
+            plan
         };
         let original = &pmi
             .iter()

@@ -19,9 +19,16 @@ pub(super) fn detach(
     parts: &[PartDefinition],
     requested: &[(pmi::PartId, Semantic)],
 ) -> Result<(Document, Vec<Kept>, BTreeSet<u64>)> {
-    let read = pmi::read(doc, parts).map_err(|e| Error(e.to_string()))?;
+    let read = match pmi::read(doc, parts) {
+        Ok(read) => read,
+        Err(pmi::ReadError::Transport(_)) => {
+            pmi::read_native(doc, parts).map_err(|e| Error(e.to_string()))?
+        }
+        Err(e) => return Err(Error(e.to_string())),
+    };
     let mut kept = vec![];
     let mut edit = Edit::new();
+    let mut detached = BTreeSet::new();
     for id in doc
         .ids()
         .filter(|&id| is(doc, id, "draughting_model_item_association"))
@@ -141,7 +148,9 @@ pub(super) fn detach(
             .ok_or_else(|| Error(format!("#{id}: presentation has no item")))?;
             let context = reference(attr(doc, model, "representation", "context_of_items"))
                 .ok_or_else(|| Error(format!("#{model}: presentation has no context")))?;
-            edit.remove(id);
+            if detached.insert(id) {
+                edit.remove(id);
+            }
             kept.push(Kept {
                 part: *part,
                 collection: c.clone(),
@@ -160,7 +169,7 @@ pub(super) fn detach(
     for k in &kept {
         let mut stack = vec![k.item];
         while let Some(id) = stack.pop() {
-            if semantic_carriers.contains(&id) || !protected.insert(id) {
+            if (id != k.item && semantic_carriers.contains(&id)) || !protected.insert(id) {
                 continue;
             }
             if let Some(record) = doc.get(id) {

@@ -36,34 +36,58 @@ fn key(raw: &Value, collection: &str, index: usize) -> Result<String> {
         &Anchors::default(),
         &mut BTreeSet::new(),
     )?;
-    fn sets(v: &mut Value) -> Result<()> {
-        if let Value::Object(o) = v {
-            for (k, x) in o.iter_mut() {
-                sets(x)?;
-                if ["items", "members", "from"].contains(&k.as_str())
-                    && let Some(a) = x.as_array_mut()
-                {
-                    let mut values = std::mem::take(a)
-                        .into_iter()
-                        .map(|v| identity::canonical(&v).map(|key| (key, v)))
-                        .collect::<Result<Vec<_>>>()?;
-                    values.sort_by(|a, b| a.0.cmp(&b.0));
-                    values.dedup_by(|a, b| a.0 == b.0);
-                    *a = values.into_iter().map(|(_, v)| v).collect();
+    fn sort_set(array: &mut Vec<Value>) -> Result<()> {
+        let mut values = std::mem::take(array)
+            .into_iter()
+            .map(|v| identity::canonical(&v).map(|key| (key, v)))
+            .collect::<Result<Vec<_>>>()?;
+        values.sort_by(|a, b| a.0.cmp(&b.0));
+        values.dedup_by(|a, b| a.0 == b.0);
+        *array = values.into_iter().map(|(_, v)| v).collect();
+        Ok(())
+    }
+    fn sets(value: &mut Value) -> Result<()> {
+        match value {
+            Value::Object(object) => {
+                for child in object.values_mut() {
+                    sets(child)?;
+                }
+                if object.len() == 1 {
+                    if let Some(array) = object.get_mut("items").and_then(Value::as_array_mut)
+                        && array.iter().all(|a| {
+                            a.as_object().is_some_and(|o| {
+                                o.len() == 1
+                                    && ["face", "edge", "geometry"]
+                                        .iter()
+                                        .any(|k| o.contains_key(*k))
+                            })
+                        })
+                    {
+                        sort_set(array)?;
+                    }
+                    for (variant, field) in [("group", "members"), ("derived", "from")] {
+                        if let Some(array) = object
+                            .get_mut(variant)
+                            .and_then(|v| v.get_mut(field))
+                            .and_then(Value::as_array_mut)
+                        {
+                            sort_set(array)?;
+                        }
+                    }
                 }
             }
-        } else if let Value::Array(a) = v {
-            for x in a {
-                sets(x)?;
+            Value::Array(array) => {
+                for child in array {
+                    sets(child)?;
+                }
             }
+            _ => {}
         }
         Ok(())
     }
-    // Ordering of structural supports is represented by bindings; all semantic values
-    // (including ordered UDA cells and coordinate tuples) remain ordered.
-    if collection == "features" {
-        sets(&mut value)?;
-    }
+    // Only structural support sets are normalized, including their occurrences
+    // inside semantic requirements. UDA cell order and semantic values stay exact.
+    sets(&mut value)?;
     Ok(identity::digest(&identity::canonical(&value)?))
 }
 fn collect(
@@ -277,6 +301,40 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
                 let i = index.ok_or_else(|| {
                     Error(format!("ordering id {:?} not found in native {c}", e.id))
                 })?;
+                if key(&raw, c, i)? != e.key {
+                    return Err(Error(format!(
+                        "ordering id {:?}: native content changed in {c}",
+                        e.id
+                    )));
+                }
+                // Verify independently identified reference targets before restoring any
+                // projection/order bindings. Equal-valued twins still have distinct ids.
+                for (path, reference) in &e.references {
+                    let target = reference["collection"]
+                        .as_str()
+                        .ok_or_else(|| Error("invalid native reference collection".into()))?;
+                    if ["features", "geometry", "derived_geometry"].contains(&target) {
+                        continue;
+                    }
+                    let index = old[i]
+                        .pointer(path)
+                        .and_then(Value::as_u64)
+                        .ok_or_else(|| {
+                            Error(format!(
+                                "ordering id {:?}: native reference {path} is absent",
+                                e.id
+                            ))
+                        })? as usize;
+                    let actual = file_ids(Some(&read.identifiers.parts[part]), target)
+                        .get(index)
+                        .and_then(Option::as_deref);
+                    if actual != reference["id"].as_str() {
+                        return Err(Error(format!(
+                            "ordering id {:?}: native reference {path} selects {target} id {actual:?}, expected {}",
+                            e.id, reference["id"]
+                        )));
+                    }
+                }
                 let mut value = old[i].clone();
                 if let Some(anchors) = &e.anchors {
                     value["items"] = anchors.clone();
@@ -301,6 +359,26 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
                 }
                 values.push(value);
                 order.push(i);
+            }
+            if !["features", "geometry", "derived_geometry"].contains(&c) {
+                for i in 0..old.len() {
+                    if order.contains(&i) {
+                        continue;
+                    }
+                    let precision_helper = c == "general"
+                        && file_ids(Some(&read.identifiers.parts[part]), c)
+                            .get(i)
+                            .is_none_or(Option::is_none)
+                        && crate::pmi::write::decimal_carrier(
+                            &read.parts[part].general[i],
+                            read.parts[part].decimal_places,
+                        );
+                    if !precision_helper {
+                        return Err(Error(format!(
+                            "ordering record omits native {c} item {i}; use pmi::read_native to recover stale metadata"
+                        )));
+                    }
+                }
             }
             restored[c] = Value::Array(values);
             maps.insert(c.into(), order);

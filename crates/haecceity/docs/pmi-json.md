@@ -292,3 +292,17 @@ representation even when no feature uses it. JSON-tagged reads recover those
 items before applying verified order/alias bindings. Legacy reads/writes retain
 their existing behaviour. Computed derived-geometry records still require their
 deriving feature; an isolated cache record has no standalone native carrier.
+
+Native verification happens **before** applying order bindings: every requirement
+keeps its native values and resolved support, and references to independently
+identified datums, dimensions, targets and tolerances must select the exact
+native id (including equal-valued twins). Metadata cannot repair a wrong native
+reference or hide an additional semantic item; only the redundant anonymous
+precision carrier is excluded. JSON writes split datum features from their size
+dimensions even without the presentation feature, so note-owner projections are
+unambiguous. Ordinary writer output remains frozen.
+
+Corrupt/stale ordering produces `ReadError::Transport`. `pmi::read_native` reads
+the complete authoritative AP242 model without ordering/alias restoration, for
+audit or recovery. A JSON import replaces stale metadata using those native
+values for its removal plan; its new output still undergoes strict verification.
