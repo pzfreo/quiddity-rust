@@ -591,6 +591,7 @@ pub struct Ladder {
     bounds: Bounds,
     groups: Vec<(V3, V3, usize)>,
     labels: Vec<Bounds>,
+    fixed: Vec<(Bounds, V3)>,
     ink: Vec<Ink>,
     compact: bool,
     view_local: bool,
@@ -601,6 +602,7 @@ impl Ladder {
             bounds,
             groups: Vec::new(),
             labels: Vec::new(),
+            fixed: Vec::new(),
             ink: Vec::new(),
             compact: false,
             view_local: false,
@@ -624,6 +626,15 @@ impl Ladder {
     }
     pub fn reserve(&mut self, b: Bounds) {
         self.labels.push(b);
+    }
+    /// Retained flags and frames must clear the full dimension span in their
+    /// parallel annotation plane, including the portion outside the lettering.
+    pub fn reserve_annotation(&mut self, bounds: Bounds, normal: V3) {
+        if !bounds.max_extent().is_finite() {
+            return;
+        }
+        self.fixed.push((bounds, normal));
+        self.reserve(bounds);
     }
     /// Reserve circular/angular dimension text in its real annotation plane.
     pub fn reserve_dimension(&mut self, bounds: Bounds, normal: V3, along: V3) {
@@ -732,8 +743,18 @@ impl Ladder {
                     .labels
                     .iter()
                     .any(|b| super::placement::boxes_overlap(bb, *b, padding));
+            let crosses_frame = self.fixed.iter().any(|(b, n)| {
+                if geom::dot(normal, *n).abs() <= 1. - 1e-8 {
+                    return false;
+                }
+                let x = range(*b, d);
+                let y = range(*b, v);
+                let frame = rectangle(b.centre(), d, v, x[1] - x[0], y[1] - y[0]);
+                projected_clearance(&ink.polygons[1], &frame, normal) < 1e-8
+            });
             rung += 1;
             if !overlap
+                && !crosses_frame
                 && !self
                     .ink
                     .iter()

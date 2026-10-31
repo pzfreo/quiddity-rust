@@ -3619,7 +3619,7 @@ impl<'a> PartPlan<'a> {
                     if i >= symbols.len() && i < symbols.len() + self.pmi.dimensions.len() {
                         ladder.reserve_dimension(b, plane[1], plane[2]);
                     } else {
-                        ladder.reserve(b);
+                        ladder.reserve_annotation(b, plane[1]);
                     }
                 }
             }
