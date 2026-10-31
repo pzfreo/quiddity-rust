@@ -11,12 +11,16 @@ macro_rules! internal_entry {
 
 #[path = "body.rs"]
 pub(crate) mod body;
+#[path = "cli.rs"]
+pub mod cli;
 #[path = "correspondence/mod.rs"]
 pub mod correspondence;
 #[path = "evidence_view.rs"]
 pub mod evidence_view;
 #[path = "features/mod.rs"]
 pub mod features;
+#[path = "file_api.rs"]
+pub mod file_api;
 #[path = "framed_records.rs"]
 pub mod framed_records;
 #[path = "frames.rs"]

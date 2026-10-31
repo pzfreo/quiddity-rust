@@ -1,6 +1,6 @@
 //! Opt-in CLI for the crate's versioned semantic and presentation JSON schemas.
 use super::*;
-use quiddity::kernel::json::{self as interchange, Anchors};
+use crate::kernel::json::{self as interchange, Anchors};
 use serde_json::{Value, json};
 
 pub(super) fn run(args: &[String]) -> Result<String, String> {
