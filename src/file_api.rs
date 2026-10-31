@@ -62,7 +62,7 @@ pub fn capabilities() -> String {
         "package": {"name": "quiddity-rust", "version": env!("CARGO_PKG_VERSION")},
         "recognition": crate::recognition::SCHEMA_VERSION,
         "evidence": "quiddity-rust/evidence/1",
-        "fingerprints": "quiddity-rust/fingerprints/3",
+        "fingerprints": crate::correspondence::fingerprint::FINGERPRINT_VERSION,
         "inputs": ["step-path", "step-bytes"],
         "functions": ["recognise", "evidence", "anchor", "fingerprints", "correspond", "capabilities"],
         "pmi_json_import": cfg!(feature = "json-import"),
