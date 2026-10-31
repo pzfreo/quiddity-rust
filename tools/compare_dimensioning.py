@@ -15,6 +15,7 @@ import collections
 import hashlib
 import json
 import pathlib
+import re
 import subprocess
 
 
@@ -55,7 +56,11 @@ def dw_quantities(plan):
             groups[(role, round(m["value"], 3), axis(p) if role == "location" else None)].append(m)
         # Coincident claims are one statement, while a compound callout carries several sizes.
         for (role, value, along), members in groups.items():
-            count = len({m["feature"] for m in members}) if role == "bore.diameter" else 1
+            count = len({m["feature"] for m in members if m["feature"].startswith("f:hole:")}) if role not in ("location", "pitch", "bolt_circle.diameter") else 1
+            count = max(1, count)
+            if role == "pitch":
+                repeat = re.match(r"^(\d+)×", d["label"])
+                count = int(repeat.group(1)) if repeat else 1
             result.append({"key": [role, value, along, count], "id": d["id"], "label": d["label"]})
     return statements, result
 
@@ -66,14 +71,14 @@ def q_quantities(doc):
         if "size" in r["kind"]:
             role = r["kind"]["size"]["role"]
             along = None
-            count = r["count"] if role == "bore.diameter" else 1
+            count = r["count"]
         else:
             role = "pitch" if isinstance(r["pattern"], dict) and "pitch" in r["pattern"] else "location"
             local_axis = r["kind"].get("location", {}).get("axis", 0)
             direction = doc["input"]["frame"]["xyz"[local_axis]]
             world_axis = max(range(3), key=lambda k: abs(direction[k]))
             along = "xyz"[world_axis] if role == "location" else None
-            count = 1
+            count = r["pattern"]["pitch"]["intervals"] if role == "pitch" else 1
         result.append({"key": [role, round(r["nominal"], 3), along, count], "id": r["id"]})
     return result
 
