@@ -107,7 +107,8 @@ jobs:
       - name: Install the wheel, and pytest
         run: |
           uv pip install --python .venv pytest
-          uv pip install --python .venv --no-index --find-links dist quiddity
+          # --no-cache: a cached wheel of the same version would hide this build.
+          uv pip install --python .venv --no-index --no-cache --find-links dist quiddity
       - name: The wheel carries the licence
         run: |
           .venv/${{ runner.os == 'Windows' && 'Scripts' || 'bin' }}/python - <<'EOF'
