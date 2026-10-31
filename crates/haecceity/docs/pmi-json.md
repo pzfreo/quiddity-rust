@@ -63,7 +63,7 @@ are not item references. A face fingerprint anchor can name several support
 faces; every support face must resolve, and the anchor expands into those faces.
 One dimension or tolerance is one semantic object, with its content together.
 
-Source requirement IDs come from `ID_ATTRIBUTE`. Indexed support projections
+Source requirement IDs come from `ID_ATTRIBUTE`. Structural support projections
 of a shared STEP carrier have their own `features:` namespace. Missing IDs are
 content-derived: canonical model content recursively substitutes referenced
 item content and verified fingerprint keys (when supplied) for indices; a
@@ -115,7 +115,7 @@ writer's feature/kind, EXPRESS and rule checks. Every refusal includes its reaso
 ## Type sources
 
 The table covers every `$defs` semantic type. Names in the left column are the
-Rust/model names used as schema definition names. ID wrappers are array indices,
+Rust/model names used as schema definition names. Item reference wrappers are id strings,
 not separate AP242 entities. “PMI” section numbers refer to CAx-IF PMI v4.1;
 [Supplemental Geometry v1.3](https://www.mbx-if.org/home/cax/recpractices/)
 [User Defined Attributes v1.8](https://www.mbx-if.org/home/wp-content/uploads/2024/05/rec_prac_user_def_attributes_v18.pdf) and
@@ -145,7 +145,7 @@ not AP242 entities.
 | `Note`, `Callout`, `NoteOwner` | property_definition, descriptive_representation_item, draughting_callout, draughting_model_item_association | PMI §§7.3–7.4; UDA |
 | `SurfaceTexture`, `MaterialRemoval`, `SurfaceTextureParameter` | property_definition, general_property, surface_texture_representation, measure_representation_item | No surface-texture section in PMI v4.1; ISO 10303-1110 Surface_texture / Standard_surface_texture_parameter, with existing model decisions in step-ap242.md |
 | `AttributeSet`, `GeneralProperty`, `AttributeValue` | property_definition, general_property, general_property_association, representation, descriptive_representation_item, measure_representation_item, compound_representation_item | PMI §7.4; UDA §§5–7 |
-| `PartPmi`, `PartId`, `FaceIndex`, `EdgeIndex`, `FeatureId`, `DatumId`, `DatumTargetId`, `DimensionId`, `ToleranceId`, `GeometryId`, `DerivedGeometryId` | product_definition, product_definition_shape (part aggregate); references to the types above | PMI §3.8; JSON indexing convention |
+| `PartPmi`, `PartId`, `FaceIndex`, `EdgeIndex`, `FeatureId`, `DatumId`, `DatumTargetId`, `DimensionId`, `ToleranceId`, `GeometryId`, `DerivedGeometryId` | product_definition, product_definition_shape (part aggregate); references to the types above | PMI §3.8; JSON item-id and topology-index conventions |
 
 ## Presentation companion
 
@@ -174,16 +174,16 @@ in `unlinked`.
 ISO table helper types `Iso2768`, `LinearClass` (`f`, `m`, `c`, `v`) and
 `GeometricClass` (`H`, `K`, `L`) map the `limits_and_fits`/general-tolerance
 classification (PMI §4.1, ISO 2768). Supplemental `geometry`, computed
-`derived_geometry` and `holes` remain plain arrays: they have no independently
-identified requirement entity in `PartIdentifiers`; they are reached through
-indexed support features and the requirements that reference those features. The requirement collections listed above carry `{id,value}`; `features` remain
-plain indexed support objects.
+`derived_geometry` and `features` use identified `{id,value}` items, including
+support projections of shared native carriers. `holes` remain details whose
+`feature` field references the support's id. Settings and material are aggregate
+part fields, not independently referenced items.
 
 `SupportKey` maps the verified geometric namespace used by Specify #65/#77:
 `{"fingerprint":{"schema":2,"faces":"<verified face hash>","support":[0]}}`.
 It is a JSON support convention over AP242 shape-aspect topology (PMI §3.8), not
-an EXPRESS entity. A face anchor has one support face; a feature can contain
-several such anchors. `Anchors::bind_support` binds a consumer-verified namespace.
+an EXPRESS entity. A fingerprint anchor can contain several support faces and expands to
+that many face anchors in the model. Every face must resolve. `Anchors::bind_support` binds a consumer-verified namespace.
 Opaque string support keys are also accepted through `Anchors.fingerprints`.
 No new fingerprint algorithm or hash dependency is introduced.
 
@@ -192,7 +192,7 @@ Tolerance relationships use `applied_identification_assignment` with an
 `id_attribute_select` excludes `geometric_tolerance_relationship`, while ed4's
 `identification_item` includes it. JSON writes upgrade an ed1 file to the existing
 ed4 writer target when this carrier is needed. Other independent items use
-`ID_ATTRIBUTE`. The JSON-enabled reader recognizes this assignment role; its
+`ID_ATTRIBUTE`. The reader, including default-feature builds, recognizes this assignment role; its
 assignment is consumed with the relationship. Ordinary writes keep their existing
 schema and bytes. This is a transport convention over the standard assignment
 entities, not an extension to the EXPRESS schema.
@@ -225,15 +225,44 @@ Support-only graphics remain unlinked and are retained.
 ## v1 identity and presentation policy
 
 JSON writes preserve note kinds and text as CAx-IF §7.4 descriptive properties,
-without migrating notes into attributes. All note kinds, arbitrary text, all
-owner alternatives and empty/read-back callout lists round-trip. Feature and
+without migrating notes into attributes. All note kinds and arbitrary text
+(including Unicode and empty kind strings) use the following form:
+
+| JSON note | Native AP242 form read back as `Note` |
+| --- | --- |
+| `kind: "semantic text"` | `property_definition('manufacturing requirement','semantic text',owner)` |
+| `kind: "surface texture"`, `"coating"`, `"edges"`, `"general note"`, or any caller string | Same property, with the exact kind in its description |
+| `text` | One `descriptive_representation_item('note text',text)` in its representation |
+| `on: null` | Part `product_definition_shape` |
+| `on: {feature/dimension/tolerance/datum_target: id}` | Referenced item's native carrier |
+
+The reader already recognises this manufacturing-requirement form. A property
+named `semantic text` associated with a general property remains an AttributeSet;
+the two collections are intentionally distinct. Callout observations are retained
+as transport bindings; presentation JSON does not create drawn geometry.
+ Feature and
 attribute order, optional descriptions (including null), and general-property
 fields are retained. A transport ordering association records item IDs and
-support projections without replacing the native semantic PMI as authority.
+support projections without replacing native semantic PMI as authority.
+Its `property_definition('haecceity.pmi/1 ordering',…,part)` representation
+contains an `ordering` descriptive item with collection IDs, semantic content
+keys, reference bindings, anchor order, and callout observations. The reader
+rebuilds collections from independently decoded native items and verifies every
+resolved content key. Corrupt or stale ordering records are refused. This metadata
+also distinguishes equal support projections that the native representation shares.
+The carrier lookup cache is crate-private and excluded from `PmiRead` equality.
+
+`pmi::write::differences` and `differences_as_stated` detect feature, attribute
+and note order/field changes, including null descriptions and collection changes.
+The explicitly named `differences_by_meaning[_as_stated]` functions retain native
+AP242 set comparison for the legacy writer and its frozen output checks.
 
 Import preserves foreign graphics linked to surviving unchanged semantic items;
 only presentation of removed/replaced requirements may be removed, and each
-removal is reported. JSON-generated callouts carry the association description
+removal is reported. Unchanged file graphics and their dependency graphs are
+reused with rebinding to the surviving IDs. Separate As Drawn linking models
+preserve multiple source associations without violating IIRU UR1/UR2; the
+original graphics, placements and view containers remain. JSON-generated callouts carry the association description
 `haecceity.generated/1` (CAx-IF §7.3 permits this description); read-back labels
 them `source: generated`. Unmarked graphics remain `source: file`.
 Generated graphics use the same geometry-based placement as the STEP writer,

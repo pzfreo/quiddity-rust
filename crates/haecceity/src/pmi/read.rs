@@ -4730,10 +4730,6 @@ impl<'a> Reader<'a> {
                 }
                 continue;
             }
-            if description == "haecceity.pmi/1 note" {
-                self.note(st, pdef, &name, on);
-                continue;
-            }
             // User defined attributes (UDA practice §5: associated with a general_property),
             // and editable note text (PMI practice §7.4, UDA practice §6.4.1: 'semantic text',
             // which some files write without the general_property).

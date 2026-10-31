@@ -407,7 +407,7 @@ pub fn write(
         ids.insert(*part, input.ids.clone());
     }
     let (base, kept, protected) = preserve::detach(doc, parts, requested)?;
-    let (edit, report) =
+    let (edit, mut report) =
         pmi::write::write_identified(&base, parts, &values, &ids, &protected, policy)
             .map_err(|e| Error(e.to_string()))?;
     let bytes = base.apply(&edit).map_err(|e| Error(e.to_string()))?.bytes;
@@ -416,7 +416,8 @@ pub fn write(
     let after = Document::parse(bytes.clone()).map_err(|e| Error(e.to_string()))?;
     let after_read = pmi::read(&after, &definitions).map_err(|e| Error(e.to_string()))?;
     let prior_rules = crate::express_rules::check_all(&after);
-    let bytes = preserve::attach(&after, &after_read, kept)?;
+    let (bytes, added) = preserve::attach(&after, &after_read, kept)?;
+    report.added += added;
     let after = Document::parse(bytes.clone()).map_err(|e| Error(e.to_string()))?;
     let added_schema: Vec<_> = crate::express::validate_document(after.graph())
         .into_iter()

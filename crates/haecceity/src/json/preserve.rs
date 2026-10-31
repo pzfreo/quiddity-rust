@@ -10,6 +10,9 @@ pub(super) struct Kept {
     definition: u64,
     record: RawEntity,
     source_id: u64,
+    model: u64,
+    item: u64,
+    context: u64,
 }
 pub(super) fn detach(
     doc: &Document,
@@ -78,6 +81,22 @@ pub(super) fn detach(
                 .get(id)
                 .cloned()
                 .ok_or_else(|| Error(format!("missing association #{id}")))?;
+            let model = reference(attr(
+                doc,
+                id,
+                "item_identified_representation_usage",
+                "used_representation",
+            ))
+            .ok_or_else(|| Error(format!("#{id}: presentation has no representation")))?;
+            let item = reference(attr(
+                doc,
+                id,
+                "item_identified_representation_usage",
+                "identified_item",
+            ))
+            .ok_or_else(|| Error(format!("#{id}: presentation has no item")))?;
+            let context = reference(attr(doc, model, "representation", "context_of_items"))
+                .ok_or_else(|| Error(format!("#{model}: presentation has no context")))?;
             edit.remove(id);
             kept.push(Kept {
                 part: *part,
@@ -86,33 +105,16 @@ pub(super) fn detach(
                 definition,
                 record,
                 source_id: id,
+                model,
+                item,
+                context,
             });
         }
     }
     let mut protected = BTreeSet::new();
     let semantic_carriers: BTreeSet<_> = read.json_carriers.values().copied().collect();
     for k in &kept {
-        let root = match &k.record {
-            RawEntity::Simple { .. } => {
-                // Association slots are inherited from item_identified_representation_usage.
-                let mut roots = vec![];
-                crate::p21::visit_attributes(&k.record, &mut |a| {
-                    if let Attribute::EntityRef(id) = a
-                        && *id != k.definition
-                    {
-                        roots.push(*id);
-                    }
-                });
-                roots
-            }
-            _ => vec![],
-        };
-        // Only the identified annotation's forward graph; never protect a whole model
-        // (which could also contain callouts belonging to removed requirements).
-        let identified = root
-            .into_iter()
-            .find(|id| is(doc, *id, "draughting_callout") || is(doc, *id, "annotation_occurrence"));
-        let mut stack: Vec<_> = identified.into_iter().collect();
+        let mut stack = vec![k.item];
         while let Some(id) = stack.pop() {
             if semantic_carriers.contains(&id) || !protected.insert(id) {
                 continue;
@@ -133,9 +135,9 @@ pub(super) fn detach(
         protected,
     ))
 }
-fn replace(a: &mut Attribute, old: u64, new: u64) {
+fn replace(a: &mut Attribute, old: u64, new: &Attribute) {
     match a {
-        Attribute::EntityRef(id) if *id == old => *id = new,
+        Attribute::EntityRef(id) if *id == old => *a = new.clone(),
         Attribute::List(a) => {
             for x in a {
                 replace(x, old, new)
@@ -145,9 +147,14 @@ fn replace(a: &mut Attribute, old: u64, new: u64) {
         _ => {}
     }
 }
-pub(super) fn attach(doc: &Document, read: &pmi::PmiRead, kept: Vec<Kept>) -> Result<Vec<u8>> {
+pub(super) fn attach(
+    doc: &Document,
+    read: &pmi::PmiRead,
+    kept: Vec<Kept>,
+) -> Result<(Vec<u8>, usize)> {
     let mut edit = Edit::new();
     let mut attached = BTreeSet::new();
+    let mut added = 0;
     for mut k in kept {
         let new = *read
             .json_carriers
@@ -161,21 +168,38 @@ pub(super) fn attach(doc: &Document, read: &pmi::PmiRead, kept: Vec<Kept>) -> Re
         if !attached.insert((k.source_id, new)) {
             continue;
         }
+        // A source can attach several definitions/placeholders to one callout, and
+        // support aliases can split during typed emission. Separate linking models
+        // keep UR1/UR2 valid while reusing all original drawn graphics and placements.
+        let model = edit.add(crate::p21::simple(
+            "DRAUGHTING_MODEL",
+            vec![
+                Attribute::String("As Drawn".into()),
+                Attribute::List(vec![Attribute::EntityRef(k.item)]),
+                Attribute::EntityRef(k.context),
+            ],
+        ));
         match &mut k.record {
             RawEntity::Simple { attributes, .. } => {
                 for a in attributes {
-                    replace(a, k.definition, new)
+                    replace(a, k.definition, &Attribute::EntityRef(new));
+                    replace(a, k.model, &model.to_ref());
                 }
             }
             RawEntity::Complex { parts, .. } => {
                 for part in parts {
                     for a in &mut part.attributes {
-                        replace(a, k.definition, new)
+                        replace(a, k.definition, &Attribute::EntityRef(new));
+                        replace(a, k.model, &model.to_ref());
                     }
                 }
             }
         }
         edit.add(k.record);
+        added += 2;
     }
-    Ok(doc.apply(&edit).map_err(|e| Error(e.to_string()))?.bytes)
+    Ok((
+        doc.apply(&edit).map_err(|e| Error(e.to_string()))?.bytes,
+        added,
+    ))
 }

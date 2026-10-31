@@ -9,8 +9,10 @@ in [docs/alpha1.md](docs/alpha1.md).
 - For #142, opt-in `json` exposes versioned AP242 semantic PMI and As Drawn/generated
   presentation JSON, packaged JSON Schemas, stable requirement ids and face-name/support
   anchors, plus `pmi json export`, `import`, `validate` and `presentation` CLI commands.
-  Requirement ids stay separate from indexed support aspects, including shared STEP
-  carriers. JSON writes retain the existing AP242 refusals and verify ids on read-back;
+  V1 references use item ids; fallback ids derive from content. JSON writes preserve
+  collection order, support projections, notes and attribute fields, keep foreign
+  graphics for surviving requirements, and verify every item's id and content on read-back.
+  JSON writes retain the existing AP242 refusals;
   complete source STEP closure remains blocked on the documented writer/source cases.
 
 ### Added

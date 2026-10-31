@@ -3349,17 +3349,19 @@ impl<'a> PartPlan<'a> {
                 )?;
                 self.identify(em, "notes", i, property)?;
             }
-            let layout = crate::json::transport::layout(p, ids)
-                .map_err(|e| WriteError::Internal(e.to_string()))?;
-            let item = Self::text_item(em, "ordering", &layout)?;
-            self.property(
-                em,
-                pds,
-                "haecceity.pmi/1 ordering",
-                "Transport ordering and reference aliases; native PMI remains authoritative",
-                "",
-                &[item],
-            )?;
+            if p != &PartPmi::default() {
+                let layout = crate::json::transport::layout(p, ids)
+                    .map_err(|e| WriteError::Internal(e.to_string()))?;
+                let item = Self::text_item(em, "ordering", &layout)?;
+                self.property(
+                    em,
+                    pds,
+                    "haecceity.pmi/1 ordering",
+                    "Transport ordering and reference aliases; native PMI remains authoritative",
+                    "",
+                    &[item],
+                )?;
+            }
             for (collection, refs) in [
                 ("datum_targets", &st.targets),
                 ("datums", &st.datums),

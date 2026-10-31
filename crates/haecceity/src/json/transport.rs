@@ -10,6 +10,7 @@ struct Entry {
     id: String,
     key: String,
     references: BTreeMap<String, Value>,
+    sequences: BTreeMap<String, Value>,
     anchors: Option<Value>,
     callouts: Option<Value>,
 }
@@ -47,7 +48,12 @@ fn key(raw: &Value, collection: &str, index: usize) -> Result<String> {
     }
     Ok(identity::digest(&serde_json::to_string(&value)?))
 }
-fn collect(value: &Value, path: &str, out: &mut BTreeMap<String, Value>) {
+fn collect(
+    value: &Value,
+    path: &str,
+    out: &mut BTreeMap<String, Value>,
+    sequences: &mut BTreeMap<String, Value>,
+) {
     if let Some(reference) = value.get("$reference") {
         out.insert(path.into(), reference.clone());
         return;
@@ -59,12 +65,16 @@ fn collect(value: &Value, path: &str, out: &mut BTreeMap<String, Value>) {
                     v,
                     &format!("{path}/{}", k.replace('~', "~0").replace('/', "~1")),
                     out,
+                    sequences,
                 );
             }
         }
         Value::Array(a) => {
+            if !a.is_empty() && a.iter().all(|v| v.get("$reference").is_some()) {
+                sequences.insert(path.into(), value.clone());
+            }
             for (i, v) in a.iter().enumerate() {
-                collect(v, &format!("{path}/{i}"), out);
+                collect(v, &format!("{path}/{i}"), out, sequences);
             }
         }
         _ => {}
@@ -93,11 +103,13 @@ pub(crate) fn layout(pmi: &PartPmi, ids: &BTreeMap<String, Vec<String>>) -> Resu
         let mut entries = vec![];
         for (i, id) in ids[c].iter().enumerate() {
             let mut references = BTreeMap::new();
-            collect(&linked[c][i], "", &mut references);
+            let mut sequences = BTreeMap::new();
+            collect(&linked[c][i], "", &mut references, &mut sequences);
             entries.push(Entry {
                 id: id.clone(),
                 key: key(&raw, c, i)?,
                 references,
+                sequences,
                 callouts: if c == "notes" {
                     Some(linked[c][i]["callouts"].clone())
                 } else {
@@ -245,6 +257,13 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
                 if let Some(callouts) = &e.callouts {
                     value["callouts"] = callouts.clone();
                     unmark(&mut value["callouts"], &layout)?;
+                }
+                for (path, sequence) in &e.sequences {
+                    let target = value.pointer_mut(path).ok_or_else(|| {
+                        Error(format!("ordering reference sequence {c}{path} is absent"))
+                    })?;
+                    *target = sequence.clone();
+                    unmark(target, &layout)?;
                 }
                 for (path, reference) in &e.references {
                     let target = value.pointer_mut(path).ok_or_else(|| {

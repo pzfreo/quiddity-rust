@@ -604,7 +604,7 @@ fn all_note_kinds_owners_and_optional_attribute_fields_are_identity() {
     let bytes = cube();
     let doc = Document::parse(bytes.clone()).unwrap();
     let parts = read_part_definitions(&bytes).unwrap();
-    let mut p = test_model();
+    let mut p = gaps::every_kind();
     for kind in [
         "semantic text",
         "surface texture",
@@ -618,6 +618,8 @@ fn all_note_kinds_owners_and_optional_attribute_fields_are_identity() {
             None,
             Some(NoteOwner::Feature(FeatureId(0))),
             Some(NoteOwner::Dimension(DimensionId(0))),
+            Some(NoteOwner::Tolerance(ToleranceId(0))),
+            Some(NoteOwner::DatumTarget(DatumTargetId(0))),
         ] {
             p.notes.push(Note {
                 kind: kind.into(),
@@ -692,10 +694,10 @@ fn one_identified_property_with_two_tolerance_classes_has_distinct_ids() {
         ],
     ));
     let mut record = doc.get(rep).unwrap().clone();
-    if let RawEntity::Simple { attributes, .. } = &mut record {
-        if let A::List(items) = &mut attributes[1] {
-            items.push(extra.to_ref());
-        }
+    if let RawEntity::Simple { attributes, .. } = &mut record
+        && let A::List(items) = &mut attributes[1]
+    {
+        items.push(extra.to_ref());
     }
     edit.replace(rep, record);
     let doc = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
@@ -709,4 +711,28 @@ fn one_identified_property_with_two_tolerance_classes_has_distinct_ids() {
         ]
     );
     json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+}
+
+#[test]
+fn reference_sequences_retain_equal_support_twins() {
+    let bytes = cube();
+    let doc = Document::parse(bytes.clone()).unwrap();
+    let parts = read_part_definitions(&bytes).unwrap();
+    let mut p = test_model();
+    p.features.push(p.features[0].clone());
+    p.features.push(Feature::Group {
+        kind: GroupKind::PatternOfFeatures,
+        members: vec![FeatureId(1), FeatureId(0)],
+    });
+    let semantic = json::identify(p, None).unwrap();
+    let expected = json::to_value(&semantic).unwrap();
+    let (bytes, _) = json::write_preserving(&doc, &parts, &[(PartId(0), semantic)]).unwrap();
+    let doc = Document::parse(bytes).unwrap();
+    let parts = read_part_definitions(doc.bytes()).unwrap();
+    let read = pmi::read(&doc, &parts).unwrap();
+    let actual = json::to_value(
+        &json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(actual, expected);
 }
