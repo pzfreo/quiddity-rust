@@ -18,6 +18,7 @@ pub mod presentation;
 mod preserve;
 mod schema;
 pub(crate) mod transport;
+mod units;
 pub use parse::parse;
 
 pub const PMI_SCHEMA: &str = include_str!("../../schema/haecceity.pmi-1.json");
@@ -68,6 +69,8 @@ fn pmi_schema() -> &'static Value {
 pub struct Semantic {
     pub pmi: PartPmi,
     pub ids: BTreeMap<String, Vec<String>>,
+    /// Optional caller unit table; native quantities remain authoritative.
+    pub unit_table: Option<Value>,
 }
 
 /// Caller-provided face fingerprint support keys, in the kernel's face order.
@@ -268,37 +271,45 @@ pub fn to_value(p: &Semantic) -> Result<Value> {
             )));
         }
         for (v, id) in values.iter_mut().zip(ids) {
-            if id.is_empty() || !used.insert(id) {
+            if id.is_empty() || !used.insert(id.clone()) {
                 return Err(Error(format!("duplicate or empty item id {id:?}")));
             }
             *v = json!({"id":id,"value":v.take()});
         }
     }
-    let mut lengths = Vec::new();
-    let mut angles = Vec::new();
-    let mut densities = Vec::new();
-    let mut other = Vec::new();
+    let mut units = p.unit_table.clone().unwrap_or_else(units::empty);
+    units::validate(&units, &mut used)?;
     schema::walk(
         &mut raw,
         &pmi_schema()["$defs"]["PartPmi"],
         pmi_schema(),
-        &mut |kind, v| {
-            let units = match kind {
-                "LengthUnit" => &mut lengths,
-                "AngleUnit" => &mut angles,
-                "DensityUnit" => &mut densities,
-                "OtherUnit" => &mut other,
-                _ => return Ok(()),
+        &mut |kind, value| {
+            let Some(table) = units::table(kind) else {
+                return Ok(());
             };
-            let index = units.iter().position(|u| u == v).unwrap_or_else(|| {
-                units.push(v.clone());
-                units.len() - 1
-            });
-            *v = json!(index);
+            let entries = units[table]
+                .as_array_mut()
+                .ok_or_else(|| Error(format!("missing {table} unit table")))?;
+            let id = if let Some(entry) = entries.iter().find(|entry| entry["value"] == *value) {
+                entry["id"]
+                    .as_str()
+                    .ok_or_else(|| Error("missing unit id".into()))?
+                    .to_string()
+            } else {
+                let id = format!("unit:{table}:{}", identity::digest(&value.to_string()));
+                if !used.insert(id.clone()) {
+                    return Err(Error(format!(
+                        "unit content id conflicts with item id {id:?}"
+                    )));
+                }
+                entries.push(json!({"id":id,"value":value}));
+                id
+            };
+            *value = json!(id);
             Ok(())
         },
     )?;
-    let out = json!({"schema":"haecceity.pmi/1","units":{"length":lengths,"angle":angles,"density":densities,"other":other},"pmi":raw});
+    let out = json!({"schema":"haecceity.pmi/1","units":units,"pmi":raw});
     validate_schema(&out)?;
     Ok(out)
 }
@@ -311,6 +322,8 @@ pub fn validate_schema(v: &Value) -> Result<()> {
 /// Decode, apply constructors/model invariants, and resolve all topology anchors.
 pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
     validate_schema(v)?;
+    let mut used = BTreeSet::new();
+    units::validate(&v["units"], &mut used)?;
     let mut raw = v["pmi"].clone();
     identity::expand_supports(&mut raw, anchors)?;
     schema::walk(
@@ -337,20 +350,14 @@ pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
                     }
                 }
                 "LengthUnit" | "AngleUnit" | "DensityUnit" | "OtherUnit" => {
-                    let table = match kind {
-                        "LengthUnit" => "length",
-                        "AngleUnit" => "angle",
-                        "DensityUnit" => "density",
-                        _ => "other",
-                    };
-                    let i = x
-                        .as_u64()
-                        .ok_or_else(|| Error("invalid unit index".into()))?
-                        as usize;
+                    let table =
+                        units::table(kind).ok_or_else(|| Error("unknown unit type".into()))?;
+                    let id = x.as_str().ok_or_else(|| Error("invalid unit id".into()))?;
                     *x = v["units"][table]
-                        .get(i)
-                        .ok_or_else(|| Error(format!("undefined {table} unit {i}")))?
-                        .clone();
+                        .as_array()
+                        .and_then(|entries| entries.iter().find(|entry| entry["id"] == id))
+                        .map(|entry| entry["value"].clone())
+                        .ok_or_else(|| Error(format!("undefined {table} unit id {id:?}")))?;
                 }
                 _ => {}
             }
@@ -358,7 +365,6 @@ pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
         },
     )?;
     let mut ids = BTreeMap::new();
-    let mut used = BTreeSet::new();
     for &c in COLLECTIONS {
         let values = raw[c]
             .as_array_mut()
@@ -388,7 +394,11 @@ pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
         )
     })?;
     validate_feature_roles(&pmi)?;
-    Ok(Semantic { pmi, ids })
+    Ok(Semantic {
+        pmi,
+        ids,
+        unit_table: Some(v["units"].clone()),
+    })
 }
 
 /// Replace selected parts' PMI using JSON ids. The ordinary STEP writer is unchanged.
@@ -402,9 +412,14 @@ pub fn write(
     let mut values = Vec::new();
     let mut ids = BTreeMap::new();
     for (part, input) in requested {
-        to_value(input)?;
+        let encoded = to_value(input)?;
         values.push((*part, input.pmi.clone()));
-        ids.insert(*part, input.ids.clone());
+        let mut item_ids = input.ids.clone();
+        item_ids.insert(
+            "__units".into(),
+            vec![serde_json::to_string(&encoded["units"])?],
+        );
+        ids.insert(*part, item_ids);
     }
     let (base, kept, protected) = preserve::detach(doc, parts, requested)?;
     let (edit, mut report) =
@@ -448,6 +463,12 @@ pub fn write(
             )));
         }
         let actual = identify(actual.clone(), Some(&after_read.identifiers.parts[part.0]))?;
+        if to_value(expected)?["units"] != to_value(&actual)?["units"] {
+            return Err(Error(format!(
+                "part {}: unit identities or order changed",
+                part.0
+            )));
+        }
         for &collection in COLLECTIONS {
             if expected.ids[collection] != actual.ids[collection] {
                 return Err(Error(format!(

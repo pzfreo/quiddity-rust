@@ -50,7 +50,7 @@ fn all_anchor_forms_and_precise_units() {
     let p = test_model();
     let semantic = json::identify(p.clone(), None).unwrap();
     let v = json::to_value(&semantic).unwrap();
-    assert_eq!(v["units"]["length"], json!(["millimetre"]));
+    assert_eq!(v["units"]["length"][0]["value"], json!("millimetre"));
     for face in [
         json!(0),
         json!({"name":"top"}),
@@ -93,7 +93,7 @@ fn refusals_are_explained() {
         ),
         (
             "/pmi/dimensions/0/value/nominal/quantity/length/unit",
-            json!(7),
+            json!("absent unit"),
             "undefined length unit",
         ),
     ] {
@@ -605,6 +605,26 @@ fn all_note_kinds_owners_and_optional_attribute_fields_are_identity() {
     let doc = Document::parse(bytes.clone()).unwrap();
     let parts = read_part_definitions(&bytes).unwrap();
     let mut p = gaps::every_kind();
+    p.dimensions = test_model().dimensions;
+    p.datum_targets.push(
+        DatumTarget::new(
+            1,
+            TargetShape::Point,
+            Some(Placement {
+                origin: std::array::from_fn(|_| Length {
+                    value: Decimal::parse("0.").unwrap(),
+                    unit: LengthUnit::Millimetre,
+                }),
+                axis: None,
+                ref_direction: None,
+            }),
+            None,
+            None,
+        )
+        .unwrap(),
+    );
+    p.datums
+        .push(Datum::new(DatumLabel::new("Z").unwrap(), None, vec![DatumTargetId(0)]).unwrap());
     for kind in [
         "semantic text",
         "surface texture",
@@ -735,4 +755,40 @@ fn reference_sequences_retain_equal_support_twins() {
     )
     .unwrap();
     assert_eq!(actual, expected);
+}
+
+#[test]
+fn unit_references_are_ids_and_keep_caller_names_and_unused_units() {
+    let bytes = cube();
+    let doc = Document::parse(bytes.clone()).unwrap();
+    let parts = read_part_definitions(&bytes).unwrap();
+    for model in [test_model(), PartPmi::default()] {
+        let mut value = json::to_value(&json::identify(model, None).unwrap()).unwrap();
+        if !value["pmi"]["dimensions"].as_array().unwrap().is_empty() {
+            value["units"]["length"][0]["id"] = json!("caller-mm");
+            value["pmi"]["dimensions"][0]["value"]["nominal"]["quantity"]["length"]["unit"] =
+                json!("caller-mm");
+        }
+        value["units"]["angle"] = json!([{"id":"unused-angle","value":"radian"}]);
+        let semantic = json::from_value(&value, &Anchors::read(&doc, &parts[0])).unwrap();
+        assert_eq!(json::to_value(&semantic).unwrap(), value);
+        let (out, _) = json::write_preserving(&doc, &parts, &[(PartId(0), semantic)]).unwrap();
+        let after = Document::parse(out).unwrap();
+        let parts = read_part_definitions(after.bytes()).unwrap();
+        let read = pmi::read(&after, &parts).unwrap();
+        let actual = json::to_value(
+            &json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(actual, value);
+        let mut duplicate = value.clone();
+        duplicate["units"]["angle"] =
+            json!([{"id":"a","value":"radian"},{"id":"b","value":"radian"}]);
+        assert!(
+            json::from_value(&duplicate, &Anchors::read(&doc, &parts[0]))
+                .unwrap_err()
+                .to_string()
+                .contains("duplicate angle unit definition")
+        );
+    }
 }

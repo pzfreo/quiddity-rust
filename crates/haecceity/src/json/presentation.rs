@@ -463,7 +463,7 @@ pub fn read(
         }
     }
     let mut out = Presentation {
-        semantic_ids: id_set(semantic),
+        semantic_ids: id_set(semantic)?,
         ..Presentation::default()
     };
     let generated: BTreeSet<_> = doc
@@ -619,7 +619,7 @@ pub fn validate(v: &Value) -> Result<()> {
 pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presentation> {
     use crate::presentation;
     let mut out = Presentation {
-        semantic_ids: id_set(semantic),
+        semantic_ids: id_set(semantic)?,
         ..Presentation::default()
     };
     let mut layout = presentation::placement::Layout::new(part.bounds());
@@ -702,14 +702,24 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
     Ok(out)
 }
 
-fn id_set(semantic: &Semantic) -> Vec<String> {
+fn id_set(semantic: &Semantic) -> Result<Vec<String>> {
     let mut ids: Vec<_> = semantic.ids.values().flatten().cloned().collect();
+    let encoded = super::to_value(semantic)?;
+    for table in ["length", "angle", "density", "other"] {
+        ids.extend(
+            encoded["units"][table]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .filter_map(|unit| unit["id"].as_str().map(str::to_string)),
+        );
+    }
     ids.sort();
-    ids
+    Ok(ids)
 }
 /// Refuse stale presentation links before use.
 pub fn validate_links(presentation: &Presentation, semantic: &Semantic) -> Result<()> {
-    if presentation.semantic_ids != id_set(semantic) {
+    if presentation.semantic_ids != id_set(semantic)? {
         return Err(Error(
             "presentation belongs to a different PMI id set".into(),
         ));

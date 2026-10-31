@@ -83,7 +83,7 @@ Keys and enum strings use AP242 entity/enumeration or CAx-IF names wherever the
 model supplies a name table. Other model alternatives use lower snake case.
 For example a diameter size kind is `"diameter"`, a tolerance kind is
 `"position_tolerance"`, and a dimension's kind is
-`{"size":{"feature":0,"kind":"diameter","path":null,"angle":null}}`.
+`{"size":{"feature":"support:bore","kind":"diameter","path":null,"angle":null}}`.
 The `$defs` enumerate every alternative and field without relying on this prose.
 
 Decimals are strings, including directions, geometry real values and ratios.
@@ -246,7 +246,7 @@ fields are retained. A transport ordering association records item IDs and
 support projections without replacing native semantic PMI as authority.
 Its `property_definition('haecceity.pmi/1 ordering',…,part)` representation
 contains an `ordering` descriptive item with collection IDs, semantic content
-keys, reference bindings, anchor order, and callout observations. The reader
+keys, reference bindings, unit IDs/definitions/order, anchor order, and callout observations. The reader
 rebuilds collections from independently decoded native items and verifies every
 resolved content key. Corrupt or stale ordering records are refused. This metadata
 also distinguishes equal support projections that the native representation shares.

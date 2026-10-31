@@ -2,7 +2,10 @@
   "schema": "haecceity.pmi/1",
   "units": {
     "length": [
-      "millimetre"
+      {
+        "id": "xcaf:unit:length:0",
+        "value": "millimetre"
+      }
     ],
     "angle": [],
     "density": [],
@@ -244,7 +247,7 @@
             "decimal_places": null,
             "quantity": {
               "length": {
-                "unit": 0,
+                "unit": "xcaf:unit:length:0",
                 "value": "10.0"
               }
             }
@@ -257,7 +260,7 @@
                 "decimal_places": null,
                 "quantity": {
                   "length": {
-                    "unit": 0,
+                    "unit": "xcaf:unit:length:0",
                     "value": "-0.2"
                   }
                 }
@@ -266,7 +269,7 @@
                 "decimal_places": null,
                 "quantity": {
                   "length": {
-                    "unit": 0,
+                    "unit": "xcaf:unit:length:0",
                     "value": "0.2"
                   }
                 }
@@ -291,7 +294,7 @@
             "decimal_places": null,
             "quantity": {
               "length": {
-                "unit": 0,
+                "unit": "xcaf:unit:length:0",
                 "value": "10.0"
               }
             }
@@ -304,7 +307,7 @@
                 "decimal_places": null,
                 "quantity": {
                   "length": {
-                    "unit": 0,
+                    "unit": "xcaf:unit:length:0",
                     "value": "0.0"
                   }
                 }
@@ -313,7 +316,7 @@
                 "decimal_places": null,
                 "quantity": {
                   "length": {
-                    "unit": 0,
+                    "unit": "xcaf:unit:length:0",
                     "value": "0.1"
                   }
                 }
@@ -340,7 +343,7 @@
             "decimal_places": null,
             "quantity": {
               "length": {
-                "unit": 0,
+                "unit": "xcaf:unit:length:0",
                 "value": "30.0"
               }
             }
@@ -368,7 +371,7 @@
             "decimal_places": null,
             "quantity": {
               "length": {
-                "unit": 0,
+                "unit": "xcaf:unit:length:0",
                 "value": "50.0"
               }
             }
@@ -391,7 +394,7 @@
             "decimal_places": null,
             "quantity": {
               "length": {
-                "unit": 0,
+                "unit": "xcaf:unit:length:0",
                 "value": "0.05"
               }
             }
@@ -445,7 +448,7 @@
             "decimal_places": null,
             "quantity": {
               "length": {
-                "unit": 0,
+                "unit": "xcaf:unit:length:0",
                 "value": "0.1"
               }
             }
@@ -488,7 +491,7 @@
             "decimal_places": null,
             "quantity": {
               "length": {
-                "unit": 0,
+                "unit": "xcaf:unit:length:0",
                 "value": "0.1"
               }
             }
@@ -533,7 +536,7 @@
             "decimal_places": null,
             "quantity": {
               "length": {
-                "unit": 0,
+                "unit": "xcaf:unit:length:0",
                 "value": "0.1"
               }
             }
@@ -587,7 +590,7 @@
             "decimal_places": null,
             "quantity": {
               "length": {
-                "unit": 0,
+                "unit": "xcaf:unit:length:0",
                 "value": "0.5"
               }
             }

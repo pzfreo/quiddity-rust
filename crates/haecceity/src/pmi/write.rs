@@ -3349,7 +3349,10 @@ impl<'a> PartPlan<'a> {
                 )?;
                 self.identify(em, "notes", i, property)?;
             }
-            if p != &PartPmi::default() {
+            if p != &PartPmi::default()
+                || crate::json::transport::has_units(ids)
+                    .map_err(|e| WriteError::Internal(e.to_string()))?
+            {
                 let layout = crate::json::transport::layout(p, ids)
                     .map_err(|e| WriteError::Internal(e.to_string()))?;
                 let item = Self::text_item(em, "ordering", &layout)?;

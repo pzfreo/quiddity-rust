@@ -14,7 +14,19 @@ struct Entry {
     anchors: Option<Value>,
     callouts: Option<Value>,
 }
-type Layout = BTreeMap<String, Vec<Entry>>;
+type Entries = BTreeMap<String, Vec<Entry>>;
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Layout {
+    items: Entries,
+    units: Value,
+}
+impl std::ops::Deref for Layout {
+    type Target = Entries;
+    fn deref(&self) -> &Entries {
+        &self.items
+    }
+}
 
 fn key(raw: &Value, collection: &str, index: usize) -> Result<String> {
     let mut value = identity::content(
@@ -98,7 +110,7 @@ pub(crate) fn layout(pmi: &PartPmi, ids: &BTreeMap<String, Vec<String>>) -> Resu
             Ok(())
         },
     )?;
-    let mut layout = Layout::new();
+    let mut layout = Entries::new();
     for &c in COLLECTIONS {
         let mut entries = vec![];
         for (i, id) in ids[c].iter().enumerate() {
@@ -124,7 +136,16 @@ pub(crate) fn layout(pmi: &PartPmi, ids: &BTreeMap<String, Vec<String>>) -> Resu
         }
         layout.insert(c.into(), entries);
     }
-    Ok(serde_json::to_string(&layout)?)
+    let units = ids
+        .get("__units")
+        .and_then(|v| v.first())
+        .map(|s| serde_json::from_str(s))
+        .transpose()?
+        .unwrap_or_else(super::units::empty);
+    Ok(serde_json::to_string(&Layout {
+        items: layout,
+        units,
+    })?)
 }
 fn ids_mut<'a>(ids: &'a mut PartIdentifiers, c: &str) -> &'a mut Vec<Option<String>> {
     match c {
@@ -226,6 +247,7 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
             return Err(Error("incomplete PMI ordering record".into()));
         }
         let mut seen = BTreeSet::new();
+        super::units::validate(&layout.units, &mut seen)?;
         let raw = serde_json::to_value(&read.parts[part])?;
         let mut restored = raw.clone();
         let mut maps = BTreeMap::<String, Vec<usize>>::new();
@@ -236,7 +258,7 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
             let mut values = vec![];
             let mut order = vec![];
             for e in &layout[c] {
-                if e.id.is_empty() || !seen.insert(&e.id) {
+                if e.id.is_empty() || !seen.insert(e.id.clone()) {
                     return Err(Error(format!("duplicate ordering id {:?}", e.id)));
                 }
                 let index = if ["features", "geometry", "derived_geometry"].contains(&c) {
@@ -319,7 +341,22 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
                 }
             }
         }
+        read.identifiers.parts[part].json_units = Some(serde_json::to_string(&layout.units)?);
         read.parts[part] = pmi;
     }
     Ok(())
+}
+
+pub(crate) fn has_units(ids: &BTreeMap<String, Vec<String>>) -> Result<bool> {
+    let units: Value = ids
+        .get("__units")
+        .and_then(|v| v.first())
+        .map(|s| serde_json::from_str(s))
+        .transpose()?
+        .unwrap_or_else(super::units::empty);
+    Ok(["length", "angle", "density", "other"].iter().any(|kind| {
+        units[*kind]
+            .as_array()
+            .is_some_and(|units| !units.is_empty())
+    }))
 }

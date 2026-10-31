@@ -185,6 +185,9 @@ pub struct Identifiers {
 /// single requirement entity and are not indexed here.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct PartIdentifiers {
+    /// JSON transport unit ids/order; default-feature builds have no JSON metadata.
+    #[cfg(feature = "json")]
+    pub json_units: Option<String>,
     #[cfg(feature = "json")]
     pub geometry: Vec<Option<String>>,
     #[cfg(feature = "json")]

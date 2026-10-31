@@ -120,7 +120,15 @@ pub(super) fn identify(
         }
         ids.insert(c.to_string(), out);
     }
-    Ok(Semantic { pmi, ids })
+    let unit_table = identifiers
+        .and_then(|i| i.json_units.as_ref())
+        .map(|s| serde_json::from_str(s))
+        .transpose()?;
+    Ok(Semantic {
+        pmi,
+        ids,
+        unit_table,
+    })
 }
 
 pub(super) fn expand_supports(value: &mut Value, anchors: &Anchors) -> Result<()> {
