@@ -169,6 +169,56 @@ with their source ids and a reason, never silently removed.
 | polylines / triangles / text | polyline, tessellated_curve_set, triangulated_face, text_literal and literal text | PMI §7.1; Tessellated 3D Geometry |
 | source / step_ids / unsupported | transport provenance and explicit diagnostic retention; no additional semantic entity | JSON convention |
 
+### Optional editor placement and views (For #142)
+
+The schema remains `haecceity.presentation/1`. All fields below are additive and
+optional; the original required fields and their meanings are unchanged. Old
+companions validate and deserialize with absent metadata defaulted to empty/None.
+A version bump would unnecessarily reject those existing documents.
+
+| Optional field | Meaning and source |
+| --- | --- |
+| `Graphic.id` | Document-local graphic id (`step:<root instance id>` for file graphics). Copies under several semantic keys share this id; render/count once per id. Generated ids contain the semantic collection and id. |
+| `Graphic.plane_id` | Reference to `planes[].id`, from the containing `annotation_plane`. Omitted with a diagnostic if unresolved or if several planes contain the same graphic. |
+| `planes[]` | `{id, name, origin, x_axis, normal}` from the annotation plane's `plane.position` or `planar_box.placement`. Origins are model-space millimetres; axes are unit vectors. The in-plane Y axis is `normal × x_axis`. |
+| `Graphic.text_placements[]` | `{text_index?, origin, x_axis, normal, height?, line_spacing?, alignment?}`. `text_index` is a zero-based index into the existing `text` array. The origin is the native alignment point, not an assumed lower-left corner. |
+| `views[]` | `{id, name, direction?, up?, graphics}` from draughting/presentation models and their camera models (including `model_geometric_view` associations). `graphics` contains graphic ids, not semantic ids. A saved view includes only its own contained graphics, including mapped content. |
+
+Text literals retain their `text_literal.placement`, including 2D placements in
+mapped text representations. Mapping composes target placement with the inverse
+representation-map origin; repositioned tessellated placement is also respected.
+A text style's stated `BOX_HEIGHT` takes precedence over a literal's extent height.
+Heights and origins use the representation length unit and are exported in mm.
+For literal text, height describes the stated style/extent box; it is not an
+inferred font cap height. Native alignment strings are retained. Unknown height
+is omitted and diagnosed rather than estimated from the string.
+
+Placeholders retain their actual placement(s), without manufacturing editable
+strings from requirement names. They have no `text_index`; their declared
+`line_spacing` is distinct from height. Source zero spacing is retained and
+reported as nonconforming. A placeholder planar box may supply its extent height.
+Generated notation uses the actual placed text runs, centred alignment points and
+scaled capital heights. Empty-ink cases retain a diagnostic instead of non-finite
+coordinates. Existing strokes, tessellated fills and text strings are unchanged.
+
+Camera direction points into the scene (negative camera Z), and up is camera Y.
+A draughting model without a camera still supplies a membership group, omitting
+both direction and up. No camera is guessed. IDs are local to this companion;
+use `semantic_ids` to verify the companion's semantic link set before use.
+Validation checks plane, view and text-index references and consistent copies of
+one graphic under multiple semantic keys.
+
+Datum-feature symbol links include the owning datum id even when a direct feature
+key is present. Ownership follows the native datum-feature-to-datum relationship,
+with feature aliases retained; it is not inferred from equal face supports.
+
+The shared mixed fixture is
+`crates/haecceity/tests/fixtures/presentation/ctc01-text-filled.step.gz`:
+**one authored literal and 2,754 triangles**. It is explicitly a derived CTC-01
+fixture, not unmodified NIST data. None of the 28 STEP files in the inspected NIST
+archive contains `TEXT_LITERAL`; original CTC-01 has zero literals and the same
+2,754 triangles. The fixture README and deterministic builder record this limit.
+
 Reading includes the file's own graphics. Presentation JSON writing is optional
 and is not implemented in version 1; semantic JSON writing uses haecceity's
 existing generated presentation. A semantic association may point to several
@@ -233,9 +283,10 @@ these pre-existing refusals remain visible. The local SFA sample test, also
 explicitly invoked, records any supported-subset exclusions in adjacent audit
 files; such a sample does not establish a complete source round trip.
 
-Presentation associations to structural support aspects are resolved to their
-owning datum requirement when no direct semantic association is available.
-Support-only graphics remain unlinked and are retained.
+Presentation associations to datum-feature support aspects include their owning
+datum requirement even when a direct feature association is already available.
+Feature keys remain aliases of the same graphic id. Other support-only graphics
+remain unlinked and are retained.
 
 ## v1 identity and presentation policy
 

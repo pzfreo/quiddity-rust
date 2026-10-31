@@ -23,6 +23,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
+- For #142, presentation JSON adds optional text placements, annotation planes,
+  graphic ids and saved-view memberships while retaining schema `/1`. Datum-feature
+  graphics also link to their owning datum, preserving feature aliases. Native
+  text/placeholder positions and generated text metadata retain model-space placement.
+
 - For #142, PMI JSON imports preserve stated target placement/direction decimals,
   including distinct tokens for equal REAL values. Dimension/tolerance-owned notes
   use direct AP242 characterized-item properties, upgrading edition 1 JSON writes
