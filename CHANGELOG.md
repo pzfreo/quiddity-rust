@@ -6,6 +6,15 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.4.1 (2026-10-31)
+
+Upgrading from 0.4.0: recognition schema `/6` and fingerprints `/3` are unchanged, and successful recognition output is byte-identical.
+- **Panic isolation (#161):** a panicking family no longer aborts the run. Incomplete documents add optional `failures` and `complete: false`.
+- **Presentation:** text placements carry optional `stroked`; generated general notes are one numbered GENERAL NOTES block beside the part; regenerated ladders and datum flags sit by their features again; generated presentations gain one view per annotation plane. Feature-on (written PMI) graphics change accordingly.
+- **Callout reading (#166):** `PmiRead.callouts` lists decoded graphical PMI annotations and their semantic links.
+- **API note:** `haecceity::pmi::PmiRead` gains the public field `callouts`; code that builds `PmiRead` with a struct literal must add it. Code that receives it from `pmi::read` is unaffected.
+- **AP214:** files with FreeCAD's `PRODUCT_TYPE` now take PMI (pzfreo/specify-core#89), with each keyword rewrite reported in `edition_rewrites`.
+
 ### Added
 
 - Haecceity `PmiRead.callouts` lists decoded graphical PMI annotations and every
