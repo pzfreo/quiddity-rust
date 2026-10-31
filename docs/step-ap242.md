@@ -237,8 +237,7 @@ front-facing plane, other callouts and kept foreign bytes are unchanged. This
 supersedes round 8's 27-station search and seven-projection clearance: expanding
 around all annotation ink caused notes to drift far from the part. Clearance now
 means notes-to-part and notes-to-notes in the notes plane, verified against actual
-serialized ink. See [placement evidence](presentation-presfix.md) for before/after
-coordinates, source limitations and the shared JSON/STEP rule.
+serialized ink. JSON and STEP share the rule.
 Existing dimension-to-dimension
 text/line checks remain. A blanket all-pairs full-extent assertion would reject intentional
 shared witnesses: the spindle's 3 and 4.9 dimensions have the same extension foot
