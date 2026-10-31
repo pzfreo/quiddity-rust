@@ -6,6 +6,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.2.8 (2026-10-31)
+
+Upgrading from 0.2.7: recognition schema `/6` and fingerprints `/3` are unchanged.
+- **Feature split:** `json` is now serialise-only (PMI and presentation export). Use the new `json-import` for parsing, validation, the schemas and JSON → STEP. The CLI's `pmi json` commands need `--features json-import`.
+- **Mass units:** both writers now write gram and milligram as conversion-based units of the SI kilogram (CAx-IF UDA Annex C.1), so written material densities change form. Old files still read.
+- **OCCT densities:** the reader repairs OCCT's mass³·length² density and its untyped density value, with findings.
+- **Presentation JSON** gains optional text placement, planes, graphic ids and saved views.
+
 ### Changed
 
 - For #142, the `json` feature is now serialise-only (export of `haecceity.pmi/1` and `haecceity.presentation/1`, and id assignment). The new `json-import` feature adds parsing, validation, the packaged schemas and the JSON → STEP path. The CLI requires `json-import`. This keeps WASM consumers small.
