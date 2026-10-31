@@ -147,7 +147,7 @@ impl Layout {
             ink.add([p[0] * scale, 0., p[1] * scale]);
         }
         let gap = 2. * self.height;
-        let mut top = self.notes_bottom.map_or(self.bounds.min[2], |z| z) - gap;
+        let mut top = self.notes_bottom.unwrap_or(self.bounds.min[2]) - gap;
         let left = self.bounds.max[0] + gap;
         let right = left + ink.max[0] - ink.min[0];
         let height = ink.max[2] - ink.min[2];

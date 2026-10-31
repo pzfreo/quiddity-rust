@@ -70,3 +70,27 @@ any outside annotation. Clearance is defined in the notes plane, not every camer
 - Test pass-through for generated true, file literal absent, and explicit false.
   The editor should skip the text drawing pass only when `stroked === true`.
   Views use existing direction/up/graphics fields; fit geometry plus member ink.
+
+## Changed feature-on goldens
+
+Only these STEP/OCP pairs in `tests/fixtures/ap242/write-presentation` change:
+
+| Pair | Changed STEP coordinate records | Reason |
+| --- | ---: | --- |
+| assembly_plate_pin_intent | 6 | Notes and their plane origins move to the bounds corner for both parts. |
+| editor_assembly_pin_alone | 3 | Its notes and plane origin move to the bounds corner. |
+| every_kind | 7 | Its notes and plane origin move to the bounds corner. |
+| pmi_gaps | 2 | Its notes and plane origin move to the bounds corner. |
+| pmi_gaps_gram | 2 | The same physical placement rule in the gram-unit case. |
+| spool_fits_intent | 3 | Its notes and plane origin move to the bounds corner. |
+| string_post_tapped_intent | 3 | Its notes and plane origin move to the bounds corner. |
+| thumbwheel_thread_knurl_intent | 3 | Its notes and plane origin move to the bounds corner. |
+
+A decompressed entity diff verifies identical instance inventories and only
+`COORDINATES_LIST`/`CARTESIAN_POINT` changes reachable from `General notes` callouts
+and planes. All other STEP records are byte-identical. Fresh OCP 7.9.3.1 captures
+(including the legacy Python Specify loader from `/private/tmp/claude-501/pysrc/src`)
+pass; only their STEP sha256 changes. No reference verdicts change. The snapshot
+provenance updates exactly these sixteen input hashes; all 2,700 snapshot payloads
+remain untouched. Feature-off goldens and recognition source/output are unchanged.
+Text flags and generated JSON views have no existing golden payload to refresh.
