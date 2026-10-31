@@ -37,14 +37,14 @@ pub fn read(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadErr
     read_impl(
         doc,
         parts,
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         true,
     )
 }
 
 /// Read authoritative native AP242 values and ids without applying JSON transport
 /// order/aliases. Useful for auditing or recovering stale ordering metadata.
-#[cfg(feature = "json")]
+#[cfg(feature = "json-import")]
 pub fn read_native(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadError> {
     read_impl(doc, parts, false)
 }
@@ -52,7 +52,7 @@ pub fn read_native(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, 
 fn read_impl(
     doc: &Document,
     parts: &[PartDefinition],
-    #[cfg(feature = "json")] restore: bool,
+    #[cfg(feature = "json-import")] restore: bool,
 ) -> Result<PmiRead, ReadError> {
     for p in parts {
         for id in [p.product_definition, p.shape] {
@@ -95,7 +95,7 @@ fn read_impl(
         #[cfg(feature = "json")]
         json_carriers: r.json_carriers,
     };
-    #[cfg(feature = "json")]
+    #[cfg(feature = "json-import")]
     if restore {
         crate::json::transport::restore(doc, &mut result)
             .map_err(|e| ReadError::Transport(e.to_string()))?;
@@ -5329,12 +5329,15 @@ impl<'a> Reader<'a> {
                         if !self.is(item, "measure_representation_item") {
                             continue;
                         }
-                        let value = match self.get(item, "measure_with_unit", "value_component") {
-                            Some(Attribute::Typed { value, .. }) => self
-                                .real_text(item, value)
-                                .and_then(|t| Decimal::parse(&t).ok()),
+                        let component = self.get(item, "measure_with_unit", "value_component");
+                        let untyped = matches!(component, Some(Attribute::Real(_)));
+                        let value = match component {
+                            Some(Attribute::Typed { value, .. }) => Some(value.as_ref()),
+                            Some(value @ Attribute::Real(_)) => Some(value),
                             _ => None,
-                        };
+                        }
+                        .and_then(|value| self.real_text(item, value))
+                        .and_then(|text| Decimal::parse(&text).ok());
                         let unit = self.get_ref(item, "measure_with_unit", "unit_component");
                         let (Some(value), Some(unit)) = (value, unit) else {
                             self.find(
@@ -5346,7 +5349,7 @@ impl<'a> Reader<'a> {
                             );
                             return;
                         };
-                        let Some(elements) = self.derived_unit(unit) else {
+                        let Some(mut elements) = self.derived_unit(unit) else {
                             self.find(
                                 FindingKind::Unitless,
                                 part,
@@ -5356,6 +5359,24 @@ impl<'a> Reader<'a> {
                             );
                             return;
                         };
+                        if self.derived_dimensions(unit) != Some([-3., 1., 0., 0., 0., 0., 0.]) {
+                            if let Some(exponents) = self.occt_density_exponents(unit) {
+                                for ((_, exponent), corrected) in elements.iter_mut().zip(exponents)
+                                {
+                                    *exponent = corrected;
+                                }
+                                self.find(FindingKind::Nonconformance, part, item, &[pdef, unit],
+                                    "density unit read as mass / length cubed (OCCT writes mass^3 · length^2); base units and value retained");
+                            } else {
+                                self.find(FindingKind::Nonconformance, part, item, &[pdef, unit],
+                                    "density derived unit is not mass / length cubed (mass 1, length -3); not read");
+                                return;
+                            }
+                        }
+                        if untyped {
+                            self.find(FindingKind::Nonconformance, part, item, &[pdef],
+                                "density value untyped (OCCT); read the bare REAL as the density value");
+                        }
                         found = Some(Density {
                             value,
                             unit: elements,
@@ -5389,6 +5410,88 @@ impl<'a> Reader<'a> {
         st.pmi.material = Some(m);
         st.prov.material.extend(prov);
         st.prov.material = ids(std::mem::take(&mut st.prov.material));
+    }
+
+    /// Inspect dimensions, not unit names: custom conversion-based mass/length
+    /// units remain readable even when the writer does not know their scale name.
+    fn derived_dimensions(&mut self, unit: u64) -> Option<[f64; 7]> {
+        let kinds = [
+            "length_unit",
+            "mass_unit",
+            "time_unit",
+            "electric_current_unit",
+            "thermodynamic_temperature_unit",
+            "amount_of_substance_unit",
+            "luminous_intensity_unit",
+        ];
+        let slots = [
+            "length_exponent",
+            "mass_exponent",
+            "time_exponent",
+            "electric_current_exponent",
+            "thermodynamic_temperature_exponent",
+            "amount_of_substance_exponent",
+            "luminous_intensity_exponent",
+        ];
+        let number = |value: Option<&Attribute>| match value {
+            Some(Attribute::Real(n)) => Some(*n),
+            Some(Attribute::Integer(n)) => Some(*n as f64),
+            _ => None,
+        };
+        let mut sum = [0.; 7];
+        for element in self.get_refs(unit, "derived_unit", "elements") {
+            let exponent = number(self.get(element, "derived_unit_element", "exponent"))?;
+            let named = self.get_ref(element, "derived_unit_element", "unit")?;
+            if let Some(dimensions) = self.get_ref(named, "named_unit", "dimensions") {
+                for (i, slot) in slots.iter().enumerate() {
+                    let power = number(self.get(dimensions, "dimensional_exponents", slot))?;
+                    sum[i] += power * exponent;
+                }
+            } else if let Some(i) = kinds.iter().position(|kind| self.is(named, kind)) {
+                sum[i] += exponent;
+            } else if !self.is(named, "plane_angle_unit") && !self.is(named, "solid_angle_unit") {
+                return None;
+            }
+        }
+        Some(sum)
+    }
+
+    /// Only OCCT's two-factor mass^3 · length^2 material density is repairable.
+    /// Do not accept additional factors, duplicate kinds or other wrong exponents.
+    fn occt_density_exponents(&mut self, unit: u64) -> Option<Vec<Decimal>> {
+        if self.derived_dimensions(unit) != Some([2., 3., 0., 0., 0., 0., 0.]) {
+            return None;
+        }
+        let elements = self.get_refs(unit, "derived_unit", "elements");
+        if elements.len() != 2 {
+            return None;
+        }
+        let mut mass = false;
+        let mut length = false;
+        let mut corrected = Vec::new();
+        for element in elements {
+            let named = self.get_ref(element, "derived_unit_element", "unit")?;
+            let exponent = match self.get(element, "derived_unit_element", "exponent")? {
+                value @ (Attribute::Real(_) | Attribute::Integer(_)) => {
+                    Decimal::parse(&self.real_text(element, value)?).ok()?
+                }
+                _ => return None,
+            };
+            let (expected, value) = if self.is(named, "mass_unit") && !mass {
+                mass = true;
+                ("3.", "1.")
+            } else if self.is(named, "length_unit") && !length {
+                length = true;
+                ("2.", "-3.")
+            } else {
+                return None;
+            };
+            if !exponent.cmp_value(&Decimal::parse(expected).ok()?).is_eq() {
+                return None;
+            }
+            corrected.push(Decimal::parse(value).ok()?);
+        }
+        (mass && length).then_some(corrected)
     }
 
     fn derived_unit(&mut self, unit: u64) -> Option<Vec<(String, Decimal)>> {

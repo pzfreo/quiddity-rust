@@ -41,8 +41,9 @@ fn err<T>(why: impl Into<String>) -> Result<T, ModelError> {
 /// Equality (`==`) is textual: `0.5` and `0.50` are different statements of one value;
 /// [`Decimal::cmp_value`] compares values exactly.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "json", serde(try_from = "String"))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
+#[cfg_attr(feature = "json-import", serde(try_from = "String"))]
 pub struct Decimal(String);
 
 impl Decimal {
@@ -304,7 +305,8 @@ impl Exact {
 
 /// A unit of length.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum LengthUnit {
     Millimetre,
@@ -374,7 +376,8 @@ impl LengthUnit {
 
 /// A unit of plane angle.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum AngleUnit {
     Radian,
@@ -400,7 +403,8 @@ impl AngleUnit {
 
 /// A length as stated.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Length {
     pub value: Decimal,
@@ -417,7 +421,8 @@ impl Length {
 
 /// An angle as stated.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Angle {
     pub value: Decimal,
@@ -433,7 +438,8 @@ impl Angle {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum Quantity {
     Length(Length),
@@ -486,7 +492,8 @@ impl Quantity {
 /// A stated value and the number of decimal places it is to be shown with, when stated
 /// (`value_format_type_qualifier`, §5.4: the `y` of `NR2 x.y`).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Value {
     pub quantity: Quantity,
@@ -533,21 +540,24 @@ impl Value {
 
 /// A ratio as stated (`ratio_measure`).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 pub struct Ratio(pub Decimal);
 
 /// A count (`count_measure`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 pub struct Count(pub u32);
 
 /// An upper and a lower value of one kind (both lengths or both angles), `upper > lower`, with
 /// no sign assumed: deviations of g6 lie wholly below nominal, both negative (§5.2.3).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 #[cfg_attr(
-    feature = "json",
+    feature = "json-import",
     serde(try_from = "crate::json::invariants::BoundsInput")
 )]
 pub struct Bounds {
@@ -595,7 +605,8 @@ macro_rules! id {
     ($($(#[$m:meta])* $name:ident),* $(,)?) => {$(
         $(#[$m])*
         #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-        #[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+        #[cfg_attr(feature = "json", derive(serde::Serialize))]
+        #[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
         pub struct $name(pub usize);
     )*};
 }
@@ -627,7 +638,8 @@ id!(
 /// point, curve, surface or placement that is not the part's topology: a hole's axis, a target's
 /// point, a datum plane; CAx-IF *Supplemental Geometry* practice, PMI practice §3.9.1).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum Anchor {
     Face(FaceIndex),
@@ -638,7 +650,8 @@ pub enum Anchor {
 /// Supplemental geometry, held by value: the geometric item as its schema entity and attribute
 /// values (no instance ids), and the length unit of the representation it is given in.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Geometry {
     pub item: GeometryItem,
@@ -648,7 +661,8 @@ pub struct Geometry {
 /// One geometric item: its entity (one leaf, or the leaves of a complex instance in the
 /// external mapping's order), each with its own attribute values.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct GeometryItem {
     pub leaves: Vec<(String, Vec<GeometryValue>)>,
@@ -668,7 +682,8 @@ impl GeometryItem {
 
 /// An attribute value of a geometric item, as stated.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum GeometryValue {
     Real(Decimal),
@@ -694,7 +709,8 @@ pub enum GeometryValue {
 
 /// What PMI applies to: a shape aspect of the part (§3.8, §6.1).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum Feature {
     /// One feature made of one or more faces or edges (§5.1 Figure 5, §6.5.1).
@@ -718,7 +734,8 @@ pub enum Feature {
 /// part's local coordinate system, in millimetres; directions are unit vectors. These are
 /// computed decimals, not source measure tokens. Face indices use the usual part numbering.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct DerivedGeometry {
     pub kind: DerivedGeometryKind,
@@ -734,7 +751,8 @@ pub struct DerivedGeometry {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum DerivedGeometryKind {
     Axis,
@@ -744,7 +762,8 @@ pub enum DerivedGeometryKind {
 
 /// How a group's members are taken (§6.4).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum GroupKind {
     /// `composite_group_shape_aspect` 'multiple elements' (§6.4).
@@ -766,7 +785,8 @@ pub enum GroupKind {
 
 /// The kind of a derived feature (§5.1.4, Table 3).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum DerivedKind {
     /// Plain `derived_shape_aspect`.
@@ -805,8 +825,9 @@ impl DerivedKind {
 
 /// A datum's identification (`datum.identification`): non-empty, no white space ('A', 'AA').
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "json", serde(try_from = "String"))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
+#[cfg_attr(feature = "json-import", serde(try_from = "String"))]
 pub struct DatumLabel(String);
 
 impl DatumLabel {
@@ -832,10 +853,11 @@ impl fmt::Display for DatumLabel {
 /// A datum (§6.5): its label and what establishes it, its datum feature and/or its datum
 /// targets. It has no position: precedence exists only in a [`DatumSystem`].
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 #[cfg_attr(
-    feature = "json",
+    feature = "json-import",
     serde(try_from = "crate::json::invariants::DatumInput")
 )]
 pub struct Datum {
@@ -889,7 +911,8 @@ impl Datum {
 /// A placement: origin and axes (`axis2_placement_3d`), the origin in the representation
 /// context's length unit.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Placement {
     pub origin: [Length; 3],
@@ -901,12 +924,14 @@ pub struct Placement {
 
 /// A direction's ratios as stated.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 pub struct Direction(pub [Decimal; 3]);
 
 /// The shape of a datum target (§6.6.1 Table 10, §6.6.2 Table 11).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum TargetShape {
     Point,
@@ -932,10 +957,11 @@ pub enum TargetShape {
 
 /// A datum target (§6.6): 'A1' is datum A's target 1.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 #[cfg_attr(
-    feature = "json",
+    feature = "json-import",
     serde(try_from = "crate::json::invariants::TargetInput")
 )]
 pub struct DatumTarget {
@@ -1005,7 +1031,8 @@ impl DatumTarget {
 
 /// A modifier of a datum reference (§6.9.7 Table 15; schema `datum_reference_modifier`).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum DatumModifier {
     Simple(SimpleDatumModifier),
@@ -1018,7 +1045,8 @@ pub enum DatumModifier {
 
 /// Schema `simple_datum_reference_modifier`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum SimpleDatumModifier {
     #[cfg_attr(feature = "json", serde(rename = "free_state"))]
@@ -1069,7 +1097,8 @@ pub enum SimpleDatumModifier {
 
 /// Schema `datum_reference_modifier_type`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum DatumModifierType {
     CircularOrCylindrical,
@@ -1080,7 +1109,8 @@ pub enum DatumModifierType {
 
 /// A reference to one datum in a compartment, with its own modifiers.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct DatumReference {
     pub datum: DatumId,
@@ -1090,7 +1120,8 @@ pub struct DatumReference {
 /// One compartment of a datum system: one datum, or several of equal weight (a common datum,
 /// A–B, §6.9.8), and the modifiers of the compartment as a whole.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Compartment {
     pub references: Vec<DatumReference>,
@@ -1100,8 +1131,9 @@ pub struct Compartment {
 /// A datum reference frame: primary, secondary, tertiary compartments in order (§6.9.7). A
 /// value: two equal systems are one system.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "json", serde(try_from = "Vec<Compartment>"))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
+#[cfg_attr(feature = "json-import", serde(try_from = "Vec<Compartment>"))]
 pub struct DatumSystem(Vec<Compartment>);
 
 impl DatumSystem {
@@ -1132,7 +1164,8 @@ impl DatumSystem {
 
 /// A dimension (§5).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Dimension {
     pub kind: DimensionKind,
@@ -1152,7 +1185,8 @@ pub struct Dimension {
 
 /// What a dimension measures.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum DimensionKind {
     /// `dimensional_size` (§5.1.5), `angular_size` (§5.1.6, with `angle`), with path (§5.1.7).
@@ -1176,7 +1210,8 @@ pub enum DimensionKind {
 
 /// Schema `angle_relator`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum AngleSelection {
     Equal,
@@ -1186,7 +1221,8 @@ pub enum AngleSelection {
 
 /// `dimensional_size.name` (§5.1.5 Table 4).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum SizeKind {
     #[cfg_attr(feature = "json", serde(rename = "curve length"))]
@@ -1275,7 +1311,8 @@ impl SizeKind {
 
 /// `dimensional_location.name` (§5.1.1 Tables 1–2).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum LocationKind {
     #[cfg_attr(feature = "json", serde(rename = "curved distance"))]
@@ -1371,7 +1408,8 @@ impl LocationKind {
 
 /// How a dimension is toleranced (§5.2).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum DimTolerance {
     /// A nominal value only.
@@ -1392,7 +1430,8 @@ pub enum DimTolerance {
 
 /// The tolerance principle of a dimension (§5.2.1 Table 5).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum Principle {
     Independency,
@@ -1402,7 +1441,8 @@ pub enum Principle {
 
 /// A value qualifier (`type_qualifier.name`, §5.2.2 Table 6).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum Qualifier {
     Maximum,
@@ -1426,7 +1466,8 @@ impl Qualifier {
 
 /// A dimension modifier: Table 7's 'auxiliary' and Table 8 (§5.3).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum DimensionModifier {
     /// Reference (ASME) / auxiliary (ISO), Table 7.
@@ -1582,7 +1623,8 @@ impl DimensionModifier {
 
 /// ISO 286 tolerance class: fundamental deviation and grade, e.g. H7, g6 (§5.2.5).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Iso286Class {
     pub deviation: FundamentalDeviation,
@@ -1598,7 +1640,8 @@ impl fmt::Display for Iso286Class {
 /// A fundamental deviation: the ISO 286 letter and whether it is a hole's (upper case) or a
 /// shaft's (lower case). The 28 letters are the same for both.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct FundamentalDeviation {
     pub letter: DeviationLetter,
@@ -1607,7 +1650,8 @@ pub struct FundamentalDeviation {
 
 /// Hole (internal feature, upper case) or shaft (external feature, lower case).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum FitFeature {
     Hole,
@@ -1616,7 +1660,8 @@ pub enum FitFeature {
 
 /// ISO 286-1 fundamental deviation letters.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum DeviationLetter {
     #[cfg_attr(feature = "json", serde(rename = "a"))]
@@ -1744,7 +1789,8 @@ impl fmt::Display for FundamentalDeviation {
 
 /// ISO 286-1 standard tolerance grades IT01, IT0, IT1 … IT18.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum ToleranceGrade {
     #[cfg_attr(feature = "json", serde(rename = "01"))]
@@ -1839,7 +1885,8 @@ impl ToleranceGrade {
 
 /// A geometric tolerance: one feature control frame (§6.7–§6.9).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct GeometricTolerance {
     pub kind: ToleranceKind,
@@ -1865,7 +1912,8 @@ pub struct GeometricTolerance {
 
 /// The tolerance types (§6.8 Table 12).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum ToleranceKind {
     #[cfg_attr(feature = "json", serde(rename = "angularity_tolerance"))]
@@ -1902,7 +1950,8 @@ pub enum ToleranceKind {
 
 /// Whether a tolerance kind requires, allows or forbids datum references.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum DatumRequirement {
     Required,
@@ -1973,7 +2022,8 @@ impl ToleranceKind {
 
 /// What a geometric tolerance applies to (schema `geometric_tolerance_target`).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum ToleranceTarget {
     /// A shape aspect (§6.1).
@@ -1992,7 +2042,8 @@ pub enum ToleranceTarget {
 
 /// The tolerance zone (§6.9.2).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Zone {
     /// `tolerance_zone_form.name` (Table 13).
@@ -2011,7 +2062,8 @@ pub struct Zone {
 
 /// Affected plane variants in §6.9.2.1 Figures 53–54.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum AffectedPlaneKind {
     IntersectionLine,
@@ -2030,7 +2082,8 @@ impl AffectedPlaneKind {
 
 /// `projected_zone_definition`: the projection's origin feature and length.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct ProjectedZone {
     /// The feature the projection starts from; `None` where a file's projection end names no
@@ -2041,7 +2094,8 @@ pub struct ProjectedZone {
 
 /// `tolerance_zone_form.name` (§6.9.2 Table 13).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum ZoneForm {
     #[cfg_attr(feature = "json", serde(rename = "within a circle"))]
@@ -2189,7 +2243,8 @@ impl ZoneForm {
 /// Schema `geometric_tolerance_modifier` (§6.9.3 Table 14), edition 4's values (edition 1's
 /// are a subset).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum ToleranceModifier {
     #[cfg_attr(feature = "json", serde(rename = "any_cross_section"))]
@@ -2521,7 +2576,8 @@ impl DatumModifierType {
 
 /// Unit basis (§6.9.6): per unit length, or per unit area of a stated shape.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct UnitBasis {
     pub size: Value,
@@ -2530,7 +2586,8 @@ pub struct UnitBasis {
 
 /// `geometric_tolerance_with_defined_area_unit`.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct UnitArea {
     pub shape: AreaShape,
@@ -2539,7 +2596,8 @@ pub struct UnitArea {
 
 /// Schema `area_unit_type`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum AreaShape {
     Circular,
@@ -2551,7 +2609,8 @@ pub enum AreaShape {
 
 /// Schema `geometric_tolerance_auxiliary_classification_enum`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum AuxiliaryClassification {
     AllOver,
@@ -2560,7 +2619,8 @@ pub enum AuxiliaryClassification {
 
 /// A relationship between two tolerances (schema `geometric_tolerance_relationship`).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct ToleranceRelation {
     pub kind: RelationKind,
@@ -2572,7 +2632,8 @@ pub struct ToleranceRelation {
 
 /// `geometric_tolerance_relationship.name` (§6.9.9).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum RelationKind {
     Composite,
@@ -2586,7 +2647,8 @@ pub enum RelationKind {
 
 /// The dimensioning standard the part is toleranced to (§4 Figure 1).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Standard {
     /// The standard's document (`document.id`, else the `product.id` it is equivalent to),
@@ -2599,7 +2661,8 @@ pub struct Standard {
 
 /// Whose standard: the default tolerance principle follows from it (§4 note, Table 5).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum StandardBody {
     Asme,
@@ -2622,7 +2685,8 @@ impl Standard {
 
 /// A general (default) tolerance (maintainer decision 3).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum GeneralTolerance {
     /// A tolerance class as stated ('tolerance class' item of the 'default tolerances'
@@ -2640,7 +2704,8 @@ pub enum GeneralTolerance {
 
 /// One `default_tolerance_table_cell`: its items by name, as stated.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct ToleranceCell {
     pub items: Vec<(String, CellValue)>,
@@ -2663,7 +2728,8 @@ impl ToleranceCell {
 
 /// The value of a table cell item.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum CellValue {
     Value(Value),
@@ -2673,7 +2739,8 @@ pub enum CellValue {
 
 /// A thread, exactly its schema parameters (`thread` WR1–WR16).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Thread {
     /// 'applied shape' (WR13).
@@ -2714,7 +2781,8 @@ pub struct Thread {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum ThreadSide {
     Internal,
@@ -2722,7 +2790,8 @@ pub enum ThreadSide {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum Hand {
     Left,
@@ -2731,7 +2800,8 @@ pub enum Hand {
 
 /// A turned knurl, exactly its schema parameters (`turned_knurl` WR1–WR12).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Knurl {
     pub feature: FeatureId,
@@ -2750,7 +2820,8 @@ pub struct Knurl {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum KnurlPattern {
     Diamond,
@@ -2761,7 +2832,8 @@ pub enum KnurlPattern {
 /// A hole occurrence's feature definition and placement (AP242 edition 4: a
 /// `basic_round_hole_occurrence` of a `basic_round_hole`, whose faces are [`Hole::feature`]).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Hole {
     /// The occurrence: its faces.
@@ -2776,7 +2848,8 @@ pub struct Hole {
 /// A `basic_round_hole`, exactly its schema attributes (WR1–WR8). A definition is shared by
 /// its occurrences; each [`Hole`] holds it by value.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct RoundHole {
     /// The definition's name (`characterized_object.name`: 'Hole.2').
@@ -2795,7 +2868,8 @@ pub struct RoundHole {
 
 /// The part's material (CAx-IF *Material Identification and Density* §4.1–4.2).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Material {
     /// The material identification (`descriptive_representation_item.name`, §4.1:
@@ -2810,7 +2884,8 @@ pub struct Material {
 
 /// A density as stated: the value and its derived unit's elements (unit and exponent).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Density {
     pub value: Decimal,
@@ -2821,7 +2896,8 @@ pub struct Density {
 
 /// A note: descriptive text of a requirement, on the part or on a feature.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Note {
     /// What the note is (the property's name, e.g. 'semantic text' for editable text, §7.4,
@@ -2841,7 +2917,8 @@ pub struct Note {
 /// that is the note's alone (the aspect it is on, which nothing refers to but its usages, its
 /// presentation and the note: specify-core's notes on faces).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Callout {
     /// The callout's name (e.g. 'External thread requirement'), decoded.
@@ -2854,7 +2931,8 @@ pub struct Callout {
 
 /// What a note or attribute set is on.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum NoteOwner {
     Feature(FeatureId),
@@ -2868,7 +2946,8 @@ pub enum NoteOwner {
 /// practice has no section on it). Part notes in words (coating, heat treatment, edges) are
 /// not this: they are 'semantic text' attribute sets (PMI practice §7.4).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct SurfaceTexture {
     /// The faces it applies to; `None` for the part as a whole (a default for its surfaces).
@@ -2882,7 +2961,8 @@ pub struct SurfaceTexture {
 /// ISO 1302's material removal condition (ISO 10303-1110
 /// `surface_texture_material_removal_condition_enumeration`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum MaterialRemoval {
     /// 'any process allowed': the basic symbol.
@@ -2921,7 +3001,8 @@ impl MaterialRemoval {
 
 /// One surface texture parameter: its characteristic and the value required of it.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct SurfaceTextureParameter {
     /// The characteristic as ISO 1302 names it ('Ra', 'Rz', 'Wt', …; ISO 4287, ISO 12085,
@@ -2933,7 +3014,8 @@ pub struct SurfaceTextureParameter {
 
 /// A user defined attribute set (UDA practice §5–7): the attribute's name and its values.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct AttributeSet {
     /// The attribute's name (`property_definition.name`).
@@ -2956,7 +3038,8 @@ pub struct AttributeSet {
 
 /// A `general_property` (ISO 10303-41): the kind of property a property definition is.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct GeneralProperty {
     /// `general_property.id`, decoded.
@@ -2970,7 +3053,8 @@ pub struct GeneralProperty {
 
 /// One value of a user defined attribute (UDA practice §7).
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(rename_all = "snake_case"))]
 pub enum AttributeValue {
     Text(String),
@@ -2989,7 +3073,8 @@ pub enum AttributeValue {
 
 /// The PMI of one product definition of the file.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct PartPmi {
     /// The standards applied to the part's GD&T (§4 Figure 1), in the file's order: a file may

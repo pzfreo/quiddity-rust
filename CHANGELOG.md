@@ -6,6 +6,37 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Changed
+
+- For #142, the `json` feature is now serialise-only (export of `haecceity.pmi/1` and `haecceity.presentation/1`, and id assignment). The new `json-import` feature adds parsing, validation, the packaged schemas and the JSON → STEP path. The CLI requires `json-import`. This keeps WASM consumers small.
+
+### Fixed
+
+- For #142, read OCCT's exact two-factor mass³ × length² material density as
+  mass/length³, and tolerate its untyped REAL density value, reporting each repair.
+  Other wrong dimensions remain refused. Writing emits the practice's typed
+  density measure and correct exponents with conversion-based gram.
+
+- For #142, encode integer/exponent Decimal spellings as valid STEP REALs while
+  restoring their stated JSON text, including density exponents. Ordinary CLI
+  verification accepts the required REAL spelling while retaining legal precision. Invalid density
+  dimensions produce a finding. Both writers define gram/milligram as conversion-based
+  units of SI kilogram per CAx-IF UDA Annex C.1/C.4.2; only affected mass-unit goldens change.
+  Compact producer ordering metadata omits native defaults and uses ordinal references.
+  Haecceity `json` now serializes without schemas/import; `json-import` adds those APIs,
+  and the CLI requires `json-import`. Both crate levels use the same feature split.
+
+- For #142, presentation JSON adds optional text placements, annotation planes,
+  graphic ids and saved-view memberships while retaining schema `/1`. Datum-feature
+  graphics also link to their owning datum, preserving feature aliases. Native
+  text/placeholder positions and generated text metadata retain model-space placement.
+
+- For #142, PMI JSON imports preserve stated target placement/direction decimals,
+  including distinct tokens for equal REAL values. Dimension/tolerance-owned notes
+  use direct AP242 characterized-item properties, upgrading edition 1 JSON writes
+  to edition 4. Validation now shares geometry-independent writer refusals with import.
+
+
 ## 0.2.7 (2026-10-31)
 
 Upgrading from 0.2.6: recognition schema `/6` and fingerprints `/3` are unchanged, and so is semantic PMI written by default builds. Changes:

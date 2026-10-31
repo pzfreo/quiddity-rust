@@ -148,6 +148,7 @@ pub(super) fn walk_path(
             "AngleUnit",
             "DensityUnit",
             "OtherUnit",
+            "Decimal",
             "FaceIndex",
             "EdgeIndex",
         ]

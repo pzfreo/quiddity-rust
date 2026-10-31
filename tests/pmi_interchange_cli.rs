@@ -1,4 +1,4 @@
-#![cfg(feature = "json")]
+#![cfg(feature = "json-import")]
 use quiddity::kernel::{
     json::{self, Anchors},
     p21::Document,
@@ -141,4 +141,75 @@ fn malformed_and_unknown_faces_refuse_without_output() {
     let result = cli(&["pmi", "json", "validate", path.to_str().unwrap()]);
     assert!(!result.status.success());
     assert!(String::from_utf8_lossy(&result.stderr).contains("duplicate key"));
+}
+
+/// Every authored semantic fixture accepted by CLI validate must import with its geometry.
+#[test]
+fn every_accepted_semantic_fixture_imports() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("crates/haecceity/tests/fixtures");
+    let mut pending = vec![root];
+    let mut accepted = 0;
+    while let Some(dir) = pending.pop() {
+        for entry in std::fs::read_dir(dir).unwrap() {
+            let path = entry.unwrap().path();
+            if path.is_dir() {
+                pending.push(path);
+                continue;
+            }
+            if path.extension().is_none_or(|e| e != "json") {
+                continue;
+            }
+            let value: serde_json::Value =
+                serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+            if value["schema"] != "haecceity.pmi/1" {
+                continue;
+            }
+            let checked = cli(&["pmi", "json", "validate", path.to_str().unwrap()]);
+            if !checked.status.success() {
+                continue;
+            }
+            accepted += 1;
+            let parent = path.parent().unwrap();
+            let geometry = if parent.ends_with("xcaf") {
+                parent.join("pmi_plate.geom.step.gz")
+            } else {
+                parent.join("geometry.step.gz")
+            };
+            assert!(
+                geometry.is_file(),
+                "accepted fixture needs geometry: {}",
+                path.display()
+            );
+            let output = scratch().join(format!("fixture-{accepted}.step"));
+            let imported = cli(&[
+                "pmi",
+                "json",
+                "import",
+                geometry.to_str().unwrap(),
+                path.to_str().unwrap(),
+                "-o",
+                output.to_str().unwrap(),
+            ]);
+            assert!(
+                imported.status.success(),
+                "{}: {}",
+                path.display(),
+                String::from_utf8_lossy(&imported.stderr)
+            );
+            let exported = cli(&["pmi", "json", "export", output.to_str().unwrap()]);
+            assert!(
+                exported.status.success(),
+                "{}",
+                String::from_utf8_lossy(&exported.stderr)
+            );
+            assert_eq!(
+                serde_json::from_slice::<serde_json::Value>(&exported.stdout).unwrap(),
+                value
+            );
+        }
+    }
+    assert!(
+        accepted >= 4,
+        "the xcaf fixture and all three #142 producer regressions must be accepted"
+    );
 }

@@ -1,0 +1,50 @@
+{
+  "schema": "haecceity.pmi/1",
+  "units": {
+    "length": [],
+    "angle": [],
+    "density": [
+      {
+        "id": "density/g-cm3",
+        "value": [
+          [
+            "gram",
+            "1"
+          ],
+          [
+            "centimetre",
+            "-3"
+          ]
+        ]
+      }
+    ],
+    "other": []
+  },
+  "pmi": {
+    "standards": [],
+    "decimal_places": null,
+    "features": [],
+    "datum_targets": [],
+    "datums": [],
+    "dimensions": [],
+    "tolerances": [],
+    "tolerance_relations": [],
+    "general": [],
+    "threads": [],
+    "knurls": [],
+    "holes": [],
+    "material": {
+      "id": "Aluminium",
+      "name": null,
+      "density": {
+        "value": "2.7",
+        "unit": "density/g-cm3"
+      }
+    },
+    "notes": [],
+    "surface_textures": [],
+    "attributes": [],
+    "geometry": [],
+    "derived_geometry": []
+  }
+}

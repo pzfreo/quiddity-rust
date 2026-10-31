@@ -137,6 +137,7 @@ impl NewId {
 pub struct Record {
     pub entity: RawEntity,
     stated: BTreeMap<u64, String>,
+    real_texts: Vec<String>,
 }
 
 impl Record {
@@ -145,6 +146,7 @@ impl Record {
         Record {
             entity,
             stated: BTreeMap::new(),
+            real_texts: Vec::new(),
         }
     }
 
@@ -176,10 +178,36 @@ impl Record {
         }
     }
 
+    /// State every REAL occurrence in depth-first attribute order. Unlike [`Self::state`],
+    /// equal numeric values may have different text (for example `0.0` and `0.E0`).
+    /// Each token must be a finite Part 21 REAL matching that occurrence exactly.
+    pub fn state_reals(mut self, decimals: &[&str]) -> Result<Self, P21Error> {
+        let mut values = Vec::new();
+        visit_attributes(&self.entity, &mut |a| {
+            if let Attribute::Real(v) = a {
+                values.push(*v);
+            }
+        });
+        if values.len() != decimals.len() {
+            return Err(P21Error::Encode(
+                "stated REAL occurrence count differs from record".into(),
+            ));
+        }
+        for (value, text) in values.iter().zip(decimals) {
+            if value.to_bits() != parse_real_text(text)?.to_bits() {
+                return Err(P21Error::Encode(format!(
+                    "stated REAL {text} differs from record occurrence"
+                )));
+            }
+        }
+        self.real_texts = decimals.iter().map(|s| (*s).to_string()).collect();
+        Ok(self)
+    }
+
     /// The record's Part 21 text (without `#N=` and `;`).
     pub fn encode(&self) -> Result<String, P21Error> {
         let mut out = String::new();
-        encode_entity(&self.entity, &self.stated, &mut out)?;
+        encode_entity(&self.entity, &self.stated, &self.real_texts, &mut out)?;
         Ok(out)
     }
 }
@@ -910,19 +938,24 @@ fn statement_end(b: &[u8], mut pos: usize, anchors: bool) -> Option<usize> {
 /// Part 21 keywords, non-finite reals, and strings that are not valid bodies (see [`escape`]).
 pub fn encode(record: &RawEntity) -> Result<String, P21Error> {
     let mut out = String::new();
-    encode_entity(record, &BTreeMap::new(), &mut out)?;
+    encode_entity(record, &BTreeMap::new(), &[], &mut out)?;
     Ok(out)
 }
 
 fn encode_entity(
     e: &RawEntity,
     stated: &BTreeMap<u64, String>,
+    occurrences: &[String],
     out: &mut String,
 ) -> Result<(), P21Error> {
+    let mut text = RealText {
+        stated,
+        occurrences: occurrences.iter(),
+    };
     match e {
         RawEntity::Simple {
             name, attributes, ..
-        } => encode_part(name, attributes, stated, out),
+        } => encode_part(name, attributes, &mut text, out),
         RawEntity::Complex { parts, .. } => {
             if parts.is_empty() {
                 return Err(P21Error::Encode("a complex instance without leaves".into()));
@@ -938,7 +971,7 @@ fn encode_entity(
             }
             out.push('(');
             for p in parts {
-                encode_part(&p.name, &p.attributes, stated, out)?;
+                encode_part(&p.name, &p.attributes, &mut text, out)?;
             }
             out.push(')');
             Ok(())
@@ -946,10 +979,15 @@ fn encode_entity(
     }
 }
 
+struct RealText<'a> {
+    stated: &'a BTreeMap<u64, String>,
+    occurrences: std::slice::Iter<'a, String>,
+}
+
 fn encode_part(
     name: &str,
     attributes: &[Attribute],
-    stated: &BTreeMap<u64, String>,
+    text: &mut RealText<'_>,
     out: &mut String,
 ) -> Result<(), P21Error> {
     check_keyword(name)?;
@@ -959,7 +997,7 @@ fn encode_part(
         if i > 0 {
             out.push(',');
         }
-        encode_attribute(a, stated, out)?;
+        encode_attribute(a, text, out)?;
     }
     out.push(')');
     Ok(())
@@ -982,18 +1020,29 @@ fn check_keyword(name: &str) -> Result<(), P21Error> {
 
 fn encode_attribute_text(a: &Attribute) -> Result<String, P21Error> {
     let mut out = String::new();
-    encode_attribute(a, &BTreeMap::new(), &mut out)?;
+    encode_attribute(
+        a,
+        &mut RealText {
+            stated: &BTreeMap::new(),
+            occurrences: [].iter(),
+        },
+        &mut out,
+    )?;
     Ok(out)
 }
 
 fn encode_attribute(
     a: &Attribute,
-    stated: &BTreeMap<u64, String>,
+    text: &mut RealText<'_>,
     out: &mut String,
 ) -> Result<(), P21Error> {
     match a {
         Attribute::Integer(i) => out.push_str(&i.to_string()),
-        Attribute::Real(v) => match stated.get(&v.to_bits()) {
+        Attribute::Real(v) => match text
+            .occurrences
+            .next()
+            .or_else(|| text.stated.get(&v.to_bits()))
+        {
             Some(t) => out.push_str(t),
             None => out.push_str(&encode_real(*v)?),
         },
@@ -1040,7 +1089,7 @@ fn encode_attribute(
                 if i > 0 {
                     out.push(',');
                 }
-                encode_attribute(item, stated, out)?;
+                encode_attribute(item, text, out)?;
             }
             out.push(')');
         }
@@ -1048,7 +1097,7 @@ fn encode_attribute(
             check_keyword(type_name)?;
             out.push_str(type_name);
             out.push('(');
-            encode_attribute(value, stated, out)?;
+            encode_attribute(value, text, out)?;
             out.push(')');
         }
     }

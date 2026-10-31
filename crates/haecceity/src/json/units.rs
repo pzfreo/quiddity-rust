@@ -4,6 +4,7 @@ pub(super) fn empty() -> Value {
     json!({"length":[],"angle":[],"density":[],"other":[]})
 }
 pub(super) fn validate(units: &Value, used: &mut BTreeSet<String>) -> Result<()> {
+    #[cfg(feature = "json-import")]
     schema::check(
         units,
         &pmi_schema()["properties"]["units"],

@@ -46,7 +46,19 @@ Canonical files are `crates/haecceity/docs/pmi-json.md` and
 canonical files. Specify's Python package can copy the two schemas into
 `specify_core/schema/` as package data and expose the reference in its documentation;
 that separate repository is not modified here. Rust exposes the schema texts as
-constants under the opt-in `json` feature, independent of `presentation`.
+constants under the opt-in `json-import` feature, independent of `presentation`.
+
+`haecceity/json` is serialization only: `identify`, `identify_with_anchors`,
+`to_value`, `to_string`, and As Drawn/generated presentation export. It uses a
+small generated typed traversal, with no embedded schema, schema engine, JSON
+parser, model deserializer, importer, or transport-order restoration. Native STEP
+exports use index anchors; supplied typed semantic values retain their ids.
+`haecceity/json-import` implies `json` and adds parsing, schema constants,
+validation, `from_value`/`from_str`, writing and checked transport restoration.
+This is the feature for lossless re-import of a JSON producer's custom aliases.
+The CLI requires `json-import` for the complete command set. At both crate levels,
+`json` enables export only, and `json-import` implies `json`. `presentation` stays separate.
+`examples/json_wasm_size.rs` provides a reproducible WASM size probe.
 
 A document is `{ "schema": "haecceity.pmi/1", "units": { "length": [...],
 "angle": [...], "density": [...], "other": [...] }, "pmi": { ... } }`. The machine-readable schemas use JSON
@@ -91,12 +103,33 @@ For example a diameter size kind is `"diameter"`, a tolerance kind is
 The `$defs` enumerate every alternative and field without relying on this prose.
 
 Decimals are strings, including directions, geometry real values and ratios.
+Integer mantissas and either exponent case are accepted. When a STEP REAL is
+required, the writer adds a decimal point and uppercases `e` as needed (e.g.
+`-3` → `-3.`, `2e1` → `2.E1`), without changing the exact value. JSON transport
+retains and checks the original spelling, including derived-unit exponents.
+Already legal REAL spellings stay verbatim. COUNT_MEASURE still permits native
+integer tokens. Non-finite/unrepresentable REALs are refused by validation and import.
 `Length.unit`, `Angle.unit` and `Geometry.length_unit` are id references into the
 appropriate **document-level** unit table by id; mixed units retain their original
 values without conversion. Unit definitions include named SI/conversion units
 and `other` with the stated exact metres/radians factor. `Density.unit` references `units.density` by id, whose definitions retain the model's
-derived factors (base-unit names and decimal exponents). Other measured attribute
-units reference `units.other` by id, preserving their source unit names. Every unit therefore
+derived factors (base-unit names and decimal exponents).
+Both writers use [CAx-IF UDA v1.8 Annex C.1 and C.4.2](https://www.mbx-if.org/home/wp-content/uploads/2024/05/rec_prac_user_def_attributes_v18.pdf):
+SI mass is kilogram; gram is a conversion-based mass unit with factor `0.001 kg`
+(and milligram `0.000001 kg`). This follows the explicit g/cm³ example in C.4.2,
+leaving density values, unit names and JSON statements unchanged. Reading also
+accepts older unprefixed SI gram. For material density only, the reader repairs
+OCCT's exact two-factor mass³ × length² unit to mass/length³, retaining the value
+and base-unit names, and reports a nonconformance finding. A bare REAL density
+value is accepted with a separate `density value untyped (OCCT)` finding. Other
+non-density units remain omitted with an explicit finding; extra factors or
+other wrong exponents do not qualify for the repair. Rewriting uses Material
+Identification and Density R2.1 §4.2.4: `density measure`, typed
+`POSITIVE_RATIO_MEASURE`, exponents `1.` and `-3.`, and the conversion-based mass
+unit above. This native-read repair does not allow authors to import JSON with
+wrong density dimensions. As in ordinary replacement writes, unused source unit
+records remain shared infrastructure; the rewritten density references newly
+emitted conformant units. Other measured attribute units reference `units.other` by id, preserving their source unit names. Every unit therefore
 lives at document level, including units the model holds only by name.
 
 `FaceIndex` accepts an integer, `{"name":"OCCT face name"}`, or
@@ -169,6 +202,56 @@ with their source ids and a reason, never silently removed.
 | polylines / triangles / text | polyline, tessellated_curve_set, triangulated_face, text_literal and literal text | PMI §7.1; Tessellated 3D Geometry |
 | source / step_ids / unsupported | transport provenance and explicit diagnostic retention; no additional semantic entity | JSON convention |
 
+### Optional editor placement and views (For #142)
+
+The schema remains `haecceity.presentation/1`. All fields below are additive and
+optional; the original required fields and their meanings are unchanged. Old
+companions validate and deserialize with absent metadata defaulted to empty/None.
+A version bump would unnecessarily reject those existing documents.
+
+| Optional field | Meaning and source |
+| --- | --- |
+| `Graphic.id` | Document-local graphic id (`step:<root instance id>` for file graphics). Copies under several semantic keys share this id; render/count once per id. Generated ids contain the semantic collection and id. |
+| `Graphic.plane_id` | Reference to `planes[].id`, from the containing `annotation_plane`. Omitted with a diagnostic if unresolved or if several planes contain the same graphic. |
+| `planes[]` | `{id, name, origin, x_axis, normal}` from the annotation plane's `plane.position` or `planar_box.placement`. Origins are model-space millimetres; axes are unit vectors. The in-plane Y axis is `normal × x_axis`. |
+| `Graphic.text_placements[]` | `{text_index?, origin, x_axis, normal, height?, line_spacing?, alignment?}`. `text_index` is a zero-based index into the existing `text` array. The origin is the native alignment point, not an assumed lower-left corner. |
+| `views[]` | `{id, name, direction?, up?, graphics}` from draughting/presentation models and their camera models (including `model_geometric_view` associations). `graphics` contains graphic ids, not semantic ids. A saved view includes only its own contained graphics, including mapped content. |
+
+Text literals retain their `text_literal.placement`, including 2D placements in
+mapped text representations. Mapping composes target placement with the inverse
+representation-map origin; repositioned tessellated placement is also respected.
+A text style's stated `BOX_HEIGHT` takes precedence over a literal's extent height.
+Heights and origins use the representation length unit and are exported in mm.
+For literal text, height describes the stated style/extent box; it is not an
+inferred font cap height. Native alignment strings are retained. Unknown height
+is omitted and diagnosed rather than estimated from the string.
+
+Placeholders retain their actual placement(s), without manufacturing editable
+strings from requirement names. They have no `text_index`; their declared
+`line_spacing` is distinct from height. Source zero spacing is retained and
+reported as nonconforming. A placeholder planar box may supply its extent height.
+Generated notation uses the actual placed text runs, centred alignment points and
+scaled capital heights. Empty-ink cases retain a diagnostic instead of non-finite
+coordinates. Existing strokes, tessellated fills and text strings are unchanged.
+
+Camera direction points into the scene (negative camera Z), and up is camera Y.
+A draughting model without a camera still supplies a membership group, omitting
+both direction and up. No camera is guessed. IDs are local to this companion;
+use `semantic_ids` to verify the companion's semantic link set before use.
+Validation checks plane, view and text-index references and consistent copies of
+one graphic under multiple semantic keys.
+
+Datum-feature symbol links include the owning datum id even when a direct feature
+key is present. Ownership follows the native datum-feature-to-datum relationship,
+with feature aliases retained; it is not inferred from equal face supports.
+
+The shared mixed fixture is
+`crates/haecceity/tests/fixtures/presentation/ctc01-text-filled.step.gz`:
+**one authored literal and 2,754 triangles**. It is explicitly a derived CTC-01
+fixture, not unmodified NIST data. None of the 28 STEP files in the inspected NIST
+archive contains `TEXT_LITERAL`; original CTC-01 has zero literals and the same
+2,754 triangles. The fixture README and deterministic builder record this limit.
+
 Reading includes the file's own graphics. Presentation JSON writing is optional
 and is not implemented in version 1; semantic JSON writing uses haecceity's
 existing generated presentation. A semantic association may point to several
@@ -217,14 +300,26 @@ Duplicate identifiers on independent source requirements are also an explicit JS
 than silently renumbered. `json::write` verifies the emitted semantic model by
 reading it back before returning bytes. It never removes refused requirements.
 
+`json::validate` and `pmi json validate` also check constructors, reference closure,
+and the writer's geometry-independent authoring refusals. `json::validate_schema`
+remains a structural schema check, suitable for read-only model interchange.
+Import still checks face/edge existence, the geometry context and its units,
+file-edition compatibility and native schema/rule validation against the actual STEP.
+Stated REAL tokens must use Part 21 syntax (a decimal point and uppercase `E` for
+exponents); integer-only and lowercase-exponent strings are refused for REAL fields,
+consistently with dimensions. COUNT_MEASURE also permits canonical integers.
+Placements, target sizes and movable directions retain every decimal occurrence,
+including different spellings of equal numbers in the same vector.
+
 The strict corpus STEP closure test is separately runnable with `--ignored` so
 these pre-existing refusals remain visible. The local SFA sample test, also
 explicitly invoked, records any supported-subset exclusions in adjacent audit
 files; such a sample does not establish a complete source round trip.
 
-Presentation associations to structural support aspects are resolved to their
-owning datum requirement when no direct semantic association is available.
-Support-only graphics remain unlinked and are retained.
+Presentation associations to datum-feature support aspects include their owning
+datum requirement even when a direct feature association is already available.
+Feature keys remain aliases of the same graphic id. Other support-only graphics
+remain unlinked and are retained.
 
 ## v1 identity and presentation policy
 
@@ -238,27 +333,62 @@ without migrating notes into attributes. All note kinds and arbitrary text
 | `kind: "surface texture"`, `"coating"`, `"edges"`, `"general note"`, or any caller string | Same property, with the exact kind in its description |
 | `text` | One `descriptive_representation_item('note text',text)` in its representation |
 | `on: null` | Part `product_definition_shape` |
-| `on: {feature/dimension/tolerance/datum_target: id}` | Referenced item's native carrier |
+| `on: {feature/datum_target: id}` | Referenced item's native shape aspect |
+| `on: {dimension/tolerance: id}` | Referenced native dimension or tolerance, in an edition whose SELECT permits it |
+
+For #142, notes and attribute sets owned by dimensions or tolerances trigger the
+existing JSON-only ed1 → ed4 upgrade, with the schema change recorded in
+`WriteReport.schema` and the complete upgraded file validated. AP242 ed1's
+`characterized_definition` excludes `dimensional_size` and `geometric_tolerance`;
+ed4 includes them through `characterized_item`. The direct property attachment is
+allowed from ed2 onward by [CAx-IF PMI v4.1 §§7.4.2 and 10.1.2.1–2](https://www.mbx-if.org/home/wp-content/uploads/2024/06/rec_pracs_pmi_v41.pdf).
+We choose that form to identify the exact requirement even when several dimensions
+or tolerances share one shape aspect. All `NoteOwner` variants remain supported;
+no owner is inferred from shared geometry. Ordinary non-JSON writes keep their
+existing schema policy and bytes.
 
 The reader already recognises this manufacturing-requirement form. A property
 named `semantic text` associated with a general property remains an AttributeSet;
 the two collections are intentionally distinct. Callout observations are retained
 as transport bindings; presentation JSON does not create drawn geometry.
- Feature and
-attribute order, optional descriptions (including null), and general-property
-fields are retained. A transport ordering association records item IDs and
-support projections without replacing native semantic PMI as authority.
-Its `property_definition('haecceity.pmi/1 ordering',…,part)` representation
-contains an `ordering` descriptive item with collection IDs, semantic content
-keys, reference bindings, unit IDs/definitions/order, anchor order, and callout observations. The reader
-rebuilds collections from independently decoded native items and verifies every
-resolved content key. Corrupt or stale ordering records are refused. This metadata
-also distinguishes equal support projections that the native representation shares.
-The carrier lookup cache is crate-private and excluded from `PmiRead` equality.
+
+Feature and attribute order, optional descriptions (including null), and
+general-property fields are retained. The following is a **haecceity producer
+convention**, not a CAx-IF-defined requirement:
+`PROPERTY_DEFINITION('haecceity.pmi/1 ordering',
+'Transport ordering and reference aliases; native PMI remains authoritative',
+<product_definition_shape>)` has a representation containing one
+`DESCRIPTIVE_REPRESENTATION_ITEM('ordering', <compact JSON>)`. SFA may display
+this ordinary property in its property worksheet; it contains no second copy of
+the semantic values.
+
+The compact producer convention has `v: 2` (omitted means the original version 1).
+It contains `items`, grouped by collection, with each caller id, a checked
+native content digest and only necessary reference/sequence/support bindings.
+Empty collections/maps, null bindings, empty callouts and wire anchors are
+omitted. A native singleton face/edge support does not repeat its anchor. Unit
+identities/definitions/order are retained when present; empty tables are omitted.
+Reference bindings use `[collection ordinal, item ordinal]` into this record,
+avoiding repeated id strings. Collection ordinals follow: features, geometry,
+derived_geometry, datum_targets, datums, dimensions, tolerances,
+tolerance_relations, general, threads, knurls, notes, surface_textures, attributes.
+`spellings` retains decimal tokens lost by REAL encoding or exact conversion-unit arithmetic.
+Wire-name/fingerprint anchors, support order/aliases and nonempty callout
+observations remain because native STEP does not recover those exact JSON forms.
+The reader accepts the previous verbose field/default and reference-object forms.
+
+The reader rebuilds collections from independently decoded native items and
+verifies every resolved content key and spelling before restoration. Corrupt or
+stale records are refused. Content digests and alias bindings remain necessary:
+native SETs and shared carriers cannot recover caller order or distinguish equal
+support projections. The carrier lookup cache is crate-private and excluded
+from `PmiRead` equality.
 
 `pmi::write::differences` retains the ordinary STEP writer's comparison of resolved
 meaning as sets, accepting equivalent support aliases and collection order.
-`differences_as_stated` additionally compares stated decimal text and units.
+`differences_as_stated` additionally compares decimal text and units, accepting
+only required REAL spelling changes (integer mantissas/exponent case) and exact
+unit-factor arithmetic. Legal REAL precision remains significant.
 The JSON-only `json::identity_differences` compares every `PartPmi` field exactly,
 including collection membership, order, references, null descriptions and notes
 becoming attributes. JSON write verification, CLI import and JSON identity tests

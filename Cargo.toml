@@ -17,6 +17,7 @@ include = ["/src", "/README.md", "/CHANGELOG.md", "/LICENSE", "/NOTICE"]
 default = ["presentation"]
 presentation = ["haecceity/presentation"]
 json = ["haecceity/json"]
+json-import = ["json", "haecceity/json-import"]
 f3d = ["haecceity/f3d"]
 
 [dependencies]

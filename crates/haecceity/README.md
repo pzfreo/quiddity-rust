@@ -97,9 +97,11 @@ for solid in 0..part.solids.len() {
 Licensed under Apache-2.0. Source and issues: <https://github.com/pzfreo/quiddity-rust>.
 
 
-Enable the non-default `json` Cargo feature for `haecceity::json`: semantic
-`haecceity.pmi/1`, the `haecceity.presentation/1` companion, and packaged schema
-constants. See [the reference](docs/pmi-json.md) and `schema/` in the crate.
-`json::identify`, `to_value`/`from_value` and `write` keep source identifiers and
-resolve named/support anchors against caller-supplied geometry. The ordinary
-writer and feature-off builds retain their output.
+Enable `json` for serialization-only `haecceity::json`: semantic
+`haecceity.pmi/1`, id assignment and the `haecceity.presentation/1` companion.
+It does not embed schemas or compile parsing/import code. Enable `json-import`
+(which implies `json`) for schema constants, parsing, validation, `from_value`
+and JSON → STEP writing with checked identity restoration. Both are independent
+of `presentation`. See [the reference](docs/pmi-json.md), packaged `schema/`,
+and the `json_wasm_size` example. Ordinary writer output is unchanged except
+for Annex C-conformant gram/milligram definitions.

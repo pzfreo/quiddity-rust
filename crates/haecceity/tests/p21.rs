@@ -1076,3 +1076,29 @@ fn a_malformed_file_schema_is_refused() {
         Err(P21Error::Parse(_))
     ));
 }
+
+#[test]
+fn real_occurrences_keep_distinct_stated_tokens_and_validate_bindings() {
+    let record = Record::new(simple(
+        "CARTESIAN_POINT",
+        vec![
+            Attribute::String(String::new()),
+            Attribute::List(vec![
+                Attribute::Real(0.),
+                Attribute::Real(0.),
+                Attribute::Real(1.),
+            ]),
+        ],
+    ));
+    let stated = record
+        .clone()
+        .state_reals(&["0.0", "0.E+0", "1.00"])
+        .unwrap();
+    assert_eq!(
+        stated.encode().unwrap(),
+        "CARTESIAN_POINT('',(0.0,0.E+0,1.00))"
+    );
+    assert!(record.clone().state_reals(&["0.0"]).is_err());
+    assert!(record.clone().state_reals(&["0.0", "2.0", "1.00"]).is_err());
+    assert!(record.state_reals(&["0.0", "0.0", "1e0"]).is_err());
+}

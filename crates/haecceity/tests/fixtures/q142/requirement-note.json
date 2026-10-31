@@ -1,0 +1,155 @@
+{
+  "schema": "haecceity.pmi/1",
+  "units": {
+    "length": [
+      {
+        "id": "unit/mm",
+        "value": "millimetre"
+      }
+    ],
+    "angle": [],
+    "density": [],
+    "other": []
+  },
+  "pmi": {
+    "standards": [],
+    "decimal_places": null,
+    "features": [
+      {
+        "id": "feature/7",
+        "value": {
+          "items": [
+            {
+              "face": {
+                "name": "hole"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "feature/12",
+        "value": {
+          "items": [
+            {
+              "face": {
+                "name": "top"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "datum_targets": [],
+    "datums": [],
+    "dimensions": [
+      {
+        "id": "0:1:4:7",
+        "value": {
+          "kind": {
+            "size": {
+              "angle": null,
+              "feature": "feature/7",
+              "kind": "diameter",
+              "path": null
+            }
+          },
+          "modifiers": [],
+          "nominal": {
+            "decimal_places": null,
+            "quantity": {
+              "length": {
+                "unit": "unit/mm",
+                "value": "10.0"
+              }
+            }
+          },
+          "principle": null,
+          "qualifier": null,
+          "tolerance": {
+            "fit": {
+              "class": {
+                "deviation": {
+                  "letter": "h",
+                  "of": "hole"
+                },
+                "grade": "7"
+              },
+              "limits": {
+                "lower": {
+                  "decimal_places": null,
+                  "quantity": {
+                    "length": {
+                      "unit": "unit/mm",
+                      "value": "10.0"
+                    }
+                  }
+                },
+                "upper": {
+                  "decimal_places": null,
+                  "quantity": {
+                    "length": {
+                      "unit": "unit/mm",
+                      "value": "10.015"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ],
+    "tolerances": [
+      {
+        "id": "0:1:4:10",
+        "value": {
+          "auxiliary": [],
+          "datums": null,
+          "description": null,
+          "kind": "flatness_tolerance",
+          "magnitude": {
+            "decimal_places": null,
+            "quantity": {
+              "length": {
+                "unit": "unit/mm",
+                "value": "0.05"
+              }
+            }
+          },
+          "maximum": null,
+          "modifiers": [],
+          "target": {
+            "feature": "feature/12"
+          },
+          "unequal": null,
+          "unit_basis": null,
+          "zone": null
+        }
+      }
+    ],
+    "tolerance_relations": [],
+    "general": [],
+    "threads": [],
+    "knurls": [],
+    "holes": [],
+    "material": null,
+    "notes": [
+      {
+        "id": "inspect",
+        "value": {
+          "kind": "semantic text",
+          "text": "Check before assembly",
+          "on": {
+            "tolerance": "0:1:4:10"
+          },
+          "callouts": []
+        }
+      }
+    ],
+    "surface_textures": [],
+    "attributes": [],
+    "geometry": [],
+    "derived_geometry": []
+  }
+}

@@ -5,13 +5,26 @@ use crate::{
     p21::{Attribute as A, Document, RawEntity},
     pmi::{PartId, PmiRead},
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+#[cfg(feature = "json-import")]
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[path = "presentation_layout.rs"]
+mod layout;
+pub use layout::{Plane, TextPlacement, View};
+
+#[derive(Clone, Debug, Serialize, PartialEq)]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[serde(deny_unknown_fields)]
 pub struct Graphic {
+    /// Document-local identity, shared by copies under multiple semantic keys.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub plane_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub text_placements: Vec<TextPlacement>,
     pub source: Source,
     pub name: String,
     pub polylines: Vec<Vec<[f64; 3]>>,
@@ -20,13 +33,15 @@ pub struct Graphic {
     pub step_ids: Vec<u64>,
     pub unsupported: Vec<String>,
 }
-#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq)]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[serde(rename_all = "snake_case")]
 pub enum Source {
     Generated,
     File,
 }
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, PartialEq)]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[serde(deny_unknown_fields)]
 pub struct Presentation {
     pub schema: String,
@@ -34,6 +49,10 @@ pub struct Presentation {
     pub semantic_ids: Vec<String>,
     pub items: BTreeMap<String, Vec<Graphic>>,
     pub unlinked: Vec<Graphic>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub planes: Vec<Plane>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub views: Vec<View>,
 }
 impl Default for Presentation {
     fn default() -> Self {
@@ -43,12 +62,17 @@ impl Default for Presentation {
             semantic_ids: vec![],
             items: BTreeMap::new(),
             unlinked: vec![],
+            planes: vec![],
+            views: vec![],
         }
     }
 }
 impl Graphic {
     fn new(source: Source, name: String) -> Self {
         Self {
+            id: None,
+            plane_id: None,
+            text_placements: vec![],
             source,
             name,
             polylines: vec![],
@@ -167,7 +191,31 @@ impl Transform {
     }
 }
 fn placement(doc: &Document, id: u64) -> Option<Transform> {
-    let origin = point(doc, reference(attr(doc, id, "placement", "location"))?)?;
+    let location = reference(attr(doc, id, "placement", "location"))?;
+    let origin = if is(doc, id, "axis2_placement_2d") {
+        let coordinates = list(attr(doc, location, "cartesian_point", "coordinates"));
+        [
+            number(coordinates.first()?)?,
+            number(coordinates.get(1)?)?,
+            0.,
+        ]
+    } else if is(doc, id, "axis2_placement_3d") {
+        point(doc, location)?
+    } else {
+        return None;
+    };
+    if is(doc, id, "axis2_placement_2d") {
+        let x = reference(attr(doc, id, "axis2_placement_2d", "ref_direction"))
+            .and_then(|r| {
+                let ratios = list(attr(doc, r, "direction", "direction_ratios"));
+                geom::unit([number(ratios.first()?)?, number(ratios.get(1)?)?, 0.])
+            })
+            .unwrap_or([1., 0., 0.]);
+        return Some(Transform {
+            origin,
+            axes: [x, [-x[1], x[0], 0.], [0., 0., 1.]],
+        });
+    }
     let z = reference(attr(doc, id, "axis2_placement_3d", "axis"))
         .and_then(|r| direction(doc, r))
         .unwrap_or([0., 0., 1.]);
@@ -182,6 +230,15 @@ fn placement(doc: &Document, id: u64) -> Option<Transform> {
     })
 }
 fn children(doc: &Document, id: u64) -> Vec<u64> {
+    if is(doc, id, "composite_text") {
+        return refs(attr(doc, id, "composite_text", "collected_text"));
+    }
+    if is(doc, id, "mapped_item") {
+        return reference(attr(doc, id, "mapped_item", "mapping_source"))
+            .and_then(|r| reference(attr(doc, r, "representation_map", "mapped_representation")))
+            .map(|r| refs(attr(doc, r, "representation", "items")))
+            .unwrap_or_default();
+    }
     if is(doc, id, "draughting_callout") {
         return refs(attr(doc, id, "draughting_callout", "contents"));
     }
@@ -234,9 +291,9 @@ fn draw(
     scale: f64,
     g: &mut Graphic,
     seen: &mut BTreeSet<u64>,
-    depth: usize,
+    context: layout::TextContext,
 ) {
-    if depth > 64 {
+    if context.depth > 64 {
         g.unsupported
             .push(format!("#{id}: presentation nesting exceeds 64"));
         return;
@@ -260,11 +317,30 @@ fn draw(
         } else {
             transform
         };
+    let transform = if is(doc, id, "mapped_item") {
+        match layout::mapping(doc, id) {
+            Some(mapping) => transform.then(mapping),
+            None => {
+                g.unsupported
+                    .push(format!("#{id}: unresolved mapped presentation placement"));
+                seen.remove(&id);
+                return;
+            }
+        }
+    } else {
+        transform
+    };
+    let context = context.at(doc, id);
+    if is(doc, id, "annotation_placeholder_occurrence") {
+        layout::placeholder(doc, id, transform, scale, g);
+        seen.remove(&id);
+        return;
+    }
     let at = |p| geom::scale(transform.at(p), scale);
     let kids = children(doc, id);
     if !kids.is_empty() {
         for r in kids {
-            draw(doc, r, transform, scale, g, seen, depth + 1);
+            draw(doc, r, transform, scale, g, seen, context.descend());
         }
         seen.remove(&id);
         return;
@@ -357,7 +433,7 @@ fn draw(
             }
         }
     } else if is(doc, id, "text_literal") {
-        g.text.push(text(attr(doc, id, "text_literal", "literal")));
+        layout::literal(doc, id, transform, scale, context, g);
         g.unsupported.push(format!(
             "#{id}: editable literal retained; font glyph outlines unavailable"
         ));
@@ -419,6 +495,34 @@ pub fn read(
                 .entry(*carrier)
                 .or_default()
                 .insert(id.clone());
+        }
+    }
+    // Some features project onto a different native carrier. Resolve the actual
+    // datum-feature -> datum relationship rather than guessing by equal faces.
+    for relationship in doc.ids().filter(|&id| {
+        is(doc, id, "shape_aspect_relationship") && !is(doc, id, "dimensional_location")
+    }) {
+        let feature = reference(attr(
+            doc,
+            relationship,
+            "shape_aspect_relationship",
+            "relating_shape_aspect",
+        ));
+        let datum = reference(attr(
+            doc,
+            relationship,
+            "shape_aspect_relationship",
+            "related_shape_aspect",
+        ));
+        if let (Some(feature), Some(datum)) = (feature, datum)
+            && is(doc, feature, "datum_feature")
+            && is(doc, datum, "datum")
+            && let Some(keys) = carriers.get(&datum)
+        {
+            datum_support
+                .entry(feature)
+                .or_default()
+                .extend(keys.iter().cloned());
         }
     }
     let mut support_links: BTreeMap<u64, BTreeSet<String>> = BTreeMap::new();
@@ -486,6 +590,8 @@ pub fn read(
             ))
         })
         .collect();
+    let plane_index = layout::PlaneIndex::read(doc);
+    out.planes = plane_index.planes.clone();
     for root in roots {
         let mut graphic = Graphic::new(
             if generated.contains(&root)
@@ -499,6 +605,8 @@ pub fn read(
             },
             text(attr(doc, root, "representation_item", "name")),
         );
+        graphic.id = Some(format!("step:{root}"));
+        let context = plane_index.context(root, &mut graphic);
         let scale = scale_for(doc, root);
         draw(
             doc,
@@ -507,11 +615,13 @@ pub fn read(
             scale.unwrap_or(1.),
             &mut graphic,
             &mut BTreeSet::new(),
-            0,
+            context,
         );
         if scale.is_none() {
             graphic.polylines.clear();
             graphic.triangles.clear();
+            graphic.text_placements.clear();
+            graphic.plane_id = None;
             graphic.unsupported.push(format!(
                 "#{root}: length unit unresolved; source retained without guessed coordinates"
             ));
@@ -523,7 +633,7 @@ pub fn read(
             .flatten()
             .cloned()
             .collect();
-        if keys.is_empty() {
+        {
             keys.extend(
                 graphic
                     .step_ids
@@ -545,6 +655,8 @@ pub fn read(
             }
         }
     }
+    out.views = layout::views(doc, &out);
+    #[cfg(feature = "json-import")]
     validate(&serde_json::to_value(&out)?)?;
     Ok(out)
 }
@@ -609,9 +721,11 @@ fn unit_scale(doc: &Document, id: u64, depth: usize) -> Option<f64> {
 }
 
 /// Validate the companion with the shipped schema.
+#[cfg(feature = "json-import")]
 pub fn validate(v: &Value) -> Result<()> {
     let schema: Value = serde_json::from_str(super::PRESENTATION_SCHEMA)?;
-    super::schema::check(v, &schema, &schema, "")
+    super::schema::check(v, &schema, &schema, "")?;
+    layout::validate(v)
 }
 
 /// Generate current notation placed on the part's geometry in model millimetres.
@@ -643,13 +757,26 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
             "surface_textures" => semantic.pmi.surface_textures[index].on,
             _ => None,
         };
-        let placed = if let Some((point, normal, _)) =
-            feature.and_then(|f| presentation::placement::feature_site(part, &semantic.pmi, f))
-        {
+        let site =
+            feature.and_then(|f| presentation::placement::feature_site(part, &semantic.pmi, f));
+        let notes = site.is_none();
+        let placed = if let Some((point, normal, _)) = site {
             layout.on_face(point, normal, &callout)
         } else {
             layout.notes(&callout)
         };
+        g.id = Some(format!("generated:{collection}:{key}"));
+        layout::generated(
+            &mut g,
+            &callout,
+            &placed,
+            layout.text_height(),
+            part.bounds().max_extent(),
+            notes,
+        );
+        let plane = Plane::generated(&g, &placed);
+        g.plane_id = Some(plane.id.clone());
+        out.planes.push(plane);
         g.polylines = placed.lines;
         g.text = callout.cells;
         out.items.entry(key.clone()).or_default().push(g);
@@ -694,10 +821,24 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
     if let Some(material) = &semantic.pmi.material {
         let c = presentation::label(&format!("MATERIAL: {}", material.id));
         let mut g = Graphic::new(self::Source::Generated, c.notation());
-        g.polylines = layout.notes(&c).lines;
+        let placed = layout.notes(&c);
+        g.id = Some("generated:material".into());
+        layout::generated(
+            &mut g,
+            &c,
+            &placed,
+            layout.text_height(),
+            part.bounds().max_extent(),
+            true,
+        );
+        let plane = Plane::generated(&g, &placed);
+        g.plane_id = Some(plane.id.clone());
+        out.planes.push(plane);
+        g.polylines = placed.lines;
         g.text = c.cells;
         out.unlinked.push(g);
     }
+    #[cfg(feature = "json-import")]
     validate(&serde_json::to_value(&out)?)?;
     Ok(out)
 }

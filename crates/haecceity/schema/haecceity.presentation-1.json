@@ -32,6 +32,18 @@
         "minLength": 1
       },
       "description": "Sorted ids of every item in the companion PMI document; compare before using links."
+    },
+    "planes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Plane"
+      }
+    },
+    "views": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/View"
+      }
     }
   },
   "required": [
@@ -103,6 +115,21 @@
           "items": {
             "type": "string"
           }
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Document-local graphic identity, shared across semantic-key aliases."
+        },
+        "plane_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text_placements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TextPlacement"
+          }
         }
       },
       "required": [
@@ -113,6 +140,109 @@
         "text",
         "step_ids",
         "unsupported"
+      ],
+      "additionalProperties": false
+    },
+    "Vector3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "TextPlacement": {
+      "type": "object",
+      "properties": {
+        "text_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "origin": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "x_axis": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "normal": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "height": {
+          "type": "number",
+          "minimum": 0
+        },
+        "line_spacing": {
+          "type": "number",
+          "minimum": 0
+        },
+        "alignment": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "origin",
+        "x_axis",
+        "normal"
+      ],
+      "additionalProperties": false
+    },
+    "Plane": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "origin": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "x_axis": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "normal": {
+          "$ref": "#/$defs/Vector3"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "origin",
+        "x_axis",
+        "normal"
+      ],
+      "additionalProperties": false
+    },
+    "View": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "direction": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "up": {
+          "$ref": "#/$defs/Vector3"
+        },
+        "graphics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "graphics"
       ],
       "additionalProperties": false
     }

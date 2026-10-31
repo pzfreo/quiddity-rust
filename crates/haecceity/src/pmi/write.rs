@@ -84,6 +84,10 @@ pub use crate::removal::PresentationPolicy;
 #[path = "upgrade.rs"]
 mod upgrade;
 
+#[path = "authoring.rs"]
+mod authoring;
+pub(crate) use authoring::model_refusals;
+
 type A = Attribute;
 
 /// What [`write`] does with each named part's existing PMI.
@@ -230,7 +234,8 @@ impl From<P21Error> for WriteError {
 pub enum SchemaChange {
     /// Kept as it was.
     Kept(Vec<String>),
-    /// An AP214/AP203 file that gained PMI, now [`express::TARGET_SCHEMA`] (decision 1).
+    /// An AP214/AP203 file gaining PMI, or an identified JSON write requiring a
+    /// newer AP242 SELECT, now [`express::TARGET_SCHEMA`].
     Upgraded { from: Vec<String>, to: String },
 }
 
@@ -446,15 +451,15 @@ pub fn write(
         pmi,
         mode,
         policy,
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         None,
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         None,
     )
 }
 
 /// The JSON path supplies item ids; the ordinary writer always supplies None.
-#[cfg(feature = "json")]
+#[cfg(feature = "json-import")]
 pub(crate) fn write_identified(
     doc: &Document,
     parts: &[PartDefinition],
@@ -480,8 +485,10 @@ fn write_inner(
     pmi: &[(PartId, PartPmi)],
     mode: Mode,
     policy: PresentationPolicy,
-    #[cfg(feature = "json")] identifiers: Option<&BTreeMap<PartId, BTreeMap<String, Vec<String>>>>,
-    #[cfg(feature = "json")] protected: Option<&BTreeSet<u64>>,
+    #[cfg(feature = "json-import")] identifiers: Option<
+        &BTreeMap<PartId, BTreeMap<String, Vec<String>>>,
+    >,
+    #[cfg(feature = "json-import")] protected: Option<&BTreeSet<u64>>,
 ) -> Result<(Edit, WriteReport), WriteError> {
     // Validate the input before migration (in particular every note's owner).
     for (part, p) in pmi {
@@ -493,7 +500,7 @@ fn write_inner(
     let normalized: Vec<_> = pmi
         .iter()
         .map(|(id, p)| {
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             if identifiers.is_some() {
                 return (*id, p.clone());
             }
@@ -525,14 +532,14 @@ fn write_inner(
             .validate()
             .map_err(|errors| WriteError::Invalid { part: *p, errors })?;
     }
-    #[cfg(feature = "json")]
+    #[cfg(feature = "json-import")]
     let read = if identifiers.is_some() {
         super::read_native(doc, parts)
     } else {
         super::read(doc, parts)
     }
     .map_err(WriteError::Read)?;
-    #[cfg(not(feature = "json"))]
+    #[cfg(not(feature = "json-import"))]
     let read = super::read(doc, parts).map_err(WriteError::Read)?;
 
     // The file's edition and the table written instances are checked against.
@@ -542,11 +549,21 @@ fn write_inner(
         .trim()
         .to_ascii_uppercase()
         .starts_with("AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF");
-    #[cfg(feature = "json")]
+    // Edition 1 excludes dimensional_size and geometric_tolerance from
+    // characterized_definition. JSON keeps their exact owner by using edition 4's
+    // characterized_item SELECT (CAx-IF PMI v4.1 §§7.4.2, 10.1.2.1–2).
+    #[cfg(feature = "json-import")]
     let json_upgrade = identifiers.is_some()
         && express::edition(&first).is_some_and(|e| std::ptr::eq(e, &express::AP242_ED1))
-        && pmi.iter().any(|(_, p)| !p.tolerance_relations.is_empty());
-    #[cfg(not(feature = "json"))]
+        && pmi.iter().any(|(_, p)| {
+            !p.tolerance_relations.is_empty()
+                || p.notes
+                    .iter()
+                    .filter_map(|n| n.on)
+                    .chain(p.attributes.iter().filter_map(|a| a.on))
+                    .any(|owner| matches!(owner, NoteOwner::Dimension(_) | NoteOwner::Tolerance(_)))
+        });
+    #[cfg(not(feature = "json-import"))]
     let json_upgrade = false;
     let edition: &'static Edition = if json_upgrade {
         express::TARGET
@@ -561,7 +578,7 @@ fn write_inner(
     let mut plans = Vec::new();
     for (p, part_pmi) in &order {
         let plan = PartPlan::new(doc, &parts[p.0], *p, part_pmi, &read, mode)?;
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         let plan = {
             let mut plan = PartPlan {
                 identifiers: identifiers.and_then(|ids| ids.get(p)),
@@ -676,7 +693,7 @@ fn write_inner(
             // again by what is written, matched by value), never removed.
             let geometry: BTreeSet<u64> = prov.geometry.iter().flatten().copied().collect();
             seeds.extend(prov.all().into_iter().filter(|id| {
-                #[cfg(feature = "json")]
+                #[cfg(feature = "json-import")]
                 if protected.is_some_and(|ids| ids.contains(id)) {
                     return false;
                 }
@@ -734,7 +751,7 @@ fn write_inner(
                     Err(r) => return Err(WriteError::Removal(Box::new(r))),
                 }
             };
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             let plan = if let Some(protected) = protected {
                 let mut plan = plan;
                 // Removal can reach kept ink through an annotation plane or another
@@ -754,7 +771,7 @@ fn write_inner(
             report.rewritten = plan.rewritten.keys().copied().collect();
             report.presentation_removed = plan.presentation_removed.clone();
             report.presentation_removed.extend(emptied);
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             if protected.is_some() {
                 report
                     .presentation_removed
@@ -1264,12 +1281,18 @@ fn refs(v: impl IntoIterator<Item = R>) -> A {
     A::List(v.into_iter().map(R::a).collect())
 }
 
-/// A stated decimal as a REAL attribute, refused unless it is a Part 21 REAL (it is written
-/// with its own text, never rewritten).
+/// Encode a decimal as a legal REAL without changing its exact value. JSON transport
+/// retains spellings that Part 21 cannot express (integer mantissas and lower-case e).
+pub(crate) fn real_text(d: &Decimal) -> Result<String, String> {
+    let mut text = d.as_str().to_ascii_uppercase();
+    if !text.contains('.') {
+        let at = text.find('E').unwrap_or(text.len());
+        text.insert(at, '.');
+    }
+    p21::encode_real_text(&text).map_err(|e| e.to_string())
+}
 fn real(d: &Decimal) -> Result<A, String> {
-    p21::encode_real_text(d.as_str()).map_err(|_| {
-        format!("value {d} is not a Part 21 REAL (a decimal point is required); not rewritten")
-    })?;
+    real_text(d)?;
     Ok(A::Real(d.to_f64()))
 }
 
@@ -1338,11 +1361,13 @@ impl<'a> Emitter<'a> {
 
     fn push(&mut self, e: RawEntity, stated: &[&Decimal]) -> Result<R, WriteError> {
         let mut rec = Record::new(e);
-        let mut seen = BTreeSet::new();
-        for d in stated {
-            if seen.insert(d.as_str()) {
-                rec = rec.state(d.as_str())?;
-            }
+        if !stated.is_empty() {
+            // All REALs in attribute order, including equal values with different text.
+            let texts = stated
+                .iter()
+                .map(|d| real_text(d).map_err(WriteError::Internal))
+                .collect::<Result<Vec<_>, _>>()?;
+            rec = rec.state_reals(&texts.iter().map(String::as_str).collect::<Vec<_>>())?;
         }
         let id = self.edit.add(rec);
         if id.index() != self.count {
@@ -1502,11 +1527,12 @@ impl<'a> Emitter<'a> {
             return Ok(*r);
         }
         let length = if kind == "length" { 1.0 } else { 0.0 };
+        let mass = if kind == "mass" { 1.0 } else { 0.0 };
         let r = self.simple(
             "dimensional_exponents",
             &[
                 ("length_exponent", A::Real(length)),
-                ("mass_exponent", A::Real(0.0)),
+                ("mass_exponent", A::Real(mass)),
                 ("time_exponent", A::Real(0.0)),
                 ("electric_current_exponent", A::Real(0.0)),
                 ("thermodynamic_temperature_exponent", A::Real(0.0)),
@@ -1516,6 +1542,49 @@ impl<'a> Emitter<'a> {
         )?;
         self.exponents.insert(kind, r);
         Ok(r)
+    }
+
+    /// UDA v1.8 Annex C.1/C.4.2: only kilogram is an SI mass unit;
+    /// gram and milligram are conversion-based named units, preserving the density value.
+    fn mass_unit(&mut self, prefix: Option<&str>) -> Result<R, WriteError> {
+        let kilogram = self.instance(
+            &["mass_unit", "si_unit"],
+            &[
+                (("si_unit", "prefix"), en("kilo")),
+                (("si_unit", "name"), en("gram")),
+            ],
+            &[],
+        )?;
+        if prefix == Some("kilo") {
+            return Ok(kilogram);
+        }
+        let (name, factor) = if prefix == Some("milli") {
+            ("milligram", "0.000001")
+        } else {
+            ("gram", "0.001")
+        };
+        let factor = Decimal::parse(factor).map_err(|e| WriteError::Internal(e.0))?;
+        let measure = self.instance(
+            &["mass_measure_with_unit"],
+            &[
+                (
+                    ("", "value_component"),
+                    typed("mass_measure", real(&factor).map_err(WriteError::Internal)?),
+                ),
+                (("", "unit_component"), kilogram.a()),
+            ],
+            &[&factor],
+        )?;
+        let dimensions = self.dimensional_exponents("mass")?;
+        self.instance(
+            &["conversion_based_unit", "mass_unit"],
+            &[
+                (("conversion_based_unit", "name"), s(name)),
+                (("conversion_based_unit", "conversion_factor"), measure.a()),
+                (("named_unit", "dimensions"), dimensions.a()),
+            ],
+            &[],
+        )
     }
 
     /// A unit instance equal to `unit`: one of `context`'s units, else one added (SI with its
@@ -1932,7 +2001,7 @@ enum Role {
 }
 
 struct PartPlan<'a> {
-    #[cfg(feature = "json")]
+    #[cfg(feature = "json-import")]
     identifiers: Option<&'a BTreeMap<String, Vec<String>>>,
     doc: &'a Document,
     def: &'a PartDefinition,
@@ -1960,7 +2029,7 @@ struct PartPlan<'a> {
 }
 
 impl<'a> PartPlan<'a> {
-    #[cfg(feature = "json")]
+    #[cfg(feature = "json-import")]
     fn identify(
         &self,
         em: &mut Emitter<'_>,
@@ -2035,7 +2104,7 @@ impl<'a> PartPlan<'a> {
                 WriteError::Parts(format!("shape representation #{shape_rep} has no context"))
             })?;
         let mut plan = PartPlan {
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             identifiers: None,
             doc,
             def,
@@ -2085,67 +2154,8 @@ impl<'a> PartPlan<'a> {
         let existing = &read.parts[self.id.0];
         let prov = &read.provenance.parts[self.id.0];
 
-        // Values: every decimal must be a Part 21 REAL.
-        let bad_value =
-            |vals: &[&Decimal]| -> Option<String> { vals.iter().find_map(|d| real(d).err()) };
-
-        for (i, s) in p.standards.iter().enumerate() {
-            let key = s.edition.clone().unwrap_or_else(|| s.document.clone());
-            let body = if key.starts_with("ASME") || s.document.starts_with("ASME") {
-                StandardBody::Asme
-            } else if key.starts_with("ISO") || s.document.starts_with("ISO") {
-                StandardBody::Iso
-            } else {
-                StandardBody::Other
-            };
-            if body != s.body || s.document.trim().is_empty() || s.document.trim() != s.document {
-                self.refuse(
-                    ItemRef::Standard(i),
-                    format!(
-                        "standard {:?} ({:?}): the body is what its document or edition names (§4), and the document is a non-empty name",
-                        s.document, s.body
-                    ),
-                );
-            }
-        }
-        let table_places: Vec<_> = p
-            .general
-            .iter()
-            .filter_map(|g| match g {
-                GeneralTolerance::Table { cells, .. } => Some(cells),
-                _ => None,
-            })
-            .flatten()
-            .flat_map(|c| &c.items)
-            .filter_map(|(name, value)| match value {
-                CellValue::Count(d) if name == "number of decimal places" => Some(d.to_f64()),
-                _ => None,
-            })
-            .collect();
-        if !table_places.is_empty()
-            && p.decimal_places
-                .is_none_or(|places| table_places.iter().any(|v| *v != f64::from(places)))
-        {
-            self.refuse(
-                ItemRef::DecimalPlaces,
-                "the part's decimal places disagree with its stated table cells",
-            );
-        }
+        self.refusals.extend(model_refusals(self.id, p));
         for (i, t) in p.datum_targets.iter().enumerate() {
-            let mut values = Vec::new();
-            match t.shape() {
-                TargetShape::Line { length } => values.push(&length.value),
-                TargetShape::Rectangle { length, width } => {
-                    values.extend([&length.value, &width.value])
-                }
-                TargetShape::Circle { diameter } | TargetShape::CircularCurve { diameter } => {
-                    values.push(&diameter.value)
-                }
-                _ => {}
-            }
-            if values.iter().any(|v| v.to_f64() <= 0.) {
-                self.refuse(ItemRef::DatumTarget(i), "target sizes must be positive");
-            }
             if let Some(placement) = t.placement() {
                 let unit = self.context_length_unit();
                 if placement
@@ -2155,137 +2165,8 @@ impl<'a> PartPlan<'a> {
                 {
                     self.refuse(ItemRef::DatumTarget(i), "target placement coordinates must use the part context length unit (§6.6.1); no coordinate conversion is guessed");
                 }
-                values.extend(placement.origin.iter().map(|l| &l.value));
-                for d in placement.axis.iter().chain(&placement.ref_direction) {
-                    values.extend(d.0.iter());
-                }
-            }
-            if let Some(d) = t.movable() {
-                values.extend(d.0.iter());
-                if matches!(
-                    t.shape(),
-                    TargetShape::Point
-                        | TargetShape::Rectangle { .. }
-                        | TargetShape::Circle { .. }
-                        | TargetShape::CircularCurve { .. }
-                ) {
-                    self.refuse(ItemRef::DatumTarget(i), "movable direction adds an item forbidden by placed_datum_target_feature.WR3; this rule is not exempted");
-                }
-            }
-            if let Some(why) = bad_value(&values) {
-                self.refuse(ItemRef::DatumTarget(i), why);
-            }
-            if let TargetShape::Area(f) | TargetShape::Curve(f) = t.shape()
-                && !self.explicit_target_geometry(*f, matches!(t.shape(), TargetShape::Area(_)))
-            {
-                self.refuse(ItemRef::DatumTarget(i), "explicit area/curve target requires stated face/curve geometry (§6.6.2); a different anchor kind cannot define that target");
-            }
-            if !p
-                .datums
-                .iter()
-                .any(|d| d.targets().contains(&DatumTargetId(i)))
-            {
-                self.refuse(
-                    ItemRef::DatumTarget(i),
-                    "datum_target.WR1: target establishes no datum",
-                );
             }
         }
-        for i in 0..p.holes.len() {
-            self.refuse(
-                ItemRef::Hole(i),
-                "hole definitions (basic_round_hole) are read but not written yet (design: question Q-holes)",
-            );
-        }
-        for (i, g) in p.general.iter().enumerate() {
-            match g {
-                GeneralTolerance::Table { cells, .. } => {
-                    if cells.is_empty() {
-                        self.refuse(
-                            ItemRef::General(i),
-                            "a default_tolerance_table requires at least one cell",
-                        );
-                    }
-                    for c in cells {
-                        let measure = |name: &str| {
-                            c.items
-                                .iter()
-                                .filter(|(n, v)| n == name && !matches!(v, CellValue::Text(_)))
-                                .count()
-                                == 1
-                        };
-                        let texts: Vec<_> = c
-                            .items
-                            .iter()
-                            .filter(|(_, v)| matches!(v, CellValue::Text(_)))
-                            .collect();
-                        if c.items.len() > 5
-                            || (c.decimal_default().is_none()
-                                && (!(measure("significant number of digits")
-                                    || (measure("lower limit") && measure("upper limit")))
-                                    || !(measure("plus minus tolerance value")
-                                        || (measure("lower tolerance value")
-                                            && measure("upper tolerance value")))))
-                            || texts.len() > 1
-                            || texts.iter().any(|(n, _)| n != "cell description")
-                        {
-                            self.refuse(ItemRef::General(i), "table cell violates default_tolerance_table_cell WR2–WR5: at most five items, stated range/digits and tolerance, at most one 'cell description'");
-                        }
-                        for (_, v) in &c.items {
-                            let d = match v {
-                                CellValue::Count(d) if count_integer(d).is_some() => None,
-                                CellValue::Count(d) => Some(d),
-                                CellValue::Value(v) => Some(v.decimal()),
-                                _ => None,
-                            };
-                            if let Some(why) = d.and_then(|d| real(d).err()) {
-                                self.refuse(ItemRef::General(i), why);
-                            }
-                        }
-                    }
-                }
-                GeneralTolerance::Class { text, standard } => {
-                    if Iso2768::recognise(text) != *standard || text.trim().is_empty() {
-                        self.refuse(ItemRef::General(i), format!("tolerance class {text:?}: its ISO 2768 classes are those its text states"));
-                    }
-                }
-            }
-        }
-        if let Some(m) = &p.material {
-            if let Some(d) = &m.density {
-                let mut mass = 0.;
-                let mut length = 0.;
-                for (name, exponent) in &d.unit {
-                    match density_unit(name) {
-                        Some(DensityUnit::Mass(_)) => mass += exponent.to_f64(),
-                        Some(DensityUnit::Length(_)) => length += exponent.to_f64(),
-                        None => self.refuse(
-                            ItemRef::Material,
-                            format!("density unit {name:?} has no stated mass or length scale"),
-                        ),
-                    }
-                    if let Err(why) = real(exponent) {
-                        self.refuse(ItemRef::Material, why);
-                    }
-                }
-                if mass != 1. || length != -3. {
-                    self.refuse(
-                        ItemRef::Material,
-                        "density must have dimensional exponents mass 1, length -3 (ISO 10303-41)",
-                    );
-                }
-                if let Err(why) = real(&d.value) {
-                    self.refuse(ItemRef::Material, why);
-                }
-                if d.value.to_f64() <= 0. {
-                    self.refuse(ItemRef::Material, "density must be positive");
-                }
-            }
-            if m.id.is_empty() {
-                self.refuse(ItemRef::Material, "material without its identification");
-            }
-        }
-
         // Features: anchors on the part, geometry, groups.
         let ctx_unit = self.context_length_unit();
         let existing_geometry: Vec<(&Geometry, u64)> = existing
@@ -2309,11 +2190,19 @@ impl<'a> PartPlan<'a> {
                         match *a {
                             Anchor::Face(x) if x.0 >= self.def.faces.len() => self.refuse(
                                 ItemRef::Feature(i),
-                                format!("face {} is not a face of the part ({} faces)", x.0, self.def.faces.len()),
+                                format!(
+                                    "face {} is not a face of the part ({} faces)",
+                                    x.0,
+                                    self.def.faces.len()
+                                ),
                             ),
                             Anchor::Edge(x) if x.0 >= self.def.edges.len() => self.refuse(
                                 ItemRef::Feature(i),
-                                format!("edge {} is not an edge of the part ({} edges)", x.0, self.def.edges.len()),
+                                format!(
+                                    "edge {} is not an edge of the part ({} edges)",
+                                    x.0,
+                                    self.def.edges.len()
+                                ),
                             ),
                             Anchor::Geometry(g) if !self.existing_geometry.contains_key(&g.0) => {
                                 let geo = &p.geometry[g.0];
@@ -2334,11 +2223,16 @@ impl<'a> PartPlan<'a> {
                         }
                     }
                 }
-                Feature::Derived { geometry: Some(g), .. } => {
+                Feature::Derived {
+                    geometry: Some(g), ..
+                } => {
                     let g = &p.derived_geometry[g.0];
                     for face in &g.deriving_faces {
                         if face.0 >= self.def.faces.len() {
-                            self.refuse(ItemRef::Feature(i), format!("derived face {} is not a face of the part", face.0));
+                            self.refuse(
+                                ItemRef::Feature(i),
+                                format!("derived face {} is not a face of the part", face.0),
+                            );
                         }
                     }
                     for supplemental in &g.supplemental {
@@ -2353,13 +2247,6 @@ impl<'a> PartPlan<'a> {
                         }
                     }
                 }
-                Feature::Group {
-                    kind: GroupKind::Unstated,
-                    ..
-                } => self.refuse(
-                    ItemRef::Feature(i),
-                    "a group of unstated kind (§6.4 requires 'multiple elements' or 'pattern of features')",
-                ),
                 _ => {}
             }
         }
@@ -2387,15 +2274,12 @@ impl<'a> PartPlan<'a> {
                     .insert(Role::DatumFeature);
             }
         }
-        for (i, t) in p.threads.iter().enumerate() {
-            match t.partial_area {
-                Some(f) => {
-                    roles.entry(self.canonical[f.0]).or_default().insert(Role::AppliedArea);
-                }
-                None => self.refuse(
-                    ItemRef::Thread(i),
-                    "a thread needs its 'partial area occurrence' feature (thread WR12: exactly one)",
-                ),
+        for t in &p.threads {
+            if let Some(f) = t.partial_area {
+                roles
+                    .entry(self.canonical[f.0])
+                    .or_default()
+                    .insert(Role::AppliedArea);
             }
             if let Some(f) = t.runout {
                 roles
@@ -2429,38 +2313,6 @@ impl<'a> PartPlan<'a> {
                     ItemRef::Feature(*f),
                     format!("a group or derived feature used as {rs:?}"),
                 );
-            }
-        }
-        let mut plane_kinds = BTreeMap::new();
-        for (i, t) in p.tolerances.iter().enumerate() {
-            if let Some(z) = &t.zone {
-                if z.affected_plane.is_none() && z.affected_plane_kind.is_some() {
-                    self.refuse(
-                        ItemRef::Tolerance(i),
-                        "affected plane kind has no affected plane feature",
-                    );
-                }
-                if let Some(f) = z.affected_plane {
-                    let valid = match (&p.features[f.0], z.affected_plane_kind) {
-                        (Feature::Items(items), Some(kind)) if items.len() == 1 => {
-                            matches!(items[0], Anchor::Geometry(g) if matches!(
-                                (p.geometry[g.0].item.entity().as_str(), kind),
-                                ("polyline", AffectedPlaneKind::IntersectionLine) |
-                                ("axis2_placement_3d", AffectedPlaneKind::IntersectionPlane | AffectedPlaneKind::OrientationPlane)
-                            ))
-                        }
-                        _ => false,
-                    };
-                    if !valid {
-                        self.refuse(ItemRef::Tolerance(i), "affected plane requires an explicit intersection line, intersection plane or orientation plane kind and its matching polyline/axis2_placement_3d geometry (§6.9.2.1)");
-                    }
-                    if let Some(old) =
-                        plane_kinds.insert(self.canonical[f.0], z.affected_plane_kind)
-                        && old != z.affected_plane_kind
-                    {
-                        self.refuse(ItemRef::Tolerance(i), "one affected plane feature has conflicting variants; use separate features with distinct geometry");
-                    }
-                }
             }
         }
         // Features something refers to other than as a thread's or knurl's area or a thread's
@@ -2655,32 +2507,6 @@ impl<'a> PartPlan<'a> {
             }
         }
 
-        // Dimensions.
-        for (i, d) in p.dimensions.iter().enumerate() {
-            if d.nominal.is_none() {
-                self.refuse(
-                    ItemRef::Dimension(i),
-                    "a dimension without a nominal value (§5.2.1: it shall always be given)",
-                );
-            }
-            let mut vals: Vec<&Decimal> = d.nominal.iter().map(Value::decimal).collect();
-            match &d.tolerance {
-                DimTolerance::Deviations(b) | DimTolerance::Limits(b) => {
-                    vals.extend([b.upper().decimal(), b.lower().decimal()]);
-                }
-                DimTolerance::Fit {
-                    limits: Some(b), ..
-                } => {
-                    vals.extend([b.upper().decimal(), b.lower().decimal()]);
-                }
-                _ => {}
-            }
-            if let Some(why) = bad_value(&vals) {
-                self.refuse(ItemRef::Dimension(i), why);
-            }
-        }
-
-        // Tolerances.
         for (i, t) in p.tolerances.iter().enumerate() {
             let schema = self.doc.file_schema().unwrap_or_default();
             let edition = schema
@@ -2690,94 +2516,6 @@ impl<'a> PartPlan<'a> {
             let relation_allowed = edition.type_decl("geometric_tolerance_target").is_some_and(|t| matches!(t.def, express::TypeDef::Select(members) if members.contains(&"shape_aspect_relationship")));
             if matches!(t.target, ToleranceTarget::Relation { .. }) && !relation_allowed {
                 self.refuse(ItemRef::Tolerance(i), "this AP242 edition's geometric_tolerance_target SELECT excludes shape_aspect_relationship; edition 4 supports it");
-            }
-            if t.zone
-                .as_ref()
-                .and_then(|z| z.projected.as_ref())
-                .is_some_and(|pz| pz.end.is_none())
-            {
-                self.refuse(ItemRef::Tolerance(i), "a projected tolerance zone without its projection end (§6.9.2.2): the model states no origin geometry");
-            }
-            if let Some(u) = &t.unit_basis {
-                let lengths = std::iter::once(&u.size)
-                    .chain(u.area.as_ref().and_then(|a| a.second.as_ref()))
-                    .all(|v| matches!(v.quantity, Quantity::Length(_)));
-                if !lengths {
-                    self.refuse(
-                        ItemRef::Tolerance(i),
-                        "a unit basis that is not a length (geometric_tolerance_with_defined_unit.unit_size is a length_measure_with_unit)",
-                    );
-                }
-            }
-            let mut vals: Vec<&Decimal> = Vec::new();
-            vals.extend(t.magnitude.iter().map(Value::decimal));
-            vals.extend(t.maximum.iter().map(Value::decimal));
-            vals.extend(t.unequal.iter().map(Value::decimal));
-            if let Some(z) = &t.zone {
-                vals.extend(z.projected.iter().map(|p| p.length.decimal()));
-                vals.extend(z.runout_angle.iter().map(Value::decimal));
-            }
-            if let Some(why) = bad_value(&vals) {
-                self.refuse(ItemRef::Tolerance(i), why);
-            }
-        }
-
-        // Threads and knurls: their parameter counts (thread WR1, turned_knurl WR2), refused
-        // here per item, before emission; express_rules checks the written instances.
-        for (i, t) in p.threads.iter().enumerate() {
-            let n = 6
-                + usize::from(t.minor_diameter.is_some())
-                + usize::from(t.pitch_diameter.is_some())
-                + usize::from(t.fit_class_2.is_some())
-                + usize::from(t.crest.is_some())
-                + usize::from(t.qualifier.is_some())
-                + usize::from(t.nominal_size.is_some());
-            if !(8..=11).contains(&n) {
-                self.refuse(
-                    ItemRef::Thread(i),
-                    format!("a thread with {n} parameters (thread WR1: 8 to 11)"),
-                );
-            }
-            let mut vals = vec![&t.major_diameter.value, &t.number_of_threads.0];
-            for l in [
-                &t.minor_diameter,
-                &t.pitch_diameter,
-                &t.crest,
-                &t.nominal_size,
-            ]
-            .into_iter()
-            .flatten()
-            {
-                vals.push(&l.value);
-            }
-            if let Some(why) = bad_value(&vals) {
-                self.refuse(ItemRef::Thread(i), why);
-            }
-        }
-        for (i, k) in p.knurls.iter().enumerate() {
-            let n = 3
-                + usize::from(k.number_of_teeth.is_some())
-                + usize::from(k.tooth_depth.is_some())
-                + usize::from(k.root_fillet.is_some())
-                + usize::from(k.helix_angle.is_some())
-                + usize::from(k.helix_hand.is_some());
-            if !(6..=9).contains(&n) {
-                self.refuse(
-                    ItemRef::Knurl(i),
-                    format!("a knurl with {n} parameters (turned_knurl WR2: 6 to 9)"),
-                );
-            }
-            let mut vals = vec![
-                &k.major_diameter.value,
-                &k.nominal_diameter.value,
-                &k.diametral_pitch.value,
-            ];
-            for l in [&k.tooth_depth, &k.root_fillet].into_iter().flatten() {
-                vals.push(&l.value);
-            }
-            vals.extend(k.helix_angle.iter().map(|a| &a.value));
-            if let Some(why) = bad_value(&vals) {
-                self.refuse(ItemRef::Knurl(i), why);
             }
         }
 
@@ -2800,29 +2538,11 @@ impl<'a> PartPlan<'a> {
                     format!("owner feature {} is refused: {why}", f.0),
                 );
             }
-            for (key, v) in &a.items {
-                let why = match v {
-                    AttributeValue::Measure(m) if m.decimal_places.is_some() => Some(
-                        "decimal places of an attribute value are not held by the UDA form"
-                            .to_string(),
-                    ),
-                    AttributeValue::Measure(m) => real(m.decimal()).err(),
-                    AttributeValue::Real(d) => real(d).err(),
-                    // The reader looks for the value of a boolean_representation_item as its
-                    // own attribute (it is boolean_literal's), so a written boolean would not
-                    // read back.
-                    AttributeValue::Boolean(_) => Some(
-                        "a boolean value is not written: the reader does not read boolean_representation_item.the_value back".to_string(),
-                    ),
-                    AttributeValue::OtherMeasure { value, unit, .. } => {
-                        real(value).err().or_else(|| {
-                            (!unit.is_empty() && self.other_unit(unit).is_err())
-                                .then(|| self.other_unit(unit).err().unwrap_or_default())
-                        })
-                    }
-                    _ => None,
-                };
-                if let Some(why) = why {
+            for (key, value) in &a.items {
+                if let AttributeValue::OtherMeasure { unit, .. } = value
+                    && !unit.is_empty()
+                    && let Err(why) = self.other_unit(unit)
+                {
                     self.refuse(ItemRef::Attribute(i), format!("{key:?}: {why}"));
                 }
             }
@@ -2837,10 +2557,6 @@ impl<'a> PartPlan<'a> {
                     ItemRef::SurfaceTexture(i),
                     format!("owner feature {} is refused: {why}", f.0),
                 );
-            }
-            let vals: Vec<&Decimal> = s.parameters.iter().map(|x| &x.value.value).collect();
-            if let Some(why) = bad_value(&vals) {
-                self.refuse(ItemRef::SurfaceTexture(i), why);
             }
         }
     }
@@ -2861,37 +2577,6 @@ impl<'a> PartPlan<'a> {
                 "{} units of the file are named {name:?}; which one is not stated",
                 found.len()
             )),
-        }
-    }
-
-    fn explicit_target_geometry(&self, f: FeatureId, area: bool) -> bool {
-        match &self.pmi.features[f.0] {
-            Feature::Items(items) => {
-                !items.is_empty()
-                    && items.iter().all(|a| match a {
-                        Anchor::Face(_) => area,
-                        Anchor::Edge(_) => false,
-                        Anchor::Geometry(g) => {
-                            self.pmi.geometry[g.0]
-                                .item
-                                .leaves
-                                .iter()
-                                .any(|(entity, _)| {
-                                    express::TARGET.is_a(
-                                        &entity.to_ascii_lowercase(),
-                                        if area { "face" } else { "curve" },
-                                    )
-                                })
-                        }
-                    })
-            }
-            Feature::Group { members, .. } => {
-                !members.is_empty()
-                    && members
-                        .iter()
-                        .all(|f| self.explicit_target_geometry(*f, area))
-            }
-            Feature::Derived { .. } => false,
         }
     }
 
@@ -2936,7 +2621,7 @@ impl<'a> PartPlan<'a> {
         for g in &p.derived_geometry {
             used_geometry.extend(g.supplemental.iter().map(|g| g.0));
         }
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         if self.identifiers.is_some() {
             used_geometry.extend(0..p.geometry.len());
         }
@@ -2957,7 +2642,7 @@ impl<'a> PartPlan<'a> {
                     ("name", s("supplemental geometry")),
                     ("items", {
                         let items: Vec<_> = new_items.iter().map(|(_, r)| *r).collect();
-                        #[cfg(feature = "json")]
+                        #[cfg(feature = "json-import")]
                         let items = if self.identifiers.is_some() {
                             let mut seen = BTreeSet::new();
                             items.into_iter().filter(|r| seen.insert(*r)).collect()
@@ -3197,9 +2882,9 @@ impl<'a> PartPlan<'a> {
             st.tolerances.insert(i, r);
         }
         let tolerance_relations = p.tolerance_relations.iter();
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         let tolerance_relations = tolerance_relations.enumerate();
-        #[cfg(not(feature = "json"))]
+        #[cfg(not(feature = "json-import"))]
         let tolerance_relations = tolerance_relations.map(|item| ((), item));
         for (_i, r) in tolerance_relations {
             let name = match r.kind {
@@ -3222,21 +2907,21 @@ impl<'a> PartPlan<'a> {
                     ),
                 ],
             )?;
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             self.identify(em, "tolerance_relations", _i, _carrier)?;
         }
         let general = p.general.iter();
-        #[cfg(any(feature = "presentation", feature = "json"))]
+        #[cfg(any(feature = "presentation", feature = "json-import"))]
         let general = general.enumerate();
-        #[cfg(not(any(feature = "presentation", feature = "json")))]
+        #[cfg(not(any(feature = "presentation", feature = "json-import")))]
         let general = general.map(|item| ((), item));
         for (_i, g) in general {
             if let GeneralTolerance::Table { name, cells } = g {
-                #[cfg(feature = "json")]
+                #[cfg(feature = "json-import")]
                 let _table = self.tolerance_table(em, pds, name, cells)?;
-                #[cfg(not(feature = "json"))]
+                #[cfg(not(feature = "json-import"))]
                 self.tolerance_table(em, pds, name, cells)?;
-                #[cfg(feature = "json")]
+                #[cfg(feature = "json-import")]
                 self.identify(em, "general", _i, _table)?;
             }
             if let GeneralTolerance::Class { text, .. } = g {
@@ -3252,7 +2937,7 @@ impl<'a> PartPlan<'a> {
                     "default tolerances",
                     &[item],
                 )?;
-                #[cfg(feature = "json")]
+                #[cfg(feature = "json-import")]
                 self.identify(em, "general", _i, _property)?;
                 #[cfg(feature = "presentation")]
                 st.properties
@@ -3264,9 +2949,9 @@ impl<'a> PartPlan<'a> {
             self.tolerance_table(em, pds, "", &[ToleranceCell { items: vec![("number of decimal places".into(), CellValue::Count(Decimal::parse(&places.to_string()).map_err(|e| WriteError::Internal(e.0))?))] }])?;
         }
         let threads = p.threads.iter();
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         let threads = threads.enumerate();
-        #[cfg(not(feature = "json"))]
+        #[cfg(not(feature = "json-import"))]
         let threads = threads.map(|item| ((), item));
         for (_i, t) in threads {
             self.thread(
@@ -3274,14 +2959,14 @@ impl<'a> PartPlan<'a> {
                 &mut st,
                 pds,
                 t,
-                #[cfg(feature = "json")]
+                #[cfg(feature = "json-import")]
                 _i,
             )?;
         }
         let knurls = p.knurls.iter();
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         let knurls = knurls.enumerate();
-        #[cfg(not(feature = "json"))]
+        #[cfg(not(feature = "json-import"))]
         let knurls = knurls.map(|item| ((), item));
         for (_i, k) in knurls {
             self.knurl(
@@ -3289,7 +2974,7 @@ impl<'a> PartPlan<'a> {
                 &mut st,
                 pds,
                 k,
-                #[cfg(feature = "json")]
+                #[cfg(feature = "json-import")]
                 _i,
             )?;
         }
@@ -3320,14 +3005,7 @@ impl<'a> PartPlan<'a> {
                     .ok_or_else(|| WriteError::Internal(format!("{name} is not a density unit")))?
                 {
                     DensityUnit::Length(l) => em.length_unit(self.context, &l)?.0,
-                    DensityUnit::Mass(prefix) => em.instance(
-                        &["mass_unit", "si_unit"],
-                        &[
-                            (("si_unit", "prefix"), prefix.map_or(A::Unset, en)),
-                            (("si_unit", "name"), en("gram")),
-                        ],
-                        &[],
-                    )?,
+                    DensityUnit::Mass(prefix) => em.mass_unit(prefix)?,
                 };
                 let e = real(exponent).map_err(WriteError::Internal)?;
                 elements.push(em.instance(
@@ -3355,32 +3033,32 @@ impl<'a> PartPlan<'a> {
             self.property(em, pd, "material property", "density", "density", &[item])?;
         }
         let attributes = p.attributes.iter();
-        #[cfg(any(feature = "presentation", feature = "json"))]
+        #[cfg(any(feature = "presentation", feature = "json-import"))]
         let attributes = attributes.enumerate();
-        #[cfg(not(any(feature = "presentation", feature = "json")))]
+        #[cfg(not(any(feature = "presentation", feature = "json-import")))]
         let attributes = attributes.map(|item| ((), item));
         for (_i, a) in attributes {
             let _property = self.attribute_set(em, &mut st, pd, pds, a)?;
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             self.identify(em, "attributes", _i, _property)?;
             #[cfg(feature = "presentation")]
             st.properties
                 .insert(crate::presentation::notes::Source::Attribute(_i), _property);
         }
         let surface_textures = p.surface_textures.iter();
-        #[cfg(any(feature = "presentation", feature = "json"))]
+        #[cfg(any(feature = "presentation", feature = "json-import"))]
         let surface_textures = surface_textures.enumerate();
-        #[cfg(not(any(feature = "presentation", feature = "json")))]
+        #[cfg(not(any(feature = "presentation", feature = "json-import")))]
         let surface_textures = surface_textures.map(|item| ((), item));
         for (_i, t) in surface_textures {
             let _property = self.surface_texture(em, &mut st, pds, t)?;
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             self.identify(em, "surface_textures", _i, _property)?;
             #[cfg(feature = "presentation")]
             st.properties
                 .insert(crate::presentation::notes::Source::Texture(_i), _property);
         }
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         if let Some(ids) = self.identifiers {
             for (i, note) in p.notes.iter().enumerate() {
                 let owner = match note.on {
@@ -3467,18 +3145,22 @@ impl<'a> PartPlan<'a> {
                 .iter()
                 .map(|l| real(&l.value).map_err(WriteError::Internal))
                 .collect::<Result<Vec<_>, _>>()?;
-            let point = em.simple(
+            let point = self.stated_simple(
+                em,
                 "cartesian_point",
                 &[("name", s("")), ("coordinates", A::List(coords))],
+                &p.origin.iter().map(|l| &l.value).collect::<Vec<_>>(),
             )?;
             let mut direction = |d: &Direction, name: &str| -> Result<R, WriteError> {
                 let ratios =
                     d.0.iter()
                         .map(|v| real(v).map_err(WriteError::Internal))
                         .collect::<Result<Vec<_>, _>>()?;
-                em.simple(
+                self.stated_simple(
+                    em,
                     "direction",
                     &[("name", s(name)), ("direction_ratios", A::List(ratios))],
+                    &d.0.iter().collect::<Vec<_>>(),
                 )
             };
             let axis = p
@@ -3517,12 +3199,14 @@ impl<'a> PartPlan<'a> {
                 d.0.iter()
                     .map(|v| real(v).map_err(WriteError::Internal))
                     .collect::<Result<Vec<_>, _>>()?;
-            parameters.push(em.simple(
+            parameters.push(self.stated_simple(
+                em,
                 "direction",
                 &[
                     ("name", s("movable direction")),
                     ("direction_ratios", A::List(ratios)),
                 ],
+                &d.0.iter().collect::<Vec<_>>(),
             )?);
         }
         if !parameters.is_empty() {
@@ -3661,11 +3345,11 @@ impl<'a> PartPlan<'a> {
                 ("rep_2", rep.a()),
             ],
         )?;
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         {
             Ok(table)
         }
-        #[cfg(not(feature = "json"))]
+        #[cfg(not(feature = "json-import"))]
         {
             Ok(())
         }
@@ -4235,13 +3919,13 @@ impl<'a> PartPlan<'a> {
                     &[
                         ("name", s("PMI representation to presentation link")),
                         ("description", {
-                            #[cfg(feature = "json")]
+                            #[cfg(feature = "json-import")]
                             if self.identifiers.is_some() {
                                 s("haecceity.generated/1")
                             } else {
                                 s("")
                             }
-                            #[cfg(not(feature = "json"))]
+                            #[cfg(not(feature = "json-import"))]
                             s("")
                         }),
                         ("definition", definition.a()),
@@ -4252,6 +3936,25 @@ impl<'a> PartPlan<'a> {
             }
         }
         Ok(())
+    }
+
+    /// Preserve each stated REAL on the JSON path; retain historical default bytes.
+    fn stated_simple(
+        &self,
+        em: &mut Emitter<'_>,
+        entity: &str,
+        vals: &[(&str, A)],
+        _stated: &[&Decimal],
+    ) -> Result<R, WriteError> {
+        #[cfg(feature = "json-import")]
+        if self.identifiers.is_some() {
+            let vals: Vec<_> = vals
+                .iter()
+                .map(|(name, value)| (("", *name), value.clone()))
+                .collect();
+            return em.instance(&[entity], &vals, _stated);
+        }
+        em.simple(entity, vals)
     }
 
     /// `property_definition(name, description, owner)` with one representation of `items`.
@@ -5679,11 +5382,11 @@ impl<'a> PartPlan<'a> {
         st: &mut Emitted,
         pds: R,
         t: &Thread,
-        #[cfg(feature = "json")] index: usize,
+        #[cfg(feature = "json-import")] index: usize,
     ) -> Result<(), WriteError> {
         let def = em.simple("thread", &[("name", s("")), ("description", s(""))])?;
         let shape = self.applied(em, st, pds, def, t.feature)?;
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         self.identify(em, "threads", index, shape)?;
         let area = match t.partial_area {
             Some(f) => Some(self.role_instance(em, st, pds, f, Role::AppliedArea)?),
@@ -5786,7 +5489,7 @@ impl<'a> PartPlan<'a> {
         st: &mut Emitted,
         pds: R,
         k: &Knurl,
-        #[cfg(feature = "json")] index: usize,
+        #[cfg(feature = "json-import")] index: usize,
     ) -> Result<(), WriteError> {
         let pattern = match k.pattern {
             KnurlPattern::Diamond => "diamond",
@@ -5798,7 +5501,7 @@ impl<'a> PartPlan<'a> {
             &[("name", s("")), ("description", s(pattern))],
         )?;
         let shape = self.applied(em, st, pds, def, k.feature)?;
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         self.identify(em, "knurls", index, shape)?;
         let area = self.role_instance(em, st, pds, k.feature, Role::AppliedArea)?;
         // turned_knurl WR11 (as thread WR12): exactly one 'partial area occurrence' with one
@@ -5958,7 +5661,7 @@ impl<'a> PartPlan<'a> {
                 }
             });
         }
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         if self.identifiers.is_some() {
             let pdef = self.property_optional(
                 em,
@@ -6241,9 +5944,9 @@ fn needs_callouts(p: &PartPmi) -> bool {
 }
 
 // Preserve the ordinary writer's return type when JSON identity emission is disabled.
-#[cfg(feature = "json")]
+#[cfg(feature = "json-import")]
 type TableIdentity = R;
-#[cfg(not(feature = "json"))]
+#[cfg(not(feature = "json-import"))]
 type TableIdentity = ();
 
 /// What a part's emission has made so far.
@@ -6675,7 +6378,10 @@ pub fn differences(a: &PartPmi, b: &PartPmi) -> Vec<String> {
 }
 
 /// [`differences`], with every value compared as stated: its decimal text and its unit (a
-/// round trip writes each value's own digits in its own unit).
+/// round trip writes each value's own digits in its own unit). Integer mantissas and
+/// exponent case are compared in their required REAL encoding; unit factors compare
+/// exactly after unit arithmetic. Legal REAL precision remains significant. JSON's
+/// `identity_differences` separately compares original transport spellings.
 #[must_use]
 pub fn differences_as_stated(a: &PartPmi, b: &PartPmi) -> Vec<String> {
     compare(a, b, true)
@@ -6818,7 +6524,14 @@ impl Canonical {
                     })
                     .collect(),
             ),
-            material: p.material.iter().map(|m| format!("{m:?}")).collect(),
+            material: p.material.iter().map(|m| {
+                let mut m = m.clone();
+                if let Some(density) = &mut m.density {
+                    density.value = Keys::encoded(&density.value);
+                    for (_, exponent) in &mut density.unit { *exponent = Keys::encoded(exponent); }
+                }
+                format!("{m:?}")
+            }).collect(),
             notes: sorted(
                 p.notes
                     .iter()
@@ -6879,9 +6592,56 @@ struct Keys<'p> {
 }
 
 impl Keys<'_> {
+    // Native REALs cannot retain integer mantissas or lower-case e. Comparison
+    // accepts exactly the shared emitter's spelling, retaining legal precision.
+    fn encoded(d: &Decimal) -> Decimal {
+        real_text(d)
+            .ok()
+            .and_then(|text| Decimal::parse(&text).ok())
+            .unwrap_or_else(|| d.clone())
+    }
+    fn direction(d: &Direction) -> Direction {
+        Direction(d.0.clone().map(|d| Self::encoded(&d)))
+    }
+    fn length_unit(unit: &LengthUnit) -> LengthUnit {
+        match unit {
+            LengthUnit::Other { name, metres } => LengthUnit::Other {
+                name: name.clone(),
+                metres: metres.scaled(0),
+            },
+            _ => unit.clone(),
+        }
+    }
+    fn length_copy(l: &Length) -> Length {
+        Length {
+            value: Self::encoded(&l.value),
+            unit: Self::length_unit(&l.unit),
+        }
+    }
+    fn geometry(&self, id: usize) -> Option<Geometry> {
+        fn item(geometry: &mut GeometryItem) {
+            fn value(v: &mut GeometryValue) {
+                match v {
+                    GeometryValue::Real(d) => *d = Keys::encoded(d),
+                    GeometryValue::Item(i) => item(i),
+                    GeometryValue::List(a) => a.iter_mut().for_each(value),
+                    GeometryValue::Typed { value: v, .. } => value(v),
+                    _ => {}
+                }
+            }
+            for (_, values) in &mut geometry.leaves {
+                values.iter_mut().for_each(value);
+            }
+        }
+        self.p.geometry.get(id).cloned().map(|mut g| {
+            g.length_unit = g.length_unit.as_ref().map(Self::length_unit);
+            item(&mut g.item);
+            g
+        })
+    }
     fn decimal(&self, d: &Decimal) -> String {
         if self.stated {
-            d.to_string()
+            Self::encoded(d).to_string()
         } else {
             format!("{:.11e}", d.to_f64())
         }
@@ -6889,7 +6649,7 @@ impl Keys<'_> {
 
     fn length(&self, l: &Length) -> String {
         if self.stated {
-            format!("{}{:?}", l.value, l.unit)
+            format!("{}{:?}", self.decimal(&l.value), Self::length_unit(&l.unit))
         } else {
             format!("{:.11e} mm", l.mm())
         }
@@ -6897,7 +6657,14 @@ impl Keys<'_> {
 
     fn angle(&self, a: &Angle) -> String {
         if self.stated {
-            format!("{}{:?}", a.value, a.unit)
+            let unit = match &a.unit {
+                AngleUnit::Other { name, radians } => AngleUnit::Other {
+                    name: name.clone(),
+                    radians: radians.scaled(0),
+                },
+                unit => unit.clone(),
+            };
+            format!("{}{:?}", self.decimal(&a.value), unit)
         } else {
             format!("{:.11e} rad", a.rad())
         }
@@ -6935,6 +6702,11 @@ impl Keys<'_> {
                             .map(|(n, v)| {
                                 let v = match v {
                                     CellValue::Value(x) => self.value(x),
+                                    CellValue::Count(d)
+                                        if self.stated && count_integer(d).is_some() =>
+                                    {
+                                        d.to_string()
+                                    }
                                     CellValue::Count(d) => self.decimal(d),
                                     CellValue::Text(t) => format!("{t:?}"),
                                 };
@@ -6964,7 +6736,7 @@ impl Keys<'_> {
                     .map(|a| match a {
                         Anchor::Face(x) => format!("face {}", x.0),
                         Anchor::Edge(x) => format!("edge {}", x.0),
-                        Anchor::Geometry(g) => format!("geometry {:?}", self.p.geometry.get(g.0)),
+                        Anchor::Geometry(g) => format!("geometry {:?}", self.geometry(g.0)),
                     })
                     .collect();
                 v.sort();
@@ -6988,11 +6760,16 @@ impl Keys<'_> {
                     let supplemental: Vec<_> = g
                         .supplemental
                         .iter()
-                        .map(|s| &self.p.geometry[s.0])
+                        .filter_map(|s| self.geometry(s.0))
                         .collect();
                     format!(
                         "{:?} {:?} {:?} {:?} {:?} {:?}",
-                        g.kind, g.deriving_faces, g.point, g.direction, g.radius, supplemental
+                        g.kind,
+                        g.deriving_faces,
+                        g.point.clone().map(|l| Self::length_copy(&l)),
+                        Self::direction(&g.direction),
+                        g.radius.as_ref().map(Self::length_copy),
+                        supplemental
                     )
                 });
                 format!("{kind:?}<-({}) geometry {computed:?}", v.join(", "))
@@ -7021,14 +6798,14 @@ impl Keys<'_> {
                 self.length(&pl.origin[0]),
                 self.length(&pl.origin[1]),
                 self.length(&pl.origin[2]),
-                pl.axis,
-                pl.ref_direction
+                pl.axis.as_ref().map(Self::direction),
+                pl.ref_direction.as_ref().map(Self::direction)
             )
         });
         format!(
             "{} {shape} {placement:?} {:?} on {:?}",
             t.number(),
-            t.movable(),
+            t.movable().map(Self::direction),
             t.on().map(|f| self.feature(f))
         )
     }
@@ -7233,13 +7010,37 @@ mod tests {
     }
 
     #[test]
-    fn a_value_that_is_not_a_part21_real_is_refused_not_rewritten() {
-        for t in ["35", "1.e-3", "2E1"] {
-            assert!(real(&Decimal::parse(t).unwrap()).is_err(), "{t}");
+    fn decimal_mantissas_and_exponents_are_encoded_as_part21_reals() {
+        for (stated, encoded) in [("35", "35."), ("1.e-3", "1.E-3"), ("2E1", "2.E1")] {
+            assert_eq!(
+                real_text(&Decimal::parse(stated).unwrap()).unwrap(),
+                encoded
+            );
         }
         for t in ["35.", "0.0030", "-2.54E1", "1.E-07"] {
             assert!(real(&Decimal::parse(t).unwrap()).is_ok(), "{t}");
         }
+    }
+
+    #[test]
+    fn stated_verification_accepts_real_encoding_but_retains_legal_precision() {
+        let model = |text| PartPmi {
+            attributes: vec![AttributeSet {
+                name: "REAL".into(),
+                on: None,
+                description: None,
+                general_property: None,
+                items: vec![(
+                    "value".into(),
+                    AttributeValue::Real(Decimal::parse(text).unwrap()),
+                )],
+            }],
+            ..PartPmi::default()
+        };
+        for (input, native) in [("42", "42."), ("2e1", "2.E1"), ("1.e-3", "1.E-3")] {
+            assert!(differences_as_stated(&model(input), &model(native)).is_empty());
+        }
+        assert!(!differences_as_stated(&model("42.0"), &model("42.")).is_empty());
     }
 
     #[test]
