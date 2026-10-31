@@ -163,10 +163,10 @@ pub(crate) fn proved_bevel_planes(
     proved.map(|(_, planes)| planes)
 }
 
-/// Publish a reconstructible corner only after checking the PUBLISHED point grid
-/// against the measured legs/angle and proving the entire implied wedge empty.
-/// A face centroid is generally not the midpoint of a bevel section; nearest stock
-/// planes and a single near-corner probe alone therefore cannot prove this contract.
+/// Check a corner in the actual support basis, before the caller-coordinate publication
+/// grid is applied. Point/leg intervals include that grid's uncertainty; a fixed angular
+/// epsilon would incorrectly reject short, correctly rounded legs. Probe the open wedge:
+/// contact with its boundary, including the bevel itself, is allowed at model/grid precision.
 pub(crate) fn proved_published_corner(
     ctx: &Context<'_>,
     faces: &[usize],
@@ -178,43 +178,146 @@ pub(crate) fn proved_published_corner(
 ) -> Option<super::placed::Placed<V3>> {
     use super::placed::{Grid, Placed};
     use crate::kernel::{
-        geom, py,
+        geom,
         rays::RayCaster,
         volume::{Probe, fills_at_most},
     };
-    let at = *Placed::new(at, Grid::Decimals(3));
-    let corner = Placed::new(corner, Grid::Decimals(3));
-    let transverse: Vec<_> = (0..3).filter(|&i| i != axis).collect();
-    let delta = geom::sub(at, *corner);
-    let mut implied = transverse
-        .iter()
-        .map(|&i| 2. * delta[i].abs())
-        .collect::<Vec<_>>();
+    let face = *faces.first()?; // caps are evidence, not an extension of the bevel's run
+    let mut run = [0.; 3];
+    run[axis] = 1.;
+    let transverse = match axis {
+        0 => [1, 2],
+        1 => [0, 2],
+        _ => [0, 1],
+    };
+    let mut basis = transverse.map(|i| {
+        let mut n = [0.; 3];
+        n[i] = 1.;
+        n
+    });
+    // Principal-run records can have rolled walls. Their legs lie on the actual supports,
+    // not on the caller's coordinate axes; retain the existing representation and corner.
+    if let Some(support) = transverse_corner(ctx.part, face, at, run)
+        && support
+            .normals
+            .iter()
+            .any(|n| n.iter().all(|c| c.abs() < AXIS_ALIGNED_COS))
+    {
+        let tangents = support.normals.map(|n| geom::unit(geom::cross(run, n)));
+        basis = [tangents[0]?, tangents[1]?];
+    }
+    let delta = geom::sub(at, corner);
+    let projected = basis.map(|n| 2. * geom::dot(delta, n));
+    // Supports may differ slightly from a right angle within their existing tolerance.
+    // Resolve in their basis, rather than mistaking dot products for coordinates.
+    let skew = geom::dot(basis[0], basis[1]);
+    let components = [
+        (projected[0] - skew * projected[1]) / (1. - skew * skew),
+        (projected[1] - skew * projected[0]) / (1. - skew * skew),
+    ];
+    let mut implied = components.map(f64::abs);
     implied.sort_by(|a, b| b.total_cmp(a));
-    let mut legs = legs.map(py::round_to3);
+    let mut legs = legs;
     legs.sort_by(|a, b| b.total_cmp(a));
-    if implied.iter().zip(legs).any(|(a, b)| (a - b).abs() > 0.005)
-        || (implied[1].atan2(implied[0]).to_degrees() - py::round_to(angle, 2)).abs() > 0.05
+    // Each point coordinate has half a 0.001 mm cell of uncertainty. Subtracting two
+    // points, doubling, and expressing them in an arbitrary unit basis costs sqrt(3)*.002;
+    // the measured leg contributes another half cell. The angle has a .01 degree cell.
+    let model_tol = cylinder_support_tolerance(ctx.part);
+    let length_tol = 3f64.sqrt() * 0.002 + 0.0005 + model_tol;
+    let angle_lo = (implied[1] - length_tol)
+        .max(0.)
+        .atan2(implied[0] + length_tol)
+        .to_degrees();
+    let angle_hi = (implied[1] + length_tol)
+        .atan2((implied[0] - length_tol).max(0.))
+        .to_degrees();
+    if implied
+        .iter()
+        .zip(legs)
+        .any(|(a, b)| (a - b).abs() > length_tol)
+        || angle + 0.005 < angle_lo
+        || angle - 0.005 > angle_hi
     {
         return None;
     }
-    let mut run = [0.; 3];
-    run[axis] = 1.;
-    let (lo, hi) = ctx.part.extent_along(faces, run);
-    let mut a = *corner;
-    a[axis] = lo;
-    let mut b = a;
-    b[transverse[0]] += 2. * delta[transverse[0]];
-    let mut c = a;
-    c[transverse[1]] += 2. * delta[transverse[1]];
-    let low = [a, b, c];
-    let high = low.map(|mut p| {
-        p[axis] = hi;
-        p
+    let triangle = [
+        corner,
+        geom::add(corner, geom::scale(basis[0], components[0])),
+        geom::add(corner, geom::scale(basis[1], components[1])),
+    ];
+    // Inset all three sides by the coordinate uncertainty of 2*at-corner. A wedge
+    // touching the part on its boundary has no material interior. Never allow a filled
+    // fraction: positive volume beyond this dimensional tolerance still refuses the corner.
+    let inset = 3f64.sqrt() * 0.0015 + model_tol;
+    let sides = [
+        geom::norm(geom::sub(triangle[1], triangle[2])),
+        geom::norm(geom::sub(triangle[0], triangle[2])),
+        geom::norm(geom::sub(triangle[0], triangle[1])),
+    ];
+    let perimeter: f64 = sides.iter().sum();
+    let radius = geom::norm(geom::cross(
+        geom::sub(triangle[1], triangle[0]),
+        geom::sub(triangle[2], triangle[0]),
+    )) / perimeter;
+    if radius <= inset {
+        return None;
+    }
+    let centre = (0..3).fold([0.; 3], |sum, i| {
+        geom::add(sum, geom::scale(triangle[i], sides[i] / perimeter))
     });
+    let triangle = triangle.map(|p| {
+        geom::add(
+            centre,
+            geom::scale(geom::sub(p, centre), 1. - inset / radius),
+        )
+    });
+    // The full section runs only where both spring edges exist. A curved/oblique
+    // terminal can extend the face box beyond one spring edge, into adjacent material.
+    // Accumulate split straight edges on each reconstructed leg's carrier line.
+    let mut spring = [(f64::INFINITY, f64::NEG_INFINITY); 2];
+    for e in ctx.part.outer_edges(face) {
+        let edge = &ctx.part.edges[e];
+        if !matches!(edge.curve, geom::Curve::Line { .. }) {
+            continue;
+        }
+        let offset = geom::sub(edge.end, edge.start);
+        if geom::norm(geom::cross(offset, run)) > model_tol {
+            continue;
+        }
+        for (i, endpoint) in [
+            geom::add(corner, geom::scale(basis[0], components[0])),
+            geom::add(corner, geom::scale(basis[1], components[1])),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            let d = geom::sub(edge.start, endpoint);
+            if geom::norm(geom::sub(d, geom::scale(run, geom::dot(d, run)))) > length_tol {
+                continue;
+            }
+            for p in edge.vertex_points() {
+                let s = geom::dot(p, run);
+                spring[i].0 = spring[i].0.min(s);
+                spring[i].1 = spring[i].1.max(s);
+            }
+        }
+    }
+    let (lo, hi) = if spring.iter().all(|&(lo, hi)| lo < hi) {
+        (spring[0].0.max(spring[1].0), spring[0].1.min(spring[1].1))
+    } else {
+        // No pair of straight spring edges: probe the entire bevel-face span. A cap is
+        // still excluded, and lack of a run proof never bypasses the volume test.
+        ctx.part.extent_along(&[face], run)
+    };
+    if hi - lo <= 2. * inset {
+        return None;
+    }
+    let station = |p, s| geom::add(p, geom::scale(run, s - geom::dot(p, run)));
+    let low = triangle.map(|p| station(p, lo + inset));
+    let high = triangle.map(|p| station(p, hi - inset));
     let wedge = super::support_patches::ruled_prism(&low, &high)?;
     let probe = Probe::Solid(RayCaster::for_solid(&wedge, 0));
-    fills_at_most(ctx.classifier(), &probe, 0.).then_some(corner)
+    fills_at_most(ctx.classifier(), &probe, 0.).then_some(Placed::new(corner, Grid::Decimals(3)))
 }
 
 /// The two supporting planes intersected at a station along the run. Their normals and the

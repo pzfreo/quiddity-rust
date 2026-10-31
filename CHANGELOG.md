@@ -10,8 +10,8 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 - For #157, #159, #160, retain turned steps on stock with proved spanner flats,
   group interrupted coaxial torus fillets with exact defining faces, and omit
-  chamfer/angled-step corners unless their published wedge is proved consistent
-  and outside material. Recognition /6 and fingerprints /3 are unchanged.
+  chamfer/angled-step corners unless their wedge is consistent at published
+  precision and has no material interior, retaining correct boundary-touching corners. Recognition /6 and fingerprints /3 are unchanged.
 
 - Generated part notes share one numbered GENERAL NOTES block in JSON and STEP,
   retaining each requirement's semantic link and the bounds-relative placement.

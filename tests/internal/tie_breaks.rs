@@ -447,11 +447,7 @@ fn bevel_uses_its_cutting_plane_to_resolve_equal_support_distances_under_motion(
         })
     });
     assert_eq!(corner, [10.137, 29.381, 13.064]);
-    // #160: resolving a virtual support is necessary but no longer sufficient
-    // to publish it. Retain this tie proof even when the full wedge is unproved.
-    if let Some(published) = real.record.corner {
-        assert_eq!(*published, corner);
-    }
+    assert_eq!(*real.record.corner.unwrap(), corner);
     let read = |at: &Placement| {
         let framed = quiddity::frames::prepare_framed_file(&path, at).unwrap();
         let mut found: Vec<_> = features::angled_steps::discover(&Context::new(&framed.part))

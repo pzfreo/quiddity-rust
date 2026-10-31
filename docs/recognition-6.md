@@ -694,8 +694,16 @@ cgb202 regression, 708 old occurrences become 542 callout records with the same
 708 primary round patches; the historical floor remains 708.
 
 Planar chamfer and angled-step `corner` is optional/null when unproved. Retention
-requires the published points to reconstruct the measured legs (within 0.005 mm)
-and angle (within 0.05 degrees), and a volume proof that the entire implied
-triangular prism over the defining faces' run span is empty of material. A centroid
-and nearest support intersection alone are insufficient. Recognition schema 6 and
-fingerprint format 3 stay unchanged.
+requires consistency of the measured legs and angle with the corner/anchor points
+at their published precision (0.001 mm for points and legs, 0.01 degrees for angles).
+The point uncertainty is propagated into the transverse support basis and angle
+interval; a fixed angular tolerance would reject correctly rounded short legs.
+Rolled walls use their actual support directions. The volume proof uses unrounded
+geometry and the common span of the two straight spring edges (including collinear
+splits), excluding curved/oblique terminal extensions and attached caps. Where
+that pair is unavailable the entire bevel-face span must pass. Its triangular prism is inset on every side by the modelling
+precision plus the coordinate uncertainty of `2*at-corner` (sqrt(3) times 0.0015 mm).
+Thus boundary contact is allowed, while any material volume in the remaining
+interior refuses the corner; there is no allowed occupied-volume fraction. A
+centroid and nearest support intersection alone are insufficient. Recognition
+schema 6 and fingerprint format 3 stay unchanged.
