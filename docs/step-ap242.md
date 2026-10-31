@@ -491,6 +491,19 @@ These override anything below and any stream brief that says otherwise.
    `crates/haecceity/tests/fixtures/ap214_product_type.step` additionally pins mixed case,
    comments, escaped description text, exact whole-file restoration outside appended
    PMI, the schema change and the one keyword substitution, and rejection of extra attributes.
+
+   Consumer check: installed Draftwright 0.5.0rc1 completed SVG exports with
+   `--pmi annotate` for the written hex-standoff and Nema files; both SVGs parsed successfully.
+   Its planner reported three dropped angular annotations for hex-standoff, and its PMI
+   reader reported a `General notes` label extraction diagnostic for Nema. Both written
+   STEP files also match the isolated `origin/main` writer's outputs byte for byte when
+   its inputs have only the `PRODUCT_TYPE` keywords normalized beforehand.
+
+   Checks passed with the pinned corpus required: formatting; release workspace/all-targets
+   clippy with warnings denied; haecceity library, PMI write/read, round-trip and Part 21
+   tests; root `pmi_cli` and `brep_write`; and snapshot check mode, reproducing all 2,700
+   snapshots byte for byte. Tests ran one binary at a time with one test thread throughout
+   the heavily loaded session. No snapshot expectations were regenerated.
 2. **Material as specify-core writes it.** The writer writes the material's name in the CAx-IF
    'material name' construct exactly as specify-core's files carry it (a `REPRESENTATION('material
    name', …)` whose `DESCRIPTIVE_REPRESENTATION_ITEM` holds the name, related to the part as
