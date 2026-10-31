@@ -217,3 +217,74 @@ fn malformed_coordinates_and_indices_never_renumber_drawn_points() {
             .any(|why| why.contains("index out of range"))
     );
 }
+
+#[cfg(feature = "presentation")]
+#[test]
+fn placed_generated_graphics_and_stale_links() {
+    let bytes = ctc();
+    let doc = Document::parse(bytes.clone()).unwrap();
+    let parts = read_part_definitions(&bytes).unwrap();
+    let read = pmi::read(&doc, &parts).unwrap();
+    let semantic = json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+    let part = haecceity::step::read_part(&bytes, &parts[0]).unwrap();
+    let generated = presentation::generated(&semantic, &part).unwrap();
+    assert!(
+        generated
+            .items
+            .values()
+            .flatten()
+            .flat_map(|g| g.polylines.iter().flatten())
+            .any(|p| p[2].abs() > 1e-6),
+        "geometry-based placement must leave the XY origin plane"
+    );
+    presentation::validate_links(&generated, &semantic).unwrap();
+    let mut changed = semantic.clone();
+    changed.ids.get_mut("dimensions").unwrap()[0] = "another requirement".into();
+    assert!(
+        presentation::validate_links(&generated, &changed)
+            .unwrap_err()
+            .to_string()
+            .contains("different PMI id set")
+    );
+}
+
+#[cfg(feature = "presentation")]
+#[test]
+fn step_generated_marker_reads_back_as_generated() {
+    let cube = std::fs::read(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../tests/fixtures/ties/cube.step"
+    ))
+    .unwrap();
+    let doc = Document::parse(cube.clone()).unwrap();
+    let parts = read_part_definitions(&cube).unwrap();
+    let model = haecceity::pmi::PartPmi {
+        features: vec![haecceity::pmi::Feature::Items(vec![
+            haecceity::pmi::Anchor::Face(haecceity::pmi::FaceIndex(0)),
+        ])],
+        datums: vec![
+            haecceity::pmi::Datum::new(
+                haecceity::pmi::DatumLabel::new("A").unwrap(),
+                Some(haecceity::pmi::FeatureId(0)),
+                vec![],
+            )
+            .unwrap(),
+        ],
+        ..Default::default()
+    };
+    let semantic = json::identify(model, None).unwrap();
+    let (output, _) = json::write_preserving(&doc, &parts, &[(PartId(0), semantic)]).unwrap();
+    let doc = Document::parse(output).unwrap();
+    let parts = read_part_definitions(doc.bytes()).unwrap();
+    let read = pmi::read(&doc, &parts).unwrap();
+    let semantic = json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+    let drawn = presentation::read(&doc, &read, PartId(0), &semantic).unwrap();
+    assert!(!drawn.items.is_empty());
+    assert!(
+        drawn
+            .items
+            .values()
+            .flatten()
+            .all(|g| g.source == Source::Generated)
+    );
+}

@@ -45,14 +45,13 @@ pub(super) fn content(
                     anchors,
                     stack,
                 )?;
-            } else if kind == "FaceIndex" {
-                if let Some(key) = value
+            } else if kind == "FaceIndex"
+                && let Some(key) = value
                     .as_u64()
                     .and_then(|i| anchors.fingerprints.get(i as usize))
                     .and_then(Option::as_ref)
-                {
-                    *value = json!({"fingerprint":key});
-                }
+            {
+                *value = json!({"fingerprint":key});
             }
             Ok(())
         },
@@ -104,6 +103,11 @@ pub(super) fn identify(
                 .is_some_and(|previous| previous != &text)
             {
                 return Err(Error(format!("content id collision {base:?}")));
+            }
+            if used.contains(&base) && !contents.contains_key(&base) {
+                return Err(Error(format!(
+                    "content id conflicts with source id {base:?}"
+                )));
             }
             contents.insert(base.clone(), text);
             let mut id = base.clone();

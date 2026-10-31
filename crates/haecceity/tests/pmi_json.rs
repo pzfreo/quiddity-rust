@@ -468,3 +468,245 @@ fn json_schema_integer_values_can_have_a_decimal_point() {
         assert_eq!(json::from_value(&value, &a).unwrap().pmi, expected);
     }
 }
+
+#[test]
+fn id_references_refuse_indices_and_unknown_ids() {
+    let semantic = json::identify(test_model(), None).unwrap();
+    let mut v = json::to_value(&semantic).unwrap();
+    assert_eq!(
+        v["pmi"]["dimensions"][0]["value"]["kind"]["size"]["feature"],
+        semantic.ids["features"][0]
+    );
+    v["pmi"]["dimensions"][0]["value"]["kind"]["size"]["feature"] = json!(0);
+    assert!(
+        json::from_value(&v, &anchors())
+            .unwrap_err()
+            .to_string()
+            .contains("schema violation")
+    );
+    v["pmi"]["dimensions"][0]["value"]["kind"]["size"]["feature"] = json!("unknown support");
+    assert!(
+        json::from_value(&v, &anchors())
+            .unwrap_err()
+            .to_string()
+            .contains("unknown features id")
+    );
+}
+
+#[test]
+fn content_ids_survive_unrelated_insertion_and_feature_reindexing() {
+    let original = test_model();
+    let a = json::identify_with_anchors(original.clone(), None, &anchors()).unwrap();
+    let mut changed = original.clone();
+    changed
+        .features
+        .insert(0, Feature::Items(vec![Anchor::Face(FaceIndex(1))]));
+    changed.datums[0] =
+        Datum::new(DatumLabel::new("A").unwrap(), Some(FeatureId(1)), vec![]).unwrap();
+    if let DimensionKind::Size { feature, .. } = &mut changed.dimensions[0].kind {
+        *feature = FeatureId(1);
+    }
+    let mut extra = changed.dimensions[0].clone();
+    extra.nominal = Some(Value::length(
+        Decimal::parse("99.").unwrap(),
+        LengthUnit::Millimetre,
+    ));
+    changed.dimensions.insert(0, extra);
+    let b = json::identify_with_anchors(changed, None, &anchors()).unwrap();
+    assert_eq!(a.ids["features"][0], b.ids["features"][1]);
+    assert_eq!(a.ids["dimensions"][0], b.ids["dimensions"][1]);
+    assert_eq!(a.ids["datums"], b.ids["datums"]);
+    let mut twins = original;
+    twins.dimensions.push(twins.dimensions[0].clone());
+    let twins = json::identify(twins, None).unwrap();
+    assert_eq!(
+        twins.ids["dimensions"][1],
+        format!("{}~2", twins.ids["dimensions"][0])
+    );
+}
+
+#[test]
+fn multi_face_support_resolves_every_face_or_refuses() {
+    let mut a = anchors();
+    a.names.push(Some("second".into()));
+    a.bind_support(2, "verified").unwrap();
+    let mut v = json::to_value(&json::identify(test_model(), None).unwrap()).unwrap();
+    v["pmi"]["features"][0]["value"]["items"][0]["face"] =
+        json!({"fingerprint":{"schema":2,"faces":"verified","support":[0,1]}});
+    let decoded = json::from_value(&v, &a).unwrap();
+    assert_eq!(
+        decoded.pmi.features[0],
+        Feature::Items(vec![Anchor::Face(FaceIndex(0)), Anchor::Face(FaceIndex(1))])
+    );
+    v["pmi"]["features"][0]["value"]["items"][0]["face"]["fingerprint"]["support"] =
+        json!([0, 100]);
+    assert!(
+        json::from_value(&v, &a)
+            .unwrap_err()
+            .to_string()
+            .contains("unknown face fingerprint")
+    );
+}
+
+#[test]
+fn differences_detect_projection_order_attribute_fields_and_note_reclassification() {
+    let mut p = test_model();
+    p.features
+        .push(Feature::Items(vec![Anchor::Face(FaceIndex(1))]));
+    p.attributes = vec![
+        AttributeSet {
+            name: "a".into(),
+            on: None,
+            items: vec![("value".into(), AttributeValue::Text("x".into()))],
+            description: None,
+            general_property: None,
+        },
+        AttributeSet {
+            name: "b".into(),
+            on: None,
+            items: vec![("value".into(), AttributeValue::Text("y".into()))],
+            description: Some("".into()),
+            general_property: None,
+        },
+    ];
+    p.notes.push(Note {
+        kind: "semantic text".into(),
+        text: "Remove all burrs".into(),
+        on: None,
+        callouts: vec![],
+    });
+    let mut changed = p.clone();
+    changed.features.swap(0, 1);
+    assert!(!pmi::write::differences(&p, &changed).is_empty());
+    let mut changed = p.clone();
+    changed.attributes.swap(0, 1);
+    assert!(!pmi::write::differences(&p, &changed).is_empty());
+    let mut changed = p.clone();
+    changed.attributes[0].description = Some("user defined attribute".into());
+    assert!(!pmi::write::differences(&p, &changed).is_empty());
+    let mut changed = p.clone();
+    changed.notes.clear();
+    changed.attributes.push(AttributeSet {
+        name: "semantic text".into(),
+        on: None,
+        items: vec![(
+            "semantic text".into(),
+            AttributeValue::Text("Remove all burrs".into()),
+        )],
+        description: None,
+        general_property: None,
+    });
+    assert!(!pmi::write::differences(&p, &changed).is_empty());
+}
+
+#[test]
+fn all_note_kinds_owners_and_optional_attribute_fields_are_identity() {
+    let bytes = cube();
+    let doc = Document::parse(bytes.clone()).unwrap();
+    let parts = read_part_definitions(&bytes).unwrap();
+    let mut p = test_model();
+    for kind in [
+        "semantic text",
+        "surface texture",
+        "general note",
+        "coating",
+        "edges",
+        "custom 🚀",
+        "",
+    ] {
+        for on in [
+            None,
+            Some(NoteOwner::Feature(FeatureId(0))),
+            Some(NoteOwner::Dimension(DimensionId(0))),
+        ] {
+            p.notes.push(Note {
+                kind: kind.into(),
+                text: "Remove all burrs…".into(),
+                on,
+                callouts: vec![],
+            });
+        }
+    }
+    for description in [None, Some("".into()), Some("description".into())] {
+        p.attributes.push(AttributeSet {
+            name: "custom attribute".into(),
+            on: None,
+            description,
+            general_property: None,
+            items: vec![("field".into(), AttributeValue::Text("stated".into()))],
+        });
+    }
+    let semantic = json::identify(p, None).unwrap();
+    let expected = json::to_value(&semantic).unwrap();
+    let (output, _) = json::write(
+        &doc,
+        &parts,
+        &[(PartId(0), semantic)],
+        pmi::write::PresentationPolicy::RemovePresentation,
+    )
+    .unwrap();
+    let doc = Document::parse(output).unwrap();
+    let parts = read_part_definitions(doc.bytes()).unwrap();
+    let read = pmi::read(&doc, &parts).unwrap();
+    let actual = json::to_value(
+        &json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn one_identified_property_with_two_tolerance_classes_has_distinct_ids() {
+    use haecceity::p21::{self, Attribute as A, RawEntity};
+    let bytes = cube();
+    let doc = Document::parse(bytes.clone()).unwrap();
+    let parts = read_part_definitions(&bytes).unwrap();
+    let p = PartPmi {
+        general: vec![GeneralTolerance::Class {
+            text: "ISO 2768-m".into(),
+            standard: standards::Iso2768::recognise("ISO 2768-m"),
+        }],
+        ..PartPmi::default()
+    };
+    let (edit, _) = pmi::write(
+        &doc,
+        &parts,
+        &[(PartId(0), p)],
+        pmi::Mode::Replace,
+        pmi::write::PresentationPolicy::RemovePresentation,
+    )
+    .unwrap();
+    let doc = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    let pdef=doc.ids().find(|id|matches!(doc.get(*id),Some(RawEntity::Simple{name,attributes,..}) if name.eq_ignore_ascii_case("property_definition") && attributes.first()==Some(&A::String("default tolerances".into())))).unwrap();
+    let rep=doc.ids().find(|id|matches!(doc.get(*id),Some(RawEntity::Simple{name,attributes,..}) if name.eq_ignore_ascii_case("representation") && attributes.first()==Some(&A::String("default tolerances".into())))).unwrap();
+    let mut edit = p21::Edit::new();
+    edit.add(p21::simple(
+        "ID_ATTRIBUTE",
+        vec![A::String("class-property".into()), A::EntityRef(pdef)],
+    ));
+    let extra = edit.add(p21::simple(
+        "DESCRIPTIVE_REPRESENTATION_ITEM",
+        vec![
+            A::String("tolerance class".into()),
+            A::String("ISO 2768-f".into()),
+        ],
+    ));
+    let mut record = doc.get(rep).unwrap().clone();
+    if let RawEntity::Simple { attributes, .. } = &mut record {
+        if let A::List(items) = &mut attributes[1] {
+            items.push(extra.to_ref());
+        }
+    }
+    edit.replace(rep, record);
+    let doc = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    let parts = read_part_definitions(doc.bytes()).unwrap();
+    let read = pmi::read(&doc, &parts).unwrap();
+    assert_eq!(
+        read.identifiers.parts[0].general,
+        vec![
+            Some("class-property".into()),
+            Some("class-property/tolerance-class/2".into())
+        ]
+    );
+    json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+}

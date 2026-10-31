@@ -448,6 +448,8 @@ pub fn write(
         policy,
         #[cfg(feature = "json")]
         None,
+        #[cfg(feature = "json")]
+        None,
     )
 }
 
@@ -458,9 +460,18 @@ pub(crate) fn write_identified(
     parts: &[PartDefinition],
     pmi: &[(PartId, PartPmi)],
     ids: &BTreeMap<PartId, BTreeMap<String, Vec<String>>>,
+    protected: &BTreeSet<u64>,
     policy: PresentationPolicy,
 ) -> Result<(Edit, WriteReport), WriteError> {
-    write_inner(doc, parts, pmi, Mode::Replace, policy, Some(ids))
+    write_inner(
+        doc,
+        parts,
+        pmi,
+        Mode::Replace,
+        policy,
+        Some(ids),
+        Some(protected),
+    )
 }
 
 fn write_inner(
@@ -470,6 +481,7 @@ fn write_inner(
     mode: Mode,
     policy: PresentationPolicy,
     #[cfg(feature = "json")] identifiers: Option<&BTreeMap<PartId, BTreeMap<String, Vec<String>>>>,
+    #[cfg(feature = "json")] protected: Option<&BTreeSet<u64>>,
 ) -> Result<(Edit, WriteReport), WriteError> {
     // Validate the input before migration (in particular every note's owner).
     for (part, p) in pmi {
@@ -645,7 +657,13 @@ fn write_inner(
             // Supplemental geometry is the part's geometry, not PMI: it is kept (and used
             // again by what is written, matched by value), never removed.
             let geometry: BTreeSet<u64> = prov.geometry.iter().flatten().copied().collect();
-            seeds.extend(prov.all().into_iter().filter(|id| !geometry.contains(id)));
+            seeds.extend(prov.all().into_iter().filter(|id| {
+                #[cfg(feature = "json")]
+                if protected.is_some_and(|ids| ids.contains(id)) {
+                    return false;
+                }
+                !geometry.contains(id)
+            }));
         }
         if !seeds.is_empty() {
             // A presentation model (draughting model, view) the removal would empty is the
@@ -3313,14 +3331,22 @@ impl<'a> PartPlan<'a> {
         #[cfg(feature = "json")]
         if let Some(ids) = self.identifiers {
             for (i, note) in p.notes.iter().enumerate() {
-                let a = AttributeSet {
-                    name: note.kind.clone(),
-                    on: note.on,
-                    items: vec![("text".into(), AttributeValue::Text(note.text.clone()))],
-                    description: Some("haecceity.pmi/1 note".into()),
-                    general_property: None,
+                let owner = match note.on {
+                    None => pds,
+                    Some(NoteOwner::Feature(f)) => self.feature(em, &mut st, pds, f.0)?,
+                    Some(NoteOwner::Dimension(d)) => self.dimension(em, &mut st, pds, d.0)?,
+                    Some(NoteOwner::Tolerance(t)) => st.tolerances[&t.0],
+                    Some(NoteOwner::DatumTarget(t)) => st.targets[&t.0],
                 };
-                let property = self.attribute_set(em, &mut st, pd, pds, &a)?;
+                let text = Self::text_item(em, "note text", &note.text)?;
+                let property = self.property(
+                    em,
+                    owner,
+                    "manufacturing requirement",
+                    &note.kind,
+                    "",
+                    &[text],
+                )?;
                 self.identify(em, "notes", i, property)?;
             }
             let layout = crate::json::transport::layout(p, ids)
@@ -6573,13 +6599,11 @@ impl SymbolLayout {
 // Semantic comparison
 // ---------------------------------------------------------------------------------------------
 
-/// The differences between two parts' PMI as meaning, not as indices: every reference is
-/// resolved to what it names (a feature to its faces, edges and geometry; a datum to its label
-/// and feature), collections are compared as sets (features of equal content are one feature;
-/// modifiers in any order), and a one-datum compartment's own modifiers are the compartment's.
-/// Values are compared as quantities (millimetres or radians, to 1e-12 relative) with their
-/// decimal places; [`differences_as_stated`] compares their text and unit too. Empty when the
-/// two mean the same.
+/// Differences in meaning plus exact feature, note and attribute collections: order,
+/// projections, ownership and optional fields are significant. Native canonicalization
+/// checks can explicitly use [`differences_by_meaning`] instead. Numeric values outside
+/// these collections are compared as quantities; [`differences_as_stated`] also keeps
+/// their stated decimal text and units.
 #[must_use]
 pub fn differences(a: &PartPmi, b: &PartPmi) -> Vec<String> {
     ordered_differences(a, b, false)

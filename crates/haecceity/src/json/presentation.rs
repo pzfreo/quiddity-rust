@@ -399,18 +399,14 @@ pub fn read(
             && !is(doc, *id, "annotation_plane")
             && !contained.contains(id)
     }));
-    let carriers: BTreeMap<_, _> = read
-        .json_carriers
-        .iter()
-        .filter(|((p, _, _), _)| *p == part)
-        .filter_map(|((_, c, i), entity)| {
-            semantic
-                .ids
-                .get(c)
-                .and_then(|ids| ids.get(*i))
-                .map(|id| (*entity, id.clone()))
-        })
-        .collect();
+    let mut carriers = BTreeMap::<u64, BTreeSet<String>>::new();
+    for ((p, c, i), entity) in &read.json_carriers {
+        if *p == part
+            && let Some(id) = semantic.ids.get(c).and_then(|ids| ids.get(*i))
+        {
+            carriers.entry(*entity).or_default().insert(id.clone());
+        }
+    }
     let mut datum_support: BTreeMap<u64, BTreeSet<String>> = BTreeMap::new();
     for (i, datum) in semantic.pmi.datums.iter().enumerate() {
         if let Some(feature) = datum.feature()
@@ -444,8 +440,8 @@ pub fn read(
             "identified_item",
         ));
         if let (Some(definition), Some(item)) = (definition, item) {
-            if let Some(key) = carriers.get(&definition) {
-                links.entry(item).or_default().insert(key.clone());
+            if let Some(keys) = carriers.get(&definition) {
+                links.entry(item).or_default().extend(keys.iter().cloned());
             }
             if let Some(keys) = datum_support.get(&definition) {
                 support_links

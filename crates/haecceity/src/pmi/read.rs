@@ -530,12 +530,8 @@ impl<'a> Reader<'a> {
 
     /// `id_attribute`s naming `id` (§5.1 Figure 4): part of the item's construct.
     fn id_attributes(&mut self, id: u64) -> Vec<u64> {
-        let out = self.referrers_by(id, "id_attribute", "id_attribute", "identified_item");
-        let out = {
-            let mut out = out;
-            out.extend(self.json_identifications(id));
-            out
-        };
+        let mut out = self.referrers_by(id, "id_attribute", "id_attribute", "identified_item");
+        out.extend(self.json_identifications(id));
         out
     }
 

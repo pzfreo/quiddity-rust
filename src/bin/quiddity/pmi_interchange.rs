@@ -70,13 +70,9 @@ pub(super) fn run(args: &[String]) -> Result<String, String> {
             let semantic = interchange::from_value(&read_json(json_path)?, &anchors)
                 .map_err(|e| e.to_string())?;
             let expected = semantic.pmi.clone();
-            let (output, report) = interchange::write(
-                &doc,
-                &defs,
-                &[(PartId(part), semantic)],
-                PresentationPolicy::RemovePresentation,
-            )
-            .map_err(|e| e.to_string())?;
+            let (output, report) =
+                interchange::write_preserving(&doc, &defs, &[(PartId(part), semantic)])
+                    .map_err(|e| e.to_string())?;
             let after = p21::Document::parse(output.clone()).map_err(|e| e.to_string())?;
             let after_defs = read_part_definitions(&output).map_err(|e| e.to_string())?;
             let after_read = pmi::read(&after, &after_defs).map_err(|e| e.to_string())?;

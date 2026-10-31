@@ -34,8 +34,12 @@ fn whole_json_identity_ctc02_ftc07_xcaf_and_corpus() {
         ),
         (
             "xcaf plate",
-            root.join("xcaf/pmi_plate.geom.step.gz"),
-            Some(root.join("xcaf/pmi_plate.pmi.json")),
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/xcaf/pmi_plate.geom.step.gz"),
+            Some(
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("tests/fixtures/xcaf/pmi_plate.pmi.json"),
+            ),
         ),
         (
             "corpus spool",
@@ -58,6 +62,8 @@ fn whole_json_identity_ctc02_ftc07_xcaf_and_corpus() {
             expected.push(json::to_value(&semantic).unwrap());
             requested.push((PartId(i), semantic));
         }
+        let drawn_before =
+            json::presentation::read(&doc, &read, PartId(0), &requested[0].1).unwrap();
         let (output, report) = match json::write(
             &doc,
             &parts,
@@ -79,6 +85,46 @@ fn whole_json_identity_ctc02_ftc07_xcaf_and_corpus() {
         let after = Document::parse(output).unwrap();
         let definitions = read_part_definitions(after.bytes()).unwrap();
         let reread = pmi::read(&after, &definitions).unwrap();
+        if name == "CTC-02" {
+            let after_semantic =
+                json::identify(reread.parts[0].clone(), Some(&reread.identifiers.parts[0]))
+                    .unwrap();
+            let drawn_after =
+                json::presentation::read(&after, &reread, PartId(0), &after_semantic).unwrap();
+            let file_graphics = |p: &json::presentation::Presentation| {
+                p.items
+                    .values()
+                    .flatten()
+                    .filter(|g| g.source == json::presentation::Source::File)
+                    .count()
+            };
+            for (id, graphics) in &drawn_before.items {
+                for graphic in graphics
+                    .iter()
+                    .filter(|g| g.source == json::presentation::Source::File)
+                {
+                    assert!(
+                        drawn_after
+                            .items
+                            .get(id)
+                            .is_some_and(|after| after.iter().any(|g| g.source
+                                == json::presentation::Source::File
+                                && g.polylines == graphic.polylines
+                                && g.triangles == graphic.triangles
+                                && g.text == graphic.text)),
+                        "foreign graphic {:?} lost from {id}, source {:?}",
+                        graphic.name,
+                        graphic.step_ids
+                    );
+                }
+            }
+            eprintln!(
+                "CTC-02 foreign linked graphics before {}, after {}; removed {:?}",
+                file_graphics(&drawn_before),
+                file_graphics(&drawn_after),
+                &report.presentation_removed[..report.presentation_removed.len().min(8)]
+            );
+        }
         for (i, model) in reread.parts.iter().enumerate() {
             let actual = json::to_value(
                 &json::identify(model.clone(), Some(&reread.identifiers.parts[i])).unwrap(),

@@ -9,12 +9,13 @@ pub(super) struct Kept {
     index: usize,
     definition: u64,
     record: RawEntity,
+    source_id: u64,
 }
 pub(super) fn detach(
     doc: &Document,
     parts: &[PartDefinition],
     requested: &[(pmi::PartId, Semantic)],
-) -> Result<(Document, Vec<Kept>)> {
+) -> Result<(Document, Vec<Kept>, BTreeSet<u64>)> {
     let read = pmi::read(doc, parts).map_err(|e| Error(e.to_string()))?;
     let mut kept = vec![];
     let mut edit = Edit::new();
@@ -84,14 +85,52 @@ pub(super) fn detach(
                 index: new_index,
                 definition,
                 record,
+                source_id: id,
             });
-            break;
+        }
+    }
+    let mut protected = BTreeSet::new();
+    let semantic_carriers: BTreeSet<_> = read.json_carriers.values().copied().collect();
+    for k in &kept {
+        let root = match &k.record {
+            RawEntity::Simple { .. } => {
+                // Association slots are inherited from item_identified_representation_usage.
+                let mut roots = vec![];
+                crate::p21::visit_attributes(&k.record, &mut |a| {
+                    if let Attribute::EntityRef(id) = a
+                        && *id != k.definition
+                    {
+                        roots.push(*id);
+                    }
+                });
+                roots
+            }
+            _ => vec![],
+        };
+        // Only the identified annotation's forward graph; never protect a whole model
+        // (which could also contain callouts belonging to removed requirements).
+        let identified = root
+            .into_iter()
+            .find(|id| is(doc, *id, "draughting_callout") || is(doc, *id, "annotation_occurrence"));
+        let mut stack: Vec<_> = identified.into_iter().collect();
+        while let Some(id) = stack.pop() {
+            if semantic_carriers.contains(&id) || !protected.insert(id) {
+                continue;
+            }
+            if let Some(record) = doc.get(id) {
+                crate::p21::visit_attributes(record, &mut |a| {
+                    if let Attribute::EntityRef(child) = a {
+                        stack.push(*child)
+                    }
+                });
+            }
         }
     }
     let bytes = doc.apply(&edit).map_err(|e| Error(e.to_string()))?.bytes;
     Ok((
         Document::parse(bytes).map_err(|e| Error(e.to_string()))?,
         kept,
+        protected,
     ))
 }
 fn replace(a: &mut Attribute, old: u64, new: u64) {
@@ -108,6 +147,7 @@ fn replace(a: &mut Attribute, old: u64, new: u64) {
 }
 pub(super) fn attach(doc: &Document, read: &pmi::PmiRead, kept: Vec<Kept>) -> Result<Vec<u8>> {
     let mut edit = Edit::new();
+    let mut attached = BTreeSet::new();
     for mut k in kept {
         let new = *read
             .json_carriers
@@ -118,6 +158,9 @@ pub(super) fn attach(doc: &Document, read: &pmi::PmiRead, kept: Vec<Kept>) -> Re
                     k.collection, k.index
                 ))
             })?;
+        if !attached.insert((k.source_id, new)) {
+            continue;
+        }
         match &mut k.record {
             RawEntity::Simple { attributes, .. } => {
                 for a in attributes {

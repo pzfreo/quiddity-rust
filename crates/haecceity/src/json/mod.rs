@@ -406,17 +406,36 @@ pub fn write(
         values.push((*part, input.pmi.clone()));
         ids.insert(*part, input.ids.clone());
     }
-    let (base, kept) = preserve::detach(doc, parts, requested)?;
-    let (edit, report) = pmi::write::write_identified(&base, parts, &values, &ids, policy)
-        .map_err(|e| Error(e.to_string()))?;
+    let (base, kept, protected) = preserve::detach(doc, parts, requested)?;
+    let (edit, report) =
+        pmi::write::write_identified(&base, parts, &values, &ids, &protected, policy)
+            .map_err(|e| Error(e.to_string()))?;
     let bytes = base.apply(&edit).map_err(|e| Error(e.to_string()))?.bytes;
     let definitions =
         crate::step::read_part_definitions(&bytes).map_err(|e| Error(e.to_string()))?;
     let after = Document::parse(bytes.clone()).map_err(|e| Error(e.to_string()))?;
-    let before_read = pmi::read(doc, parts).map_err(|e| Error(e.to_string()))?;
     let after_read = pmi::read(&after, &definitions).map_err(|e| Error(e.to_string()))?;
+    let prior_rules = crate::express_rules::check_all(&after);
     let bytes = preserve::attach(&after, &after_read, kept)?;
     let after = Document::parse(bytes.clone()).map_err(|e| Error(e.to_string()))?;
+    let added_schema: Vec<_> = crate::express::validate_document(after.graph())
+        .into_iter()
+        .filter(|v| v.id > doc.max_id())
+        .collect();
+    if !added_schema.is_empty() {
+        return Err(Error(format!(
+            "preserved presentation schema violations: {added_schema:?}"
+        )));
+    }
+    let added_rules: Vec<_> = crate::express_rules::check_all(&after)
+        .into_iter()
+        .filter(|v| !prior_rules.contains(v))
+        .collect();
+    if !added_rules.is_empty() {
+        return Err(Error(format!(
+            "preserved presentation rule violations: {added_rules:?}"
+        )));
+    }
     let after_read = pmi::read(&after, &definitions).map_err(|e| Error(e.to_string()))?;
     for (part, expected) in requested {
         let actual = &after_read.parts[part.0];
@@ -437,7 +456,6 @@ pub fn write(
             }
         }
     }
-    let _ = before_read;
     Ok((bytes, report))
 }
 
@@ -491,4 +509,18 @@ pub fn from_str(text: &str, anchors: &Anchors) -> Result<Semantic> {
 /// Pretty JSON, preserving all stated decimal strings.
 pub fn to_string(p: &Semantic) -> Result<String> {
     Ok(serde_json::to_string_pretty(&to_value(p)?)?)
+}
+
+/// Import policy: retain foreign graphics of unchanged surviving items and report removals.
+pub fn write_preserving(
+    doc: &Document,
+    parts: &[PartDefinition],
+    requested: &[(pmi::PartId, Semantic)],
+) -> Result<(Vec<u8>, pmi::write::WriteReport)> {
+    write(
+        doc,
+        parts,
+        requested,
+        pmi::write::PresentationPolicy::RemovePresentation,
+    )
 }
