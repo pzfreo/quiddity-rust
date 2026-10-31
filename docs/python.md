@@ -135,7 +135,10 @@ macOS arm64/x86_64 and Windows x64, plus an sdist. Each wheel runs the smoke
 suite on CPython 3.12; Linux x86_64 also tests a newer CPython. A separate Linux
 job installs the sdist and runs the same smoke suite. The corpus test
 skips without `QUIDDITY_CORPUS` and fails if required corpus inputs are missing.
-Publishing is possible only through `workflow_dispatch` with `publish=true` on
-`main`, after all builds/tests pass, using the `pypi` environment and PyPI trusted
-publishing. Pushes and tags never publish. The maintainer must configure the
-trusted publisher/environment before using that gate.
+**A published GitHub release publishes to PyPI.** After all builds and tests pass, the
+release's wheels and sdist go to PyPI through the `pypi` environment (main and `v*` tags only)
+and PyPI trusted publishing. This was the maintainer's decision: a GitHub release is the
+approval. The job refuses to publish unless the release tag, the wheel's version
+(`crates/quiddity-py/pyproject.toml`) and the crates' version (`Cargo.toml`) all agree, so
+crates.io and PyPI releases share one version from 0.4.0 on. A manual run on `main` with
+`publish=true` is a fallback. Pushes and pull requests never publish.
