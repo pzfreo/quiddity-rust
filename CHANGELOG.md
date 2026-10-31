@@ -20,6 +20,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 - Public `presentation::size_prefix` for drawing clients, and
   `presentation::label_lines_with_width` for independent, unpadded per-line geometry
   with caller-supplied ink widths. Existing padded labels retain their geometry.
+- For #141, add `quiddity::dimensioning`: shared, view-independent requirements for
+  prismatic holes, patterns and plane levels, with face-derived ids, datum origins,
+  tolerance-aware consolidation and explicit conveyance/reference relationships.
+  Step heights and tied shoulders replace raw interior plane intervals; later-slice
+  feature planes and turned envelopes are explicitly deferred.
 
 ## 0.2.8 (2026-10-31)
 

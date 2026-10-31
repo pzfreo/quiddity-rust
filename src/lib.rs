@@ -13,3 +13,5 @@ extern crate self as quiddity;
 #[cfg(test)]
 #[path = "../tests/internal/mod.rs"]
 mod regression_tests;
+
+pub mod dimensioning;
