@@ -166,8 +166,81 @@ pub fn discover(ctx: &Context<'_>, opts: &FilletOptions) -> Vec<Occurrence<Fille
         let (ka, kb) = (key(a), key(b));
         ka.0.order(kb.0).then_with(|| py::tuple_order(&ka.1[..], &kb.1[..]))
     });
-    out
+    group_turned_arcs(part, out)
 }
+}
+
+/// One interrupted edge round keeps a leader on its first actual arc. Compare the
+/// unrounded analytic torus and meridian, never rounded radii or leader positions.
+/// Equal minor radii on different rings/solids or opposite meridian sides stay separate.
+fn same_turned_surface(part: &Part, a: &Occurrence<Fillet>, b: &Occurrence<Fillet>) -> bool {
+    if !a.record.turned || !b.record.turned || a.record.side != b.record.side {
+        return false;
+    }
+    let (fa, fb) = (a.defining[0], b.defining[0]);
+    let Surface::Torus {
+        frame: x,
+        major: r,
+        minor: s,
+    } = part.faces[fa].surface
+    else {
+        return false;
+    };
+    let Surface::Torus {
+        frame: y,
+        major: t,
+        minor: u,
+    } = part.faces[fb].surface
+    else {
+        return false;
+    };
+    let tol = cylinder_support_tolerance(part);
+    if (r - t).abs() > tol
+        || (s - u).abs() > tol
+        || geom::dist(x.origin, y.origin) > tol
+        || geom::norm(geom::cross(x.z, y.z)) * (r + s) > tol
+    {
+        return false;
+    }
+    let meridian = |face| -> Option<[[f64; 2]; 3]> {
+        let (u0, u1, v0, v1) = part.uv_bounds(face)?;
+        let mut points = [v0, (v0 + v1) / 2., v1].map(|v| {
+            let p = geom::sub(part.faces[face].surface.value((u0 + u1) / 2., v), x.origin);
+            let z = geom::dot(p, x.z);
+            [z, geom::norm(geom::sub(p, geom::scale(x.z, z)))]
+        });
+        points.sort_by(|a, b| py::tuple_order(a, b));
+        Some(points)
+    };
+    let (Some(pa), Some(pb)) = (meridian(fa), meridian(fb)) else {
+        return false;
+    };
+    if pa
+        .iter()
+        .zip(pb)
+        .any(|(a, b)| a.iter().zip(b).any(|(a, b)| (a - b).abs() > tol))
+    {
+        return false;
+    }
+    let faces: Vec<_> = a.defining.iter().chain(&b.defining).copied().collect();
+    evidence::common_valid_solid(part, &faces).is_some()
+}
+
+fn group_turned_arcs(part: &Part, found: Vec<Occurrence<Fillet>>) -> Vec<Occurrence<Fillet>> {
+    let mut out: Vec<Occurrence<Fillet>> = Vec::new();
+    for arc in found {
+        if let Some(group) = out.iter_mut().find(|g| same_turned_surface(part, g, &arc)) {
+            group.defining.extend(arc.defining);
+            group.defining.sort_unstable();
+            group.defining.dedup();
+            group.context.extend(arc.context);
+            group.context.sort_unstable();
+            group.context.dedup();
+        } else {
+            out.push(arc);
+        }
+    }
+    out
 }
 
 /// A partial cylinder rounding a convex or concave edge between two tangent walls, in any direction.
@@ -604,6 +677,41 @@ pub fn turned_context(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn torus_grouping_refuses_other_rings_radii_sides_and_positions() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/interrupted_fillet_hub.step");
+        let part = crate::read_step_file(&path).unwrap();
+        let ctx = Context::new(&part);
+        let external = turned::external_cylinders(&ctx);
+        let a = turned(&part, 5, MIN_RADIUS, 100., &external).unwrap();
+        let b = turned(&part, 9, MIN_RADIUS, 100., &external).unwrap();
+        assert!(same_turned_surface(&part, &a, &b));
+        let mut reversed = b.clone();
+        reversed.record.side = "convex";
+        assert!(!same_turned_surface(&part, &a, &reversed));
+        for perturb in 0..5 {
+            let mut faces = part.faces.clone();
+            let Surface::Torus {
+                ref mut frame,
+                ref mut major,
+                ref mut minor,
+            } = faces[9].surface
+            else {
+                panic!()
+            };
+            match perturb {
+                0 => *major += 0.1,
+                1 => *minor += 0.1,
+                2 => frame.origin[2] += 0.1,
+                3 => frame.origin[0] += 0.1,
+                _ => frame.z = geom::unit([0.01, 0., 1.]).unwrap(),
+            }
+            let changed = Part::new(faces, part.edges.clone(), part.solids.clone());
+            assert!(!same_turned_surface(&changed, &a, &b), "perturb {perturb}");
+        }
+    }
 
     #[test]
     fn principal_runs_keep_the_legacy_axis_letter_throughout_the_alignment_band() {
