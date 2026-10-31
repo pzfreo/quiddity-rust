@@ -38,6 +38,31 @@ or a Part 21 entity-graph serialization. It retains stated decimal tokens,
 AP242 names and the practice's groupings. Supplemental geometry alone retains
 its typed geometry tree because that is how `PartPmi` represents it.
 
+## Read-only callout evidence
+
+`pmi::PmiRead.callouts` is file-level evidence, beside findings, provenance and
+accounting. Each `GraphicalCallout` has its numeric STEP `id`, decoded `name`, and
+`links`. Every `CalloutLink` retains the DMIA `association`, its `definition` STEP
+id and `entity` type, and resolved `targets` (`CalloutTarget { part, item }`).
+`PresentedItem` uses the returned part model's typed ids (indices for notes,
+attributes and property collections). An empty target list is an unresolved
+association, not graphic-only; an empty link list means graphic-only.
+
+The list includes every draughting callout and annotation occurrence outside a
+callout, including tessellated and annotation-plane-held occurrences. Planes
+are containers, not additional callouts. Associations on contained occurrences
+and holding planes are included. Shape aspects resolve to features; unsupported
+or refused semantic definitions retain their entity type instead of disappearing.
+`Note.callouts` and the presentation accounting count keep their existing meaning.
+
+`PmiRead` itself is not serialized by the JSON API. `haecceity.pmi/1` serializes
+`PartPmi` through `Semantic`, and `quiddity-pmi` exports a semantic projection;
+neither includes file-level provenance or accounting. Consequently this read-only
+list does not change those wire formats or their mirrored Python schemas.
+The existing As Drawn presentation companion is unchanged. With `json-import`,
+transport restoration reindexes the callout targets alongside semantic items,
+including one-to-many feature aliases.
+
 ## Shipping and wire conventions
 
 Canonical files are `crates/haecceity/docs/pmi-json.md` and
