@@ -376,3 +376,104 @@ fn spindle_numbered_notes_share_one_block_and_keep_each_requirement_link() {
         }
     }
 }
+
+#[test]
+fn unstructured_part_notes_keep_native_ids_and_join_the_same_block() {
+    let source = load("tests/fixtures/presentation/spindle-q137.step.gz");
+    let source_defs = step::read_part_definitions(source.bytes()).unwrap();
+    let source_read = pmi::read(&source, &source_defs).unwrap();
+    let original = &source_read.parts[0];
+    let doc = Document::parse(
+        std::fs::read(
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/ties/cube.step"),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let defs = step::read_part_definitions(doc.bytes()).unwrap();
+    let part = step::read_part(doc.bytes(), &defs[0]).unwrap();
+    for finish_text in [None, Some("Ra 3.2"), Some("Ra 3.20 µm")] {
+        let mut model = pmi::PartPmi {
+            notes: vec![pmi::Note {
+                kind: "general tolerances".into(),
+                text: "ISO 2768-m".into(),
+                on: None,
+                callouts: vec![],
+            }],
+            surface_textures: original
+                .surface_textures
+                .iter()
+                .filter(|t| t.on.is_none())
+                .cloned()
+                .collect(),
+            attributes: original
+                .attributes
+                .iter()
+                .filter(|a| {
+                    a.on.is_none()
+                        && a.name == "semantic text"
+                        && a.items
+                            .iter()
+                            .any(|(key, _)| matches!(key.as_str(), "edge condition" | "edges"))
+                })
+                .cloned()
+                .collect(),
+            ..pmi::PartPmi::default()
+        };
+        if let Some(text) = finish_text {
+            model.surface_textures.clear();
+            model.notes.push(pmi::Note {
+                kind: "surface finish".into(),
+                text: text.into(),
+                on: None,
+                callouts: vec![],
+            });
+        }
+        let semantic = json::identify(model.clone(), None).unwrap();
+        let generated = json::presentation::generated(&semantic, &part).unwrap();
+        let blocks = unique_notes(&generated);
+        assert_eq!(blocks.len(), 1);
+        assert_eq!(
+            blocks[0].text,
+            [
+                "GENERAL NOTES",
+                "1  GENERAL TOLERANCES ISO 2768-m",
+                if finish_text == Some("Ra 3.20 µm") {
+                    "2  SURFACE FINISH Ra 3.20 UNLESS OTHERWISE STATED"
+                } else {
+                    "2  SURFACE FINISH Ra 3.2 UNLESS OTHERWISE STATED"
+                },
+                "3  Break sharp edges 0.2 max"
+            ]
+        );
+        for id in &semantic.ids["notes"] {
+            assert_eq!(generated.items[id][0].id, blocks[0].id);
+        }
+        // Native JSON rewriting, as Specify uses, must preserve the note's id
+        // rather than changing it into a different semantic collection.
+        let (bytes, _) =
+            json::write_preserving(&doc, &defs, &[(PartId(0), semantic.clone())]).unwrap();
+        let written = Document::parse(bytes).unwrap();
+        let written_defs = step::read_part_definitions(written.bytes()).unwrap();
+        let read = pmi::read(&written, &written_defs).unwrap();
+        let result =
+            json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+        assert_eq!(result.ids["notes"], semantic.ids["notes"]);
+        let drawn = json::presentation::read(&written, &read, PartId(0), &result).unwrap();
+        assert_eq!(unique_notes(&drawn).len(), 1);
+        assert_eq!(
+            strokes(&unique_notes(&drawn)[0].polylines),
+            strokes(&blocks[0].polylines)
+        );
+        for id in &semantic.ids["notes"] {
+            assert_eq!(drawn.items[id][0].id, unique_notes(&drawn)[0].id);
+        }
+        // The legacy writer normalizes notes to attributes/textures. Its block
+        // must state the same items without changing the semantic migration.
+        let normalized = pmi::write::standard_form(&model);
+        assert_eq!(
+            notes::notes_block(&notes::general_notes(&normalized)).cells,
+            blocks[0].text
+        );
+    }
+}

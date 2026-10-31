@@ -6770,6 +6770,7 @@ fn written_settings_have_one_notes_block_and_face_texture_symbols_with_valid_lin
             Source::Material => &provenance.material,
             Source::General(i) => &provenance.general[i],
             Source::Texture(i) => &provenance.surface_textures[i],
+            Source::Note(i) => &provenance.notes[i],
             Source::Attribute(i) => {
                 assert_eq!(w.read.parts[0].attributes[i].items, p.attributes[i].items);
                 &provenance.attributes[i]

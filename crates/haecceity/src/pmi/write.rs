@@ -351,7 +351,7 @@ pub(crate) fn decimal_carrier(g: &GeneralTolerance, places: Option<u8>) -> bool 
     matches!(g, GeneralTolerance::Table { name, cells } if name.is_empty() && places.is_some() && matches!(cells.as_slice(), [c] if c.decimal_default() == places))
 }
 
-fn note_texture(n: &Note) -> Option<SurfaceTexture> {
+pub(crate) fn note_texture(n: &Note) -> Option<SurfaceTexture> {
     if !["surface texture", "surface finish", "finish"].contains(&n.kind.as_str()) {
         return None;
     }
@@ -3078,6 +3078,9 @@ impl<'a> PartPlan<'a> {
                     &[text],
                 )?;
                 self.identify(em, "notes", i, property)?;
+                #[cfg(feature = "presentation")]
+                st.properties
+                    .insert(crate::presentation::notes::Source::Note(i), property);
             }
             if p != &PartPmi::default()
                 || crate::json::transport::has_units(ids)

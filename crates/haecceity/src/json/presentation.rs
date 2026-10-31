@@ -976,7 +976,13 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
             presentation::notes::surface_texture(t),
         )?;
     }
-    for (i, n) in semantic.pmi.notes.iter().enumerate() {
+    for (i, n) in semantic
+        .pmi
+        .notes
+        .iter()
+        .enumerate()
+        .filter(|(_, n)| n.on.is_some())
+    {
         add("notes", i, presentation::label(&n.text))?;
     }
     let rows = presentation::notes::general_notes(&semantic.pmi);
@@ -1000,6 +1006,7 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
                 Source::General(i) => ("general", i),
                 Source::Texture(i) => ("surface_textures", i),
                 Source::Attribute(i) => ("attributes", i),
+                Source::Note(i) => ("notes", i),
                 Source::Material => continue,
             };
             let key = semantic

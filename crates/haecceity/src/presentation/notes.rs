@@ -17,6 +17,7 @@ pub enum Source {
     General(usize),
     Texture(usize),
     Attribute(usize),
+    Note(usize),
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Row {
@@ -82,6 +83,92 @@ pub fn part_note_text(kind: &str, value: &str) -> String {
     }
 }
 
+fn note_kind(kind: &str) -> &str {
+    match kind {
+        "general tolerance" | "general tolerances" => "general tolerance",
+        "surface texture" | "surface finish" | "finish" => "surface finish",
+        "edge condition" | "edges" => "edge condition",
+        "surface treatment" | "coating" => "surface treatment",
+        "heat treatment" => "heat treatment",
+        "general note" | "semantic text" => "general note",
+        _ => "other",
+    }
+}
+fn default_finish(t: &SurfaceTexture) -> String {
+    format!(
+        "SURFACE FINISH {} UNLESS OTHERWISE STATED",
+        texture_parameters(t).join(", ")
+    )
+}
+fn prose_rows(p: &PartPmi, kind: &str) -> Vec<Row> {
+    let wording = |text: &str| match kind {
+        "general tolerance" => format!("GENERAL TOLERANCES {text}"),
+        "surface finish" => format!(
+            "SURFACE FINISH {text}{}",
+            if text.to_ascii_uppercase().contains("UNLESS") {
+                ""
+            } else {
+                " UNLESS OTHERWISE STATED"
+            }
+        ),
+        "general note" | "other" => text.to_owned(),
+        _ => part_note_text(kind, text),
+    };
+    let mut items = Vec::new();
+    for (i, a) in p
+        .attributes
+        .iter()
+        .enumerate()
+        .filter(|(_, a)| a.on.is_none() && a.name == "semantic text")
+    {
+        let index = a.items.iter().find_map(|(k, v)| {
+            if let AttributeValue::Integer(n) = v {
+                (k == "note index" && *n > 0).then_some(*n)
+            } else {
+                None
+            }
+        });
+        for (key, value) in &a.items {
+            if note_kind(key) == kind
+                && let AttributeValue::Text(text) = value
+            {
+                items.push((
+                    index,
+                    Row {
+                        source: Source::Attribute(i),
+                        text: wording(text),
+                    },
+                ));
+            }
+        }
+    }
+    for (i, note) in p
+        .notes
+        .iter()
+        .enumerate()
+        .filter(|(_, n)| n.on.is_none() && note_kind(&n.kind) == kind)
+    {
+        items.push((
+            None,
+            Row {
+                source: Source::Note(i),
+                // Use the writer's explicit-unit parser; do not guess units for
+                // prose. Native and normalized legacy writing then draw alike.
+                text: if kind == "surface finish" {
+                    crate::pmi::write::note_texture(note)
+                        .map_or_else(|| wording(&note.text), |t| default_finish(&t))
+                } else {
+                    wording(&note.text)
+                },
+            },
+        ));
+    }
+    if kind == "general note" {
+        items.sort_by_key(|(index, row)| (index.is_none(), index.unwrap_or(0), row.source));
+    }
+    items.into_iter().map(|(_, row)| row).collect()
+}
+
 /// Submitted settings in block order: tolerance, finish, edges, coating, heat treatment,
 /// free notes, material. Free notes retain their explicit index order (stable input
 /// order when no index is stated). Draftwright keeps tolerance/finish in separate
@@ -96,6 +183,7 @@ pub fn general_notes(p: &PartPmi) -> Vec<Row> {
             });
         }
     }
+    rows.extend(prose_rows(p, "general tolerance"));
     for (i, t) in p
         .surface_textures
         .iter()
@@ -104,50 +192,18 @@ pub fn general_notes(p: &PartPmi) -> Vec<Row> {
     {
         rows.push(Row {
             source: Source::Texture(i),
-            text: format!(
-                "SURFACE FINISH {} UNLESS OTHERWISE STATED",
-                texture_parameters(t).join(", ")
-            ),
+            text: default_finish(t),
         });
     }
+    rows.extend(prose_rows(p, "surface finish"));
     for kind in [
         "edge condition",
         "surface treatment",
         "heat treatment",
         "general note",
+        "other",
     ] {
-        let mut items = Vec::new();
-        for (i, a) in p
-            .attributes
-            .iter()
-            .enumerate()
-            .filter(|(_, a)| a.on.is_none() && a.name == "semantic text")
-        {
-            let index = a.items.iter().find_map(|(k, v)| {
-                if let AttributeValue::Integer(n) = v {
-                    (k == "note index" && *n > 0).then_some(*n)
-                } else {
-                    None
-                }
-            });
-            for (k, v) in &a.items {
-                let matches = k == kind
-                    || matches!(
-                        (kind, k.as_str()),
-                        ("edge condition", "edges") | ("surface treatment", "coating")
-                    );
-                if matches && let AttributeValue::Text(text) = v {
-                    items.push((index, i, part_note_text(kind, text)));
-                }
-            }
-        }
-        if kind == "general note" {
-            items.sort_by_key(|(index, i, _)| (index.is_none(), index.unwrap_or(0), *i));
-        }
-        rows.extend(items.into_iter().map(|(_, i, text)| Row {
-            source: Source::Attribute(i),
-            text,
-        }));
+        rows.extend(prose_rows(p, kind));
     }
     if let Some(m) = &p.material {
         rows.push(Row {

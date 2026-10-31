@@ -258,7 +258,7 @@ use `semantic_ids` to verify the companion's semantic link set before use.
 Validation checks plane, view and text-index references and consistent copies of
 one graphic under multiple semantic keys.
 
-Generated part settings share one `General notes` graphic (`generated:general-notes`),
+Generated part settings and submitted part-level `notes` share one `General notes` graphic (`generated:general-notes`),
 one `GENERAL NOTES` heading and one annotation plane. Each requirement's semantic
 key aliases that same graphic, so per-item ids and questions remain available;
 render the graphic only once by id, as for a read STEP callout. Material, which
@@ -273,8 +273,11 @@ number and indented continuation lines, following Draftwright `1c830977`,
 places tolerance and default finish in separate sheet defaults, so the combined
 model-space block uses a defined order: general tolerance classes, default
 finishes, edges, coating, heat treatment, other general notes, material. Each
-category retains input order; general notes use explicit positive note indices
-first, then input order. No submitted settings means no block. Retained file
+category retains input order (structured settings, text attributes, then unstructured
+notes); general notes use explicit positive note indices
+first, then input order. Unstructured notes retain their own `notes` ids; recognized
+finish parameters use the writer's explicit-unit parser, preserving stated precision
+without guessing units. No submitted settings means no block. Retained file
 graphics and notes are unchanged.
 
 Generated general notes use a front annotation plane (X right, Z up, Y at the
