@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://pzfreo.github.io/quiddity-rust/schema/haecceity.presentation-1.json",
+  "$id": "urn:haecceity:schema:presentation:1",
   "title": "haecceity.presentation/1",
   "type": "object",
   "properties": {
@@ -24,13 +24,22 @@
       "items": {
         "$ref": "#/$defs/Graphic"
       }
+    },
+    "semantic_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Sorted ids of every item in the companion PMI document; compare before using links."
     }
   },
   "required": [
     "schema",
     "length_unit",
     "items",
-    "unlinked"
+    "unlinked",
+    "semantic_ids"
   ],
   "additionalProperties": false,
   "$defs": {

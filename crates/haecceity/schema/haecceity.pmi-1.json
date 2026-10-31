@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://pzfreo.github.io/quiddity-rust/schema/haecceity.pmi-1.json",
+  "$id": "urn:haecceity:schema:pmi:1",
   "title": "haecceity.pmi/1",
   "type": "object",
   "properties": {
@@ -3234,7 +3234,21 @@
         "features": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Feature"
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/Feature"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
           }
         },
         "datum_targets": {
@@ -3476,13 +3490,41 @@
         "geometry": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Geometry"
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/Geometry"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
           }
         },
         "derived_geometry": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/DerivedGeometry"
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/DerivedGeometry"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -3509,8 +3551,8 @@
       "additionalProperties": false
     },
     "PartId": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1
     },
     "FaceIndex": {
       "oneOf": [
@@ -3558,32 +3600,32 @@
       "minimum": 0
     },
     "FeatureId": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1
     },
     "DatumId": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1
     },
     "DatumTargetId": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1
     },
     "DimensionId": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1
     },
     "ToleranceId": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1
     },
     "GeometryId": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1
     },
     "DerivedGeometryId": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1
     },
     "LengthUnitDefinition": {
       "oneOf": [
@@ -3724,8 +3766,7 @@
             "type": "integer",
             "minimum": 0
           },
-          "minItems": 1,
-          "maxItems": 1
+          "minItems": 1
         }
       },
       "required": [

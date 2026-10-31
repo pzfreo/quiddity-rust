@@ -51,17 +51,32 @@ constants under the opt-in `json` feature, independent of `presentation`.
 A document is `{ "schema": "haecceity.pmi/1", "units": { "length": [...],
 "angle": [...], "density": [...], "other": [...] }, "pmi": { ... } }`. The machine-readable schemas use JSON
 Schema 2020-12. Every model field is explicit, including null optionals and empty
-arrays. Unknown properties are errors. Each member of the independently identified semantic
-collections is `{ "id": "caller string", "value": <typed value> }`.
-One dimension or geometric tolerance is one such item, with all its semantic
-content together. References within `pmi` are zero-based indices into the named
-collection, independent of stable external item ids. Order is significant. The identified collections are `datum_targets`, `datums`,
-`dimensions`, `tolerances`, `tolerance_relations`, `general`, `threads`, `knurls`,
-`notes`, `surface_textures` and `attributes`. `features` are structural support
-objects referenced by index, as are supplemental/computed geometry and hole details.
-A support `shape_aspect` and its datum target or size can be projections of one
-STEP entity with one `ID_ATTRIBUTE`; support projections do not create a second
-requirement id. Caller-chosen requirement ids remain unique across collections.
+arrays. Unknown properties are errors. Every item in `features`, `geometry`, `derived_geometry`, and the semantic
+requirement collections has `{ "id": "caller string", "value": <typed value> }`.
+All references between items are nonempty **id strings**, never array indices:
+`FeatureId`, `DatumId`, `DatumTargetId`, `DimensionId`, `ToleranceId`,
+`GeometryId` and `DerivedGeometryId` resolve within their named collection.
+Unknown ids and references to the wrong collection are refused with a reason.
+Array order is retained; adding an unrelated item requires no renumbering.
+Topology indices (`FaceIndex` and `EdgeIndex`) and document unit table indices
+are not item references. A face fingerprint anchor can name several support
+faces; every support face must resolve, and the anchor expands into those faces.
+One dimension or tolerance is one semantic object, with its content together.
+
+Source requirement IDs come from `ID_ATTRIBUTE`. Indexed support projections
+of a shared STEP carrier have their own `features:` namespace. Missing IDs are
+content-derived: canonical model content recursively substitutes referenced
+item content and verified fingerprint keys (when supplied) for indices; a
+specified FNV-1a 128-bit digest names the collection and content. Only identical
+twins acquire `~2`, `~3`, … suffixes. Different content with a hash collision is
+refused. Reading an unrelated extra item cannot shift existing IDs. Without a
+verified fingerprint namespace, topology indices are used as the explicit
+support identity; no incompatible fingerprint algorithm is invented here.
+The companion presentation includes the sorted complete `semantic_ids` set;
+clients must compare it with the PMI document before using its links.
+
+The schemas use permanent identifier URNs `urn:haecceity:schema:pmi:1` and
+`urn:haecceity:schema:presentation:1`; they do not promise an unhosted web URL.
 
 Enums with no payload are strings; enums with payload are single-key objects.
 Keys and enum strings use AP242 entity/enumeration or CAx-IF names wherever the
@@ -90,7 +105,7 @@ an incompatible fingerprint algorithm. Unknown and ambiguous anchors are refused
 Edges retain zero-based indices. Geometry anchors reference supplemental items.
 
 On STEP export, ids use `PmiRead.identifiers` (`ID_ATTRIBUTE`) where available;
-otherwise `collection/index` is deterministic. All ids in a document are unique,
+otherwise the content-derived rule above applies. All ids in a document are unique,
 nonempty strings. Input ids are preserved when writing back to STEP; re-reading
 that output returns the same ids. Generated ids avoid collisions with file ids.
 Validation first applies the shipped schema, then constructors and
@@ -206,3 +221,25 @@ files; such a sample does not establish a complete source round trip.
 Presentation associations to structural support aspects are resolved to their
 owning datum requirement when no direct semantic association is available.
 Support-only graphics remain unlinked and are retained.
+
+## v1 identity and presentation policy
+
+JSON writes preserve note kinds and text as CAx-IF §7.4 descriptive properties,
+without migrating notes into attributes. All note kinds, arbitrary text, all
+owner alternatives and empty/read-back callout lists round-trip. Feature and
+attribute order, optional descriptions (including null), and general-property
+fields are retained. A transport ordering association records item IDs and
+support projections without replacing the native semantic PMI as authority.
+
+Import preserves foreign graphics linked to surviving unchanged semantic items;
+only presentation of removed/replaced requirements may be removed, and each
+removal is reported. JSON-generated callouts carry the association description
+`haecceity.generated/1` (CAx-IF §7.3 permits this description); read-back labels
+them `source: generated`. Unmarked graphics remain `source: file`.
+Generated graphics use the same geometry-based placement as the STEP writer,
+in model coordinates; producing placed graphics requires the part geometry.
+
+FTC-07 `OtherMeasure.unit = "derived_unit"` cannot identify one of several
+anonymous EXPRESS derived units. JSON import refuses it with the candidate
+count and a request for an unambiguous named unit; it never guesses a unit.
+Default-feature readers recover JSON identification-assignment item IDs.
