@@ -838,6 +838,27 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
         g.text = c.cells;
         out.unlinked.push(g);
     }
+    // The existing view model stores orientation and membership, not a camera
+    // position or scale. Clients fit the part and these graphics themselves.
+    for plane in &out.planes {
+        let graphics = out
+            .items
+            .values()
+            .flatten()
+            .chain(&out.unlinked)
+            .filter(|g| g.plane_id.as_ref() == Some(&plane.id))
+            .filter_map(|g| g.id.clone())
+            .collect::<BTreeSet<_>>()
+            .into_iter()
+            .collect();
+        out.views.push(View {
+            id: format!("{}/view", plane.id),
+            name: plane.name.clone(),
+            direction: Some(geom::scale(plane.normal, -1.)),
+            up: Some(geom::cross(plane.normal, plane.x_axis)),
+            graphics,
+        });
+    }
     #[cfg(feature = "json-import")]
     validate(&serde_json::to_value(&out)?)?;
     Ok(out)

@@ -19,6 +19,8 @@ pub struct Layout {
     height: f64,
     occupied: Vec<Bounds>,
     callouts: Vec<Vec<V3>>,
+    notes_bottom: Option<f64>,
+    kept_notes: Vec<Bounds>,
 }
 impl Layout {
     pub fn new(bounds: Bounds) -> Self {
@@ -42,6 +44,8 @@ impl Layout {
             height: text_height(largest * mm_per_unit) / mm_per_unit,
             occupied: Vec::new(),
             callouts: Vec::new(),
+            notes_bottom: None,
+            kept_notes: Vec::new(),
         }
     }
     pub fn text_height(&self) -> f64 {
@@ -55,6 +59,16 @@ impl Layout {
         }
         if b.max_extent().is_finite() {
             self.occupied.push(b);
+        }
+    }
+    /// Keep appended notes clear of existing notes in the front plane.
+    pub(crate) fn reserve_notes(&mut self, lines: &[Vec<V3>]) {
+        let mut bounds = Bounds::empty();
+        for &p in lines.iter().flatten() {
+            bounds.add(p);
+        }
+        if bounds.max_extent().is_finite() {
+            self.kept_notes.push(bounds);
         }
     }
     /// ISO 1302's actual tip touches an interior face site; its legs rise normally.
@@ -121,9 +135,10 @@ impl Layout {
         self.occupied.push(bounds);
         Some(placed)
     }
-    /// Front-facing notes at one of a fixed set of outside-box stations. Choose
-    /// the most compact clear station; double the gap only if none clears all
-    /// seven views. Full leaders/extensions reserve space, not only text boxes.
+    /// Front-plane notes column beside the part's lower-right X/Z corner.
+    /// Ink starts two capital heights right of max X and below min Z.
+    /// Subsequent blocks stack down with the same gap. Only part bounds and
+    /// preceding notes determine this column; remote leaders cannot move it.
     pub fn notes(&mut self, c: &Callout) -> Placed {
         let scale = self.height / 3.;
         let local = c.polylines();
@@ -131,62 +146,36 @@ impl Layout {
         for p in local.iter().flatten() {
             ink.add([p[0] * scale, 0., p[1] * scale]);
         }
-        let half = geom::scale(geom::sub(ink.max, ink.min), 0.5);
-        let mut occupied = self.bounds;
-        for b in &self.occupied {
-            occupied.add(b.min);
-            occupied.add(b.max);
-        }
-        let centre = occupied.centre();
         let gap = 2. * self.height;
-        let mut distance = gap;
-        let origin = loop {
-            let stations: [[f64; 3]; 3] = std::array::from_fn(|k| {
-                [
-                    occupied.min[k] - half[k] - distance,
-                    centre[k],
-                    occupied.max[k] + half[k] + distance,
-                ]
-            });
-            let mut best: Option<(f64, f64, V3)> = None;
-            for x in stations[0] {
-                for y in stations[1] {
-                    for z in stations[2] {
-                        let centre = [x, y, z];
-                        let bounds = Bounds {
-                            min: geom::sub(centre, half),
-                            max: geom::add(centre, half),
-                        };
-                        if !std::iter::once(&self.bounds)
-                            .chain(&self.occupied)
-                            .all(|other| {
-                                super::linear::VIEWS.into_iter().all(|view| {
-                                    projected_bounds_clearance(bounds, *other, view) >= gap
-                                })
-                            })
-                        {
-                            continue;
-                        }
-                        let mut combined = occupied;
-                        combined.add(bounds.min);
-                        combined.add(bounds.max);
-                        let fit = combined.max_extent();
-                        let reach = geom::dist(centre, self.bounds.centre());
-                        if best.as_ref().is_none_or(|(f, r, _)| {
-                            fit.total_cmp(f).then(reach.total_cmp(r)).is_lt()
-                        }) {
-                            best = Some((fit, reach, geom::sub(centre, ink.centre())));
-                        }
-                    }
-                }
+        let mut top = self.notes_bottom.map_or(self.bounds.min[2], |z| z) - gap;
+        let left = self.bounds.max[0] + gap;
+        let right = left + ink.max[0] - ink.min[0];
+        let height = ink.max[2] - ink.min[2];
+        loop {
+            let next = self
+                .kept_notes
+                .iter()
+                .filter(|b| {
+                    left < b.max[0] + gap
+                        && right + gap > b.min[0]
+                        && top - height < b.max[2] + gap
+                        && top + gap > b.min[2]
+                })
+                .map(|b| b.min[2] - gap)
+                .fold(top, f64::min);
+            if next == top {
+                break;
             }
-            if let Some((_, _, origin)) = best {
-                break origin;
-            }
-            // Stations offset on two axes are parallel to none of the seven
-            // views, so a finite occupied extent always has a clear outer layer.
-            distance *= 2.;
-        };
+            top = next;
+        }
+        let origin = [
+            self.bounds.max[0] + gap - ink.min[0],
+            self.bounds.centre()[1],
+            top - ink.max[2],
+        ];
+        if ink.max_extent().is_finite() {
+            self.notes_bottom = Some(origin[2] + ink.min[2]);
+        }
         let lines = local
             .iter()
             .map(|line| {
@@ -530,73 +519,37 @@ pub(crate) fn boxes_overlap(a: Bounds, b: Bounds, padding: f64) -> bool {
         .all(|k| a.min[k] < b.max[k] + padding && a.max[k] + padding > b.min[k])
 }
 
-/// Separating-axis clearance of projected 3D bounds, including non-coplanar ink.
-/// A projected box has edges along the projected world axes; their three normals
-/// are sufficient for the separating-axis test. Unlike a 3D overlap, this detects
-/// annotations which collide only after projection.
-fn projected_bounds_clearance(a: Bounds, b: Bounds, view: V3) -> f64 {
-    [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]
-        .into_iter()
-        .filter_map(|axis| geom::unit(geom::cross(view, axis)))
-        .map(|axis| {
-            let interval = |bounds: Bounds| {
-                let centre = geom::dot(bounds.centre(), axis);
-                let radius = (0..3)
-                    .map(|k| (bounds.max[k] - bounds.min[k]) * axis[k].abs() / 2.)
-                    .sum::<f64>();
-                [centre - radius, centre + radius]
-            };
-            let a = interval(a);
-            let b = interval(b);
-            (a[0] - b[1]).max(b[0] - a[1])
-        })
-        .fold(f64::NEG_INFINITY, f64::max)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
-    fn notes_clear_complete_ink_in_all_views_without_changing_size_or_front_plane() {
-        let mut layout = Layout::new(Bounds {
-            min: [0., -4., -4.],
-            max: [37.6, 4., 4.],
-        });
-        let obstacles = vec![
-            vec![[37., -8., -5.], [43., 8., 10.]],
-            vec![[-2., -30., 25.], [30., 12., 15.]],
-        ];
-        layout.reserve(&obstacles);
-        let c = super::super::label("GENERAL NOTES\nMATERIAL: Steel C45");
-        let first = layout.clone().notes(&c);
-        let placed = layout.notes(&c);
-        assert_eq!(first.lines, placed.lines, "deterministic placement");
-        assert_eq!(placed.normal, [0., -1., 0.]);
-        assert_eq!(placed.along, [1., 0., 0.]);
-        for (actual, expected) in placed
-            .lines
-            .iter()
-            .flatten()
-            .zip(c.polylines().iter().flatten())
-        {
-            assert_eq!(actual[1], placed.origin[1]);
-            assert!(
-                (actual[0] - placed.origin[0] - expected[0] * layout.text_height() / 3.).abs()
-                    < 1e-12
+    fn notes_column_stays_at_part_bounds_despite_remote_ink_and_stacks_without_overlap() {
+        for mm_per_unit in [1., 25.4] {
+            let bounds = Bounds {
+                min: [0., -4., -4.],
+                max: [37.6, 4., 4.],
+            };
+            let mut layout = Layout::with_unit(bounds, mm_per_unit);
+            let c = super::super::label("GENERAL NOTES\nMATERIAL: Steel C45");
+            let first = layout.clone().notes(&c);
+            // Existing feature ink must not recursively expand the notes area.
+            layout.reserve(&[vec![[-2000., -3000., -4000.], [5000., 6000., 7000.]]]);
+            let placed = layout.notes(&c);
+            assert_eq!(
+                first.lines, placed.lines,
+                "deterministic, part-relative placement"
             );
-            assert!(
-                (actual[2] - placed.origin[2] - expected[1] * layout.text_height() / 3.).abs()
-                    < 1e-12
-            );
-        }
-        for view in super::super::linear::VIEWS {
-            assert!(
-                projected_bounds_clearance(
-                    *layout.occupied.last().unwrap(),
-                    layout.occupied[0],
-                    view
-                ) >= 2. * layout.text_height()
-            );
+            assert_eq!(placed.normal, [0., -1., 0.]);
+            assert_eq!(placed.along, [1., 0., 0.]);
+            let first_box = *layout.occupied.last().unwrap();
+            let gap = 2. * layout.text_height();
+            assert!((first_box.min[0] - bounds.max[0] - gap).abs() < 1e-12);
+            assert!((first_box.max[2] - bounds.min[2] + gap).abs() < 1e-12);
+            assert_eq!(first_box.min[1], bounds.centre()[1]);
+            layout.notes(&c);
+            let second_box = *layout.occupied.last().unwrap();
+            assert!((second_box.min[0] - first_box.min[0]).abs() < 1e-12);
+            assert!((first_box.min[2] - second_box.max[2] - gap).abs() < 1e-12);
         }
     }
 }

@@ -229,20 +229,17 @@ model has no lay field; no lay or process requirement is inferred from geometry.
 The general-notes callout, occurrence and annotation-plane names are `General notes`
 for the viewer tree. The full block wording remains on its tessellated curve sets;
 the geometric-set annotation type remains `note`, and the drawn text is unchanged.
-A part with written settings gets one front-facing `GENERAL NOTES` block outside
-the part and all callout ink/extension lines, including kept foreign tessellated/polyline
-annotations (repositioned tessellated sets are transformed when reserving their space).
-Round 8 replaces X-only separation, which did not survive isometric projection. The
-writer reserves each callout's complete occupied bounds and tries 27 fixed stations
-(left/centre/right, behind/centre/front, below/centre/above). Among stations with at least
-two text heights of separating-axis clearance in every principal/isometric projection,
-it chooses the smallest combined maximum extent, then the shortest distance to the part.
-If no station clears, double the outside gap and repeat. This is a deterministic rule for
-one notes block; no sheet layout or callout rearrangement is introduced. It avoids the
-excessive empty space of a single fixed diagonal. Text size, front-facing plane and all
-other callouts are unchanged. The serialized tests independently project convex hulls of all
-actual strokes, including leaders/extensions, and assert positive notes-to-callout clearance
-for every annotation type in all seven views, even edge-on. Existing dimension-to-dimension
+A part with written settings gets one front-facing `GENERAL NOTES` block in a
+column beside the lower-right X/Z corner of its bounds: ink left at max X plus
+two capital heights, ink top at min Z minus two capital heights, Y at the bounds' centre. New blocks stack
+down with the same gap, reserving retained general notes when appending. Text size,
+front-facing plane, other callouts and kept foreign bytes are unchanged. This
+supersedes round 8's 27-station search and seven-projection clearance: expanding
+around all annotation ink caused notes to drift far from the part. Clearance now
+means notes-to-part and notes-to-notes in the notes plane, verified against actual
+serialized ink. See [placement evidence](presentation-presfix.md) for before/after
+coordinates, source limitations and the shared JSON/STEP rule.
+Existing dimension-to-dimension
 text/line checks remain. A blanket all-pairs full-extent assertion would reject intentional
 shared witnesses: the spindle's 3 and 4.9 dimensions have the same extension foot
 `[0.075, 0, 1.5]` and a common extension segment. Those measured witnesses are retained;
@@ -296,7 +293,7 @@ reference comparisons retain all verdicts; diagnostic IDs may follow entity renu
 presentation folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture feature-off output.
 
 
-Round-8 golden changes use the same eight feature-on STEP/OCP pairs listed for round 7:
+Historical round-8 golden changes used the same eight feature-on STEP/OCP pairs listed for round 7:
 only general-notes coordinates and annotation-plane origins move to a clear outside station
 for all projections. The settings test's right-hand-side-only assertion is replaced by the
 stronger seven-view full-ink clearance assertion, permitting clear left/behind stations.

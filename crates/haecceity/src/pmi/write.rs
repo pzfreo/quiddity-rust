@@ -3683,7 +3683,7 @@ impl<'a> PartPlan<'a> {
             if !rows.is_empty() {
                 let c = notes::notes_block(&rows);
                 // Appended annotations stay byte-identical, but still occupy space.
-                local_layout.reserve(&kept_annotation_points(self.doc, em.removed));
+                local_layout.reserve_notes(&kept_notes_points(self.doc, em.removed));
                 let p = local_layout.notes(&c);
                 let scale = local_layout.text_height() / 3.;
                 for (i, text) in c.letters.iter().enumerate() {
@@ -5812,15 +5812,17 @@ impl<'a> PartPlan<'a> {
     }
 }
 
-/// Tessellated/polyline ink of kept callouts, including repositioned tessellated sets.
+/// Tessellated/polyline ink of kept general notes, including repositioned tessellated sets.
 /// Read only: reserve foreign presentation without moving or restating it.
 #[cfg(feature = "presentation")]
-fn kept_annotation_points(doc: &Document, removed: &BTreeSet<u64>) -> Vec<Vec<[f64; 3]>> {
+fn kept_notes_points(doc: &Document, removed: &BTreeSet<u64>) -> Vec<Vec<[f64; 3]>> {
     use crate::geom;
     let mut out = Vec::new();
-    let roots = doc
-        .ids()
-        .filter(|id| !removed.contains(id) && is_a(doc, *id, "draughting_callout"));
+    let roots = doc.ids().filter(|id| {
+        !removed.contains(id)
+            && is_a(doc, *id, "draughting_callout")
+            && attr_str(doc, *id, "representation_item", "name").as_deref() == Some("General notes")
+    });
     for root in roots {
         let identity = ([0.; 3], [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]);
         let mut stack = vec![(root, identity)];

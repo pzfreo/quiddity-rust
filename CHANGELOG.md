@@ -6,6 +6,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- Haecceity presentation v1 adds optional per-text `stroked` metadata, avoiding
+  duplicate generated labels, and orthographic views for generated annotation planes.
+  Generated general notes now form a bounds-relative column two capital heights
+  beside the part; written STEP notes use the same placement rule.
+
 ## 0.4.0 (2026-10-31)
 
 Upgrading from 0.2.8: recognition schema `/6` and fingerprints `/3` are unchanged, and existing CLI output is unchanged.
