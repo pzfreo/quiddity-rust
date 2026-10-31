@@ -58,8 +58,8 @@ All references between items are nonempty **id strings**, never array indices:
 `GeometryId` and `DerivedGeometryId` resolve within their named collection.
 Unknown ids and references to the wrong collection are refused with a reason.
 Array order is retained; adding an unrelated item requires no renumbering.
-Topology indices (`FaceIndex` and `EdgeIndex`) and document unit table indices
-are not item references. A face fingerprint anchor can name several support
+Topology indices (`FaceIndex` and `EdgeIndex`) are not item references. Unit definitions also have `{id,value}` wrappers;
+all unit references are id strings. A face fingerprint anchor can name several support
 faces; every support face must resolve, and the anchor expands into those faces.
 One dimension or tolerance is one semantic object, with its content together.
 
@@ -87,12 +87,12 @@ For example a diameter size kind is `"diameter"`, a tolerance kind is
 The `$defs` enumerate every alternative and field without relying on this prose.
 
 Decimals are strings, including directions, geometry real values and ratios.
-`Length.unit`, `Angle.unit` and `Geometry.length_unit` are indices into the
-appropriate **document-level** unit table; mixed units retain their original
+`Length.unit`, `Angle.unit` and `Geometry.length_unit` are id references into the
+appropriate **document-level** unit table by id; mixed units retain their original
 values without conversion. Unit definitions include named SI/conversion units
-and `other` with the stated exact metres/radians factor. `Density.unit` indexes `units.density`, whose definitions retain the model's
+and `other` with the stated exact metres/radians factor. `Density.unit` references `units.density` by id, whose definitions retain the model's
 derived factors (base-unit names and decimal exponents). Other measured attribute
-units index `units.other`, preserving their source unit names. Every unit therefore
+units reference `units.other` by id, preserving their source unit names. Every unit therefore
 lives at document level, including units the model holds only by name.
 
 `FaceIndex` accepts an integer, `{"name":"OCCT face name"}`, or
@@ -120,7 +120,7 @@ not separate AP242 entities. “PMI” section numbers refer to CAx-IF PMI v4.1;
 [Supplemental Geometry v1.3](https://www.mbx-if.org/home/cax/recpractices/)
 [User Defined Attributes v1.8](https://www.mbx-if.org/home/wp-content/uploads/2024/05/rec_prac_user_def_attributes_v18.pdf) and
 [Material Identification and Density R2.1](https://web.archive.org/web/20240419135511id_/https://www.mbx-if.org/documents/RecPrac_MaterialDensity_v21.pdf) supply the additional practices. Schema-level
-wrappers, ids and unit table indices are JSON transport conventions, explicitly
+wrappers, ids and unit ids are JSON transport conventions, explicitly
 not AP242 entities.
 
 | JSON types | AP242 entities/types represented | Practice |
@@ -199,7 +199,7 @@ entities, not an extension to the EXPRESS schema.
 
 `LengthUnitDefinition` / `AngleUnitDefinition` / `DensityUnitDefinition` /
 `OtherUnitDefinition` name the document-level unit definitions; their corresponding
-`*Unit` definitions are integer transport references. AP242 sources are `si_unit`,
+`*Unit` definitions are id transport references. AP242 sources are `si_unit`,
 `conversion_based_unit`, `derived_unit` / `derived_unit_element`, and the named
 unit of a `measure_with_unit` (PMI §§5.2–5.4; Material practice §4.2; UDA §7).
 
@@ -272,3 +272,8 @@ FTC-07 `OtherMeasure.unit = "derived_unit"` cannot identify one of several
 anonymous EXPRESS derived units. JSON import refuses it with the candidate
 count and a request for an unambiguous named unit; it never guesses a unit.
 Default-feature readers recover JSON identification-assignment item IDs.
+
+Unit definitions use globally unique caller IDs, or `unit:<kind>:<content-digest>`
+fallback IDs. Identical definitions must reuse one ID; duplicate definitions are
+refused with a reason. The transport record retains unit IDs, unused unit
+definitions, and table order, while quantities retain their native stated units.

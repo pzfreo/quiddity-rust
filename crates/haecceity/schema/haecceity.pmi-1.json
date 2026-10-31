@@ -13,25 +13,81 @@
         "length": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/LengthUnitDefinition"
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/LengthUnitDefinition"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
           }
         },
         "angle": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/AngleUnitDefinition"
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/AngleUnitDefinition"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
           }
         },
         "density": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/DensityUnitDefinition"
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/DensityUnitDefinition"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
           }
         },
         "other": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/OtherUnitDefinition"
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "$ref": "#/$defs/OtherUnitDefinition"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -59,12 +115,12 @@
       "pattern": "^[+-]?[0-9]+(?:\\.[0-9]*)?(?:[Ee][+-]?[0-9]+)?$"
     },
     "LengthUnit": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1
     },
     "AngleUnit": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1
     },
     "Length": {
       "type": "object",
@@ -3793,15 +3849,15 @@
       }
     },
     "DensityUnit": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1
     },
     "OtherUnitDefinition": {
       "type": "string"
     },
     "OtherUnit": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1
     }
   }
 }
