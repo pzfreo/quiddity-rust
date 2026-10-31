@@ -244,8 +244,8 @@ rungs shortest first, and retains common outer annotation planes. Compact ladder
 reserve actual glyph ink rather than padded notation cells. Datum flags are placed
 before labels; control frames attach near their first cell. Parallel annotation
 planes pack together; unrelated camera planes do not force labels outward. This
-uses the generated saved-view model, while the STEP writer retains its seven-view
-clearance policy. Text origins and heights come from the actual stroke transform,
+uses the generated saved-view model. The STEP writer uses the same compact ink
+spacing while retaining its seven-view clearance policy. Text origins and heights come from the actual stroke transform,
 including the span clipping of short dimensions and the tip offset of surface symbols.
 
 Camera direction points into the scene (negative camera Z), and up is camera Y.

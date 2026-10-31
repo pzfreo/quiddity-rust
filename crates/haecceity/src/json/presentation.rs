@@ -833,7 +833,7 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
         };
         placed.insert(("tolerances", i), (c, p));
     }
-    let mut ladder = presentation::linear::Ladder::compact(part.bounds());
+    let mut ladder = presentation::linear::Ladder::for_views(part.bounds());
     for (_, p) in placed.values() {
         let mut b = geom::Bounds::empty();
         for &q in p

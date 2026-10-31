@@ -593,6 +593,7 @@ pub struct Ladder {
     labels: Vec<Bounds>,
     ink: Vec<Ink>,
     compact: bool,
+    view_local: bool,
 }
 impl Ladder {
     pub fn new(bounds: Bounds) -> Self {
@@ -602,6 +603,7 @@ impl Ladder {
             labels: Vec::new(),
             ink: Vec::new(),
             compact: false,
+            view_local: false,
         }
     }
     /// Fit-view ladder: start 0.6 capital heights outside the part and try
@@ -610,6 +612,14 @@ impl Ladder {
         Self {
             compact: true,
             ..Self::new(bounds)
+        }
+    }
+    /// Compact packing for generated per-plane saved views. The writer uses
+    /// `compact` and continues to check every readable principal/isometric view.
+    pub(crate) fn for_views(bounds: Bounds) -> Self {
+        Self {
+            view_local: true,
+            ..Self::compact(bounds)
         }
     }
     pub fn reserve(&mut self, b: Bounds) {
@@ -708,7 +718,7 @@ impl Ladder {
                     rectangle(centre, d, v, length, h / 10.),
                 ],
             };
-            let overlap = !self.compact
+            let overlap = !self.view_local
                 && self
                     .labels
                     .iter()
@@ -718,7 +728,7 @@ impl Ladder {
                 && !self
                     .ink
                     .iter()
-                    .any(|other| ink.overlaps(other, self.compact))
+                    .any(|other| ink.overlaps(other, self.view_local))
             {
                 break (centre, offset, bb, ink);
             }

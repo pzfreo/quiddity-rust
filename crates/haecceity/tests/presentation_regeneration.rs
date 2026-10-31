@@ -143,6 +143,42 @@ fn regenerated_spindle_keeps_its_saved_callouts_near_their_features() {
             }
         }
     }
+    // The final rewritten STEP must retain the compact ladder too. Its native
+    // reader exposes actual serialized lettering, not the generated metadata.
+    let (edit, _) = pmi::write(
+        &doc,
+        &defs,
+        &[(PartId(0), semantic.pmi.clone())],
+        pmi::write::Mode::Replace,
+        pmi::write::PresentationPolicy::RemovePresentation,
+    )
+    .unwrap();
+    let rewritten = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    let rewritten_defs = step::read_part_definitions(rewritten.bytes()).unwrap();
+    let rewritten_read = pmi::read(&rewritten, &rewritten_defs).unwrap();
+    let rewritten_semantic = json::identify(
+        rewritten_read.parts[0].clone(),
+        Some(&rewritten_read.identifiers.parts[0]),
+    )
+    .unwrap();
+    let written =
+        presentation::read(&rewritten, &rewritten_read, PartId(0), &rewritten_semantic).unwrap();
+    for (i, m) in measured.iter().enumerate() {
+        if m.is_none() {
+            continue;
+        }
+        let file = &saved.items[&semantic.ids["dimensions"][i]][0];
+        let actual = &written.items[&rewritten_semantic.ids["dimensions"][i]][0];
+        let distance = geom::dist(
+            text_origin(actual, "dimensions", true),
+            text_origin(file, "dimensions", true),
+        );
+        assert!(
+            distance <= 6.,
+            "written {}: drift {distance} exceeds 6 mm",
+            actual.name
+        );
+    }
     assert_eq!(generated.views.len(), generated.planes.len());
 }
 

@@ -3606,7 +3606,7 @@ impl<'a> PartPlan<'a> {
             let measurements = measurements
                 .as_ref()
                 .ok_or_else(|| WriteError::Internal("missing linear measurements".into()))?;
-            let mut ladder = linear::Ladder::new(part.bounds());
+            let mut ladder = linear::Ladder::compact(part.bounds());
             for (i, (_, _, _, plane, lines)) in graphics.iter().enumerate() {
                 if i < symbols.len()
                     || i >= symbols.len() + self.pmi.dimensions.len()
