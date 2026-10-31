@@ -353,7 +353,8 @@ convention**, not a CAx-IF-defined requirement:
 this ordinary property in its property worksheet; it contains no second copy of
 the semantic values.
 
-The JSON contains `items`, grouped by collection, with each caller id, a checked
+The compact producer convention has `v: 2` (omitted means the original version 1).
+It contains `items`, grouped by collection, with each caller id, a checked
 native content digest and only necessary reference/sequence/support bindings.
 Empty collections/maps, null bindings, empty callouts and wire anchors are
 omitted. A native singleton face/edge support does not repeat its anchor. Unit

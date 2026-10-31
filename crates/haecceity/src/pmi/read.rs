@@ -5399,7 +5399,7 @@ impl<'a> Reader<'a> {
 
     /// Inspect dimensions, not unit names: custom conversion-based mass/length
     /// units remain readable even when the writer does not know their scale name.
-    fn density_dimensions(&self, unit: u64) -> bool {
+    fn density_dimensions(&mut self, unit: u64) -> bool {
         let kinds = [
             "length_unit",
             "mass_unit",
@@ -5418,7 +5418,7 @@ impl<'a> Reader<'a> {
             "amount_of_substance_exponent",
             "luminous_intensity_exponent",
         ];
-        let number = |value| match value {
+        let number = |value: Option<&Attribute>| match value {
             Some(Attribute::Real(n)) => Some(*n),
             Some(Attribute::Integer(n)) => Some(*n as f64),
             _ => None,

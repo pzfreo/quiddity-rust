@@ -363,6 +363,50 @@ fn compact_ordering_omits_native_singleton_anchors_empty_fields_and_collections(
             }
         }
     }
+    let collections = [
+        "features",
+        "geometry",
+        "derived_geometry",
+        "datum_targets",
+        "datums",
+        "dimensions",
+        "tolerances",
+        "tolerance_relations",
+        "general",
+        "threads",
+        "knurls",
+        "notes",
+        "surface_textures",
+        "attributes",
+    ];
+    fn legacy(reference: &Value, compact: &Value, collections: &[&str]) -> Value {
+        let collection = collections[reference[0].as_u64().unwrap() as usize];
+        json!({"collection":collection,"id":compact["items"][collection][reference[1].as_u64().unwrap() as usize]["id"]})
+    }
+    fn legacy_markers(value: &mut Value, compact: &Value, collections: &[&str]) {
+        if let Some(reference) = value.get("$reference") {
+            *value = json!({"$reference":legacy(reference,compact,collections)});
+        } else {
+            match value {
+                Value::Array(array) => array
+                    .iter_mut()
+                    .for_each(|v| legacy_markers(v, compact, collections)),
+                Value::Object(object) => object
+                    .values_mut()
+                    .for_each(|v| legacy_markers(v, compact, collections)),
+                _ => {}
+            }
+        }
+    }
+    for entries in verbose["items"].as_object_mut().unwrap().values_mut() {
+        for entry in entries.as_array_mut().unwrap() {
+            for reference in entry["references"].as_object_mut().unwrap().values_mut() {
+                *reference = legacy(reference, &compact, &collections);
+            }
+            legacy_markers(&mut entry["sequences"], &compact, &collections);
+        }
+    }
+    verbose.as_object_mut().unwrap().remove("v");
     verbose["wire_anchors"] = json!([]);
     assert!(metadata.len() * 4 < serde_json::to_string(&verbose).unwrap().len() * 3);
     // Old producers' verbose form must still read.
@@ -417,5 +461,15 @@ fn decimal_spellings_cannot_replace_text_or_change_a_native_value() {
                 .to_string()
                 .contains(reason)
         );
+    }
+}
+
+#[test]
+fn conversion_unit_factor_tokens_are_identity_even_when_no_other_spelling_binding_is_needed() {
+    for factor in ["2", "2.", "2.00", "2e0", "20E-1"] {
+        let mut value = fixture("requirement-note.json");
+        value["units"]["length"][0]["value"] =
+            json!({"other":{"name":"double metre","metres":factor}});
+        identity(&value);
     }
 }

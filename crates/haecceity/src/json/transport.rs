@@ -22,6 +22,8 @@ type Entries = BTreeMap<String, Vec<Entry>>;
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Layout {
+    #[serde(rename = "v", default = "legacy_version")]
+    version: u8,
     items: Entries,
     #[serde(default = "units::empty", skip_serializing_if = "empty_units")]
     units: Value,
@@ -37,6 +39,9 @@ impl std::ops::Deref for Layout {
     }
 }
 
+fn legacy_version() -> u8 {
+    1
+}
 fn empty_units(value: &Value) -> bool {
     ["length", "angle", "density", "other"]
         .iter()
@@ -270,6 +275,7 @@ pub(crate) fn layout(pmi: &PartPmi, ids: &BTreeMap<String, Vec<String>>) -> Resu
         .transpose()?
         .unwrap_or_else(super::units::empty);
     Ok(serde_json::to_string(&Layout {
+        version: 2,
         items: layout,
         units,
         spellings,
@@ -410,10 +416,13 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
         if layout.keys().any(|c| !COLLECTIONS.contains(&c.as_str())) {
             return Err(Error("unknown PMI ordering collection".into()));
         }
+        if ![1, 2].contains(&layout.version) {
+            return Err(Error("unknown ordering convention version".into()));
+        }
         let mut seen = BTreeSet::new();
         super::units::validate(&layout.units, &mut seen)?;
         let mut raw = serde_json::to_value(&read.parts[part])?;
-        normalize_reals(&mut raw, !layout.spellings.is_empty())?;
+        normalize_reals(&mut raw, layout.version == 2)?;
         let mut restored = raw.clone();
         let mut maps = BTreeMap::<String, Vec<usize>>::new();
         for &c in COLLECTIONS {
