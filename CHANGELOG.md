@@ -12,6 +12,9 @@ in [docs/alpha1.md](docs/alpha1.md).
   group interrupted coaxial torus fillets with exact defining faces, and omit
   chamfer/angled-step corners unless their wedge is consistent at published
   precision and has no material interior, retaining correct boundary-touching corners. Recognition /6 and fingerprints /3 are unchanged.
+  **At your next pin:** affected parts' fillet records renumber their run-local ids where
+  interrupted arcs merge (64 groups in the corpus), and some `corner` values become null
+  where they could not be proven. Turned parts with flats gain their turned steps.
 
 - Generated part notes share one numbered GENERAL NOTES block in JSON and STEP,
   retaining each requirement's semantic link and the bounds-relative placement.
