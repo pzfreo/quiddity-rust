@@ -377,7 +377,9 @@ from `PmiRead` equality.
 
 `pmi::write::differences` retains the ordinary STEP writer's comparison of resolved
 meaning as sets, accepting equivalent support aliases and collection order.
-`differences_as_stated` additionally compares stated decimal text and units.
+`differences_as_stated` additionally compares decimal text and units, accepting
+only required REAL spelling changes (integer mantissas/exponent case) and exact
+unit-factor arithmetic. Legal REAL precision remains significant.
 The JSON-only `json::identity_differences` compares every `PartPmi` field exactly,
 including collection membership, order, references, null descriptions and notes
 becoming attributes. JSON write verification, CLI import and JSON identity tests

@@ -6378,7 +6378,10 @@ pub fn differences(a: &PartPmi, b: &PartPmi) -> Vec<String> {
 }
 
 /// [`differences`], with every value compared as stated: its decimal text and its unit (a
-/// round trip writes each value's own digits in its own unit).
+/// round trip writes each value's own digits in its own unit). Integer mantissas and
+/// exponent case are compared in their required REAL encoding; unit factors compare
+/// exactly after unit arithmetic. Legal REAL precision remains significant. JSON's
+/// `identity_differences` separately compares original transport spellings.
 #[must_use]
 pub fn differences_as_stated(a: &PartPmi, b: &PartPmi) -> Vec<String> {
     compare(a, b, true)
@@ -6521,7 +6524,14 @@ impl Canonical {
                     })
                     .collect(),
             ),
-            material: p.material.iter().map(|m| format!("{m:?}")).collect(),
+            material: p.material.iter().map(|m| {
+                let mut m = m.clone();
+                if let Some(density) = &mut m.density {
+                    density.value = Keys::encoded(&density.value);
+                    for (_, exponent) in &mut density.unit { *exponent = Keys::encoded(exponent); }
+                }
+                format!("{m:?}")
+            }).collect(),
             notes: sorted(
                 p.notes
                     .iter()
@@ -6582,9 +6592,56 @@ struct Keys<'p> {
 }
 
 impl Keys<'_> {
+    // Native REALs cannot retain integer mantissas or lower-case e. Comparison
+    // accepts exactly the shared emitter's spelling, retaining legal precision.
+    fn encoded(d: &Decimal) -> Decimal {
+        real_text(d)
+            .ok()
+            .and_then(|text| Decimal::parse(&text).ok())
+            .unwrap_or_else(|| d.clone())
+    }
+    fn direction(d: &Direction) -> Direction {
+        Direction(d.0.clone().map(|d| Self::encoded(&d)))
+    }
+    fn length_unit(unit: &LengthUnit) -> LengthUnit {
+        match unit {
+            LengthUnit::Other { name, metres } => LengthUnit::Other {
+                name: name.clone(),
+                metres: metres.scaled(0),
+            },
+            _ => unit.clone(),
+        }
+    }
+    fn length_copy(l: &Length) -> Length {
+        Length {
+            value: Self::encoded(&l.value),
+            unit: Self::length_unit(&l.unit),
+        }
+    }
+    fn geometry(&self, id: usize) -> Option<Geometry> {
+        fn item(geometry: &mut GeometryItem) {
+            fn value(v: &mut GeometryValue) {
+                match v {
+                    GeometryValue::Real(d) => *d = Keys::encoded(d),
+                    GeometryValue::Item(i) => item(i),
+                    GeometryValue::List(a) => a.iter_mut().for_each(value),
+                    GeometryValue::Typed { value: v, .. } => value(v),
+                    _ => {}
+                }
+            }
+            for (_, values) in &mut geometry.leaves {
+                values.iter_mut().for_each(value);
+            }
+        }
+        self.p.geometry.get(id).cloned().map(|mut g| {
+            g.length_unit = g.length_unit.as_ref().map(Self::length_unit);
+            item(&mut g.item);
+            g
+        })
+    }
     fn decimal(&self, d: &Decimal) -> String {
         if self.stated {
-            d.to_string()
+            Self::encoded(d).to_string()
         } else {
             format!("{:.11e}", d.to_f64())
         }
@@ -6592,7 +6649,7 @@ impl Keys<'_> {
 
     fn length(&self, l: &Length) -> String {
         if self.stated {
-            format!("{}{:?}", l.value, l.unit)
+            format!("{}{:?}", self.decimal(&l.value), Self::length_unit(&l.unit))
         } else {
             format!("{:.11e} mm", l.mm())
         }
@@ -6600,7 +6657,14 @@ impl Keys<'_> {
 
     fn angle(&self, a: &Angle) -> String {
         if self.stated {
-            format!("{}{:?}", a.value, a.unit)
+            let unit = match &a.unit {
+                AngleUnit::Other { name, radians } => AngleUnit::Other {
+                    name: name.clone(),
+                    radians: radians.scaled(0),
+                },
+                unit => unit.clone(),
+            };
+            format!("{}{:?}", self.decimal(&a.value), unit)
         } else {
             format!("{:.11e} rad", a.rad())
         }
@@ -6638,6 +6702,11 @@ impl Keys<'_> {
                             .map(|(n, v)| {
                                 let v = match v {
                                     CellValue::Value(x) => self.value(x),
+                                    CellValue::Count(d)
+                                        if self.stated && count_integer(d).is_some() =>
+                                    {
+                                        d.to_string()
+                                    }
                                     CellValue::Count(d) => self.decimal(d),
                                     CellValue::Text(t) => format!("{t:?}"),
                                 };
@@ -6667,7 +6736,7 @@ impl Keys<'_> {
                     .map(|a| match a {
                         Anchor::Face(x) => format!("face {}", x.0),
                         Anchor::Edge(x) => format!("edge {}", x.0),
-                        Anchor::Geometry(g) => format!("geometry {:?}", self.p.geometry.get(g.0)),
+                        Anchor::Geometry(g) => format!("geometry {:?}", self.geometry(g.0)),
                     })
                     .collect();
                 v.sort();
@@ -6691,11 +6760,16 @@ impl Keys<'_> {
                     let supplemental: Vec<_> = g
                         .supplemental
                         .iter()
-                        .map(|s| &self.p.geometry[s.0])
+                        .filter_map(|s| self.geometry(s.0))
                         .collect();
                     format!(
                         "{:?} {:?} {:?} {:?} {:?} {:?}",
-                        g.kind, g.deriving_faces, g.point, g.direction, g.radius, supplemental
+                        g.kind,
+                        g.deriving_faces,
+                        g.point.clone().map(|l| Self::length_copy(&l)),
+                        Self::direction(&g.direction),
+                        g.radius.as_ref().map(Self::length_copy),
+                        supplemental
                     )
                 });
                 format!("{kind:?}<-({}) geometry {computed:?}", v.join(", "))
@@ -6724,14 +6798,14 @@ impl Keys<'_> {
                 self.length(&pl.origin[0]),
                 self.length(&pl.origin[1]),
                 self.length(&pl.origin[2]),
-                pl.axis,
-                pl.ref_direction
+                pl.axis.as_ref().map(Self::direction),
+                pl.ref_direction.as_ref().map(Self::direction)
             )
         });
         format!(
             "{} {shape} {placement:?} {:?} on {:?}",
             t.number(),
-            t.movable(),
+            t.movable().map(Self::direction),
             t.on().map(|f| self.feature(f))
         )
     }
@@ -6946,6 +7020,27 @@ mod tests {
         for t in ["35.", "0.0030", "-2.54E1", "1.E-07"] {
             assert!(real(&Decimal::parse(t).unwrap()).is_ok(), "{t}");
         }
+    }
+
+    #[test]
+    fn stated_verification_accepts_real_encoding_but_retains_legal_precision() {
+        let model = |text| PartPmi {
+            attributes: vec![AttributeSet {
+                name: "REAL".into(),
+                on: None,
+                description: None,
+                general_property: None,
+                items: vec![(
+                    "value".into(),
+                    AttributeValue::Real(Decimal::parse(text).unwrap()),
+                )],
+            }],
+            ..PartPmi::default()
+        };
+        for (input, native) in [("42", "42."), ("2e1", "2.E1"), ("1.e-3", "1.E-3")] {
+            assert!(differences_as_stated(&model(input), &model(native)).is_empty());
+        }
+        assert!(!differences_as_stated(&model("42.0"), &model("42.")).is_empty());
     }
 
     #[test]

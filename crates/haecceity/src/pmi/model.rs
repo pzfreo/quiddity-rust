@@ -606,7 +606,7 @@ macro_rules! id {
         $(#[$m])*
         #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
         #[cfg_attr(feature = "json", derive(serde::Serialize))]
-#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
+        #[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
         pub struct $name(pub usize);
     )*};
 }

@@ -1088,8 +1088,7 @@ fn pmi_write_is_deterministic_and_keeps_inch_values_as_stated() {
 
 /// Every refusal names its cause on stderr, exits 1, and creates nothing: a document bound to
 /// another file or reader version, a remove naming PMI to write, presentation in the way under
-/// `--presentation refuse`, invalid parameters, a value that is not
-/// a Part 21 REAL; an existing file at the destination is left as it was.
+/// `--presentation refuse` or invalid parameters; an existing file at the destination is left as it was.
 #[test]
 fn pmi_write_refusals_name_the_cause_and_create_nothing() {
     let (doc, step) = spool_writable();
@@ -1122,13 +1121,18 @@ fn pmi_write_refusals_name_the_cause_and_create_nothing() {
         "{err}"
     );
 
-    let mut bad = doc.clone();
-    bad["parts"][0]["pmi"]["dimensions"][0]["nominal"]["value"] = json!("62");
-    let (out, o) = write_cli(&step, &bad, "not-real", &["--mode", "replace"]);
-    let err = write_refused(&out, &o, "not a REAL");
+    let mut integer = doc.clone();
+    integer["parts"][0]["pmi"]["dimensions"][0]["nominal"]["value"] = json!("62");
+    let (out, result) = write_cli(&step, &integer, "integer-real", &["--mode", "replace"]);
     assert!(
-        err.contains("Dimension(0): value 62 is not a Part 21 REAL"),
-        "{err}"
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let (reread, _) = ok(&["pmi", "read", out.to_str().unwrap()]);
+    assert_eq!(
+        reread["parts"][0]["pmi"]["dimensions"][0]["nominal"]["value"],
+        "62."
     );
 
     let ctc02 = ap242().join("nist/nist_ctc_02_asme1_ap242-e2.stp.gz");

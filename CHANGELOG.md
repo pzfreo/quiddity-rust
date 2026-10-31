@@ -25,7 +25,8 @@ in [docs/alpha1.md](docs/alpha1.md).
 ### Fixed
 
 - For #142, encode integer/exponent Decimal spellings as valid STEP REALs while
-  restoring their stated JSON text, including density exponents. Invalid density
+  restoring their stated JSON text, including density exponents. Ordinary CLI
+  verification accepts the required REAL spelling while retaining legal precision. Invalid density
   dimensions produce a finding. Both writers define gram/milligram as conversion-based
   units of SI kilogram per CAx-IF UDA Annex C.1/C.4.2; only affected mass-unit goldens change.
   Compact producer ordering metadata omits native defaults and uses ordinal references.
