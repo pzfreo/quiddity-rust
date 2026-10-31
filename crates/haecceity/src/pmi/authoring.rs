@@ -101,6 +101,11 @@ pub(crate) fn model_refusals(id: PartId, p: &PartPmi) -> Vec<Refusal> {
         if let Some(why) = bad_value(&values) {
             check.refuse(ItemRef::DatumTarget(i), why);
         }
+        if let TargetShape::Area(f) | TargetShape::Curve(f) = t.shape()
+            && !explicit_target_geometry(p, *f, matches!(t.shape(), TargetShape::Area(_)))
+        {
+            check.refuse(ItemRef::DatumTarget(i), "explicit area/curve target requires stated face/curve geometry (§6.6.2); a different anchor kind cannot define that target");
+        }
         if !p
             .datums
             .iter()
@@ -233,6 +238,53 @@ pub(crate) fn model_refusals(id: PartId, p: &PartPmi) -> Vec<Refusal> {
     }
 
     // Tolerances.
+    let mut by_content = BTreeMap::new();
+    let canonical: Vec<_> = p
+        .features
+        .iter()
+        .enumerate()
+        .map(|(i, feature)| {
+            if let Feature::Items(items) = feature {
+                let mut key = items.clone();
+                key.sort();
+                key.dedup();
+                *by_content.entry(key).or_insert(i)
+            } else {
+                i
+            }
+        })
+        .collect();
+    let mut plane_kinds = BTreeMap::new();
+    for (i, t) in p.tolerances.iter().enumerate() {
+        if let Some(z) = &t.zone {
+            if z.affected_plane.is_none() && z.affected_plane_kind.is_some() {
+                check.refuse(
+                    ItemRef::Tolerance(i),
+                    "affected plane kind has no affected plane feature",
+                );
+            }
+            if let Some(f) = z.affected_plane {
+                let valid = match (&p.features[f.0], z.affected_plane_kind) {
+                    (Feature::Items(items), Some(kind)) if items.len() == 1 => {
+                        matches!(items[0], Anchor::Geometry(g) if matches!(
+                            (p.geometry[g.0].item.entity().as_str(), kind),
+                            ("polyline", AffectedPlaneKind::IntersectionLine) |
+                            ("axis2_placement_3d", AffectedPlaneKind::IntersectionPlane | AffectedPlaneKind::OrientationPlane)
+                        ))
+                    }
+                    _ => false,
+                };
+                if !valid {
+                    check.refuse(ItemRef::Tolerance(i), "affected plane requires an explicit intersection line, intersection plane or orientation plane kind and its matching polyline/axis2_placement_3d geometry (§6.9.2.1)");
+                }
+                if let Some(old) = plane_kinds.insert(canonical[f.0], z.affected_plane_kind)
+                    && old != z.affected_plane_kind
+                {
+                    check.refuse(ItemRef::Tolerance(i), "one affected plane feature has conflicting variants; use separate features with distinct geometry");
+                }
+            }
+        }
+    }
     for (i, t) in p.tolerances.iter().enumerate() {
         if t.zone
             .as_ref()
@@ -373,4 +425,29 @@ pub(crate) fn model_refusals(id: PartId, p: &PartPmi) -> Vec<Refusal> {
         }
     }
     check.refusals
+}
+
+fn explicit_target_geometry(p: &PartPmi, f: FeatureId, area: bool) -> bool {
+    match &p.features[f.0] {
+        Feature::Items(items) => {
+            !items.is_empty()
+                && items.iter().all(|a| match a {
+                    Anchor::Face(_) => area,
+                    Anchor::Edge(_) => false,
+                    Anchor::Geometry(g) => p.geometry[g.0].item.leaves.iter().any(|(entity, _)| {
+                        express::TARGET.is_a(
+                            &entity.to_ascii_lowercase(),
+                            if area { "face" } else { "curve" },
+                        )
+                    }),
+                })
+        }
+        Feature::Group { members, .. } => {
+            !members.is_empty()
+                && members
+                    .iter()
+                    .all(|f| explicit_target_geometry(p, *f, area))
+        }
+        Feature::Derived { .. } => false,
+    }
 }

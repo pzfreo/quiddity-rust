@@ -213,6 +213,18 @@ fn validate_refuses_geometry_independent_import_failures() {
             json!({"tolerance":"missing"}),
             "unknown tolerances id",
         ),
+        (
+            "/pmi/tolerances/0/value/zone",
+            json!({"form":"cylindrical or circular","projected":null,"non_uniform":null,
+                "runout_angle":null,"affected_plane":null,"affected_plane_kind":"intersection_plane"}),
+            "affected plane kind has no affected plane feature",
+        ),
+        (
+            "/pmi/tolerances/0/value/zone",
+            json!({"form":"cylindrical or circular","projected":null,"non_uniform":null,
+                "runout_angle":null,"affected_plane":"feature/12","affected_plane_kind":"intersection_plane"}),
+            "affected plane requires an explicit",
+        ),
     ] {
         let mut value = original.clone();
         *value.pointer_mut(path).unwrap() = replacement;
@@ -232,4 +244,13 @@ fn validate_refuses_geometry_independent_import_failures() {
             });
         assert!(imported.is_err());
     }
+    let mut target = fixture("datum-target-decimals.json");
+    target["pmi"]["datum_targets"][0]["value"]["shape"] = json!({"curve":"feature/3"});
+    assert!(json::validate_schema(&target).is_ok());
+    assert!(
+        json::validate(&target)
+            .unwrap_err()
+            .to_string()
+            .contains("explicit area/curve target requires stated face/curve geometry")
+    );
 }

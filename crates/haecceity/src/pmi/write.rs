@@ -2110,11 +2110,6 @@ impl<'a> PartPlan<'a> {
                     self.refuse(ItemRef::DatumTarget(i), "target placement coordinates must use the part context length unit (§6.6.1); no coordinate conversion is guessed");
                 }
             }
-            if let TargetShape::Area(f) | TargetShape::Curve(f) = t.shape()
-                && !self.explicit_target_geometry(*f, matches!(t.shape(), TargetShape::Area(_)))
-            {
-                self.refuse(ItemRef::DatumTarget(i), "explicit area/curve target requires stated face/curve geometry (§6.6.2); a different anchor kind cannot define that target");
-            }
         }
         // Features: anchors on the part, geometry, groups.
         let ctx_unit = self.context_length_unit();
@@ -2262,38 +2257,6 @@ impl<'a> PartPlan<'a> {
                     ItemRef::Feature(*f),
                     format!("a group or derived feature used as {rs:?}"),
                 );
-            }
-        }
-        let mut plane_kinds = BTreeMap::new();
-        for (i, t) in p.tolerances.iter().enumerate() {
-            if let Some(z) = &t.zone {
-                if z.affected_plane.is_none() && z.affected_plane_kind.is_some() {
-                    self.refuse(
-                        ItemRef::Tolerance(i),
-                        "affected plane kind has no affected plane feature",
-                    );
-                }
-                if let Some(f) = z.affected_plane {
-                    let valid = match (&p.features[f.0], z.affected_plane_kind) {
-                        (Feature::Items(items), Some(kind)) if items.len() == 1 => {
-                            matches!(items[0], Anchor::Geometry(g) if matches!(
-                                (p.geometry[g.0].item.entity().as_str(), kind),
-                                ("polyline", AffectedPlaneKind::IntersectionLine) |
-                                ("axis2_placement_3d", AffectedPlaneKind::IntersectionPlane | AffectedPlaneKind::OrientationPlane)
-                            ))
-                        }
-                        _ => false,
-                    };
-                    if !valid {
-                        self.refuse(ItemRef::Tolerance(i), "affected plane requires an explicit intersection line, intersection plane or orientation plane kind and its matching polyline/axis2_placement_3d geometry (§6.9.2.1)");
-                    }
-                    if let Some(old) =
-                        plane_kinds.insert(self.canonical[f.0], z.affected_plane_kind)
-                        && old != z.affected_plane_kind
-                    {
-                        self.refuse(ItemRef::Tolerance(i), "one affected plane feature has conflicting variants; use separate features with distinct geometry");
-                    }
-                }
             }
         }
         // Features something refers to other than as a thread's or knurl's area or a thread's
@@ -2558,37 +2521,6 @@ impl<'a> PartPlan<'a> {
                 "{} units of the file are named {name:?}; which one is not stated",
                 found.len()
             )),
-        }
-    }
-
-    fn explicit_target_geometry(&self, f: FeatureId, area: bool) -> bool {
-        match &self.pmi.features[f.0] {
-            Feature::Items(items) => {
-                !items.is_empty()
-                    && items.iter().all(|a| match a {
-                        Anchor::Face(_) => area,
-                        Anchor::Edge(_) => false,
-                        Anchor::Geometry(g) => {
-                            self.pmi.geometry[g.0]
-                                .item
-                                .leaves
-                                .iter()
-                                .any(|(entity, _)| {
-                                    express::TARGET.is_a(
-                                        &entity.to_ascii_lowercase(),
-                                        if area { "face" } else { "curve" },
-                                    )
-                                })
-                        }
-                    })
-            }
-            Feature::Group { members, .. } => {
-                !members.is_empty()
-                    && members
-                        .iter()
-                        .all(|f| self.explicit_target_geometry(*f, area))
-            }
-            Feature::Derived { .. } => false,
         }
     }
 
