@@ -353,7 +353,26 @@ fn spanner_flats_preserve_all_three_steps_and_explain_shoulders() {
         // Legitimate overlapping slab and shoulder descriptions. The published
         // riser's height_axis is file Y, so -12 is the head's radial extent.
         assert_eq!(f.plates.len(), 1);
-        assert_eq!(f.risers.len(), 1);
+        let reading = quiddity::correspondence::recognise(&p);
+        let doc = quiddity::recognition::document(&reading, p.faces.len());
+        let risers: Vec<_> = doc
+            .records
+            .iter()
+            .filter(|r| r.family == "risers")
+            .collect();
+        assert_eq!(risers.len(), 1);
+        let r = &risers[0].parameters;
+        let height = match r["height_axis"].as_str().unwrap() {
+            "x" => 0,
+            "y" => 1,
+            _ => panic!("transverse height axis"),
+        };
+        assert!(
+            (r["z_lo"].as_f64().unwrap()
+                - (p.bounds().min[height] - r["origin"][height].as_f64().unwrap()))
+            .abs()
+                < 1e-6
+        );
         if name == "spindle_flats.step" {
             for face in [5, 7] {
                 assert!(f.defining["turned_bodies"][0].contains(&face));
