@@ -40,3 +40,7 @@ This directory is outside root snapshot inputs; no default goldens are changed.
 `spindle.semantic.json.gz` is the exact semantic companion exported by the pre-split
 CLI at f48c02b, with index anchors. The serializer-only regression compares JSON
 values (including content ids and units) against it in both feature configurations.
+
+`spindle-q137.step.gz` is a deterministic gzip copy of the maintainer's own model,
+`presfix-inputs/19-spindle-semantic-links-only.step`, supplied for PR #163 round 1.
+It was written 2026-10-30 at 17:06 by a #137-era build and retains its saved callouts.

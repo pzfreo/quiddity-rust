@@ -8,9 +8,21 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
+- Generated part notes share one numbered GENERAL NOTES block in JSON and STEP,
+  retaining each requirement's semantic link and the bounds-relative placement.
+
+- Regenerated PMI uses measured, compact dimension ladders and reserves datum
+  flags before labels. Saved-view packing keeps labels near their features and
+  text placements use the actual stroke transform, including clipped short spans.
+  Written linear ladders share the compact ink spacing and retain seven-view clearance.
+
 - For #161, isolate panicking recognition families and block their dependents while
   preserving independent results. Incomplete recognition/6 and evidence/1 documents
   add optional `failures` and `complete: false`; successful output is unchanged.
+- Haecceity presentation v1 adds optional per-text `stroked` metadata, avoiding
+  duplicate generated labels, and orthographic views for generated annotation planes.
+  Generated general notes now form a bounds-relative column two capital heights
+  beside the part; written STEP notes use the same placement rule.
 
 ## 0.4.0 (2026-10-31)
 

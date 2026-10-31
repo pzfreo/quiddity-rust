@@ -736,52 +736,223 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
         semantic_ids: id_set(semantic)?,
         ..Presentation::default()
     };
-    let mut layout = presentation::placement::Layout::new(part.bounds());
-    let mut add = |collection: &str, index: usize, callout: presentation::Callout| -> Result<()> {
-        let key = semantic
-            .ids
-            .get(collection)
-            .and_then(|ids| ids.get(index))
-            .ok_or_else(|| Error(format!("missing id {collection}/{index}")))?;
-        let mut g = Graphic::new(Source::Generated, callout.notation());
-        let feature = match collection {
-            "dimensions" => match &semantic.pmi.dimensions[index].kind {
-                crate::pmi::DimensionKind::Size { feature, .. } => Some(*feature),
-                crate::pmi::DimensionKind::Location { from, .. } => Some(*from),
-            },
-            "datums" => semantic.pmi.datums[index].feature(),
-            "tolerances" => match semantic.pmi.tolerances[index].target {
-                crate::pmi::ToleranceTarget::Feature(f) => Some(f),
-                _ => None,
-            },
-            "surface_textures" => semantic.pmi.surface_textures[index].on,
-            _ => None,
-        };
-        let site =
-            feature.and_then(|f| presentation::placement::feature_site(part, &semantic.pmi, f));
-        let notes = site.is_none();
-        let placed = if let Some((point, normal, _)) = site {
-            layout.on_face(point, normal, &callout)
+    let mut layout = presentation::placement::Layout::for_views(part.bounds());
+    let measurements = presentation::linear::measurements_for_part(part, &semantic.pmi);
+    let mut placed = BTreeMap::new();
+    // Datums are attached first. Linear numbers must not consume bare-label
+    // slots which displace the feature flags before the ladder is measured.
+    for (i, d) in semantic.pmi.datums.iter().enumerate() {
+        let c = presentation::datum(d.label().as_str());
+        let p = if let Some((point, normal, _)) = d
+            .feature()
+            .and_then(|f| presentation::placement::feature_site(part, &semantic.pmi, f))
+        {
+            layout.on_face(point, normal, &c)
         } else {
-            layout.notes(&callout)
+            layout.notes(&c)
         };
-        g.id = Some(format!("generated:{collection}:{key}"));
-        layout::generated(
-            &mut g,
-            &callout,
-            &placed,
-            layout.text_height(),
-            part.bounds().max_extent(),
-            notes,
-        );
-        let plane = Plane::generated(&g, &placed);
-        g.plane_id = Some(plane.id.clone());
-        out.planes.push(plane);
-        g.polylines = placed.lines;
-        g.text = callout.cells;
-        out.items.entry(key.clone()).or_default().push(g);
-        Ok(())
-    };
+        placed.insert(("datums", i), (c, p));
+    }
+    for (i, d) in semantic.pmi.dimensions.iter().enumerate() {
+        if measurements[i].is_some() {
+            continue;
+        }
+        let c = presentation::dimension(d);
+        let f = match d.kind {
+            crate::pmi::DimensionKind::Size { feature, .. } => feature,
+            crate::pmi::DimensionKind::Location { from, .. } => from,
+        };
+        let p = if let Some((point, normal, face)) =
+            presentation::placement::feature_site(part, &semantic.pmi, f)
+        {
+            layout.on_label(point, normal, &c, part.face_bounds(face).max_extent())
+        } else {
+            layout.notes(&c)
+        };
+        placed.insert(("dimensions", i), (c, p));
+    }
+    for (i, t) in semantic.pmi.tolerances.iter().enumerate() {
+        use crate::pmi::{DimensionKind, ToleranceTarget};
+        let f = match t.target {
+            ToleranceTarget::Feature(f) | ToleranceTarget::Relation { relating: f, .. } => Some(f),
+            ToleranceTarget::Dimension(d) => Some(match semantic.pmi.dimensions[d.0].kind {
+                DimensionKind::Size { feature, .. } => feature,
+                DimensionKind::Location { from, .. } => from,
+            }),
+            ToleranceTarget::WholePart => None,
+        };
+        let c = presentation::tolerance(t, &semantic.pmi);
+        let p = if let Some((point, normal, face)) =
+            f.and_then(|f| presentation::placement::feature_site(part, &semantic.pmi, f))
+        {
+            let extent = part.face_bounds(face).max_extent();
+            let mut candidate = layout.clone();
+            let radial = candidate.on_control(point, normal, &c, extent);
+            let (p, chosen) = match part.faces[face].surface {
+                geom::Surface::Cylinder { frame, .. }
+                | geom::Surface::Cone { frame, .. }
+                | geom::Surface::Torus { frame, .. } => {
+                    let axis = geom::scale(
+                        frame.z,
+                        if geom::dot(geom::sub(point, part.bounds().centre()), frame.z) < 0. {
+                            -1.
+                        } else {
+                            1.
+                        },
+                    );
+                    let mut axial_layout = layout.clone();
+                    let axial = axial_layout.on_axis(point, axis, &c, extent);
+                    let distance = |p: &presentation::placement::Placed| {
+                        let run = &c.runs[0];
+                        geom::dist(
+                            point,
+                            geom::add(
+                                p.text_origin,
+                                geom::add(
+                                    geom::scale(p.along, run.at[0] * p.text_scale),
+                                    geom::scale(
+                                        geom::cross(p.normal, p.along),
+                                        run.at[1] * p.text_scale,
+                                    ),
+                                ),
+                            ),
+                        )
+                    };
+                    if distance(&axial) < distance(&radial) {
+                        (axial, axial_layout)
+                    } else {
+                        (radial, candidate)
+                    }
+                }
+                _ => (radial, candidate),
+            };
+            layout = chosen;
+            p
+        } else {
+            layout.notes(&c)
+        };
+        placed.insert(("tolerances", i), (c, p));
+    }
+    let mut ladder = presentation::linear::Ladder::for_views(part.bounds());
+    for (_, p) in placed.values() {
+        let mut b = geom::Bounds::empty();
+        for &q in p
+            .lines
+            .iter()
+            .take(p.lines.len().saturating_sub(1))
+            .flatten()
+        {
+            b.add(q);
+        }
+        ladder.reserve_dimension(b, p.normal, p.along);
+    }
+    let mut order: Vec<_> = measurements
+        .iter()
+        .enumerate()
+        .filter_map(|(i, m)| m.as_ref().map(|m| (i, m)))
+        .collect();
+    order.sort_by(|a, b| a.1.length().total_cmp(&b.1.length()).then(a.0.cmp(&b.0)));
+    let mut directions: Vec<(geom::V3, geom::V3)> = Vec::new();
+    for (i, m) in order {
+        let c = presentation::dimension(&semantic.pmi.dimensions[i]);
+        let reference = geom::scale(geom::add(m.feet[0], m.feet[1]), 0.5);
+        let outward = directions
+            .iter()
+            .find(|(d, _)| geom::dot(*d, m.direction) > 1. - 1e-8)
+            .map(|(_, v)| {
+                if geom::dot(geom::sub(reference, part.bounds().centre()), *v) < 0. {
+                    geom::scale(*v, -1.)
+                } else {
+                    *v
+                }
+            });
+        let mut candidates = vec![outward.unwrap_or(m.outward)];
+        if outward.is_none() {
+            for axis in [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]] {
+                if let Some(v) = geom::unit(geom::sub(
+                    axis,
+                    geom::scale(m.direction, geom::dot(axis, m.direction)),
+                )) {
+                    candidates.extend([v, geom::scale(v, -1.)]);
+                }
+            }
+        }
+        let mut best = None;
+        for outward in candidates {
+            let cross = geom::unit(geom::cross(m.direction, outward))
+                .ok_or_else(|| Error("degenerate annotation plane".into()))?;
+            let mut normal = cross;
+            let dominant = geom::dominant_axis_preferring_z(normal);
+            if (dominant == 1 && normal[dominant] > 0.) || (dominant != 1 && normal[dominant] < 0.)
+            {
+                normal = geom::scale(normal, -1.);
+            }
+            // Prefer the normal front/top/side camera on a tie; also allow the
+            // opposite outer plane when the actual feature lies nearer that side.
+            for normal in [normal, geom::scale(normal, -1.)] {
+                let mut candidate = ladder.clone();
+                let mut measurement = m.clone();
+                measurement.outward = outward;
+                let p = candidate
+                    .draw_in_view(&measurement, &c, Some(normal))
+                    .placed;
+                let distance = geom::dist(p.origin, reference);
+                if best
+                    .as_ref()
+                    .is_none_or(|(d, _, _, _)| distance < *d - 1e-8)
+                {
+                    best = Some((distance, p, candidate, outward));
+                }
+            }
+        }
+        let (_, p, chosen, outward) =
+            best.ok_or_else(|| Error("no linear annotation plane".into()))?;
+        ladder = chosen;
+        if directions
+            .iter()
+            .all(|(d, _)| geom::dot(*d, m.direction) <= 1. - 1e-8)
+        {
+            directions.push((m.direction, outward));
+        }
+        layout.reserve(&p.lines);
+        placed.insert(("dimensions", i), (c, p));
+    }
+    let mut add =
+        |collection: &'static str, index: usize, callout: presentation::Callout| -> Result<()> {
+            let key = semantic
+                .ids
+                .get(collection)
+                .and_then(|ids| ids.get(index))
+                .ok_or_else(|| Error(format!("missing id {collection}/{index}")))?;
+            let placed = if let Some((_, p)) = placed.remove(&(collection, index)) {
+                p
+            } else if collection == "surface_textures" {
+                let t = &semantic.pmi.surface_textures[index];
+                if let Some((_, _, face)) =
+                    t.on.and_then(|f| presentation::placement::feature_site(part, &semantic.pmi, f))
+                {
+                    layout
+                        .surface(
+                            &presentation::placement::surface_sites(part, face),
+                            &callout,
+                        )
+                        .unwrap_or_else(|| layout.notes(&callout))
+                } else {
+                    layout.notes(&callout)
+                }
+            } else {
+                layout.notes(&callout)
+            };
+            let (g, plane) = generated_graphic(
+                format!("generated:{collection}:{key}"),
+                callout.notation(),
+                callout,
+                placed,
+            );
+            out.planes.push(plane);
+            out.items.entry(key.clone()).or_default().push(g);
+            Ok(())
+        };
     for (i, d) in semantic.pmi.dimensions.iter().enumerate() {
         add("dimensions", i, presentation::dimension(d))?;
     }
@@ -804,43 +975,103 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
             presentation::notes::surface_texture(t),
         )?;
     }
-    for (i, n) in semantic.pmi.notes.iter().enumerate() {
-        add("notes", i, presentation::label(&n.text))?;
-    }
-    for row in presentation::notes::general_notes(&semantic.pmi) {
-        use presentation::notes::Source;
-        let (collection, index) = match row.source {
-            Source::General(i) => ("general", i),
-            Source::Texture(i) => ("surface_textures", i),
-            Source::Attribute(i) => ("attributes", i),
-            Source::Material => continue,
-        };
-        add(collection, index, presentation::notes::notes_block(&[row]))?;
-    }
-    // Material has no independent PartIdentifiers carrier; retain its callout unlinked.
-    if let Some(material) = &semantic.pmi.material {
-        let c = presentation::label(&format!("MATERIAL: {}", material.id));
-        let mut g = Graphic::new(self::Source::Generated, c.notation());
+    let rows = presentation::notes::general_notes(&semantic.pmi);
+    if !rows.is_empty() {
+        let c = presentation::notes::notes_block(&rows);
         let placed = layout.notes(&c);
-        g.id = Some("generated:material".into());
-        layout::generated(
-            &mut g,
-            &c,
-            &placed,
-            layout.text_height(),
-            part.bounds().max_extent(),
-            true,
+        let (g, plane) = generated_graphic(
+            "generated:general-notes".into(),
+            "General notes".into(),
+            c,
+            placed,
         );
-        let plane = Plane::generated(&g, &placed);
-        g.plane_id = Some(plane.id.clone());
         out.planes.push(plane);
-        g.polylines = placed.lines;
-        g.text = c.cells;
-        out.unlinked.push(g);
+        // As for a read STEP callout with several linked occurrences, each
+        // requirement keeps its key and aliases the same render-once graphic.
+        let mut keys = BTreeSet::new();
+        for row in rows {
+            use presentation::notes::Source;
+            let (collection, index) = match row.source {
+                Source::General(i) => ("general", i),
+                Source::Texture(i) => ("surface_textures", i),
+                Source::Attribute(i) => ("attributes", i),
+                Source::Note(i) => ("notes", i),
+                Source::Material => continue,
+            };
+            let key = semantic
+                .ids
+                .get(collection)
+                .and_then(|ids| ids.get(index))
+                .ok_or_else(|| Error(format!("missing id {collection}/{index}")))?;
+            keys.insert(key.clone());
+        }
+        // Material has no independent PartIdentifiers carrier.
+        if keys.is_empty() {
+            out.unlinked.push(g);
+        } else {
+            for key in keys {
+                out.items.entry(key).or_default().push(g.clone());
+            }
+        }
+    }
+    // Feature-owned fallback labels must not consume the part block's first
+    // notes station. File-owned note graphics are handled by read, unchanged.
+    for (i, n) in semantic
+        .pmi
+        .notes
+        .iter()
+        .enumerate()
+        .filter(|(_, n)| n.on.is_some())
+    {
+        let key = &semantic.ids["notes"][i];
+        let c = presentation::label(&n.text);
+        let placed = layout.notes(&c);
+        let (g, plane) =
+            generated_graphic(format!("generated:notes:{key}"), c.notation(), c, placed);
+        out.planes.push(plane);
+        out.items.entry(key.clone()).or_default().push(g);
+    }
+    // The existing view model stores orientation and membership, not a camera
+    // position or scale. Clients fit the part and these graphics themselves.
+    for plane in &out.planes {
+        let graphics = out
+            .items
+            .values()
+            .flatten()
+            .chain(&out.unlinked)
+            .filter(|g| g.plane_id.as_ref() == Some(&plane.id))
+            .filter_map(|g| g.id.clone())
+            .collect::<BTreeSet<_>>()
+            .into_iter()
+            .collect();
+        out.views.push(View {
+            id: format!("{}/view", plane.id),
+            name: plane.name.clone(),
+            direction: Some(geom::scale(plane.normal, -1.)),
+            up: Some(geom::cross(plane.normal, plane.x_axis)),
+            graphics,
+        });
     }
     #[cfg(feature = "json-import")]
     validate(&serde_json::to_value(&out)?)?;
     Ok(out)
+}
+
+#[cfg(feature = "presentation")]
+fn generated_graphic(
+    id: String,
+    name: String,
+    callout: crate::presentation::Callout,
+    placed: crate::presentation::placement::Placed,
+) -> (Graphic, Plane) {
+    let mut g = Graphic::new(Source::Generated, name);
+    g.id = Some(id);
+    layout::generated(&mut g, &callout, &placed);
+    let plane = Plane::generated(&g, &placed);
+    g.plane_id = Some(plane.id.clone());
+    g.polylines = placed.lines;
+    g.text = callout.cells;
+    (g, plane)
 }
 
 fn id_set(semantic: &Semantic) -> Result<Vec<String>> {
