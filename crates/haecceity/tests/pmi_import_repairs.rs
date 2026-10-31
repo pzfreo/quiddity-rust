@@ -303,19 +303,61 @@ fn datum_feature_constituent_is_the_same_feature_when_named_by_a_tolerance() {
     }
 }
 #[test]
+fn shared_face_carriers_keep_group_members_distinct_from_a_datum_union() {
+    // GISU UR1 makes the writer share face carriers between an indivisible datum
+    // and a per-member group. Those carriers cannot alias the datum's whole union.
+    let (r, _, _) = fixture(
+        "#1100=DATUM_FEATURE('union','',#4,.T.);
+#1101=SHAPE_ASPECT('first face','',#4,.T.);
+#1102=SHAPE_ASPECT('second face','',#4,.T.);
+#1103=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1101,#10,#17);
+#1104=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1102,#10,#105);
+#1105=SHAPE_ASPECT_RELATIONSHIP('','',#1100,#1101);
+#1106=SHAPE_ASPECT_RELATIONSHIP('','',#1100,#1102);
+#1107=DATUM('','',#4,.F.,'Z');
+#1108=SHAPE_ASPECT_RELATIONSHIP('','',#1100,#1107);
+#1200=COMPOSITE_GROUP_SHAPE_ASPECT('','multiple elements',#4,.T.);
+#1201=SHAPE_ASPECT_RELATIONSHIP('','',#1200,#1101);
+#1202=SHAPE_ASPECT_RELATIONSHIP('','',#1200,#1102);
+#1203=FLATNESS_TOLERANCE('on group','',#1204,#1200);
+#1204=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.1),#400);",
+    );
+    let p = &r.parts[0];
+    let datum = p.datums.iter().find(|d| d.label().as_str() == "Z").unwrap();
+    let Feature::Items(union) = &p.features[datum.feature().unwrap().0] else {
+        panic!("datum union");
+    };
+    assert_eq!(union.len(), 2);
+    let i = r.provenance.parts[0]
+        .features
+        .iter()
+        .position(|ids| ids.contains(&1200))
+        .unwrap();
+    let Feature::Group { members, .. } = &p.features[i] else {
+        panic!("per-member group");
+    };
+    assert_eq!(members.len(), 2);
+    assert_ne!(members[0], members[1]);
+    for member in members {
+        assert!(matches!(&p.features[member.0], Feature::Items(items) if items.len() == 1));
+        assert_ne!(Some(*member), datum.feature());
+    }
+}
+
+#[test]
 fn stc10_named_datum_constituents_do_not_become_seven_duplicate_features() {
     let path = common::fixtures().join("ap242/nist/nist_stc_10_asme1_ap242-e2.stp.gz");
     let (r, _, parts) = read(load(&path));
     // Each SAR goes from a datum feature to one plain face aspect. Sizes and tolerances
     // refer to those aspects; they must retain the existing datum feature identity.
     for (parent, child, label, face) in [
-        (588, 1350, "A", 6993),
-        (600, 1351, "B", 7230),
-        (598, 1349, "C", 7009),
-        (707, 1398, "E", 7071),
-        (691, 1396, "F", 7070),
-        (709, 1408, "G", 7048),
-        (759, 1416, "H", 7022),
+        (113, 2857, "A", 6993),
+        (115, 2858, "B", 7230),
+        (114, 2856, "C", 7009),
+        (119, 2905, "E", 7071),
+        (118, 2903, "F", 7070),
+        (120, 2915, "G", 7048),
+        (121, 2923, "H", 7022),
     ] {
         let matches: Vec<_> = r.provenance.parts[0]
             .features

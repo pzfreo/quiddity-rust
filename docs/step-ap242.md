@@ -1736,9 +1736,10 @@ and the constituent as `related_shape_aspect`. Its name or optional description 
 a discriminator; Solid Edge's description `'datum feature'` is a conventional label.
 A plain constituent with one owning datum feature resolves to that feature, including
 when requested before its parent; composition retains and deduplicates all faces.
-The owning datum is available through `Datum::feature()`. Constituents shared by several
-owners and group datums applying separately to each member are not collapsed into one
-union alias. Dimensional, deriving, target and affected-plane relations are still excluded
+The owning datum is available through `Datum::feature()`. A shared face carrier retains
+its individual identity when the datum contains more geometry: a per-member group may
+use that same GISU carrier. Identical single-face aliases remain safe. Group datums
+applying separately to each member are not collapsed into one union alias. Dimensional, deriving, target and affected-plane relations are still excluded
 by the existing composition rules.
 
 In the Solid Edge sample, #220/#222 are constituents of #26/#27. Their faces #2480/#2502
@@ -1753,3 +1754,11 @@ therefore resolve to that feature; the callout's existing DMIA #68 supplies the 
 feature and datum. A consumer extending datum aliases to plain constituents can obtain
 `Datum(DatumId(1))` from that feature as well. This branch does not introduce #166's
 presentation types or change presentation extraction.
+
+The legacy PMI read binding advances from `haecceity-pmi-read/11` to `/12`, as required
+by its existing version/output guard when semantic output changes. This is read-side
+metadata only; the JSON form stays version 2. The STC10 snapshot removes seven duplicate
+constituent features and reindexes references to their owning datum features; all
+resolved geometry and requirement values are unchanged. Other PMI snapshot entries
+only change their reader binding. The existing compatibility pin is refreshed for
+this documented semantic change; structural tests establish correctness independently.

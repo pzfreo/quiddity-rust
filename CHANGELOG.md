@@ -14,6 +14,7 @@ in [docs/alpha1.md](docs/alpha1.md).
 - Plain face aspects composing an indivisible datum feature retain the owning feature
   identity when referenced by tolerances, properties or presentation; their faces are
   collected once. All-around groups and per-member datum groups keep their semantics.
+  Legacy PMI reader binding `/12` identifies the corrected output.
 
 - Generated part notes share one numbered GENERAL NOTES block in JSON and STEP,
   retaining each requirement's semantic link and the bounds-relative placement.

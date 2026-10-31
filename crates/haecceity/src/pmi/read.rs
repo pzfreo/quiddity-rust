@@ -1442,8 +1442,8 @@ impl<'a> Reader<'a> {
     /// A plain constituent of one indivisible datum feature (§6.5.1–6.5.2).
     /// The datum feature is SAR.relating_shape_aspect, its constituent is related.
     /// SAR names/descriptions are not discriminators ("datum feature" is one exporter label).
-    /// A group datum applies to each member separately; shared constituents have no unique
-    /// owning feature, so neither case is collapsed into a union alias here.
+    /// A group datum applies to each member separately and is not a union alias.
+    /// Shared carriers are checked against the datum's content before aliasing.
     fn datum_feature_parent(&mut self, id: u64) -> Option<u64> {
         if self.names(id) != ["shape_aspect"] {
             return None;
@@ -1459,16 +1459,44 @@ impl<'a> Reader<'a> {
                 self.get_ref(r, "shape_aspect_relationship", "relating_shape_aspect")
                 && self.is(parent, "datum_feature")
                 && !self.is(parent, "composite_group_shape_aspect")
+                && !self.is(parent, "all_around_shape_aspect")
+                && !self.is(parent, "between_shape_aspect")
                 && self.members(parent).contains(&(r, id))
             {
                 parents.insert(parent);
             }
         }
-        if parents.len() == 1 {
-            parents.into_iter().next()
-        } else {
-            None
+        (parents.len() == 1).then(|| *parents.first().unwrap())
+    }
+
+    /// Shared GISU carriers can also be members of per-element groups. Preserve their
+    /// own content unless it is identical to the datum's whole indivisible feature.
+    fn datum_constituent_alias(
+        &mut self,
+        st: &mut PartState,
+        id: u64,
+        parent: u64,
+        feature: FeatureId,
+    ) -> bool {
+        if !matches!(st.pmi.features[feature.0], Feature::Items(_)) {
+            return false;
         }
+        let shared = self
+            .referrers_by(
+                id,
+                "shape_aspect_relationship",
+                "shape_aspect_relationship",
+                "related_shape_aspect",
+            )
+            .into_iter()
+            .any(|r| {
+                self.get_ref(r, "shape_aspect_relationship", "relating_shape_aspect")
+                    .is_some_and(|p| p != parent && self.members(p).contains(&(r, id)))
+            });
+        !shared
+            || self
+                .content(st, id)
+                .is_some_and(|(content, _)| content == st.pmi.features[feature.0])
     }
 
     /// Whether shape aspect `id` may be read one level deeper; a finding when not.
@@ -1507,6 +1535,7 @@ impl<'a> Reader<'a> {
         // requested first (e.g. by another datum, a tolerance, or a property).
         if let Some(parent) = self.datum_feature_parent(id)
             && let Some(feature) = self.feature(st, parent)
+            && self.datum_constituent_alias(st, id, parent, feature)
         {
             st.features.insert(id, Some(feature));
             st.absorbed.insert(id);
@@ -1565,7 +1594,9 @@ impl<'a> Reader<'a> {
             // as an alias as well, including presentation-only aspects otherwise absorbed.
             let constituents = st.prov.features[feature.0].clone();
             for aspect in constituents {
-                if self.datum_feature_parent(aspect) == Some(id) {
+                if self.datum_feature_parent(aspect) == Some(id)
+                    && self.datum_constituent_alias(st, aspect, id, feature)
+                {
                     st.features.insert(aspect, Some(feature));
                     st.absorbed.insert(aspect);
                 }
