@@ -143,13 +143,15 @@ fn regenerated_spindle_keeps_its_saved_callouts_near_their_features() {
             }
         }
     }
-    // The final rewritten STEP must retain the compact ladder too. Its native
-    // reader exposes actual serialized lettering, not the generated metadata.
+    // The STEP writer must retain the compact ladder too. This old file's
+    // private description links block Replace under the current ownership rules;
+    // preserve them and identify only the newly added callouts from Add.
+    // Inspect actual serialized lettering, not the generated metadata.
     let (edit, _) = pmi::write(
         &doc,
         &defs,
         &[(PartId(0), semantic.pmi.clone())],
-        pmi::write::Mode::Replace,
+        pmi::write::Mode::Add,
         pmi::write::PresentationPolicy::RemovePresentation,
     )
     .unwrap();
@@ -168,7 +170,21 @@ fn regenerated_spindle_keeps_its_saved_callouts_near_their_features() {
             continue;
         }
         let file = &saved.items[&semantic.ids["dimensions"][i]][0];
-        let actual = &written.items[&rewritten_semantic.ids["dimensions"][i]][0];
+        let name = &generated.items[&semantic.ids["dimensions"][i]][0].name;
+        let actual = written
+            .items
+            .values()
+            .flatten()
+            .chain(&written.unlinked)
+            .find(|g| {
+                &g.name == name
+                    && g.id
+                        .as_deref()
+                        .and_then(|id| id.strip_prefix("step:"))
+                        .and_then(|id| id.parse::<u64>().ok())
+                        .is_some_and(|id| id > doc.max_id())
+            })
+            .unwrap_or_else(|| panic!("missing newly written {name}"));
         let distance = geom::dist(
             text_origin(actual, "dimensions", true),
             text_origin(file, "dimensions", true),
