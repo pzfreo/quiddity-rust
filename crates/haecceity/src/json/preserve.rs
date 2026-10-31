@@ -62,6 +62,50 @@ pub(super) fn detach(
             };
             let old_raw = serde_json::to_value(&before.pmi)?;
             let new_raw = serde_json::to_value(&new.pmi)?;
+            // A note-only support association presents the note's text, rather than
+            // an independent support annotation. Do not keep obsolete note text merely
+            // because its geometric support survives.
+            if c == "features" {
+                let annotation = reference(attr(
+                    doc,
+                    id,
+                    "item_identified_representation_usage",
+                    "identified_item",
+                ));
+                let notes: Vec<_> = read.provenance.parts[part.0]
+                    .note_callouts
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, roots)| annotation.is_some_and(|a| roots.contains(&a)))
+                    .map(|(i, _)| i)
+                    .collect();
+                let mut unchanged_note = false;
+                for &note in &notes {
+                    if let Some(index) = before.ids["notes"].get(note).and_then(|id| {
+                        new.ids["notes"]
+                            .iter()
+                            .position(|candidate| candidate == id)
+                    }) && identity::content(
+                        &old_raw,
+                        "notes",
+                        note,
+                        &Anchors::default(),
+                        &mut BTreeSet::new(),
+                    )? == identity::content(
+                        &new_raw,
+                        "notes",
+                        index,
+                        &Anchors::default(),
+                        &mut BTreeSet::new(),
+                    )? {
+                        unchanged_note = true;
+                        break;
+                    }
+                }
+                if !notes.is_empty() && !unchanged_note {
+                    continue;
+                }
+            }
             if identity::content(
                 &old_raw,
                 c,

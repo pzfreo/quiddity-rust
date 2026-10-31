@@ -381,3 +381,106 @@ fn import_keeps_unchanged_foreign_callouts_and_reports_replaced_ones() {
             .all(|g| g.source == Source::Generated)
     );
 }
+
+#[test]
+fn replacing_a_note_removes_its_support_only_foreign_text() {
+    use haecceity::pmi::*;
+    let bytes = std::fs::read(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../tests/fixtures/ties/cube.step"
+    ))
+    .unwrap();
+    let doc = Document::parse(bytes.clone()).unwrap();
+    let parts = read_part_definitions(&bytes).unwrap();
+    let model = PartPmi {
+        features: vec![Feature::Items(vec![Anchor::Face(FaceIndex(0))])],
+        notes: vec![Note {
+            kind: "semantic text".into(),
+            text: "Old note".into(),
+            on: Some(NoteOwner::Feature(FeatureId(0))),
+            callouts: vec![],
+        }],
+        ..Default::default()
+    };
+    let semantic = json::identify(model, None).unwrap();
+    let (bytes, _) = json::write_preserving(&doc, &parts, &[(PartId(0), semantic)]).unwrap();
+    let doc = Document::parse(bytes).unwrap();
+    let feature=doc.ids().find(|id|matches!(doc.get(*id),Some(p21::RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("shape_aspect"))).unwrap();
+    let context = doc
+        .ids()
+        .find_map(|id| match doc.get(id) {
+            Some(p21::RawEntity::Simple {
+                name, attributes, ..
+            }) if name.eq_ignore_ascii_case("representation") => attributes.get(2).cloned(),
+            _ => None,
+        })
+        .unwrap();
+    let mut edit = p21::Edit::new();
+    let point = |x: f64| {
+        p21::simple(
+            "CARTESIAN_POINT",
+            vec![
+                A::String("".into()),
+                A::List(vec![A::Real(x), A::Real(0.), A::Real(0.)]),
+            ],
+        )
+    };
+    let a = edit.add(point(1.));
+    let b = edit.add(point(2.));
+    let line = edit.add(p21::simple(
+        "POLYLINE",
+        vec![
+            A::String("Old note text".into()),
+            A::List(vec![a.to_ref(), b.to_ref()]),
+        ],
+    ));
+    let occurrence = edit.add(p21::simple(
+        "ANNOTATION_CURVE_OCCURRENCE",
+        vec![
+            A::String("Old note text".into()),
+            A::List(vec![]),
+            line.to_ref(),
+        ],
+    ));
+    let root = edit.add(p21::simple(
+        "DRAUGHTING_CALLOUT",
+        vec![
+            A::String("Old note text".into()),
+            A::List(vec![occurrence.to_ref()]),
+        ],
+    ));
+    let model = edit.add(p21::simple(
+        "DRAUGHTING_MODEL",
+        vec![
+            A::String("Foreign note".into()),
+            A::List(vec![root.to_ref()]),
+            context,
+        ],
+    ));
+    edit.add(p21::simple(
+        "DRAUGHTING_MODEL_ITEM_ASSOCIATION",
+        vec![
+            A::String("".into()),
+            A::String("".into()),
+            A::EntityRef(feature),
+            model.to_ref(),
+            root.to_ref(),
+        ],
+    ));
+    let doc = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    let parts = read_part_definitions(doc.bytes()).unwrap();
+    let read = pmi::read(&doc, &parts).unwrap();
+    let note_root = read.provenance.parts[0].note_callouts[0][0];
+    let mut semantic =
+        json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+    semantic.pmi.notes[0].text = "New note".into();
+    let (bytes, report) = json::write_preserving(&doc, &parts, &[(PartId(0), semantic)]).unwrap();
+    assert!(
+        report
+            .presentation_removed
+            .iter()
+            .any(|(id, _)| *id == note_root)
+    );
+    let after = Document::parse(bytes).unwrap();
+    assert!(after.get(note_root).is_none());
+}
