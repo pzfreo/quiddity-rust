@@ -93,7 +93,7 @@ fn export_validate_import_and_presentation() {
     let doc = Document::parse(input.clone()).unwrap();
     let parts = read_part_definitions(&input).unwrap();
     let decoded = json::from_value(&value, &Anchors::read(&doc, &parts[0])).unwrap();
-    assert!(quiddity::kernel::pmi::write::differences(&model(), &decoded.pmi).is_empty());
+    assert!(json::identity_differences(&model(), &decoded.pmi).is_empty());
     let nist = concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/tests/fixtures/ap242/nist/nist_ctc_01_asme1_ap242-e1.stp.gz"

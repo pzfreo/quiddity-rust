@@ -256,10 +256,14 @@ resolved content key. Corrupt or stale ordering records are refused. This metada
 also distinguishes equal support projections that the native representation shares.
 The carrier lookup cache is crate-private and excluded from `PmiRead` equality.
 
-`pmi::write::differences` and `differences_as_stated` detect feature, attribute
-and note order/field changes, including null descriptions and collection changes.
-The explicitly named `differences_by_meaning[_as_stated]` functions retain native
-AP242 set comparison for the legacy writer and its frozen output checks.
+`pmi::write::differences` retains the ordinary STEP writer's comparison of resolved
+meaning as sets, accepting equivalent support aliases and collection order.
+`differences_as_stated` additionally compares stated decimal text and units.
+The JSON-only `json::identity_differences` compares every `PartPmi` field exactly,
+including collection membership, order, references, null descriptions and notes
+becoming attributes. JSON write verification, CLI import and JSON identity tests
+use this strict comparison; external ids, unit tables and wire anchors also have
+separate identity checks.
 
 Import preserves foreign graphics linked to surviving unchanged semantic items;
 only presentation of removed/replaced requirements may be removed, and each

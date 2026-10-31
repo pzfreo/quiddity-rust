@@ -150,7 +150,7 @@ fn nist_and_corpus_roundtrip() {
                 let definitions = read_part_definitions(&output).unwrap();
                 let reread = pmi::read(&after, &definitions).unwrap();
                 for (i, p) in read.parts.iter().enumerate() {
-                    let differences = pmi::write::differences(p, &reread.parts[i]);
+                    let differences = json::identity_differences(p, &reread.parts[i]);
                     if !differences.is_empty() {
                         errors.push(format!(
                             "{} part {i}: STEP differences {differences:?}",

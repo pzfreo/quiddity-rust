@@ -411,6 +411,71 @@ pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
     })
 }
 
+/// Exact differences between decoded JSON models, including collection membership,
+/// order, reference indices, stated values, optional fields and callout observations.
+/// Unlike [`pmi::write::differences`], this does not canonicalize native STEP meaning.
+/// External item ids, unit-table identities and wire anchors are checked separately
+/// by [`write`] and by whole-document JSON identity checks.
+#[must_use]
+pub fn identity_differences(a: &PartPmi, b: &PartPmi) -> Vec<String> {
+    let mut out = Vec::new();
+    if a.standards != b.standards {
+        out.push("standards: membership, order or fields changed".into());
+    }
+    if a.decimal_places != b.decimal_places {
+        out.push("decimal_places: membership, order or fields changed".into());
+    }
+    if a.features != b.features {
+        out.push("features: membership, order or fields changed".into());
+    }
+    if a.datum_targets != b.datum_targets {
+        out.push("datum_targets: membership, order or fields changed".into());
+    }
+    if a.datums != b.datums {
+        out.push("datums: membership, order or fields changed".into());
+    }
+    if a.dimensions != b.dimensions {
+        out.push("dimensions: membership, order or fields changed".into());
+    }
+    if a.tolerances != b.tolerances {
+        out.push("tolerances: membership, order or fields changed".into());
+    }
+    if a.tolerance_relations != b.tolerance_relations {
+        out.push("tolerance_relations: membership, order or fields changed".into());
+    }
+    if a.general != b.general {
+        out.push("general: membership, order or fields changed".into());
+    }
+    if a.threads != b.threads {
+        out.push("threads: membership, order or fields changed".into());
+    }
+    if a.knurls != b.knurls {
+        out.push("knurls: membership, order or fields changed".into());
+    }
+    if a.holes != b.holes {
+        out.push("holes: membership, order or fields changed".into());
+    }
+    if a.material != b.material {
+        out.push("material: membership, order or fields changed".into());
+    }
+    if a.notes != b.notes {
+        out.push("notes: membership, order or fields changed".into());
+    }
+    if a.surface_textures != b.surface_textures {
+        out.push("surface_textures: membership, order or fields changed".into());
+    }
+    if a.attributes != b.attributes {
+        out.push("attributes: membership, order or fields changed".into());
+    }
+    if a.geometry != b.geometry {
+        out.push("geometry: membership, order or fields changed".into());
+    }
+    if a.derived_geometry != b.derived_geometry {
+        out.push("derived_geometry: membership, order or fields changed".into());
+    }
+    out
+}
+
 /// Replace selected parts' PMI using JSON ids. The ordinary STEP writer is unchanged.
 /// Refusals come from the existing AP242 writer and retain the item and reason.
 pub fn write(
@@ -469,11 +534,11 @@ pub fn write(
     let after_read = pmi::read(&after, &definitions).map_err(|e| Error(e.to_string()))?;
     for (part, expected) in requested {
         let actual = &after_read.parts[part.0];
-        if &expected.pmi != actual {
+        let differences = identity_differences(&expected.pmi, actual);
+        if !differences.is_empty() {
             return Err(Error(format!(
                 "part {}: JSON identity failed: {:?}",
-                part.0,
-                pmi::write::differences_as_stated(&expected.pmi, actual)
+                part.0, differences
             )));
         }
         let actual = identify(actual.clone(), Some(&after_read.identifiers.parts[part.0]))?;

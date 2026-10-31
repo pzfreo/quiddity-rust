@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 
 use haecceity::p21::Document;
 use haecceity::pmi::write::{
-    ItemRef, Mode, PresentationPolicy, WriteError, differences_by_meaning_as_stated as differences,
+    ItemRef, Mode, PresentationPolicy, WriteError, differences_as_stated as differences,
 };
 use haecceity::pmi::{self, *};
 use haecceity::step::{PartDefinition, read_part_definitions};

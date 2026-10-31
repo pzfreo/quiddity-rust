@@ -161,7 +161,7 @@ fn write_sfa_samples_from_json() {
 
         for (i, p) in models.iter().enumerate() {
             let expected = p.clone();
-            let differences = pmi::write::differences(&expected, &reread.parts[i]);
+            let differences = json::identity_differences(&expected, &reread.parts[i]);
             assert!(differences.is_empty(), "{name}: {differences:?}");
         }
         std::fs::write(out.join(format!("{name}.step")), written).unwrap();

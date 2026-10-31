@@ -133,7 +133,7 @@ fn caller_ids_survive_step_write() {
         read.identifiers.parts[0].dimensions,
         vec![Some("inspection-26".into())]
     );
-    assert!(pmi::write::differences(&test_model(), &read.parts[0]).is_empty());
+    assert!(json::identity_differences(&test_model(), &read.parts[0]).is_empty());
     let reread = pmi::read(&doc, &parts).unwrap();
     assert_eq!(read.identifiers, reread.identifiers);
 }
@@ -418,7 +418,7 @@ fn structural_support_aliases_do_not_duplicate_requirement_ids() {
     .unwrap();
     let definitions = read_part_definitions(&written).unwrap();
     let read = pmi::read(&Document::parse(written).unwrap(), &definitions).unwrap();
-    assert!(pmi::write::differences(&p, &read.parts[0]).is_empty());
+    assert!(json::identity_differences(&p, &read.parts[0]).is_empty());
     assert_eq!(
         read.identifiers.parts[0].dimensions,
         json::identify(p.clone(), None).unwrap().ids["dimensions"]
@@ -557,7 +557,7 @@ fn multi_face_support_resolves_every_face_or_refuses() {
 }
 
 #[test]
-fn differences_detect_projection_order_attribute_fields_and_note_reclassification() {
+fn identity_differences_detect_projection_order_attribute_fields_and_note_reclassification() {
     let mut p = test_model();
     p.features
         .push(Feature::Items(vec![Anchor::Face(FaceIndex(1))]));
@@ -585,13 +585,26 @@ fn differences_detect_projection_order_attribute_fields_and_note_reclassificatio
     });
     let mut changed = p.clone();
     changed.features.swap(0, 1);
-    assert!(!pmi::write::differences(&p, &changed).is_empty());
+    assert!(!json::identity_differences(&p, &changed).is_empty());
     let mut changed = p.clone();
     changed.attributes.swap(0, 1);
-    assert!(!pmi::write::differences(&p, &changed).is_empty());
+    assert!(!json::identity_differences(&p, &changed).is_empty());
     let mut changed = p.clone();
     changed.attributes[0].description = Some("user defined attribute".into());
-    assert!(!pmi::write::differences(&p, &changed).is_empty());
+    assert!(!json::identity_differences(&p, &changed).is_empty());
+    let mut changed = p.clone();
+    changed.dimensions.push(changed.dimensions[0].clone());
+    assert!(
+        json::identity_differences(&p, &changed)
+            .iter()
+            .any(|d| d.starts_with("dimensions:"))
+    );
+    let mut changed = p.clone();
+    changed.notes[0].callouts.push(Callout {
+        name: "Observed ink".into(),
+        features: vec![FeatureId(0)],
+    });
+    assert!(!json::identity_differences(&p, &changed).is_empty());
     let mut changed = p.clone();
     changed.notes.clear();
     changed.attributes.push(AttributeSet {
@@ -604,7 +617,7 @@ fn differences_detect_projection_order_attribute_fields_and_note_reclassificatio
         description: None,
         general_property: None,
     });
-    assert!(!pmi::write::differences(&p, &changed).is_empty());
+    assert!(!json::identity_differences(&p, &changed).is_empty());
 }
 
 #[test]

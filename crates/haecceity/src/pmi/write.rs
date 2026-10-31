@@ -6656,46 +6656,23 @@ impl SymbolLayout {
 // Semantic comparison
 // ---------------------------------------------------------------------------------------------
 
-/// Differences in meaning plus exact feature, note and attribute collections: order,
-/// projections, ownership and optional fields are significant. Native canonicalization
-/// checks can explicitly use [`differences_by_meaning`] instead. Numeric values outside
-/// these collections are compared as quantities; [`differences_as_stated`] also keeps
-/// their stated decimal text and units.
+/// The differences between two parts' PMI as meaning, not as indices: every reference is
+/// resolved to what it names (a feature to its faces, edges and geometry; a datum to its label
+/// and feature), collections are compared as sets (features of equal content are one feature;
+/// modifiers in any order), and a one-datum compartment's own modifiers are the compartment's.
+/// Values are compared as quantities (millimetres or radians, to 1e-12 relative) with their
+/// decimal places; [`differences_as_stated`] compares their text and unit too. Empty when the
+/// two mean the same.
 #[must_use]
 pub fn differences(a: &PartPmi, b: &PartPmi) -> Vec<String> {
-    ordered_differences(a, b, false)
-}
-
-/// Compare native AP242 meaning, ignoring support aliases and collection order.
-/// Use this for the legacy writer's canonicalized native output.
-pub fn differences_by_meaning(a: &PartPmi, b: &PartPmi) -> Vec<String> {
     compare(a, b, false)
-}
-
-/// Native meaning comparison retaining stated decimal text and units.
-pub fn differences_by_meaning_as_stated(a: &PartPmi, b: &PartPmi) -> Vec<String> {
-    compare(a, b, true)
 }
 
 /// [`differences`], with every value compared as stated: its decimal text and its unit (a
 /// round trip writes each value's own digits in its own unit).
 #[must_use]
 pub fn differences_as_stated(a: &PartPmi, b: &PartPmi) -> Vec<String> {
-    ordered_differences(a, b, true)
-}
-
-fn ordered_differences(a: &PartPmi, b: &PartPmi, stated: bool) -> Vec<String> {
-    let mut out = compare(a, b, stated);
-    for (name, equal) in [
-        ("feature order or fields", a.features == b.features),
-        ("attribute order or fields", a.attributes == b.attributes),
-        ("note order or fields", a.notes == b.notes),
-    ] {
-        if !equal {
-            out.push(format!("{name} changed"));
-        }
-    }
-    out
+    compare(a, b, true)
 }
 
 fn compare(a: &PartPmi, b: &PartPmi, stated: bool) -> Vec<String> {

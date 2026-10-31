@@ -327,8 +327,7 @@ fn brep(args: &BrepArgs) -> Result<String, String> {
     use quiddity::kernel::brep_write::{WriteOptions, write_step};
     let (path, out) = (args.step.as_str(), args.out.as_str());
     let bytes = step_bytes(path)?;
-    let items =
-        |p: &PartPmi| pmi::write::differences_by_meaning_as_stated(&PartPmi::default(), p).len();
+    let items = |p: &PartPmi| pmi::write::differences_as_stated(&PartPmi::default(), p).len();
     // A PMI document given with --pmi is the written part's PMI, in place of the file's: it must
     // be bound to this file (`pmi read`, `pmi check`) and name its only part.
     let given = match &args.pmi {

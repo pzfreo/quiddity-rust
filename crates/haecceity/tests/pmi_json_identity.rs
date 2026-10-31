@@ -146,7 +146,7 @@ fn whole_json_identity_ctc02_ftc07_xcaf_and_corpus() {
             )
             .unwrap();
             assert_eq!(actual, expected[i], "{name} part {i}: whole canonical JSON");
-            assert!(pmi::write::differences(&requested[i].1.pmi, model).is_empty());
+            assert!(json::identity_differences(&requested[i].1.pmi, model).is_empty());
         }
         eprintln!(
             "{name}: whole JSON identity passed, {} parts; {} presentation removals",

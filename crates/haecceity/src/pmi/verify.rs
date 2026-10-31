@@ -5,7 +5,7 @@
 use std::collections::BTreeSet;
 use std::fmt;
 
-use super::write::{Mode, differences_by_meaning_as_stated as differences_as_stated};
+use super::write::{Mode, differences_as_stated};
 use super::{Finding, PartId, PartPmi, PmiRead};
 use crate::p21::Document;
 use crate::step::PartDefinition;
