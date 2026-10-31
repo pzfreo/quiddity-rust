@@ -1,7 +1,7 @@
 # Python quiddity 0.4.0
 
 `quiddity` is now an abi3 wheel built from Rust with PyO3 and maturin. It supports
-CPython 3.12 and newer, has no Python runtime dependencies, and requires neither
+CPython 3.11 and newer, has no Python runtime dependencies, and requires neither
 build123d nor OCP. The Rust binding crate is `crates/quiddity-py` (`publish = false`
 for crates.io); its Python distribution and import name are both `quiddity`.
 
@@ -64,12 +64,36 @@ drawing = pmi.presentation(ap242_step)  # haecceity.presentation/1 dict
 
 | API | Result |
 | --- | --- |
-| `pmi.write(geometry, document, *, part=None)` | AP242 STEP **bytes**, with generated callouts enabled |
+| `pmi.write(geometry, document, *, part=None, report=False)` | AP242 STEP **bytes**, with generated callouts enabled |
+| `pmi.write(geometry, document, *, part=None, report=True)` | `(bytes, report_dict)` with verification and warnings |
 | `pmi.read(step, *, part=None, anchors="index")` | PMI **dict**, with face indices by default |
 | `pmi.read(step, *, part=None, anchors="name")` | PMI dict with STEP face names; missing or ambiguous referenced names are refused |
 | `pmi.presentation(step, *, part=None)` | File-owned/generated presentation dict |
 | `pmi.validate(document)` | None on success; schema, references and the same geometry-independent authoring checks as import |
 | `pmi.SCHEMA`, `pmi.PRESENTATION_SCHEMA` | Packaged JSON Schema dicts |
+
+To keep warnings from a successful import, request the optional report:
+
+```python
+ap242_step, report = pmi.write(geometry_step, semantic, report=True)
+assert report["differences"] == []
+print(report["added"], report["read_findings"], report["writer_findings"])
+```
+
+The default return remains bytes. The report retains the JSON-import CLI's
+`schema`, `part`, `added`, `differences` and `presentation_removed` fields; there
+is no output filename for an in-memory operation. `read_findings` describes the
+input snapshot, including repaired OCCT density measures; `output_findings`
+describes the verified result. Each reader finding has `kind`, `part`, `ids`,
+`entity` and `detail`. Refusals still raise `PmiError`, with either report setting.
+
+`writer` is the full canonical Rust write report, including instance counts,
+source/output bindings, schema upgrades, repairs, kept/unconsumed PMI, and
+preexisting schema/rule or practice-conflict diagnostics. `writer_findings`
+flattens its warning-bearing collections, retaining every original field and
+adding `category` to identify the source collection (for example
+`preexisting_violations`, `repairs`, or `kept_unconsumed`). This keeps input reader
+repairs distinct from writer diagnostics and from findings in the output.
 
 The schemas are also installed as `quiddity/schema/haecceity.pmi-1.json` and
 `quiddity/schema/haecceity.presentation-1.json`, byte-identical to haecceity's.
@@ -120,7 +144,7 @@ New commands include `evidence <step> [--framed]`, `fingerprints <step>` and
 - Evidence and anchors identify faces by indices, replacing Face objects.
   OCP import, inspection and mapping helpers are removed.
 - The CLI is the Rust CLI, with different subcommands and JSON output.
-- Python 3.12 is the minimum supported version.
+- Python 3.11 is the minimum supported version.
 
 ## Migrating build123d-mcp
 
@@ -182,7 +206,7 @@ python -m pytest tests/python -q
 
 `.github/workflows/python.yml` builds abi3 wheels for Linux x86_64/aarch64,
 macOS arm64/x86_64 and Windows x64, plus an sdist. Each wheel runs the smoke
-suite on CPython 3.12; Linux x86_64 also tests a newer CPython. A separate Linux
+suite on CPython 3.11; Linux x86_64 also tests a newer CPython. A separate Linux
 job installs the sdist and runs the same smoke suite. The corpus test
 skips without `QUIDDITY_CORPUS` and fails if required corpus inputs are missing.
 **A published GitHub release publishes to PyPI.** After all builds and tests pass, the

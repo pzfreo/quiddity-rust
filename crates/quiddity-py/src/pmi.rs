@@ -132,16 +132,81 @@ fn pmi_read(
         .map_err(|e| e.raised(py))
 }
 
+/// Preserve the canonical writer report and expose its warning-bearing collections as a list.
+fn writer_findings(writer: &Value) -> Vec<Value> {
+    let mut out = Vec::new();
+    for category in [
+        "kept_unconsumed",
+        "preexisting_violations",
+        "preexisting_rule_violations",
+        "practice_schema_conflicts",
+        "repairs",
+        "left_unreferenced",
+        "note_migrations",
+        "note_presentation_removed",
+    ] {
+        if let Some(items) = writer[category].as_array() {
+            for item in items {
+                let mut finding = item.clone();
+                finding["category"] = value!(category);
+                out.push(finding);
+            }
+        }
+    }
+    if let Some(schema) = writer.get("edition_undetermined") {
+        out.push(
+            value!({"category": "edition_undetermined", "file_schema": schema,
+            "validated_against": writer["validated_against"]}),
+        );
+    }
+    out
+}
+
+fn import_report(
+    doc: &Document,
+    output: &[u8],
+    selected: usize,
+    expected: &pmi::PartPmi,
+    before: &pmi::PmiRead,
+    report: &pmi::write::WriteReport,
+) -> json::Result<Value> {
+    let after_doc = Document::parse(output.to_vec()).map_err(|e| json::Error(e.to_string()))?;
+    let after_parts = read_part_definitions(output).map_err(|e| json::Error(e.to_string()))?;
+    let after = pmi::read(&after_doc, &after_parts).map_err(|e| json::Error(e.to_string()))?;
+    let differences = json::identity_differences(expected, &after.parts[selected]);
+    if !differences.is_empty() {
+        return Err(json::Error(format!(
+            "output does not verify: {differences:?}"
+        )));
+    }
+    let writer = quiddity::pmi_json::write_report_json(
+        pmi::Mode::Replace,
+        pmi::write::PresentationPolicy::RemovePresentation,
+        &[PartId(selected)],
+        &quiddity::pmi_json::Binding::of(doc.bytes()),
+        &quiddity::pmi_json::Binding::of(output),
+        report,
+        &after.findings,
+    );
+    Ok(value!({
+        "schema": "haecceity.pmi/1", "part": selected, "added": report.added,
+        "differences": differences, "presentation_removed": report.presentation_removed,
+        "read_findings": findings(before), "output_findings": findings(&after),
+        "writer_findings": writer_findings(&writer), "writer": writer,
+    }))
+}
+
 #[pyfunction]
-#[pyo3(signature = (geometry, document, part=None))]
+#[pyo3(signature = (geometry, document, part=None, report=false))]
 fn pmi_write<'py>(
     py: Python<'py>,
     geometry: &Bound<'_, PyAny>,
     document: String,
     part: Option<usize>,
-) -> PyResult<Bound<'py, PyBytes>> {
+    report: bool,
+) -> PyResult<(Bound<'py, PyBytes>, Option<String>)> {
     let input = super::Input::extract(geometry)?;
-    let output = py
+    let (output, details) = py
         .detach(|| {
             let value = json::parse(&document).map_err(Failure::new)?;
             let (doc, parts, selected) = source(input, part)?;
@@ -151,11 +216,23 @@ fn pmi_write<'py>(
                 // resolves topology against this exact geometry snapshot before writing.
                 json::validate(&value)?;
                 let semantic = json::from_value(&value, &Anchors::read(&doc, &parts[selected]))?;
+                let requested = [(PartId(selected), semantic)];
                 // write_preserving already verifies exact model, requirement ids and units by
                 // reading the candidate back. Presentation is enabled by the dependency defaults.
-                let (output, _) =
-                    json::write_preserving(&doc, &parts, &[(PartId(selected), semantic)])?;
-                Ok::<_, json::Error>(output)
+                let (output, written) = json::write_preserving(&doc, &parts, &requested)?;
+                let details = if report {
+                    Some(serde_json::to_string(&import_report(
+                        &doc,
+                        &output,
+                        selected,
+                        &requested[0].1.pmi,
+                        &read,
+                        &written,
+                    )?)?)
+                } else {
+                    None
+                };
+                Ok::<_, json::Error>((output, details))
             })();
             written.map_err(|error| Failure {
                 message: error.to_string(),
@@ -163,7 +240,7 @@ fn pmi_write<'py>(
             })
         })
         .map_err(|e| e.raised(py))?;
-    Ok(PyBytes::new(py, &output))
+    Ok((PyBytes::new(py, &output), details))
 }
 
 #[pyfunction]

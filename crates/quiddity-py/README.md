@@ -1,6 +1,6 @@
 # quiddity 0.4.0
 
-Rust-built STEP manufacturing feature recognition for CPython 3.12+, with no Python
+Rust-built STEP manufacturing feature recognition for CPython 3.11+, with no Python
 runtime dependencies. This replaces Python quiddity 0.3.11 with a new file-based API.
 
 ```python

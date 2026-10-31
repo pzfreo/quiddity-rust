@@ -85,11 +85,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: linux-x86_64, os: ubuntu-22.04, python: '3.12' }
-          - { name: linux-aarch64, os: ubuntu-24.04-arm, python: '3.12' }
-          - { name: macos-arm64, os: macos-latest, python: '3.12' }
-          - { name: macos-x86_64, os: macos-15-intel, python: '3.12' }
-          - { name: windows-x64, os: windows-latest, python: '3.12' }
+          - { name: linux-x86_64, os: ubuntu-22.04, python: '3.11' }
+          - { name: linux-aarch64, os: ubuntu-24.04-arm, python: '3.11' }
+          - { name: macos-arm64, os: macos-latest, python: '3.11' }
+          - { name: macos-x86_64, os: macos-15-intel, python: '3.11' }
+          - { name: windows-x64, os: windows-latest, python: '3.11' }
           # Also check forward compatibility of the abi3 wheel.
           - { name: linux-x86_64, os: ubuntu-22.04, python: '3.15' }
     runs-on: ${{ matrix.os }}
@@ -135,7 +135,7 @@ jobs:
           path: dist
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
       - run: rustup show
-      - run: uv venv --python 3.12 .venv
+      - run: uv venv --python 3.11 .venv
       - run: uv pip install --python .venv pytest dist/*.tar.gz
       - run: .venv/bin/python -m pytest tests/python -q
 

@@ -34,9 +34,10 @@ def _part(part: int | None) -> int | None:
     return part
 
 
-def write(geometry: str | os.PathLike | bytes, document: str | dict, *, part: int | None = None) -> bytes:
-    """Append PMI losslessly, verify the result, and return AP242 STEP bytes; no files written."""
-    return pmi_write(_step(geometry), _document(document), _part(part))
+def write(geometry: str | os.PathLike | bytes, document: str | dict, *, part: int | None = None, report: bool = False) -> bytes | tuple[bytes, dict]:
+    """Return verified AP242 bytes, or (bytes, import-report dict) with report=True; no files written."""
+    output, details = pmi_write(_step(geometry), _document(document), _part(part), report)
+    return (output, json.loads(details)) if report else output
 
 
 def read(step: str | os.PathLike | bytes, *, part: int | None = None, anchors: str = "index") -> dict:

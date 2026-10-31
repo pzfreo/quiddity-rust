@@ -9,7 +9,7 @@ description = "Rust-built manufacturing feature recognition from STEP paths or b
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = []
 classifiers = ["Programming Language :: Python :: 3", "Programming Language :: Rust"]
 
