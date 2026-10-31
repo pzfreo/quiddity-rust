@@ -6,6 +6,19 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.2.6 (2026-10-30)
+
+Upgrading from 0.2.5: recognition schema `/6` and fingerprints `/3` are unchanged. haecceity's
+PMI writer now adds a tessellated callout (annotation plane, one semantic association) for every
+dimension and tolerance it writes, ISO 1302 symbols for face surface textures, and one
+`General notes` callout for part settings; build without the `presentation` feature for
+semantic-only output. Written semantic PMI also changes shape: multi-face aspects are
+`COMPOSITE_SHAPE_ASPECT`, location dimensions reference their own aspects rather than datum
+features, and with presentation on a datum feature that is also a size is written as separate
+`DATUM_FEATURE` and `DIMENSIONAL_SIZE`. Readers that key on face supports (as Specify does) are
+unaffected; readers that key on entity structure should re-check. Files with no PMI written are
+byte-identical. `PmiRead.identifiers` exposes each requirement's `id_attribute`.
+
 ### Added
 
 - For draftwright-rust#254 and pzfreo/quiddity-rust#135, haecceity's PMI reader exposes
