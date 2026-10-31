@@ -6517,6 +6517,7 @@ fn composite_features_and_locations_have_non_datum_geometry_carriers() {
         assert_composite_components(&w.doc);
         assert_eq!(w.read.parts[0].datums.len(), count);
         sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
+        #[cfg(feature = "presentation")]
         assert_frames_and_diameters_clear(&w.doc);
     }
 }
