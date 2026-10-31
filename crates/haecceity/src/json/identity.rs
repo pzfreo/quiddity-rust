@@ -1,6 +1,37 @@
 //! Stable content identity and support expansion; no randomized hashes or model-order keys.
 use super::*;
 
+/// Canonical UTF-8 JSON: sorted object keys, ordered arrays, no whitespace.
+/// Explicit sorting keeps ids portable even when a consumer enables preserve_order.
+pub(super) fn canonical(value: &Value) -> Result<String> {
+    match value {
+        Value::Object(object) => {
+            let mut keys: Vec<_> = object.keys().collect();
+            keys.sort();
+            let fields = keys
+                .into_iter()
+                .map(|key| {
+                    Ok(format!(
+                        "{}:{}",
+                        serde_json::to_string(key)?,
+                        canonical(&object[key])?
+                    ))
+                })
+                .collect::<Result<Vec<_>>>()?;
+            Ok(format!("{{{}}}", fields.join(",")))
+        }
+        Value::Array(array) => Ok(format!(
+            "[{}]",
+            array
+                .iter()
+                .map(canonical)
+                .collect::<Result<Vec<_>>>()?
+                .join(",")
+        )),
+        _ => Ok(serde_json::to_string(value)?),
+    }
+}
+
 pub(super) fn digest(text: &str) -> String {
     let mut h: u128 = 0x6c62272e07bb014262b821756295c58d;
     for byte in text.bytes() {
@@ -77,6 +108,20 @@ pub(super) fn identify(
         }
     }
     let mut contents = BTreeMap::<String, String>::new();
+    for &c in COLLECTIONS.iter().filter(|&&c| c != "features") {
+        for (i, id) in file_ids(identifiers, c)
+            .iter()
+            .enumerate()
+            .take(raw[c].as_array().map_or(0, Vec::len))
+        {
+            if let Some(id) = id {
+                contents.insert(
+                    id.clone(),
+                    canonical(&content(&raw, c, i, anchors, &mut BTreeSet::new())?)?,
+                );
+            }
+        }
+    }
     for &c in COLLECTIONS {
         let mut out = vec![];
         for i in 0..raw[c].as_array().map_or(0, Vec::len) {
@@ -86,7 +131,7 @@ pub(super) fn identify(
                 out.push(id.clone());
                 continue;
             }
-            let text = serde_json::to_string(&content(&raw, c, i, anchors, &mut BTreeSet::new())?)?;
+            let text = canonical(&content(&raw, c, i, anchors, &mut BTreeSet::new())?)?;
             let base = if c == "features"
                 && let Some(Some(id)) = file_ids(identifiers, c).get(i)
             {

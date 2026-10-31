@@ -22,7 +22,7 @@ pub(super) fn validate(units: &Value, used: &mut BTreeSet<String>) -> Result<()>
             if id.is_empty() || !used.insert(id.to_string()) {
                 return Err(Error(format!("duplicate or empty item id {id:?}")));
             }
-            if !values.insert(unit["value"].to_string()) {
+            if !values.insert(identity::canonical(&unit["value"])?) {
                 return Err(Error(format!(
                     "duplicate {kind} unit definition: reuse one unit id"
                 )));

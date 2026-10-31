@@ -296,7 +296,10 @@ pub fn to_value(p: &Semantic) -> Result<Value> {
                     .ok_or_else(|| Error("missing unit id".into()))?
                     .to_string()
             } else {
-                let id = format!("unit:{table}:{}", identity::digest(&value.to_string()));
+                let id = format!(
+                    "unit:{table}:{}",
+                    identity::digest(&identity::canonical(value)?)
+                );
                 if !used.insert(id.clone()) {
                     return Err(Error(format!(
                         "unit content id conflicts with item id {id:?}"

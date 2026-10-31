@@ -36,29 +36,35 @@ fn key(raw: &Value, collection: &str, index: usize) -> Result<String> {
         &Anchors::default(),
         &mut BTreeSet::new(),
     )?;
-    fn sets(v: &mut Value) {
+    fn sets(v: &mut Value) -> Result<()> {
         if let Value::Object(o) = v {
             for (k, x) in o.iter_mut() {
-                sets(x);
+                sets(x)?;
                 if ["items", "members", "from"].contains(&k.as_str())
                     && let Some(a) = x.as_array_mut()
                 {
-                    a.sort_by_key(Value::to_string);
-                    a.dedup();
+                    let mut values = std::mem::take(a)
+                        .into_iter()
+                        .map(|v| identity::canonical(&v).map(|key| (key, v)))
+                        .collect::<Result<Vec<_>>>()?;
+                    values.sort_by(|a, b| a.0.cmp(&b.0));
+                    values.dedup_by(|a, b| a.0 == b.0);
+                    *a = values.into_iter().map(|(_, v)| v).collect();
                 }
             }
         } else if let Value::Array(a) = v {
             for x in a {
-                sets(x);
+                sets(x)?;
             }
         }
+        Ok(())
     }
     // Ordering of structural supports is represented by bindings; all semantic values
     // (including ordered UDA cells and coordinate tuples) remain ordered.
     if collection == "features" {
-        sets(&mut value);
+        sets(&mut value)?;
     }
-    Ok(identity::digest(&serde_json::to_string(&value)?))
+    Ok(identity::digest(&identity::canonical(&value)?))
 }
 fn collect(
     value: &Value,

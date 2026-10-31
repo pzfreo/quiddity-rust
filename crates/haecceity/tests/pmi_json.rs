@@ -884,3 +884,30 @@ fn readback_refuses_ids_moved_to_another_collection_or_item() {
         );
     }
 }
+
+#[test]
+fn a_new_true_twin_can_follow_an_existing_content_id_from_step() {
+    let mut model = test_model();
+    let previous = json::identify(model.clone(), None).unwrap();
+    let old = previous.ids["dimensions"][0].clone();
+    model.dimensions.push(model.dimensions[0].clone());
+    let identifiers = PartIdentifiers {
+        dimensions: vec![Some(old.clone()), None],
+        ..Default::default()
+    };
+    let identified = json::identify(model, Some(&identifiers)).unwrap();
+    assert_eq!(
+        identified.ids["dimensions"],
+        vec![old.clone(), format!("{old}~2")]
+    );
+}
+
+#[test]
+fn content_id_has_a_fixed_canonical_json_vector() {
+    // FNV-1a 128 over the documented sorted-key JSON of the resolved dimension,
+    // including its stated "10.000" millimetres and the face-zero support.
+    assert_eq!(
+        json::identify(test_model(), None).unwrap().ids["dimensions"][0],
+        "dimensions:54593f8dc8d8dfaa8c91406d8a1898ee"
+    );
+}
