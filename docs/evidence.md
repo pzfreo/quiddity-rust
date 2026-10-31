@@ -17,6 +17,8 @@ The top-level fields are:
 | `features` | Accepted evidence features and section-recess refusal records |
 | `candidates` | Rejected candidates and the transitive closure of their reconciliation links |
 | `rejected_candidates` | Positions in `candidates` |
+| `failures` | Optional failed/blocked family entries, present only after a family panic |
+| `complete` | `false` only when `failures` is present; otherwise omitted |
 
 Each feature has `index` (within its family), `family`, `record` (the Rust
 record serialized as JSON), `defining_faces`, `constituent_faces`,
@@ -49,3 +51,20 @@ from `face_sources` to the live shape's faces. Check every index and invalidate
 all handles when the source changes. STEP entity IDs are scoped to one export;
 `instance` disambiguates repeated geometry. An entity ID alone is not a durable
 revision identity. Use fingerprints and correspondence between revisions.
+
+## Incomplete evidence (For #161)
+
+Evidence discovery, accepted-member pattern derivation and section-recess projection use
+always-on family isolation. The Python wheel returns this same document. For example,
+a failed pocket discovery adds `"failures": [{"family": "pockets", "stage": "discover",
+"message": "example panic"}, ...]` and `"complete": false`; dependent patterns and the
+section-recess projection have `blocked_by` entries instead of a message. Entries are
+sorted by family/stage and blocker lists alphabetically. Names identify the internal
+recognition family (`section_passages`, even though evidence records call it `passages`).
+Treat absent records in those families as unevaluated. Failed families contribute no
+candidates or face claims. Both fields are omitted on successful runs, preserving bytes.
+
+The dependency, payload, retryable-cache and panic-hook policies are described in
+[recognition/6](recognition-6.md#incomplete-recognition-for-161). STEP reading, context
+construction, reconciliation, evidence document assembly and validation remain fatal.
+WASM builds abort on panic, so this has no effect in the browser.

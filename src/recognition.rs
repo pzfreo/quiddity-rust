@@ -78,6 +78,10 @@ pub enum FaceAccounting {
 /// One part's recognition, as draftwright reads it.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RecognitionDocument {
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub failures: Vec<crate::features::FamilyFailure>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub complete: Option<bool>,
     pub schema_version: String,
     /// The recogniser: `quiddity-rust` and its crate version.
     pub package: Package,
@@ -461,6 +465,8 @@ pub fn document(recognition: &Recognition, face_count: usize) -> RecognitionDocu
     }
     let face_accounting = account_faces(&records, &recognition.body_evidence, face_count);
     RecognitionDocument {
+        failures: working.failures.clone(),
+        complete: (!working.failures.is_empty()).then_some(false),
         schema_version: schema_version(working).into(),
         package: Package {
             name: "quiddity-rust".into(),

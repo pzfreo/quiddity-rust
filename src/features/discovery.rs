@@ -26,6 +26,15 @@ pub(crate) struct Analysis<R> {
     pub refusals: Vec<DiscoveryRefusal>,
 }
 
+impl<R> Default for Analysis<R> {
+    fn default() -> Self {
+        Self {
+            accepted: Vec::new(),
+            refusals: Vec::new(),
+        }
+    }
+}
+
 #[cfg(test)]
 pub(crate) mod tests {
     use crate::features::support_patches::polygon_part;

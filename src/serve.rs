@@ -212,6 +212,9 @@ fn recognition_warnings(
             .iter()
             .map(|repair| format!("{path}: warning: {repair}")),
     );
+    if !document.failures.is_empty() {
+        warnings.push(format!("{path}: warning: incomplete recognition ({} failed or blocked families); see document.failures", document.failures.len()));
+    }
     if let Some(reason) = &recognition.features.working().section_recess_refusal {
         warnings.push(format!(
             "{path}: warning: section-recess projection refused: {reason}"

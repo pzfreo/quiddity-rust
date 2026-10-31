@@ -538,6 +538,7 @@ fn carry(
     reach: f64,
 ) -> crate::published_records::PublishedFeatures {
     let Features {
+        failures,
         run_mode,
         discovery_refusals,
         evidence_status,
@@ -623,6 +624,7 @@ fn carry(
     }
     let void_count = interior_voids.len();
     let features = Features {
+        failures,
         run_mode,
         discovery_refusals,
         evidence_status,

@@ -6,6 +6,12 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Fixed
+
+- For #161, isolate panicking recognition families and block their dependents while
+  preserving independent results. Incomplete recognition/6 and evidence/1 documents
+  add optional `failures` and `complete: false`; successful output is unchanged.
+
 ## 0.4.0 (2026-10-31)
 
 Upgrading from 0.2.8: recognition schema `/6` and fingerprints `/3` are unchanged, and existing CLI output is unchanged.
