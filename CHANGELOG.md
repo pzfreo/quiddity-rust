@@ -6,6 +6,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.2.7 (2026-10-31)
+
+Upgrading from 0.2.6: recognition schema `/6` and fingerprints `/3` are unchanged, and so is semantic PMI written by default builds. Changes:
+- **New opt-in `json` feature:** PMI as JSON (`haecceity.pmi/1`, with the companion `haecceity.presentation/1`), JSON Schemas, and the `quiddity pmi json` CLI (build with `--features json`).
+- **Presentation (on by default):** single-line dimension deviations are now drawn as `+upper/lower` (ISO 129-1:2004 §6.2); blank note lines draw no curve; the general-notes block and frame/diameter callouts are placed clear of each other in projected views. Written callout graphics therefore differ from 0.2.6.
+- **New public API:** font-width-driven notation geometry (control frames, symbols, labels, surface texture, removal marks) and ordered fit-class lists, for drawing renderers.
+
 ### Added
 
 - For #142, opt-in `json` exposes versioned AP242 semantic PMI and As Drawn/generated
