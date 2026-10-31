@@ -466,14 +466,14 @@ fn explicit_step_heights_and_tied_shoulders_have_one_owner() {
     ] {
         add_planes(&mut i, axis, &stations);
     }
-    i.steps.heights = vec![i.planes.last().unwrap().support.clone()];
-    i.steps.heights[0] = i
-        .planes
-        .iter()
-        .find(|p| p.axis == 2 && p.support.at[2] == 4.)
-        .unwrap()
-        .support
-        .clone();
+    i.steps.heights = vec![
+        i.planes
+            .iter()
+            .find(|p| p.axis == 2 && p.support.at[2] == 4.)
+            .unwrap()
+            .support
+            .clone(),
+    ];
     i.steps.shoulders = i
         .planes
         .iter()
@@ -533,12 +533,34 @@ fn recognition_order_member_order_and_faces_do_not_change_output_or_ids() {
         }
     }
     i.patterns.push(pattern(&i, Arrangement::Grid));
-    add_planes(&mut i, 0, &[0., 20., 100.]);
+    add_planes(&mut i, 0, &[0., 20., 80., 100.]);
+    i.steps.axis = 0;
+    i.steps.heights = i.planes[1..3].iter().map(|p| p.support.clone()).collect();
+    i.steps.shoulders = vec![Plane {
+        support: support("shoulder:40", [0., 40., 0.], true),
+        axis: 1,
+        body: 0,
+    }];
+    i.deferred = vec![
+        Deferred {
+            id: "deferred:pocket:42".into(),
+            faces: vec![42],
+            family: "pockets".into(),
+        },
+        Deferred {
+            id: "deferred:slot:43".into(),
+            faces: vec![43],
+            family: "slots".into(),
+        },
+    ];
     let expected = plan(&i);
     i.holes.reverse();
     i.planes.reverse();
     i.patterns[0].members.reverse();
     i.datums.reverse();
+    i.steps.heights.reverse();
+    i.steps.shoulders.reverse();
+    i.deferred.reverse();
     assert_eq!(expected, plan(&i));
     assert_eq!(expected, plan(&i));
 }
@@ -751,5 +773,26 @@ fn turned_body_envelope_is_explicitly_deferred() {
             .filter(|c| c.id.starts_with("deferred:envelope:"))
             .count(),
         3
+    );
+}
+
+#[test]
+fn recognition_keeps_the_unowned_step_height_in_a_mixed_part() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/golden_plates_pads_levels_and_slanted_steps.step");
+    let part = crate::read_step_file(&path).unwrap();
+    let i = Input::from_recognition(&part, vec![], Policy::default()).unwrap();
+    assert_eq!(i.steps.heights.len(), 1);
+    assert_eq!(i.steps.heights[0].faces, [14]);
+    let height = i.steps.heights[0].at[2] - i.bounds[0][2];
+    assert!((height - 16.).abs() < 1e-6);
+    assert!(plan(&i).0.iter().any(
+        |r| (r.nominal - height).abs() < 1e-6 && r.covers.contains(&i.steps.heights[0].feature)
+    ));
+    assert!(i.deferred.iter().any(|d| d.family == "pads"));
+    assert!(
+        i.deferred
+            .iter()
+            .any(|d| d.family.contains("pocket") || d.family.contains("recess"))
     );
 }

@@ -252,19 +252,62 @@ pub(super) fn recognise(
         })
         .collect();
     let profiles = !found.turned_steps.is_empty();
-    let turned = !found.turned_bodies.is_empty() || {
+    // A complete round outline may have no turned-step record (e.g. a threaded or
+    // freeform axial body). Corroborate an envelope cylinder by a recognised coaxial
+    // hole/boss, and require its two radial diameters to fill the box exactly.
+    let round = part.faces.iter().enumerate().any(|(face_index, face)| {
+        let crate::kernel::geom::Surface::Cylinder { frame, radius } = &face.surface else {
+            return false;
+        };
+        let Some(k) = super::rules::principal(frame.z) else {
+            return false;
+        };
+        let across: Vec<_> = (0..3).filter(|&j| j != k).collect();
+        let fills = part.frame_points_outward(face_index) == Some(true)
+            && across.iter().all(|&j| {
+                (frame.origin[j] - radius - lo[j]).abs() < 1e-4
+                    && (frame.origin[j] + radius - hi[j]).abs() < 1e-4
+                    && !planes.iter().any(|p| {
+                        p.axis == j
+                            && ((p.support.at[j] - lo[j]).abs() < 1e-4
+                                || (p.support.at[j] - hi[j]).abs() < 1e-4)
+                    })
+            });
+        let on = |at: Point, dir: Point| {
+            super::rules::principal(dir) == Some(k)
+                && across
+                    .iter()
+                    .all(|&j| (at[j] - frame.origin[j]).abs() < 0.01)
+        };
+        fills
+            && (found.holes.iter().any(|h| on(*h.location, h.axis))
+                || found.bosses.iter().any(|b| on(b.location, b.axis)))
+    });
+    let turned = round || !found.turned_bodies.is_empty() || {
         let mut bands = found.turned_steps.iter();
         bands.next().is_some_and(|first| {
             let axis = ['x', 'y', 'z'].iter().position(|&a| a == first.axis);
             axis.is_some_and(|k| {
+                let common = found.turned_steps.iter().all(|s| {
+                    s.axis == first.axis
+                        && s.profile
+                            .as_ref()
+                            .zip(first.profile.as_ref())
+                            .is_some_and(|(a, b)| {
+                                (0..3).all(|j| {
+                                    j == k || (a.axis_origin[j] - b.axis_origin[j]).abs() < 1e-3
+                                })
+                            })
+                });
                 let od = found
                     .turned_steps
                     .iter()
                     .map(|s| s.diameter)
                     .fold(0., f64::max);
-                (0..3)
-                    .filter(|&j| j != k)
-                    .all(|j| ((hi[j] - lo[j]) - od).abs() < 1e-3 * od.max(1.))
+                common
+                    && (0..3)
+                        .filter(|&j| j != k)
+                        .all(|j| ((hi[j] - lo[j]) - od).abs() < 1e-3 * od.max(1.))
             })
         })
     };
@@ -311,6 +354,8 @@ pub(super) fn recognise(
                 .map_or_else(|| part.bounds(), |s| part.solid_bounds(s));
             let margin = evidence::bounded_end_margin(b.max[2] - b.min[2]);
             !profiles
+                && !turned
+                && !stock
                 && l.z > b.min[2] + margin
                 && l.z < b.max[2] - margin
                 && eligible(faces)
@@ -433,6 +478,11 @@ pub(super) fn recognise(
     for p in &mut shoulders {
         p.support.faces.sort_unstable();
         p.support.faces.dedup();
+        p.support.plane = planes.iter().any(|s| {
+            s.axis == p.axis
+                && (s.support.at[s.axis] - p.support.at[p.axis]).abs() < 1e-4
+                && s.support.faces.iter().any(|f| p.support.faces.contains(f))
+        });
         p.support.feature = format!(
             "{}:axis:{}:station:{}",
             super::recognition::face_id("shoulder", &p.support.faces),
@@ -445,13 +495,18 @@ pub(super) fn recognise(
         heights,
         shoulders,
     };
+    let reported: BTreeSet<_> = deferreds
+        .iter()
+        .flat_map(|d| d.faces.iter().copied())
+        .chain(owned.iter().copied())
+        .collect();
     // Interior principal planes that are neither a height nor a tied shoulder do not acquire a
     // raw interval. Report their later-slice ownership even when no named family recognised it.
     for p in planes {
         let at = p.support.at[p.axis];
         if near(at, lo[p.axis])
             || near(at, hi[p.axis])
-            || p.support.faces.iter().all(|f| owned.contains(f))
+            || p.support.faces.iter().all(|f| reported.contains(f))
         {
             continue;
         }
@@ -466,7 +521,7 @@ pub(super) fn recognise(
         {
             continue;
         }
-        let family = if profiles {
+        let family = if profiles || turned {
             "turned profile"
         } else if p
             .support
@@ -564,4 +619,81 @@ pub(super) fn requirements(input: &Input) -> Vec<Required> {
         }
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::features::placed::Placed;
+    #[test]
+    fn shoulders_require_a_tied_foot_or_both_ramp_ends() {
+        let mut r = evidence::RiserEvidence {
+            vertical: true,
+            axis: 'x',
+            positions: vec![Placed::exact(20.)],
+            other_axis: 'y',
+            other_positions: vec![],
+            z_lo: 4.,
+            z_hi: 10.,
+            lo_at_envelope: false,
+            hi_at_envelope: true,
+            tol: 0.5,
+            body_levels: vec![evidence::FaceLevel {
+                z: 4.,
+                x_span: None,
+                y_span: None,
+                body_key: None,
+            }],
+            body_key: None,
+        };
+        let project_one = |r| project(&[(r, vec![12])], &[4.]);
+        assert_eq!(project_one(r.clone()), vec![(0, 20., vec![12])]);
+        r.z_lo = 2.;
+        assert!(project_one(r.clone()).is_empty());
+        r.vertical = false;
+        assert!(project_one(r.clone()).is_empty());
+        r.lo_at_envelope = true;
+        assert_eq!(project_one(r.clone()).len(), 1);
+        r.hi_at_envelope = false;
+        assert!(project_one(r.clone()).is_empty());
+        r.z_hi = 4.;
+        assert_eq!(project_one(r).len(), 1);
+    }
+    #[test]
+    fn height_direction_is_geometric_despite_inferred_axis_permutation() {
+        let f = crate::frames::PartFrame {
+            origin: [1., 2., 3.],
+            x: [0., 0., 1.],
+            y: [0., 1., 0.],
+            z: [-1., 0., 0.],
+            gauge: crate::frames::FrameGauge::Full,
+        };
+        let p = planning_frame(f);
+        assert_eq!(p.x, [1., 0., 0.]);
+        assert_eq!(p.y, [0., 1., 0.]);
+        assert_eq!(p.z, [0., 0., 1.]);
+        assert_eq!(p.origin, f.origin);
+    }
+    #[test]
+    fn a_round_envelope_needs_no_turned_step_record() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/fixtures/turned_body_disc.step");
+        let part = crate::read_step_file(&path).unwrap();
+        let frame = planning_frame(crate::frames::infer_part_frame(&part).unwrap());
+        let part = part.transformed(&frame.normalisation()).unwrap();
+        let mut found = crate::features::recognise(&part);
+        assert!(!found.holes.is_empty());
+        found.turned_bodies.clear();
+        found.turned_steps.clear();
+        let (steps, cartesian, deferred) = recognise(&part, &found, &[], &Default::default());
+        assert!(!cartesian);
+        assert!(steps.heights.is_empty());
+        assert_eq!(
+            deferred
+                .iter()
+                .filter(|d| d.id.starts_with("deferred:envelope:"))
+                .count(),
+            3
+        );
+    }
 }

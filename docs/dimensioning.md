@@ -35,14 +35,17 @@ its accepted height supports and tied shoulder planes. Merely appearing in `plan
 does **not** make a plane a requirement. `Deferred` contains a face-derived id,
 faces and the owning family. A deferral counts an ownership claim, not a dimension:
 several recognised families can describe the same face. A turned/round or whole-stock
-envelope has three explicit deferred Cartesian extent claims. Later slices will
+envelope has three explicit deferred Cartesian extent claims. A corroborated cylinder
+whose two radial diameters exactly fill the box establishes a round envelope even
+without a turned-step record (for example a threaded axial body). Later slices will
 supply the owner's diameter/length/across-flats grammar.
 
 The height ladder uses only interior horizontal support proposals (0.5 mm clustering,
 1% projected area, interior margin min(0.6 mm, a quarter of the body's height)).
 Pocket/recess floors and walls, slot walls, boss/pad tops, turned faces, chamfers,
 fillets and other later-slice feature faces remain owned by their accepted families;
-they never become raw plane intervals. Hole floors belong to their hole depth.
+they never become raw plane intervals. Pocket floor ownership includes consulted
+constituent faces from the same recognition run, rather than just defining walls. Hole floors belong to their hole depth.
 Unclaimed interior planes outside the ladder/shoulders are explicitly deferred as
 `non-step plane`. Outer prismatic extents remain required; a curved prismatic side
 can use a synthetic support. A turned envelope acquires no Cartesian requirements.

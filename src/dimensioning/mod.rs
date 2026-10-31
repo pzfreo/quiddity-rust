@@ -2,7 +2,8 @@
 //!
 //! Ported and adapted from pzfreo/draftwright-rust (same copyright owner),
 //! `src/dims/holes.rs` (wants, lattice, line, pitch, consolidation),
-//! `src/bridge/holes.rs::established_with`, `src/dims/levels.rs::ownership`,
+//! `src/bridge/holes.rs::established_with`, `src/dims/levels.rs` (ownership, shoulders, repeats),
+//! the step-section ownership boundary in `src/dims/steps.rs`,
 //! `src/dims/pmi_policy.rs` (datum origins), and `src/{dims,lint}/redundancy.rs`
 //! (physical intervals and bounded station walks), origin/main 1c830977.
 //! View selection, labels, layout and editor schemes are deliberately absent.

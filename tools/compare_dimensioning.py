@@ -84,6 +84,20 @@ def dw_quantities(plan):
     return statements, result
 
 
+def table_coordinate_discrepancies(plan):
+    """Keep evidence when a schedule's actual coordinates disagree with its want credits."""
+    differences = []
+    for table in plan.get("hole_tables", []):
+        covered = {(m["feature"], m["parameter"]): m["value"] for m in table.get("covered", [])}
+        for row in table.get("rows", []):
+            for m in row.get("measurements", []):
+                key = (m["feature"], m["parameter"])
+                if m["parameter"].startswith("location.length.") and key in covered and abs(covered[key] - m["value"]) > 0.001:
+                    differences.append({"table": table["id"], "feature": m["feature"],
+                                        "parameter": m["parameter"], "row": m["value"], "covered": covered[key]})
+    return differences
+
+
 def q_quantities(doc):
     result = []
     for r in doc["required"]:
@@ -142,13 +156,13 @@ def main():
             n, ds = dw_quantities(d)
             qs = q_quantities(q)
             extra, missing = difference(qs, ds)
-            rows.append({"part": name, "holes": len(q["input"]["holes"]), "planes": len(q["input"]["planes"]), "required": len(qs), "deferred": len(q["input"].get("deferred", [])), "dw_statements": n, "dw_quantities": len(ds), "planner_only": extra, "draftwright_only": missing})
+            rows.append({"part": name, "holes": len(q["input"]["holes"]), "planes": len(q["input"]["planes"]), "required": len(qs), "deferred": len(q["input"].get("deferred", [])), "dw_statements": n, "dw_quantities": len(ds), "planner_only": extra, "draftwright_only": missing, "table_coordinate_discrepancies": table_coordinate_discrepancies(d)})
         except (RuntimeError, OSError, KeyError) as e:
             rows.append({"part": name, "error": str(e)})
         print(json.dumps(rows[-1]), flush=True)
     if args.check:
         failures = [row for row in rows if "error" in row or row["required"] > row["dw_quantities"]
-                    or any(q["key"][0] not in ("location", "pitch")
+                    or any(q["key"][0] not in ("location", "pitch", "od.diameter")
                            for q in row["planner_only"] + row["draftwright_only"])]
         if failures:
             raise SystemExit(1)
