@@ -7386,13 +7386,16 @@ fn assert_frames_and_diameters_clear(doc: &Document) {
 }
 
 #[test]
-fn invalid_occt_density_units_report_the_dimensional_reason_and_old_grams_still_read() {
+fn invalid_density_units_report_the_dimensional_reason_and_old_grams_still_read() {
     let raw = include_bytes!("fixtures/q142/invalid-density.step.gz");
     let mut bytes = vec![];
     flate2::read::GzDecoder::new(&raw[..])
         .read_to_end(&mut bytes)
         .unwrap();
-    let f = open_bytes(bytes.clone());
+    let invalid = String::from_utf8(bytes.clone())
+        .unwrap()
+        .replace("(#505,3.)", "(#505,4.)");
+    let f = open_bytes(invalid.into_bytes());
     let read = pmi::read(&f.doc, &f.parts).unwrap();
     assert!(read.parts[0].material.as_ref().unwrap().density.is_none());
     assert!(
@@ -7449,4 +7452,150 @@ fn invalid_occt_density_units_report_the_dimensional_reason_and_old_grams_still_
             .iter()
             .any(|f| f.detail.contains("not mass / length cubed"))
     );
+}
+
+/// #142 Round 4: the actual OCCT 8 producer file has both the hard-coded
+/// mass^3/length^2 bug and an untyped REAL select. Neither is used by the written density.
+#[test]
+fn occt_density_plate_reads_with_findings_and_writes_practice_form() {
+    let raw = include_bytes!("fixtures/q142/occt-density-plate.step.gz");
+    let mut bytes = Vec::new();
+    flate2::read::GzDecoder::new(&raw[..])
+        .read_to_end(&mut bytes)
+        .unwrap();
+    let f = open_bytes(bytes);
+    let read = pmi::read(&f.doc, &f.parts).unwrap();
+    let p = &read.parts[0];
+    let material = p.material.as_ref().unwrap();
+    assert_eq!(material.id, "Alu_G6061_T6");
+    assert_eq!(
+        material.density,
+        Some(Density {
+            value: dec("2.7"),
+            unit: vec![
+                ("gram".into(), dec("1.")),
+                ("centimetre".into(), dec("-3."))
+            ],
+        })
+    );
+    for detail in [
+        "OCCT writes mass^3 · length^2",
+        "density value untyped (OCCT)",
+    ] {
+        assert!(
+            read.findings
+                .iter()
+                .any(|f| f.detail.contains(detail) && f.ids.contains(&725)),
+            "{:#?}",
+            read.findings
+        );
+    }
+    let w = written(&f, p);
+    assert_verified(&f, &w, p);
+    assert!(express::TARGET.validate_document(w.doc.graph()).is_empty());
+    assert!(haecceity::express_rules::check_all(&w.doc).is_empty());
+    let text = String::from_utf8_lossy(w.doc.bytes());
+    assert!(text.contains("'density measure',POSITIVE_RATIO_MEASURE(2.7)"));
+    assert!(text.contains("CONVERSION_BASED_UNIT('gram',"));
+    assert!(text.contains("SI_UNIT(.KILO.,.GRAM.)"));
+    // Source named units may be retained as unreferenced source instances;
+    // the new density must use the conversion-based unit above.
+    assert!(!text.contains("MEASURE_REPRESENTATION_ITEM('density',2.7,"));
+    let measure = w
+        .added()
+        .into_iter()
+        .find(|&id| {
+            matches!(test_attribute(&w.doc, id, "representation_item", "name"),
+            Some(Attribute::String(name)) if name == "density measure")
+        })
+        .unwrap();
+    let Some(Attribute::EntityRef(unit)) =
+        test_attribute(&w.doc, measure, "measure_with_unit", "unit_component")
+    else {
+        panic!("density has no derived unit");
+    };
+    let elements = refs_of(&w.doc, *unit);
+    assert_eq!(elements.len(), 2);
+    for (element, expected) in elements.iter().zip([1., -3.]) {
+        assert_eq!(
+            test_attribute(&w.doc, *element, "derived_unit_element", "exponent"),
+            Some(&Attribute::Real(expected))
+        );
+        let Some(Attribute::EntityRef(named)) =
+            test_attribute(&w.doc, *element, "derived_unit_element", "unit")
+        else {
+            panic!("missing base unit");
+        };
+        if expected == 1. {
+            assert!(w.text(*named).contains("CONVERSION_BASED_UNIT('gram',"));
+        } else {
+            assert!(w.text(*named).contains("SI_UNIT(.CENTI.,.METRE.)"));
+        }
+    }
+    assert!(
+        !w.read.findings.iter().any(|f| f.detail.contains("density")),
+        "{:#?}",
+        w.read.findings
+    );
+}
+
+#[test]
+fn occt_density_repair_requires_exactly_two_mass_and_length_factors() {
+    let raw = include_bytes!("fixtures/q142/invalid-density.step.gz");
+    let mut bytes = Vec::new();
+    flate2::read::GzDecoder::new(&raw[..])
+        .read_to_end(&mut bytes)
+        .unwrap();
+    let text = String::from_utf8(bytes).unwrap();
+    // The Round 3 reproducer is a typed version of OCCT's unit bug.
+    // A reversed derived-unit SET must work as well.
+    for input in [text.clone(), text.replace("((#507,#508))", "((#508,#507))")] {
+        let f = open_bytes(input.into_bytes());
+        let read = pmi::read(&f.doc, &f.parts).unwrap();
+        let d = read.parts[0]
+            .material
+            .as_ref()
+            .unwrap()
+            .density
+            .as_ref()
+            .unwrap();
+        assert_eq!(d.value, dec("2.7"));
+        assert!(d.unit.contains(&("gram".into(), dec("1."))));
+        assert!(d.unit.contains(&("centimetre".into(), dec("-3."))));
+        assert_eq!(
+            read.findings
+                .iter()
+                .filter(|f| f.detail.contains("OCCT writes"))
+                .count(),
+            1
+        );
+        assert!(!read.findings.iter().any(|f| f.detail.contains("untyped")));
+    }
+    for input in [
+        text.replace("(#505,3.)", "(#505,1.)"),
+        text.replace("(#506,2.)", "(#506,3.)"),
+        // Same aggregate mass^3/length^2 dimensions, but three factors: refuse.
+        text.replace("(#505,3.)", "(#505,1.5)")
+            .replace("((#507,#508))", "((#507,#508,#513))")
+            .replace(
+                "ENDSEC;\nEND-ISO",
+                "#513=DERIVED_UNIT_ELEMENT(#505,1.5);\nENDSEC;\nEND-ISO",
+            ),
+    ] {
+        assert_ne!(input, text);
+        let f = open_bytes(input.into_bytes());
+        let read = pmi::read(&f.doc, &f.parts).unwrap();
+        assert!(read.parts[0].material.as_ref().unwrap().density.is_none());
+        assert!(
+            read.findings
+                .iter()
+                .any(|f| f.detail.contains("not mass / length cubed"))
+        );
+        assert!(
+            !read
+                .findings
+                .iter()
+                .any(|f| f.detail.contains("OCCT writes"))
+        );
+    }
 }

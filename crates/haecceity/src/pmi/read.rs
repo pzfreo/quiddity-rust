@@ -5329,12 +5329,15 @@ impl<'a> Reader<'a> {
                         if !self.is(item, "measure_representation_item") {
                             continue;
                         }
-                        let value = match self.get(item, "measure_with_unit", "value_component") {
-                            Some(Attribute::Typed { value, .. }) => self
-                                .real_text(item, value)
-                                .and_then(|t| Decimal::parse(&t).ok()),
+                        let component = self.get(item, "measure_with_unit", "value_component");
+                        let untyped = matches!(component, Some(Attribute::Real(_)));
+                        let value = match component {
+                            Some(Attribute::Typed { value, .. }) => Some(value.as_ref()),
+                            Some(value @ Attribute::Real(_)) => Some(value),
                             _ => None,
-                        };
+                        }
+                        .and_then(|value| self.real_text(item, value))
+                        .and_then(|text| Decimal::parse(&text).ok());
                         let unit = self.get_ref(item, "measure_with_unit", "unit_component");
                         let (Some(value), Some(unit)) = (value, unit) else {
                             self.find(
@@ -5346,7 +5349,7 @@ impl<'a> Reader<'a> {
                             );
                             return;
                         };
-                        let Some(elements) = self.derived_unit(unit) else {
+                        let Some(mut elements) = self.derived_unit(unit) else {
                             self.find(
                                 FindingKind::Unitless,
                                 part,
@@ -5356,16 +5359,28 @@ impl<'a> Reader<'a> {
                             );
                             return;
                         };
-                        let density = Density {
+                        if self.derived_dimensions(unit) != Some([-3., 1., 0., 0., 0., 0., 0.]) {
+                            if let Some(exponents) = self.occt_density_exponents(unit) {
+                                for ((_, exponent), corrected) in elements.iter_mut().zip(exponents)
+                                {
+                                    *exponent = corrected;
+                                }
+                                self.find(FindingKind::Nonconformance, part, item, &[pdef, unit],
+                                    "density unit read as mass / length cubed (OCCT writes mass^3 · length^2); base units and value retained");
+                            } else {
+                                self.find(FindingKind::Nonconformance, part, item, &[pdef, unit],
+                                    "density derived unit is not mass / length cubed (mass 1, length -3); not read");
+                                return;
+                            }
+                        }
+                        if untyped {
+                            self.find(FindingKind::Nonconformance, part, item, &[pdef],
+                                "density value untyped (OCCT); read the bare REAL as the density value");
+                        }
+                        found = Some(Density {
                             value,
                             unit: elements,
-                        };
-                        if !self.density_dimensions(unit) {
-                            self.find(FindingKind::Nonconformance, part, item, &[pdef, unit],
-                                "density derived unit is not mass / length cubed (mass 1, length -3); not read");
-                            return;
-                        }
-                        found = Some(density);
+                        });
                         prov.extend([pdr, rep, item]);
                     }
                 }
@@ -5399,7 +5414,7 @@ impl<'a> Reader<'a> {
 
     /// Inspect dimensions, not unit names: custom conversion-based mass/length
     /// units remain readable even when the writer does not know their scale name.
-    fn density_dimensions(&mut self, unit: u64) -> bool {
+    fn derived_dimensions(&mut self, unit: u64) -> Option<[f64; 7]> {
         let kinds = [
             "length_unit",
             "mass_unit",
@@ -5427,26 +5442,60 @@ impl<'a> Reader<'a> {
         for element in self.get_refs(unit, "derived_unit", "elements") {
             let Some(exponent) = number(self.get(element, "derived_unit_element", "exponent"))
             else {
-                return false;
+                return None;
             };
             let Some(named) = self.get_ref(element, "derived_unit_element", "unit") else {
-                return false;
+                return None;
             };
             if let Some(dimensions) = self.get_ref(named, "named_unit", "dimensions") {
                 for (i, slot) in slots.iter().enumerate() {
                     let Some(power) = number(self.get(dimensions, "dimensional_exponents", slot))
                     else {
-                        return false;
+                        return None;
                     };
                     sum[i] += power * exponent;
                 }
             } else if let Some(i) = kinds.iter().position(|kind| self.is(named, kind)) {
                 sum[i] += exponent;
             } else if !self.is(named, "plane_angle_unit") && !self.is(named, "solid_angle_unit") {
-                return false;
+                return None;
             }
         }
-        sum == [-3., 1., 0., 0., 0., 0., 0.]
+        Some(sum)
+    }
+
+    /// Only OCCT's two-factor mass^3 · length^2 material density is repairable.
+    /// Do not accept additional factors, duplicate kinds or other wrong exponents.
+    fn occt_density_exponents(&mut self, unit: u64) -> Option<Vec<Decimal>> {
+        if self.derived_dimensions(unit) != Some([2., 3., 0., 0., 0., 0., 0.]) {
+            return None;
+        }
+        let elements = self.get_refs(unit, "derived_unit", "elements");
+        if elements.len() != 2 {
+            return None;
+        }
+        let mut mass = false;
+        let mut length = false;
+        let mut corrected = Vec::new();
+        for element in elements {
+            let named = self.get_ref(element, "derived_unit_element", "unit")?;
+            let exponent = match self.get(element, "derived_unit_element", "exponent")? {
+                Attribute::Real(value) => *value,
+                Attribute::Integer(value) => *value as f64,
+                _ => return None,
+            };
+            let value = if self.is(named, "mass_unit") && exponent == 3. && !mass {
+                mass = true;
+                "1."
+            } else if self.is(named, "length_unit") && exponent == 2. && !length {
+                length = true;
+                "-3."
+            } else {
+                return None;
+            };
+            corrected.push(Decimal::parse(value).expect("constant decimal"));
+        }
+        (mass && length).then_some(corrected)
     }
 
     fn derived_unit(&mut self, unit: u64) -> Option<Vec<(String, Decimal)>> {

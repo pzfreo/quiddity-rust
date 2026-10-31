@@ -118,9 +118,18 @@ Both writers use [CAx-IF UDA v1.8 Annex C.1 and C.4.2](https://www.mbx-if.org/ho
 SI mass is kilogram; gram is a conversion-based mass unit with factor `0.001 kg`
 (and milligram `0.000001 kg`). This follows the explicit g/cm³ example in C.4.2,
 leaving density values, unit names and JSON statements unchanged. Reading also
-accepts older unprefixed SI gram. A derived unit with dimensions other than
-mass/length³ is omitted from density with an explicit read finding. Other measured attribute
-units reference `units.other` by id, preserving their source unit names. Every unit therefore
+accepts older unprefixed SI gram. For material density only, the reader repairs
+OCCT's exact two-factor mass³ × length² unit to mass/length³, retaining the value
+and base-unit names, and reports a nonconformance finding. A bare REAL density
+value is accepted with a separate `density value untyped (OCCT)` finding. Other
+non-density units remain omitted with an explicit finding; extra factors or
+other wrong exponents do not qualify for the repair. Rewriting uses Material
+Identification and Density R2.1 §4.2.4: `density measure`, typed
+`POSITIVE_RATIO_MEASURE`, exponents `1.` and `-3.`, and the conversion-based mass
+unit above. This native-read repair does not allow authors to import JSON with
+wrong density dimensions. As in ordinary replacement writes, unused source unit
+records remain shared infrastructure; the rewritten density references newly
+emitted conformant units. Other measured attribute units reference `units.other` by id, preserving their source unit names. Every unit therefore
 lives at document level, including units the model holds only by name.
 
 `FaceIndex` accepts an integer, `{"name":"OCCT face name"}`, or

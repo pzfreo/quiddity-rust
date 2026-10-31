@@ -24,6 +24,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
+- For #142, read OCCT's exact two-factor mass³ × length² material density as
+  mass/length³, and tolerate its untyped REAL density value, reporting each repair.
+  Other wrong dimensions remain refused. Writing emits the practice's typed
+  density measure and correct exponents with conversion-based gram.
+
 - For #142, encode integer/exponent Decimal spellings as valid STEP REALs while
   restoring their stated JSON text, including density exponents. Ordinary CLI
   verification accepts the required REAL spelling while retaining legal precision. Invalid density
