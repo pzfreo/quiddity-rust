@@ -83,9 +83,13 @@ fn notes_stay_beside_part_in_json_and_written_step() {
         let generated = json::presentation::generated(&semantic, &part).unwrap();
         println!("{name}: bounds {:?}..{:?}", bounds.min, bounds.max);
         let mut note_boxes = Vec::new();
+        let mut seen = std::collections::BTreeSet::new();
         for (key, graphics) in &generated.items {
             for g in graphics {
-                if g.name.contains("GENERAL NOTES")
+                if !seen.insert(g.id.clone()) {
+                    continue;
+                }
+                if g.name == "General notes"
                     || semantic
                         .ids
                         .get("notes")
@@ -113,8 +117,8 @@ fn notes_stay_beside_part_in_json_and_written_step() {
                 }
             }
         }
-        // The STEP writer combines the settings in one block; record the same
-        // bounds-relative placement independently of JSON's separate carriers.
+        assert_eq!(unique_notes(&generated).len(), 1);
+        // Both paths combine settings; check against the independent layout rule.
         let rows = notes::general_notes(&semantic.pmi);
         if !rows.is_empty() {
             let c = notes::notes_block(&rows);
@@ -184,4 +188,191 @@ fn unique_notes(drawn: &json::presentation::Presentation) -> Vec<&json::presenta
         .chain(&drawn.unlinked)
         .filter(|g| g.name == "General notes" && seen.insert(g.id.clone()))
         .collect()
+}
+
+fn refs(doc: &Document, id: u64) -> Vec<u64> {
+    let mut out = Vec::new();
+    haecceity::p21::visit_attributes(doc.get(id).unwrap(), &mut |a| {
+        if let haecceity::p21::Attribute::EntityRef(id) = a {
+            out.push(*id);
+        }
+    });
+    out
+}
+fn is(doc: &Document, id: u64, kind: &str) -> bool {
+    matches!(doc.get(id), Some(haecceity::p21::RawEntity::Simple { name, .. }) if name.eq_ignore_ascii_case(kind))
+}
+fn strokes(lines: &[Vec<[f64; 3]>]) -> Vec<Vec<[i64; 3]>> {
+    let mut lines: Vec<_> = lines
+        .iter()
+        .map(|line| {
+            line.iter()
+                .map(|p| p.map(|v| (v * 1e8).round() as i64))
+                .collect::<Vec<_>>()
+        })
+        .collect();
+    lines.sort();
+    lines
+}
+
+#[test]
+fn spindle_numbered_notes_share_one_block_and_keep_each_requirement_link() {
+    let doc = load("tests/fixtures/presentation/spindle-q137.step.gz");
+    let defs = step::read_part_definitions(doc.bytes()).unwrap();
+    let read = pmi::read(&doc, &defs).unwrap();
+    let source = &read.parts[0];
+    let settings = pmi::PartPmi {
+        general: source.general.clone(),
+        surface_textures: source
+            .surface_textures
+            .iter()
+            .filter(|t| t.on.is_none())
+            .cloned()
+            .collect(),
+        attributes: source
+            .attributes
+            .iter()
+            // Submit the three defaults; the file's additional authored note
+            // stays retained, and is covered by the byte-preservation check.
+            .filter(|a| {
+                a.on.is_none()
+                    && a.name == "semantic text"
+                    && a.items
+                        .iter()
+                        .any(|(key, _)| matches!(key.as_str(), "edge condition" | "edges"))
+            })
+            .cloned()
+            .collect(),
+        ..pmi::PartPmi::default()
+    };
+    assert_eq!(
+        notes::general_notes(&settings)
+            .iter()
+            .map(|r| r.text.as_str())
+            .collect::<Vec<_>>(),
+        [
+            "GENERAL TOLERANCES ISO 2768-m",
+            "SURFACE FINISH Ra 3.2 UNLESS OTHERWISE STATED",
+            "Break sharp edges 0.2 max",
+        ]
+    );
+    let part = step::read_part(doc.bytes(), &defs[0]).unwrap();
+    for count in [3, 1, 0] {
+        let mut settings = settings.clone();
+        if count < 3 {
+            settings.surface_textures.clear();
+            settings.attributes.clear();
+        }
+        if count == 0 {
+            settings.general.clear();
+        }
+        let semantic = json::identify(settings.clone(), None).unwrap();
+        let generated = json::presentation::generated(&semantic, &part).unwrap();
+        json::presentation::validate(&serde_json::to_value(&generated).unwrap()).unwrap();
+        let blocks = unique_notes(&generated);
+        assert_eq!(blocks.len(), usize::from(count != 0));
+        if let Some(block) = blocks.first() {
+            assert_eq!(block.text.len(), count + 1);
+            assert_eq!(block.text[0], "GENERAL NOTES");
+            assert_eq!(
+                block
+                    .text
+                    .iter()
+                    .filter(|s| s.as_str() == "GENERAL NOTES")
+                    .count(),
+                1
+            );
+            for (i, text) in block.text.iter().skip(1).enumerate() {
+                assert!(text.starts_with(&format!("{}  ", i + 1)), "{text}");
+            }
+            assert_eq!(
+                generated
+                    .items
+                    .values()
+                    .filter(|gs| gs.iter().any(|g| g.id == block.id))
+                    .count(),
+                count
+            );
+            let rows = notes::general_notes(&settings);
+            let expected = Layout::new(part.bounds()).notes(&notes::notes_block(&rows));
+            assert_eq!(strokes(&block.polylines), strokes(&expected.lines));
+            // All item aliases share one plane and its view lists the block once.
+            let view = generated
+                .views
+                .iter()
+                .find(|v| v.graphics.contains(block.id.as_ref().unwrap()))
+                .unwrap();
+            assert_eq!(view.graphics, [block.id.clone().unwrap()]);
+        }
+        // Add preserves the old file's private links and every retained entity.
+        let (edit, _) = pmi::write(
+            &doc,
+            &defs,
+            &[(PartId(0), settings)],
+            pmi::write::Mode::Add,
+            pmi::write::PresentationPolicy::Refuse,
+        )
+        .unwrap();
+        let written = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+        for id in doc.ids() {
+            assert_eq!(
+                &doc.bytes()[doc.span(id).unwrap()],
+                &written.bytes()[written.span(id).unwrap()]
+            );
+        }
+        let written_defs = step::read_part_definitions(written.bytes()).unwrap();
+        let written_read = pmi::read(&written, &written_defs).unwrap();
+        let written_semantic = json::identify(
+            written_read.parts[0].clone(),
+            Some(&written_read.identifiers.parts[0]),
+        )
+        .unwrap();
+        let drawn = json::presentation::read(&written, &written_read, PartId(0), &written_semantic)
+            .unwrap();
+        let new_blocks: Vec<_> = unique_notes(&drawn)
+            .into_iter()
+            .filter(|g| {
+                g.id.as_ref()
+                    .unwrap()
+                    .strip_prefix("step:")
+                    .unwrap()
+                    .parse::<u64>()
+                    .unwrap()
+                    > doc.max_id()
+            })
+            .collect();
+        assert_eq!(new_blocks.len(), usize::from(count != 0));
+        if let Some(block) = new_blocks.first() {
+            assert_eq!(
+                strokes(&block.polylines),
+                strokes(&blocks[0].polylines),
+                "JSON/STEP notes ink"
+            );
+            let root = block
+                .id
+                .as_ref()
+                .unwrap()
+                .strip_prefix("step:")
+                .unwrap()
+                .parse::<u64>()
+                .unwrap();
+            let occurrences = refs(&written, root);
+            assert_eq!(occurrences.len(), count);
+            let mut definitions = std::collections::BTreeSet::new();
+            for occurrence in occurrences {
+                let links: Vec<_> = written
+                    .ids()
+                    .filter(|&id| {
+                        is(&written, id, "draughting_model_item_association")
+                            && refs(&written, id).last() == Some(&occurrence)
+                    })
+                    .collect();
+                assert_eq!(links.len(), 1, "each row owns its presentation link");
+                let link = refs(&written, links[0]);
+                assert!(is(&written, link[0], "property_definition"));
+                assert!(definitions.insert(link[0]));
+            }
+            assert_eq!(definitions.len(), count);
+        }
+    }
 }

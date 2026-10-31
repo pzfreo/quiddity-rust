@@ -211,7 +211,7 @@ A version bump would unnecessarily reject those existing documents.
 
 | Optional field | Meaning and source |
 | --- | --- |
-| `Graphic.id` | Document-local graphic id (`step:<root instance id>` for file graphics). Copies under several semantic keys share this id; render/count once per id. Generated ids contain the semantic collection and id. |
+| `Graphic.id` | Document-local graphic id (`step:<root instance id>` for file graphics). Copies under several semantic keys share this id; render/count once per id. Generated ids contain the semantic collection and id, or `generated:general-notes` for the shared notes block. |
 | `Graphic.plane_id` | Reference to `planes[].id`, from the containing `annotation_plane`. Omitted with a diagnostic if unresolved or if several planes contain the same graphic. |
 | `planes[]` | `{id, name, origin, x_axis, normal}` from the annotation plane's `plane.position` or `planar_box.placement`. Origins are model-space millimetres; axes are unit vectors. The in-plane Y axis is `normal × x_axis`. |
 | `Graphic.text_placements[]` | `{text_index?, origin, x_axis, normal, height?, line_spacing?, alignment?, stroked?}`. `text_index` is a zero-based index into the existing `text` array. The origin is the native alignment point, not an assumed lower-left corner. |
@@ -257,6 +257,25 @@ frustum; clients fit the part and the listed graphics when opening a view. IDs a
 use `semantic_ids` to verify the companion's semantic link set before use.
 Validation checks plane, view and text-index references and consistent copies of
 one graphic under multiple semantic keys.
+
+Generated part settings share one `General notes` graphic (`generated:general-notes`),
+one `GENERAL NOTES` heading and one annotation plane. Each requirement's semantic
+key aliases that same graphic, so per-item ids and questions remain available;
+render the graphic only once by id, as for a read STEP callout. Material, which
+has no independent semantic item id, joins the block (unlinked if material alone).
+The STEP callout contains a separate occurrence per requirement with its own
+DMIA to that requirement's property definition; the heading shares the first
+occurrence. This retains the #137 typing and IIRU uniqueness rules.
+
+Items are numbered from 1, including a single item, with two spaces after the
+number and indented continuation lines, following Draftwright `1c830977`,
+`src/notes.rs::rows` and `plan_with_rows`. Draftwright's `pmi_lowering.rs::sheet_requirements`
+places tolerance and default finish in separate sheet defaults, so the combined
+model-space block uses a defined order: general tolerance classes, default
+finishes, edges, coating, heat treatment, other general notes, material. Each
+category retains input order; general notes use explicit positive note indices
+first, then input order. No submitted settings means no block. Retained file
+graphics and notes are unchanged.
 
 Generated general notes use a front annotation plane (X right, Z up, Y at the
 part bounds' centre). The first block's ink starts at `max X + 2h`, with its top

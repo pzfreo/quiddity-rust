@@ -979,29 +979,44 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
     for (i, n) in semantic.pmi.notes.iter().enumerate() {
         add("notes", i, presentation::label(&n.text))?;
     }
-    for row in presentation::notes::general_notes(&semantic.pmi) {
-        use presentation::notes::Source;
-        let (collection, index) = match row.source {
-            Source::General(i) => ("general", i),
-            Source::Texture(i) => ("surface_textures", i),
-            Source::Attribute(i) => ("attributes", i),
-            Source::Material => continue,
-        };
-        add(collection, index, presentation::notes::notes_block(&[row]))?;
-    }
-    // Material has no independent PartIdentifiers carrier; retain its callout unlinked.
-    if let Some(material) = &semantic.pmi.material {
-        let c = presentation::label(&format!("MATERIAL: {}", material.id));
-        let mut g = Graphic::new(self::Source::Generated, c.notation());
+    let rows = presentation::notes::general_notes(&semantic.pmi);
+    if !rows.is_empty() {
+        let c = presentation::notes::notes_block(&rows);
+        let mut g = Graphic::new(self::Source::Generated, "General notes".into());
         let placed = layout.notes(&c);
-        g.id = Some("generated:material".into());
+        g.id = Some("generated:general-notes".into());
         layout::generated(&mut g, &c, &placed);
         let plane = Plane::generated(&g, &placed);
         g.plane_id = Some(plane.id.clone());
         out.planes.push(plane);
         g.polylines = placed.lines;
         g.text = c.cells;
-        out.unlinked.push(g);
+        // As for a read STEP callout with several linked occurrences, each
+        // requirement keeps its key and aliases the same render-once graphic.
+        let mut keys = BTreeSet::new();
+        for row in rows {
+            use presentation::notes::Source;
+            let (collection, index) = match row.source {
+                Source::General(i) => ("general", i),
+                Source::Texture(i) => ("surface_textures", i),
+                Source::Attribute(i) => ("attributes", i),
+                Source::Material => continue,
+            };
+            let key = semantic
+                .ids
+                .get(collection)
+                .and_then(|ids| ids.get(index))
+                .ok_or_else(|| Error(format!("missing id {collection}/{index}")))?;
+            keys.insert(key.clone());
+        }
+        // Material has no independent PartIdentifiers carrier.
+        if keys.is_empty() {
+            out.unlinked.push(g);
+        } else {
+            for key in keys {
+                out.items.entry(key).or_default().push(g.clone());
+            }
+        }
     }
     // The existing view model stores orientation and membership, not a camera
     // position or scale. Clients fit the part and these graphics themselves.

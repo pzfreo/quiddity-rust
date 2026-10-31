@@ -4035,7 +4035,7 @@ fn opencascade_puts_a_parts_pmi_on_its_prototype() {
         assert_general_notes_names(
             &f.doc,
             blocks[0],
-            "GENERAL NOTES\nMATERIAL: Steel C45\nGENERAL TOLERANCES ISO 2768-f",
+            "GENERAL NOTES\n1  GENERAL TOLERANCES ISO 2768-f\n2  MATERIAL: Steel C45",
         );
     }
     let pin = &parts[1];

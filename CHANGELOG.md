@@ -8,6 +8,9 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
+- Generated part notes share one numbered GENERAL NOTES block in JSON and STEP,
+  retaining each requirement's semantic link and the bounds-relative placement.
+
 - Regenerated PMI uses measured, compact dimension ladders and reserves datum
   flags before labels. Saved-view packing keeps labels near their features and
   text placements use the actual stroke transform, including clipped short spans.

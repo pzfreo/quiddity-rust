@@ -82,16 +82,12 @@ pub fn part_note_text(kind: &str, value: &str) -> String {
     }
 }
 
-/// Only the settings submitted to the writer: material, defaults, process notes, free notes.
-/// Free notes retain their explicit index order (stable input order when no index is stated).
+/// Submitted settings in block order: tolerance, finish, edges, coating, heat treatment,
+/// free notes, material. Free notes retain their explicit index order (stable input
+/// order when no index is stated). Draftwright keeps tolerance/finish in separate
+/// sheet defaults; this is the combined model-space order.
 pub fn general_notes(p: &PartPmi) -> Vec<Row> {
     let mut rows = Vec::new();
-    if let Some(m) = &p.material {
-        rows.push(Row {
-            source: Source::Material,
-            text: format!("MATERIAL: {}", m.id),
-        });
-    }
     for (i, g) in p.general.iter().enumerate() {
         if let GeneralTolerance::Class { text, .. } = g {
             rows.push(Row {
@@ -153,35 +149,39 @@ pub fn general_notes(p: &PartPmi) -> Vec<Row> {
             text,
         }));
     }
+    if let Some(m) = &p.material {
+        rows.push(Row {
+            source: Source::Material,
+            text: format!("MATERIAL: {}", m.id),
+        });
+    }
     rows
 }
 
 /// Left-aligned rows at the same capital height as dimensions, headed as Draftwright's table.
 pub fn notes_block(rows: &[Row]) -> Callout {
-    let mut number = 0;
+    if rows.is_empty() {
+        return Callout::default();
+    }
     let lines: Vec<_> = std::iter::once("GENERAL NOTES".to_owned())
-        .chain(rows.iter().map(|r| {
-            if matches!(r.source, Source::Attribute(_)) {
-                number += 1;
-                // Draftwright notes.rs::rows: first line numbered, continuations indented.
-                let first_ink = r.text.split('\n').position(|line| !line.trim().is_empty());
-                r.text
-                    .split('\n')
-                    .enumerate()
-                    .map(|(i, line)| {
-                        if line.trim().is_empty() {
-                            line.to_string()
-                        } else if Some(i) == first_ink {
-                            format!("{number}  {line}")
-                        } else {
-                            format!("   {line}")
-                        }
-                    })
-                    .collect::<Vec<_>>()
-                    .join("\n")
-            } else {
-                r.text.clone()
-            }
+        .chain(rows.iter().enumerate().map(|(index, r)| {
+            let number = index + 1;
+            // Draftwright notes.rs::rows: first line numbered, continuations indented.
+            let first_ink = r.text.split('\n').position(|line| !line.trim().is_empty());
+            r.text
+                .split('\n')
+                .enumerate()
+                .map(|(i, line)| {
+                    if line.trim().is_empty() {
+                        line.to_string()
+                    } else if Some(i) == first_ink {
+                        format!("{number}  {line}")
+                    } else {
+                        format!("   {line}")
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join("\n")
         }))
         .collect();
     let mut c = Callout::default();
