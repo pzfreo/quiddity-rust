@@ -28,3 +28,17 @@ fn ascii_strokes_keep_the_public_domain_font_metrics() {
         assert!((2. * a[0] - b[0]).abs() < 1e-12 && (2. * a[1] - b[1]).abs() < 1e-12);
     }
 }
+
+#[test]
+fn whitespace_has_no_ink_and_blank_lines_keep_their_baseline_spacing() {
+    for value in ["", " ", "\t", "\n \t\n", "\u{2003}"] {
+        let ink = font().text(value, 3.);
+        assert!(ink.lines.is_empty());
+        assert!(ink.missing.is_empty());
+        assert_eq!(ink.min, [0.; 2]);
+        assert_eq!(ink.max, [0.; 2]);
+    }
+    let a = font().text("A\nA", 3.);
+    let b = font().text("A\n \t\nA", 3.);
+    assert!((b.max[1] - b.min[1] - (a.max[1] - a.min[1]) - 4.8).abs() < 1e-12);
+}

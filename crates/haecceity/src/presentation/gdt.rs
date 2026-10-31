@@ -272,7 +272,14 @@ mod tests {
     // checks stay there; the same requirements here are already semantic PMI.
     #[test]
     fn position_frame_and_datum_state_the_same_cells_as_draftwright() {
-        let frame = control_frame("position", "0.1", Some("diameter"), None, &["A".into()]);
+        let frame = control_frame(
+            "position",
+            "0.1",
+            Some("diameter"),
+            None,
+            &["A".into()],
+            &super::super::text_width,
+        );
         assert_eq!(frame.cells.join(" | "), "⌖ | ⌀0.1 | A");
         assert_eq!(
             frame
@@ -289,7 +296,14 @@ mod tests {
     }
     #[test]
     fn a_flatness_control_on_a_face_draws_its_frame() {
-        let frame = control_frame("flatness", "0.05", None, None, &[]);
+        let frame = control_frame(
+            "flatness",
+            "0.05",
+            None,
+            None,
+            &[],
+            &super::super::text_width,
+        );
         assert_eq!(frame.cells.join(" | "), "⏥ | 0.05");
         assert_eq!(
             frame
@@ -309,6 +323,7 @@ mod tests {
             Some("spherical_diameter"),
             Some("M"),
             &["A".into(), "B".into()],
+            &super::super::text_width,
         );
         assert_eq!(frame.cells, ["⌖", "S⌀0.0254Ⓜ", "A", "B"]);
         assert_eq!(frame.letters[0].text, "Sø0.0254");

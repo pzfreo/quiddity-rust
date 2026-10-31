@@ -29,6 +29,10 @@ in [docs/alpha1.md](docs/alpha1.md).
 - Blank and whitespace-only general-note rows retain spacing without emitting empty
   tessellated curve sets. Specify can remove its `(blank)` workaround.
 
+- Frame/diameter placement checks principal/isometric projections and uses corner-offset
+  end-on frames for axial tolerances. The three Specify samples have no transverse stroke
+  crossings between frames/diameters in all seven views; worst readable label/leader
+  clearance is 0.391918359 mm (spindle). Measured witnesses and short-leader bounds remain.
 - Correct stale optional-NIST tolerance-relation refusal pins against read/replace/read:
   FTC-08 retains all six relations; FTC-09 still loses dependent endpoints of refused groups.
   The writer already emits composite, precedence and simultaneity relationships.
