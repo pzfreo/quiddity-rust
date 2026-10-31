@@ -45,6 +45,42 @@ def test_nist_roundtrip_onto_stripped_geometry():
     assert pmi.validate(document) is None
 
 
+def test_nist_write_report():
+    source = FIXTURES / "ap242/nist/nist_ctc_02_asme1_ap242-e2.stp.gz"
+    document = pmi.read(source)
+    output, report = pmi.write(source, document, report=True)
+    assert output == pmi.write(source, document)
+    assert pmi.read(output) == document
+    assert report["schema"] == "haecceity.pmi/1"
+    assert report["part"] == 0 and report["differences"] == []
+    assert report["added"] > 0
+    assert report["added"] == report["writer"]["instances"]["added"]
+    assert any(finding["entity"] == "datum_feature" and finding["ids"] == [79, 661]
+               and "datum feature identifies no face" in finding["detail"]
+               for finding in report["read_findings"])
+    for key in ("read_findings", "output_findings"):
+        assert isinstance(report[key], list)
+        for finding in report[key]:
+            assert {"kind", "part", "ids", "entity", "detail"} == finding.keys()
+    assert any(finding["category"] == "kept_unconsumed" and finding["ids"] == [1530]
+               and "identifies no face or edge" in finding["detail"]
+               for finding in report["writer_findings"])
+    assert all("category" in finding for finding in report["writer_findings"])
+
+
+def test_occt_density_repair_report():
+    source = ROOT / "crates/haecceity/tests/fixtures/q142/occt-density-plate.step.gz"
+    document = pmi.read(source)
+    output, report = pmi.write(source, document, report=True)
+    assert pmi.read(output) == document
+    assert report["differences"] == []
+    for detail in ("OCCT writes mass^3 · length^2", "density value untyped (OCCT)"):
+        assert any(detail in finding["detail"] and 725 in finding["ids"]
+                   for finding in report["read_findings"])
+    assert not any("density" in finding["detail"] for finding in report["output_findings"])
+    assert b"'density measure',POSITIVE_RATIO_MEASURE(2.7)" in output
+
+
 def test_bytes_without_temp_files_or_cli(producer, tmp_path, monkeypatch):
     def forbidden(*args, **kwargs):
         pytest.fail("in-memory PMI operation attempted a temp file or subprocess")
@@ -54,8 +90,9 @@ def test_bytes_without_temp_files_or_cli(producer, tmp_path, monkeypatch):
         monkeypatch.setattr(tempfile, name, forbidden)
     monkeypatch.setattr(subprocess, "run", forbidden)
     geometry, document = producer
-    output = pmi.write(geometry, json.dumps(document))
+    output, report = pmi.write(geometry, json.dumps(document), report=True)
     assert isinstance(output, bytes) and output.startswith(b"ISO-10303-21;")
+    assert report["differences"] == []
     assert pmi.read(output, anchors="name") == document
     pmi.validate(pmi.presentation(output))
     assert list(tmp_path.iterdir()) == []
@@ -101,8 +138,9 @@ def test_paths_and_part_selection(authored, tmp_path):
     assert pmi.read(assembly, part=0)["schema"] == "haecceity.pmi/1"
 
 
+@pytest.mark.parametrize("report", [False, True])
 @pytest.mark.parametrize("numeric", [False, True])
-def test_outside_producer_refusals(producer, numeric):
+def test_outside_producer_refusals(producer, numeric, report):
     geometry, original = producer
     document = deepcopy(original)
     if numeric:
@@ -115,7 +153,7 @@ def test_outside_producer_refusals(producer, numeric):
         reason = "unknown face name"
         assert pmi.validate(document) is None  # Existence requires geometry.
     with pytest.raises(quiddity.PmiError, match=reason) as caught:
-        pmi.write(geometry, document)
+        pmi.write(geometry, document, report=report)
     assert isinstance(caught.value, ValueError)
     assert isinstance(caught.value.findings, list)
 
