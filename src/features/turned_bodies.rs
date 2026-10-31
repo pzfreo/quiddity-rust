@@ -232,6 +232,68 @@ fn common_axis(part: &Part, faces: &[usize]) -> Option<(V3, V3)> {
     Some((origin, d))
 }
 
+/// A narrow exception for machined flats on otherwise turned stock. Every omitted
+/// face must independently prove a stock flat; the remaining supports must share one
+/// revolution axis. Complete external cylindrical bands must cover MORE than half
+/// the body's axial extent. A D extrusion, polygonal prism or incidental round boss
+/// cannot establish that majority. Split/overlapping spans are counted only once.
+pub(super) fn flat_interrupted_faces(ctx: &Context<'_>, faces: &[usize]) -> Option<Vec<usize>> {
+    let part = ctx.part;
+    // Most non-turned hosts have no complete external band at all. Refuse those
+    // before running the independent flat proof over every face.
+    if !ctx.cylinders().iter().any(|c| {
+        faces.contains(&c.face)
+            && c.external
+            && (std::f64::consts::TAU - c.u_extent) * c.diameter / 2. <= tolerance(part)
+    }) {
+        return None;
+    }
+    let flats: Vec<_> = super::flats::discover(ctx)
+        .into_iter()
+        .flat_map(|o| o.defining)
+        .filter(|f| faces.contains(f))
+        .collect();
+    if flats.is_empty() {
+        return None;
+    }
+    let revolved: Vec<_> = faces
+        .iter()
+        .copied()
+        .filter(|f| !flats.contains(f))
+        .collect();
+    let (origin, d) = common_axis(part, &revolved)?;
+    let tol = tolerance(part);
+    let (lo, hi) = part.extent_along(faces, d);
+    if flats.iter().any(|&f| {
+        let Some(n) = part.face_normal(f, 0., 0.) else {
+            return true;
+        };
+        geom::dot(n, d).abs() * (hi - lo) > tol
+    }) {
+        return None;
+    }
+    let mut spans: Vec<_> = ctx
+        .cylinders()
+        .iter()
+        .filter(|c| {
+            faces.contains(&c.face)
+                && c.external
+                && geom::norm(geom::cross(c.direction, d)) * (hi - lo) <= tol
+                && radial(c.axis_point, origin, d) <= tol
+                && (std::f64::consts::TAU - c.u_extent) * c.diameter / 2. <= tol
+        })
+        .map(|c| part.extent_along(&[c.face], d))
+        .collect();
+    spans.sort_by(|a, b| a.0.total_cmp(&b.0));
+    let mut covered = 0.;
+    let mut end = lo;
+    for (a, b) in spans {
+        covered += (b - a.max(end)).max(0.);
+        end = end.max(b);
+    }
+    (covered > (hi - lo) / 2. + tol).then_some(flats)
+}
+
 pub(crate) fn sort_profile(profile: &mut [ProfileSegment]) {
     // Ordering uses the existing point-publication grid only. Keep every exact
     // meridian measurement: round-off at one shared station must not permute
@@ -429,11 +491,19 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<TurnedBody>> {
     let mut out = Vec::new();
     for (s, solid) in part.solids.iter().enumerate() {
         if !part.solid_is_geometrically_valid(s) { continue; }
-        let Some((origin, d)) = common_axis(part, &solid.faces) else { continue };
+        let mut profile_faces = solid.faces.clone();
+        let ((origin, d), interrupted) = if let Some(line) = common_axis(part, &profile_faces) {
+            (line, false)
+        } else {
+            let Some(flats) = flat_interrupted_faces(ctx, &solid.faces) else { continue };
+            profile_faces.retain(|f| !flats.contains(f));
+            let Some(line) = common_axis(part, &profile_faces) else { continue };
+            (line, true)
+        };
         let (lo, hi) = part.extent_along(&solid.faces, d);
         let mid = (lo + hi) / 2.;
         let origin = geom::add(origin, geom::scale(d, mid - geom::dot(origin, d)));
-        let Some(profile) = profile(part, &solid.faces, origin, d) else { continue };
+        let Some(profile) = profile(part, &profile_faces, origin, d) else { continue };
         let bores = merge_bores(profile.iter()
             .filter(|p| p.kind == "cylinder" && p.side == "internal")
             .map(|p| {
@@ -445,6 +515,9 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<TurnedBody>> {
         let transverse = geom::unit(geom::cross(d, geom::default_x_axis(d))).unwrap();
         let (rlo, rhi) = part.extent_along(&solid.faces, transverse);
         let bands: Vec<_> = ctx.cylinders().iter().filter(|c| c.solid == s && c.external).collect();
+        let od = if interrupted {
+            bands.iter().map(|c| c.diameter).fold(rhi - rlo, f64::max)
+        } else { rhi - rlo };
         let profile_key = match axis(d) {
             ProfileAxis::Principal(c) if !bands.is_empty() => Some(profile_key_from_bands(
                 match c { 'x' => 0, 'y' => 1, _ => 2 }, &bands, &part.solid_bounds(s), keys[s].clone(),
@@ -453,7 +526,7 @@ pub fn discover(ctx: &Context<'_>) -> Vec<Occurrence<TurnedBody>> {
         };
         out.push(Occurrence {
             record: TurnedBody { axis: axis(d), axis_point: Placed::new(origin, Grid::Decimals(8)),
-                od: rhi - rlo, length: hi - lo, bores, profile,
+                od, length: hi - lo, bores, profile,
                 body_key: keys[s].clone(), profile_key },
             defining: solid.faces.clone(), context: Vec::new(),
         });

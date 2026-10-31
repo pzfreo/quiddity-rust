@@ -434,10 +434,20 @@ fn bevel_uses_its_cutting_plane_to_resolve_equal_support_distances_under_motion(
     let real = found.iter().find(|o| o.defining == [13, 17]).unwrap();
     // Independent OpenCascade plane equation: x=6.095095 at y=29.381039 is on the
     // bevel itself; the removed corner is the opposite x support, 10.137419.
-    assert_eq!(
-        real.record.corner.map(|c| *c),
-        Some([10.137, 29.381, 13.064])
-    );
+    let bevel = features::bevel::classify_bevel(&part, 13).unwrap();
+    let centre = bevel.bounds.centre();
+    let planes =
+        features::bevel::proved_bevel_planes(&Context::new(&part), 13, centre, bevel.edge_axis)
+            .unwrap();
+    let corner = [0, 1, 2].map(|i| {
+        quiddity::kernel::py::round_to3(if i == bevel.edge_axis {
+            centre[i]
+        } else {
+            planes[&i]
+        })
+    });
+    assert_eq!(corner, [10.137, 29.381, 13.064]);
+    assert_eq!(*real.record.corner.unwrap(), corner);
     let read = |at: &Placement| {
         let framed = quiddity::frames::prepare_framed_file(&path, at).unwrap();
         let mut found: Vec<_> = features::angled_steps::discover(&Context::new(&framed.part))

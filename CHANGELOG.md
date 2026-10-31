@@ -6,6 +6,16 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Fixed
+
+- For #157, #159, #160, retain turned steps on stock with proved spanner flats,
+  group interrupted coaxial torus fillets with exact defining faces, and omit
+  chamfer/angled-step corners unless their wedge is consistent at published
+  precision and has no material interior, retaining correct boundary-touching corners. Recognition /6 and fingerprints /3 are unchanged.
+  **At your next pin:** affected parts' fillet records renumber their run-local ids where
+  interrupted arcs merge (64 groups in the corpus), and some `corner` values become null
+  where they could not be proven. Turned parts with flats gain their turned steps.
+
 ## 0.4.1 (2026-10-31)
 
 Upgrading from 0.4.0: recognition schema `/6` and fingerprints `/3` are unchanged, and successful recognition output is byte-identical.
@@ -124,7 +134,6 @@ Upgrading from 0.2.7: recognition schema `/6` and fingerprints `/3` are unchange
   including distinct tokens for equal REAL values. Dimension/tolerance-owned notes
   use direct AP242 characterized-item properties, upgrading edition 1 JSON writes
   to edition 4. Validation now shares geometry-independent writer refusals with import.
-
 
 ## 0.2.7 (2026-10-31)
 

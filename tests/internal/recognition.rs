@@ -1552,3 +1552,402 @@ fn step_representation_symmetries_keep_geometry_and_terminal_roles() {
         ));
     }
 }
+
+/// #160: published corners must reconstruct the record and its entire removed
+/// wedge must be empty. The independent OCCT check also runs against these 41.
+#[test]
+fn mfcadpp_bevel_corners_are_reconstructible_or_absent() {
+    use quiddity::kernel::{
+        classify::material_at,
+        geom,
+        rays::RayCaster,
+        volume::{Probe, common_volume, probe_volume},
+    };
+    let Some(dir) = common::corpus_dir() else {
+        return;
+    };
+    // Independent issue check: these 32 original corners passed. Keep the exact
+    // published points, including small legs whose angle error is dominated by rounding.
+    let good = [
+        ("mfcadpp/10000.step", "angled_steps/0", [5.325, 0.0, 0.0]),
+        ("mfcadpp/10007.step", "angled_steps/0", [31.864, 0.0, 8.887]),
+        ("mfcadpp/10033.step", "chamfers/0", [0.0, 17.182, 0.0]),
+        ("mfcadpp/10033.step", "chamfers/1", [43.577, 0.0, 19.718]),
+        ("mfcadpp/10049.step", "angled_steps/0", [11.535, 3.628, 0.0]),
+        ("mfcadpp/1007.step", "chamfers/0", [6.926, 11.197, 16.274]),
+        ("mfcadpp/10077.step", "chamfers/0", [23.623, 34.653, 11.577]),
+        ("mfcadpp/10077.step", "chamfers/1", [19.313, 0.0, 13.526]),
+        ("mfcadpp/1008.step", "chamfers/0", [24.831, 28.5, 0.0]),
+        (
+            "mfcadpp/10101.step",
+            "angled_steps/0",
+            [13.154, 10.355, 9.404],
+        ),
+        (
+            "mfcadpp/10119.step",
+            "angled_steps/0",
+            [12.57, 18.004, 6.257],
+        ),
+        ("mfcadpp/1013.step", "chamfers/0", [37.616, 19.842, 0.0]),
+        ("mfcadpp/10131.step", "chamfers/0", [0.0, 10.091, 23.226]),
+        ("mfcadpp/10138.step", "angled_steps/0", [27.505, 1.401, 0.0]),
+        ("mfcadpp/10146.step", "chamfers/0", [5.003, 24.223, 0.0]),
+        ("mfcadpp/10146.step", "chamfers/1", [0.0, 12.111, 10.427]),
+        ("mfcadpp/10163.step", "chamfers/0", [0.0, 0.0, 8.327]),
+        ("mfcadpp/1017.step", "chamfers/0", [37.299, 0.0, 8.309]),
+        ("mfcadpp/1017.step", "chamfers/1", [0.0, 17.116, 29.361]),
+        ("mfcadpp/10170.step", "chamfers/0", [14.615, 0.0, 7.738]),
+        ("mfcadpp/10245.step", "angled_steps/0", [0.0, 39.198, 3.426]),
+        ("mfcadpp/10247.step", "angled_steps/0", [17.981, 0.0, 0.0]),
+        ("mfcadpp/10252.step", "chamfers/0", [31.254, 12.205, 0.0]),
+        (
+            "mfcadpp_holdout/163.step",
+            "angled_steps/0",
+            [3.641, 0.0, 0.0],
+        ),
+        (
+            "mfcadpp_holdout/16943.step",
+            "angled_steps/0",
+            [38.012, 0.0, 20.643],
+        ),
+        (
+            "mfcadpp_holdout/181.step",
+            "angled_steps/0",
+            [35.505, 21.059, 17.718],
+        ),
+        (
+            "mfcadpp_holdout/340.step",
+            "angled_steps/0",
+            [32.35, 21.996, 0.0],
+        ),
+        (
+            "mfcadpp_holdout/408.step",
+            "chamfers/0",
+            [9.922, 19.29, 0.0],
+        ),
+        (
+            "mfcadpp_holdout/408.step",
+            "angled_steps/0",
+            [17.626, 42.134, 10.456],
+        ),
+        (
+            "mfcadpp_holdout/483.step",
+            "angled_steps/0",
+            [6.606, 0.0, 24.738],
+        ),
+        (
+            "mfcadpp_holdout/483.step",
+            "angled_steps/1",
+            [0.0, 29.381, 23.528],
+        ),
+        (
+            "mfcadpp_holdout/483.step",
+            "angled_steps/2",
+            [10.137, 29.381, 13.064],
+        ),
+    ];
+    let mut count = 0;
+    let mut retained = 0;
+    for entry in common::load("corpus.json")["files"].as_array().unwrap() {
+        let file = entry["file"].as_str().unwrap();
+        if !(file.starts_with("mfcadpp/") || file.starts_with("mfcadpp_holdout/")) {
+            continue;
+        }
+        let (part, reading, _) =
+            serve::recognise_step(&dir.join(file).to_string_lossy(), &IDENTITY).unwrap();
+        let doc = recognition::document(&reading, part.faces.len());
+        let ctx = features::Context::new(&part);
+        for record in doc
+            .records
+            .iter()
+            .filter(|r| matches!(r.family.as_str(), "chamfers" | "angled_steps"))
+        {
+            count += 1;
+            let p = &record.parameters;
+            if let Some((_, _, expected)) = good
+                .iter()
+                .find(|(f, id, _)| *f == file && *id == record.id)
+            {
+                assert_eq!(
+                    p["corner"],
+                    serde_json::json!(expected),
+                    "{file} {}",
+                    record.id
+                );
+            } else {
+                assert!(
+                    p["corner"].is_null(),
+                    "unproved bad corner: {file} {}",
+                    record.id
+                );
+            }
+            if p["corner"].is_null() {
+                continue;
+            }
+            retained += 1;
+            let point =
+                |key: &str| -> [f64; 3] { std::array::from_fn(|i| p[key][i].as_f64().unwrap()) };
+            let (at, corner) = (point("at"), point("corner"));
+            let d = geom::sub(at, corner);
+            let mut legs = [p["leg1"].as_f64().unwrap(), p["leg2"].as_f64().unwrap()];
+            legs.sort_by(|a, b| b.total_cmp(a));
+            if let Some(axis) = p["axis"].as_str() {
+                let axis = match axis {
+                    "x" => 0,
+                    "y" => 1,
+                    _ => 2,
+                };
+                let t: Vec<_> = (0..3).filter(|&i| i != axis).collect();
+                let mut implied = [2. * d[t[0]].abs(), 2. * d[t[1]].abs()];
+                implied.sort_by(|a, b| b.total_cmp(a));
+                assert!(
+                    implied.iter().zip(legs).all(|(a, b)| (a - b).abs() < 0.05),
+                    "{file} {}",
+                    record.id
+                );
+                assert!(
+                    (implied[1].atan2(implied[0]).to_degrees() - p["angle"].as_f64().unwrap())
+                        .abs()
+                        < 0.2
+                );
+                let mut run = [0.; 3];
+                run[axis] = 1.;
+                let (lo, hi) = part.extent_along(&record.faces, run);
+                let mut a = corner;
+                a[axis] = lo;
+                let mut b = a;
+                b[t[0]] += 2. * d[t[0]];
+                let mut c = a;
+                c[t[1]] += 2. * d[t[1]];
+                let low = [a, b, c];
+                let high = low.map(|mut q| {
+                    q[axis] = hi;
+                    q
+                });
+                let wedge = features::support_patches::ruled_prism(&low, &high).unwrap();
+                let probe = Probe::Solid(RayCaster::for_solid(&wedge, 0));
+                let share = common_volume(ctx.classifier(), &probe).unwrap()
+                    / probe_volume(&probe).unwrap();
+                assert!(share < 0.01, "{file} {}: {share}", record.id);
+            } else {
+                let run: [f64; 3] = std::array::from_fn(|i| p["axis"][i].as_f64().unwrap());
+                let transverse = geom::sub(d, geom::scale(run, geom::dot(d, run)));
+                assert!((2. * geom::norm(transverse) - legs[0].hypot(legs[1])).abs() < 0.01);
+            }
+            assert!(
+                !material_at(ctx.classifier(), geom::add(corner, geom::scale(d, 2. / 3.))),
+                "{file} {}",
+                record.id
+            );
+        }
+    }
+    assert_eq!(
+        count, 41,
+        "keep every feature even when its optional corner cannot be proved"
+    );
+    assert_eq!(
+        retained, 32,
+        "retain every originally correct corner unchanged"
+    );
+}
+
+/// #160: boundary contact, curved terminals and grid rounding must not erase good data.
+#[test]
+fn bevel_corner_proof_keeps_good_wider_and_captured_points() {
+    let Some(dir) = common::corpus_dir() else {
+        return;
+    };
+    // Native OCCT checks distinguish the full spring-edge run from its terminal box.
+    let expected = [
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            "chamfers/2",
+            [-15.632, 48.868, -22.427],
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            "chamfers/3",
+            [-10.632, 48.868, -22.427],
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            "chamfers/14",
+            [-13.132, 33.868, -50.001],
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            "chamfers/15",
+            [-13.132, -36.132, -50.001],
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            "chamfers/32",
+            [-58.272, -1.132, -50.001],
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            "chamfers/33",
+            [-35.132, 33.948, -50.001],
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            "chamfers/34",
+            [-35.132, -36.211, -50.001],
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            "chamfers/35",
+            [8.868, 33.948, -50.001],
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            "chamfers/36",
+            [8.868, -36.211, -50.001],
+        ),
+        (
+            "cadgenbench_inputs/cgb243.step.gz",
+            "chamfers/37",
+            [32.009, -1.132, -50.001],
+        ),
+        (
+            "nist/nist_ctc_03_asme1_rc.stp",
+            "chamfers/2",
+            [-241.3, 485.445, 0.954],
+        ),
+        (
+            "nist/nist_ctc_03_asme1_rc.stp",
+            "chamfers/5",
+            [-248.607, 425.455, 128.908],
+        ),
+        (
+            "nist/nist_ftc_06_asme1_rd.stp",
+            "chamfers/2",
+            [88.9, 97.79, -15.875],
+        ),
+        (
+            "nist/nist_ftc_06_asme1_rd.stp",
+            "chamfers/3",
+            [76.2, 97.79, -15.875],
+        ),
+        (
+            "nist/nist_ftc_06_asme1_rd.stp",
+            "chamfers/4",
+            [-76.2, 97.79, -15.875],
+        ),
+        (
+            "nist/nist_ftc_06_asme1_rd.stp",
+            "chamfers/5",
+            [-88.9, 97.79, -15.875],
+        ),
+        (
+            "nist/nist_ftc_09_asme1_rd.stp",
+            "chamfers/0",
+            [95.25, 1.519, -117.475],
+        ),
+        (
+            "nist/nist_ftc_09_asme1_rd.stp",
+            "chamfers/2",
+            [74.612, 1.519, -139.7],
+        ),
+        (
+            "nist/nist_ftc_09_asme1_rd.stp",
+            "chamfers/4",
+            [-74.612, 1.519, -139.7],
+        ),
+        (
+            "nist/nist_ftc_09_asme1_rd.stp",
+            "chamfers/6",
+            [-95.25, 1.519, -117.475],
+        ),
+    ];
+    let mut last = String::new();
+    let mut records = Vec::new();
+    for (file, id, corner) in expected {
+        if file != last {
+            let (part, reading, _) =
+                serve::recognise_step(&dir.join(file).to_string_lossy(), &IDENTITY).unwrap();
+            records = recognition::document(&reading, part.faces.len()).records;
+            last = file.to_owned();
+        }
+        let found = records.iter().find(|r| r.id == id).unwrap();
+        assert_eq!(
+            found.parameters["corner"],
+            serde_json::json!(corner),
+            "{file} {id}"
+        );
+    }
+    // Six native captured inputs account for all 17 formerly erased call occurrences.
+    // Two inputs really are inconsistent: e458's 1/1 legs imply .996/1.004 and 44.77°;
+    // f71f's 4/4 legs imply 3.966/4.034 and 44.51°, rather than the reported 45°.
+    // Their biased face centroids cannot define a consistent corner on the true supports.
+    let captured = [
+        (
+            "ad6bc5f05b2a7de7.step.gz",
+            "recognise_chamfers",
+            &[
+                [0.0, -100.0, -30.0],
+                [0.0, 100.0, -30.0],
+                [-100.0, 0.0, -30.0],
+                [100.0, 0.0, -30.0],
+            ][..],
+        ),
+        (
+            "e458fbb5794a4f78.step.gz",
+            "recognise_chamfers",
+            &[
+                [0.0, -40.0, -30.0],
+                [0.0, 40.0, -30.0],
+                [-40.0, 0.0, -30.0],
+                [40.0, 0.0, -30.0],
+            ][..],
+        ),
+        (
+            "2db994ba714cc27f.step.gz",
+            "recognise_chamfers",
+            &[[0.0, -20.0, 6.0]][..],
+        ),
+        (
+            "d088eacbf676741d.step.gz",
+            "recognise_chamfers",
+            &[[-3000.0, 0.0, 600.0]][..],
+        ),
+        (
+            "27d20eebb46b631d.step.gz",
+            "recognise_chamfers",
+            &[[-1.5, 0.0, 0.3]][..],
+        ),
+        (
+            "f71fc920508b4dc9.step.gz",
+            "recognise_angled_steps",
+            &[[-17.5, 20.0, 6.0]][..],
+        ),
+    ];
+    for (file, function, expected) in captured {
+        let part =
+            quiddity::read_step_file(&common::fixtures().join("captured").join(file)).unwrap();
+        let result = common::recognise(function, &part, &serde_json::json!({}));
+        let corners: Vec<_> = result
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|r| r["corner"].clone())
+            .collect();
+        assert_eq!(
+            corners,
+            expected
+                .iter()
+                .map(|p| {
+                    if matches!(
+                        file,
+                        "e458fbb5794a4f78.step.gz" | "f71fc920508b4dc9.step.gz"
+                    ) {
+                        serde_json::Value::Null
+                    } else {
+                        serde_json::json!(p)
+                    }
+                })
+                .collect::<Vec<_>>(),
+            "{file}"
+        );
+    }
+}

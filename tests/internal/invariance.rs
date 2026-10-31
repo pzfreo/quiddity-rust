@@ -1035,12 +1035,9 @@ fn principal_chamfers_follow_rolled_supports() {
                 (before.leg1, before.leg2, before.angle),
                 (after.leg1, after.leg2, after.angle)
             );
-            // Two independently rounded 0.001-unit points differ by at most sqrt(3)*0.001.
+            let (before_corner, after_corner) = (before.corner.unwrap(), after.corner.unwrap());
             assert!(
-                quiddity::kernel::py::dist(
-                    &transform(*before.corner.unwrap()),
-                    &after.corner.unwrap()[..]
-                ) < 0.002
+                quiddity::kernel::py::dist(&transform(*before_corner), &after_corner[..]) < 0.002
             );
             assert!(quiddity::kernel::py::dist(&transform(*before.at), &after.at[..]) < 0.002);
         }

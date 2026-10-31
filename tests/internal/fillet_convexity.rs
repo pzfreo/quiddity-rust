@@ -454,3 +454,32 @@ fn check_cast_rounds(part: &Part, reading: &Recognition) {
         );
     }
 }
+
+#[test]
+fn interrupted_hub_root_round_has_one_exact_defining_claim() {
+    use quiddity::features::{Context, fillets};
+    let p = read_step_file(&common::fixtures().join("interrupted_fillet_hub.step")).unwrap();
+    let found = fillets::discover(&Context::new(&p), &Default::default());
+    let root = found.iter().find(|o| o.defining == vec![5, 9, 13]).unwrap();
+    assert_eq!(
+        (root.record.radius, root.record.side, root.record.turned),
+        (3., "concave", true)
+    );
+    assert_eq!(found.len(), 4);
+    let at = *root.record.at;
+    assert!(root.defining.iter().any(|&f| {
+        p.faces[f]
+            .surface
+            .parameters(at, None)
+            .is_some_and(|(u, v)| {
+                quiddity::kernel::geom::dist(p.faces[f].surface.value(u, v), at) < 0.002
+            })
+    }));
+    let doc = quiddity::recognition::document(&correspondence::recognise(&p), p.faces.len());
+    let root = doc
+        .records
+        .iter()
+        .find(|r| r.family == "fillets" && r.faces == vec![5, 9, 13])
+        .unwrap();
+    assert_eq!(root.faces, vec![5, 9, 13]);
+}

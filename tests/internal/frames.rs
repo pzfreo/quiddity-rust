@@ -489,7 +489,14 @@ fn majority_frame_recovers_specify_fillets_and_parallel_support_chamfer() {
             "{file}"
         );
         let found = &recognised.features.defining[family];
-        assert_eq!(found.len(), count, "{file}/{family}");
+        // #159 groups interrupted torus arcs; retain the original patch-coverage
+        // requirement rather than reducing the historical feature floor.
+        let patch_count = if family == "fillets" {
+            super::inventory_floor::fillet_patch_count(&part, found)
+        } else {
+            found.len()
+        };
+        assert_eq!(patch_count, count, "{file}/{family}");
         for face in faces {
             assert!(
                 found.contains(&vec![face]),

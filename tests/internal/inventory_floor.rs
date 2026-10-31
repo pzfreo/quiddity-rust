@@ -4,7 +4,28 @@ use quiddity::{correspondence, features, read_step_file};
 use serde_json::{Value, json};
 use std::collections::BTreeMap;
 
-fn counts(f: &features::Features) -> BTreeMap<String, usize> {
+/// #159 preserves the historical per-torus-patch inventory even when several
+/// interrupted patches now share one callout. Cylinder rounds (including their
+/// spherical caps) still count once. No baseline or loss allowance is lowered.
+pub(super) fn fillet_patch_count(part: &quiddity::Part, defining: &[Vec<usize>]) -> usize {
+    defining
+        .iter()
+        .map(|faces| {
+            faces
+                .iter()
+                .filter(|&&f| {
+                    matches!(
+                        part.faces[f].surface,
+                        quiddity::kernel::geom::Surface::Torus { .. }
+                    )
+                })
+                .count()
+                .max(1)
+        })
+        .sum()
+}
+
+fn counts(part: &quiddity::Part, f: &features::Features) -> BTreeMap<String, usize> {
     let mut counts: BTreeMap<String, usize> = serde_json::to_value(f)
         .unwrap()
         .as_object()
@@ -16,6 +37,9 @@ fn counts(f: &features::Features) -> BTreeMap<String, usize> {
         "section_recess_patterns".into(),
         f.section_recess_patterns.len(),
     );
+    if let Some(defining) = f.defining.get("fillets") {
+        counts.insert("fillets".into(), fillet_patch_count(part, defining));
+    }
     counts
 }
 
@@ -69,10 +93,11 @@ fn census() -> BTreeMap<String, Value> {
             accepted.section_recesses = projection.section_recesses;
             accepted.section_recess_patterns = projection.patterns;
         }
-        let mut result = json!({"physical": counts(&raw), "accepted": counts(&accepted)});
+        let mut result =
+            json!({"physical": counts(&part, &raw), "accepted": counts(&part, &accepted)});
         if key.starts_with("corpus/") || key.starts_with("fixture/") {
             let found = correspondence::recognise(&part);
-            let working_counts = counts(&found.features);
+            let working_counts = counts(&part, &found.features);
             let published: BTreeMap<_, _> = found.features.families().into_iter().collect();
             for (old, plain) in [
                 ("oriented_slots", "slots"),
