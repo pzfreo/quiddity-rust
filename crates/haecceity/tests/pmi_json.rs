@@ -723,11 +723,43 @@ fn one_identified_property_with_two_tolerance_classes_has_distinct_ids() {
     let doc = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
     let parts = read_part_definitions(doc.bytes()).unwrap();
     let read = pmi::read(&doc, &parts).unwrap();
+    let class_id = |text: &str| {
+        format!(
+            "class-property/tolerance-class/{}",
+            text.as_bytes()
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>()
+        )
+    };
     assert_eq!(
         read.identifiers.parts[0].general,
+        vec![Some(class_id("ISO 2768-m")), Some(class_id("ISO 2768-f"))]
+    );
+    let mut edit = p21::Edit::new();
+    let extra = edit.add(p21::simple(
+        "DESCRIPTIVE_REPRESENTATION_ITEM",
         vec![
-            Some("class-property".into()),
-            Some("class-property/tolerance-class/2".into())
+            A::String("tolerance class".into()),
+            A::String("ISO 2768-c".into()),
+        ],
+    ));
+    let mut record = doc.get(rep).unwrap().clone();
+    if let RawEntity::Simple { attributes, .. } = &mut record
+        && let A::List(items) = &mut attributes[1]
+    {
+        items.reverse();
+        items.insert(0, extra.to_ref());
+    }
+    edit.replace(rep, record);
+    let after = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    let updated = pmi::read(&after, &parts).unwrap();
+    assert_eq!(
+        updated.identifiers.parts[0].general,
+        vec![
+            Some(class_id("ISO 2768-c")),
+            Some(class_id("ISO 2768-f")),
+            Some(class_id("ISO 2768-m"))
         ]
     );
     json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();

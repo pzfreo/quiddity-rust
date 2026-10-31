@@ -5018,7 +5018,20 @@ impl<'a> Reader<'a> {
             );
             return;
         }
-        let mut class_ordinal = 0;
+        let mut class_count = 0;
+        for (_, rep) in &reps {
+            for item in self.get_refs(*rep, "representation", "items") {
+                if self.is(item, "descriptive_representation_item")
+                    && self.name_of(item) == "tolerance class"
+                    && self
+                        .get_str(item, "descriptive_representation_item", "description")
+                        .is_some_and(|text| !text.trim().is_empty())
+                {
+                    class_count += 1;
+                }
+            }
+        }
+        let mut class_twins = BTreeMap::<String, usize>::new();
         for (pdr, rep) in reps {
             let mut base = vec![pdef, pdr, rep];
             base.extend(self.id_attributes(pdef));
@@ -5033,22 +5046,33 @@ impl<'a> Reader<'a> {
                         continue; // §4.1 Figure 3 writes '' when only the table applies
                     }
                     let standard = Iso2768::recognise(&text);
+                    let twin = class_twins.entry(text.clone()).or_default();
+                    *twin += 1;
+                    let identifier = self
+                        .item_identifier(st.id, "general", st.pmi.general.len(), pdef)
+                        .map(|id| {
+                            if class_count <= 1 || id.is_empty() {
+                                id
+                            } else {
+                                let qualifier = text
+                                    .as_bytes()
+                                    .iter()
+                                    .map(|byte| format!("{byte:02x}"))
+                                    .collect::<String>();
+                                let base = format!("{id}/tolerance-class/{qualifier}");
+                                if *twin == 1 {
+                                    base
+                                } else {
+                                    format!("{base}~{twin}")
+                                }
+                            }
+                        });
                     st.pmi
                         .general
                         .push(GeneralTolerance::Class { text, standard });
                     let mut p = base.clone();
                     p.push(item);
                     st.prov.general.push(ids(p));
-                    class_ordinal += 1;
-                    let identifier = self
-                        .item_identifier(st.id, "general", st.pmi.general.len() - 1, pdef)
-                        .map(|id| {
-                            if class_ordinal == 1 {
-                                id
-                            } else {
-                                format!("{id}/tolerance-class/{class_ordinal}")
-                            }
-                        });
                     st.identifiers.general.push(identifier);
                     read_any = true;
                 } else {

@@ -277,3 +277,9 @@ Unit definitions use globally unique caller IDs, or `unit:<kind>:<content-digest
 fallback IDs. Identical definitions must reuse one ID; duplicate definitions are
 refused with a reason. The transport record retains unit IDs, unused unit
 definitions, and table order, while quantities retain their native stated units.
+
+Several nonempty `tolerance class` items under one identified property use
+`<pdef-id>/tolerance-class/<UTF-8 text as lowercase hex>`. This parent-qualified
+content id remains stable when distinct classes are reordered or inserted; only
+identical class-text twins receive `~2`, `~3`, … . A dedicated single-class
+property keeps its own `ID_ATTRIBUTE` unchanged, including JSON-written caller IDs.
