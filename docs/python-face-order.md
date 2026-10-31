@@ -3,7 +3,7 @@
 Trial on 2026-10-31, macOS arm64, CPython 3.12.13, build123d 0.13.0,
 `cadquery-ocp-novtk` 8.0.1.1.0, and the local quiddity 0.4.0 abi3 wheel.
 The environment and exported STEP files were created in scratch space.
-The [machine-readable result](python-face-order.json) records each index map.
+Each trial maps every face index to itself; rerun the script below to reproduce the maps.
 
 | Shape | Faces | Standard `export_step` order versus `shape.faces()` | Named-face map |
 | --- | ---: | --- | --- |
