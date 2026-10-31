@@ -288,3 +288,96 @@ fn step_generated_marker_reads_back_as_generated() {
             .all(|g| g.source == Source::Generated)
     );
 }
+
+#[cfg(feature = "presentation")]
+#[test]
+fn import_keeps_unchanged_foreign_callouts_and_reports_replaced_ones() {
+    use haecceity::pmi::*;
+    let bytes = std::fs::read(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../tests/fixtures/ties/cube.step"
+    ))
+    .unwrap();
+    let doc = Document::parse(bytes.clone()).unwrap();
+    let parts = read_part_definitions(&bytes).unwrap();
+    let model = PartPmi {
+        features: vec![Feature::Items(vec![Anchor::Face(FaceIndex(0))])],
+        datums: vec![
+            Datum::new(DatumLabel::new("A").unwrap(), Some(FeatureId(0)), vec![]).unwrap(),
+        ],
+        dimensions: vec![Dimension {
+            kind: DimensionKind::Size {
+                feature: FeatureId(0),
+                kind: SizeKind::Thickness,
+                path: None,
+                angle: None,
+            },
+            nominal: Some(Value::length(
+                Decimal::parse("10.").unwrap(),
+                LengthUnit::Millimetre,
+            )),
+            tolerance: DimTolerance::Basic,
+            qualifier: None,
+            modifiers: vec![],
+            principle: None,
+        }],
+        ..Default::default()
+    };
+    let semantic = json::identify(model, None).unwrap();
+    let dimension_id = semantic.ids["dimensions"][0].clone();
+    let (bytes, _) = json::write_preserving(&doc, &parts, &[(PartId(0), semantic)]).unwrap();
+    let doc = Document::parse(bytes).unwrap();
+    // Simulate an outside application's unmarked graphics on this geometry.
+    let mut edit = haecceity::p21::Edit::new();
+    for id in doc.ids() {
+        if let Some(p21::RawEntity::Simple {
+            name, attributes, ..
+        }) = doc.get(id)
+            && name.eq_ignore_ascii_case("draughting_model_item_association")
+            && attributes.get(1) == Some(&A::String("haecceity.generated/1".into()))
+        {
+            let mut record = doc.get(id).unwrap().clone();
+            if let p21::RawEntity::Simple { attributes, .. } = &mut record {
+                attributes[1] = A::String("foreign".into());
+            }
+            edit.replace(id, record);
+        }
+    }
+    let doc = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    let parts = read_part_definitions(doc.bytes()).unwrap();
+    let read = pmi::read(&doc, &parts).unwrap();
+    let mut semantic =
+        json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+    let before = presentation::read(&doc, &read, PartId(0), &semantic).unwrap();
+    let changed_root = before.items[&dimension_id][0].step_ids[0];
+    semantic.pmi.dimensions[0].nominal = Some(Value::length(
+        Decimal::parse("11.").unwrap(),
+        LengthUnit::Millimetre,
+    ));
+    let (out, report) = json::write_preserving(&doc, &parts, &[(PartId(0), semantic)]).unwrap();
+    assert!(!report.presentation_removed.is_empty());
+    assert!(
+        report.removed.contains(&changed_root)
+            || report
+                .presentation_removed
+                .iter()
+                .any(|(id, _)| *id == changed_root)
+    );
+    let after = Document::parse(out).unwrap();
+    let parts = read_part_definitions(after.bytes()).unwrap();
+    let read = pmi::read(&after, &parts).unwrap();
+    let semantic = json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+    let drawn = presentation::read(&after, &read, PartId(0), &semantic).unwrap();
+    assert!(
+        drawn
+            .items
+            .values()
+            .flatten()
+            .any(|g| g.source == Source::File)
+    );
+    assert!(
+        drawn.items[&dimension_id]
+            .iter()
+            .all(|g| g.source == Source::Generated)
+    );
+}

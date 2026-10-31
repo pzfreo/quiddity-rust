@@ -792,3 +792,63 @@ fn unit_references_are_ids_and_keep_caller_names_and_unused_units() {
         );
     }
 }
+
+#[test]
+fn readback_refuses_ids_moved_to_another_collection_or_item() {
+    use haecceity::p21::{self, Attribute as A, RawEntity};
+    let bytes = cube();
+    let doc = Document::parse(bytes.clone()).unwrap();
+    let parts = read_part_definitions(&bytes).unwrap();
+    let mut model = test_model();
+    let mut second = model.dimensions[0].clone();
+    second.nominal = Some(Value::length(
+        Decimal::parse("11.").unwrap(),
+        LengthUnit::Millimetre,
+    ));
+    model.dimensions.push(second);
+    let mut semantic = json::identify(model, None).unwrap();
+    semantic
+        .ids
+        .insert("dimensions".into(), vec!["dim-a".into(), "dim-b".into()]);
+    semantic.ids.insert("datums".into(), vec!["datum-a".into()]);
+    let (output, _) = json::write_preserving(&doc, &parts, &[(PartId(0), semantic)]).unwrap();
+    let doc = Document::parse(output).unwrap();
+    let parts = read_part_definitions(doc.bytes()).unwrap();
+    for (a, b) in [("dim-a", "datum-a"), ("dim-a", "dim-b")] {
+        let mut edit = p21::Edit::new();
+        let mut count = 0;
+        for id in doc.ids() {
+            let Some(RawEntity::Simple {
+                name, attributes, ..
+            }) = doc.get(id)
+            else {
+                continue;
+            };
+            if !name.eq_ignore_ascii_case("id_attribute") {
+                continue;
+            }
+            let Some(A::String(value)) = attributes.first() else {
+                continue;
+            };
+            if value != a && value != b {
+                continue;
+            }
+            let mut record = doc.get(id).unwrap().clone();
+            if let RawEntity::Simple { attributes, .. } = &mut record {
+                attributes[0] = A::String(if value == a { b } else { a }.into());
+            }
+            edit.replace(id, record);
+            count += 1;
+        }
+        assert_eq!(
+            count, 2,
+            "the complete id set remains present, only carrier ownership changes"
+        );
+        let after = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+        let error = pmi::read(&after, &parts).unwrap_err().to_string();
+        assert!(
+            error.contains("ordering id") || error.contains("native content changed"),
+            "{error}"
+        );
+    }
+}
