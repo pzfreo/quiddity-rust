@@ -321,7 +321,7 @@ dependencies = [
 
 [[package]]
 name = "haecceity"
-version = "0.2.8"
+version = "0.4.0"
 dependencies = [
  "cadmpeg-codec-f3d",
  "cadmpeg-codec-step",
@@ -627,7 +627,7 @@ dependencies = [
 
 [[package]]
 name = "quiddity"
-version = "0.2.8"
+version = "0.4.0"
 dependencies = [
  "flate2",
  "haecceity",

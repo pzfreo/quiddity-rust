@@ -6,6 +6,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.4.0 (2026-10-31)
+
+Upgrading from 0.2.8: recognition schema `/6` and fingerprints `/3` are unchanged, and existing CLI output is unchanged.
+- **Version jump:** the crates move from 0.2.8 to 0.4.0 so that they share one version with the new `quiddity` Python wheel, which replaces Python quiddity 0.3.x on PyPI. There is no 0.3.
+- **Python:** `pip install quiddity` now gives the Rust-built wheel: a file-based API (STEP path or bytes in, JSON out) for CPython 3.11+. It does not take build123d/OCP shapes; keep the old API with `pip install "quiddity<0.4"`. See [docs/python.md](docs/python.md).
+- **New:** `quiddity-rust/evidence/1` and `quiddity evidence`, and `quiddity::dimensioning` (#141 slice 1).
+
 ### Fixed
 
 - Haecceity presentation surface-finish values now use the stated Decimal and unit,
@@ -21,7 +28,6 @@ in [docs/alpha1.md](docs/alpha1.md).
   differences, input/output reader findings, writer diagnostics and instance counts.
 - The wheel now targets `abi3-py311` and CPython 3.11+, with CI smoke coverage on
   3.11 for all five platforms and on the newest CPython for Linux x86_64.
-
 - In-process Python PMI interchange: STEP path/bytes plus a PMI dict/JSON string
   produce verified AP242 STEP bytes without temporary files. PMI/presentation reads
   return dicts, named/index anchors are selectable, `PmiError` preserves reasons and
