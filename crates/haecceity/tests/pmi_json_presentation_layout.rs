@@ -90,6 +90,10 @@ fn shared_ctc01_derived_fixture_pins_text_and_filled_triangles() {
     assert_eq!(literal.text, ["CTC-01 editable test text"]);
     let placed = &literal.text_placements[0];
     assert_eq!(placed.text_index, Some(0));
+    assert_eq!(
+        placed.stroked, None,
+        "the reader did not stroke this literal"
+    );
     near(placed.origin, [10., 20., 30.]);
     near(placed.x_axis, [1., 0., 0.]);
     near(placed.normal, [0., -1., 0.]);
@@ -496,6 +500,7 @@ fn generated_text_metadata_matches_the_placed_glyph_ink() {
     for p in graphic
         .polylines
         .iter()
+        .skip(10) // Measured linear dimensions precede lettering with ten witness/arrow lines.
         .take(callout.polylines().len())
         .flatten()
     {
@@ -503,6 +508,28 @@ fn generated_text_metadata_matches_the_placed_glyph_ink() {
     }
     near(text.origin, ink.centre());
     assert!(text.height.unwrap() > 0.);
+    assert_eq!(text.stroked, Some(true));
+    let encoded = serde_json::to_value(&generated).unwrap();
+    presentation::validate(&encoded).unwrap();
+    assert_eq!(
+        serde_json::from_value::<Presentation>(encoded).unwrap(),
+        generated
+    );
+    assert_eq!(generated.views.len(), generated.planes.len());
+    for plane in &generated.planes {
+        let view = generated
+            .views
+            .iter()
+            .find(|v| v.id == format!("{}/view", plane.id))
+            .unwrap();
+        near(view.direction.unwrap(), plane.normal.map(|n| -n));
+        near(
+            view.up.unwrap(),
+            haecceity::geom::cross(plane.normal, plane.x_axis),
+        );
+        assert_eq!(view.graphics.len(), 1);
+        assert_eq!(view.graphics[0], graphic.id.as_deref().unwrap());
+    }
     assert_eq!(text.alignment.as_deref(), Some("centre"));
     assert!(
         generated
@@ -510,4 +537,38 @@ fn generated_text_metadata_matches_the_placed_glyph_ink() {
             .iter()
             .any(|plane| Some(&plane.id) == graphic.plane_id.as_ref())
     );
+}
+
+#[test]
+fn stroked_is_optional_boolean_independent_of_graphic_source() {
+    let (_, drawn) = read(&mixed());
+    let mut value = serde_json::to_value(drawn).unwrap();
+    let literal = value["unlinked"]
+        .as_array_mut()
+        .unwrap()
+        .iter_mut()
+        .find(|g| g["id"] == "step:4389")
+        .unwrap();
+    literal["source"] = json!("generated");
+    assert!(literal["text_placements"][0].get("stroked").is_none());
+    for flag in [json!(true), json!(false)] {
+        let literal = value["unlinked"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|g| g["id"] == "step:4389")
+            .unwrap();
+        literal["text_placements"][0]["stroked"] = flag;
+        presentation::validate(&value).unwrap();
+        let decoded: Presentation = serde_json::from_value(value.clone()).unwrap();
+        assert_eq!(serde_json::to_value(decoded).unwrap(), value);
+    }
+    let literal = value["unlinked"]
+        .as_array_mut()
+        .unwrap()
+        .iter_mut()
+        .find(|g| g["id"] == "step:4389")
+        .unwrap();
+    literal["text_placements"][0]["stroked"] = json!("yes");
+    assert!(presentation::validate(&value).is_err());
 }

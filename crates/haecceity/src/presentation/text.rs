@@ -61,6 +61,20 @@ pub fn glyph(c: char) -> Option<(f64, Vec<Vec<P>>)> {
         ink.push(vec![[2., 14.], [2., -7.]]);
         return Some((advance, ink));
     }
+    if c == '…' {
+        // One Unicode glyph, composed from the font's three baseline dots.
+        // Keep the authored character in semantic text and text placements.
+        let (advance, dot) = glyph('.')?;
+        let mut ink = Vec::new();
+        for i in 0..3 {
+            ink.extend(dot.iter().map(|line| {
+                line.iter()
+                    .map(|p| [p[0] + i as f64 * advance, p[1]])
+                    .collect()
+            }));
+        }
+        return Some((3. * advance, ink));
+    }
     let mut lines = Vec::new();
     match c {
         '⌀' | 'ø' | 'Ø' => {

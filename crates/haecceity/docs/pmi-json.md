@@ -211,10 +211,10 @@ A version bump would unnecessarily reject those existing documents.
 
 | Optional field | Meaning and source |
 | --- | --- |
-| `Graphic.id` | Document-local graphic id (`step:<root instance id>` for file graphics). Copies under several semantic keys share this id; render/count once per id. Generated ids contain the semantic collection and id. |
+| `Graphic.id` | Document-local graphic id (`step:<root instance id>` for file graphics). Copies under several semantic keys share this id; render/count once per id. Generated ids contain the semantic collection and id, or `generated:general-notes` for the shared notes block. |
 | `Graphic.plane_id` | Reference to `planes[].id`, from the containing `annotation_plane`. Omitted with a diagnostic if unresolved or if several planes contain the same graphic. |
 | `planes[]` | `{id, name, origin, x_axis, normal}` from the annotation plane's `plane.position` or `planar_box.placement`. Origins are model-space millimetres; axes are unit vectors. The in-plane Y axis is `normal × x_axis`. |
-| `Graphic.text_placements[]` | `{text_index?, origin, x_axis, normal, height?, line_spacing?, alignment?}`. `text_index` is a zero-based index into the existing `text` array. The origin is the native alignment point, not an assumed lower-left corner. |
+| `Graphic.text_placements[]` | `{text_index?, origin, x_axis, normal, height?, line_spacing?, alignment?, stroked?}`. `text_index` is a zero-based index into the existing `text` array. The origin is the native alignment point, not an assumed lower-left corner. |
 | `views[]` | `{id, name, direction?, up?, graphics}` from draughting/presentation models and their camera models (including `model_geometric_view` associations). `graphics` contains graphic ids, not semantic ids. A saved view includes only its own contained graphics, including mapped content. |
 
 Text literals retain their `text_literal.placement`, including 2D placements in
@@ -231,15 +231,66 @@ strings from requirement names. They have no `text_index`; their declared
 `line_spacing` is distinct from height. Source zero spacing is retained and
 reported as nonconforming. A placeholder planar box may supply its extent height.
 Generated notation uses the actual placed text runs, centred alignment points and
-scaled capital heights. Empty-ink cases retain a diagnostic instead of non-finite
+scaled capital heights. `stroked: true` means that run's glyphs (including explicit
+geometric symbols) are already in this graphic's polylines: retain the string for
+editing/accessibility, and skip a second text draw. The flag records actual stroke
+emission, never a deduction from `source`. File literals have absent `stroked`
+(or equivalently false), including literals in a generated-source graphic; draw
+those with the client's font. Old documents may omit the flag. Empty-ink cases retain a diagnostic instead of non-finite
 coordinates. Existing strokes, tessellated fills and text strings are unchanged.
+
+Regeneration resolves linear dimensions from their semantic witnesses, orders
+rungs shortest first, and retains common outer annotation planes. Compact ladders
+reserve actual glyph ink rather than padded notation cells. Datum flags are placed
+before labels; control frames attach near their first cell. Parallel annotation
+planes pack together; unrelated camera planes do not force labels outward. This
+uses the generated saved-view model. The STEP writer uses the same compact ink
+spacing while retaining its seven-view clearance policy. Text origins and heights come from the actual stroke transform,
+including the span clipping of short dimensions and the tip offset of surface symbols.
 
 Camera direction points into the scene (negative camera Z), and up is camera Y.
 A draughting model without a camera still supplies a membership group, omitting
-both direction and up. No camera is guessed. IDs are local to this companion;
+both direction and up. File cameras are never guessed. Generated output supplies
+one orthographic view per annotation plane: direction = -normal, up = normal ×
+x_axis, with graphic ids deduplicated. The model has no camera position, scale or
+frustum; clients fit the part and the listed graphics when opening a view. IDs are local to this companion;
 use `semantic_ids` to verify the companion's semantic link set before use.
 Validation checks plane, view and text-index references and consistent copies of
 one graphic under multiple semantic keys.
+
+Generated part settings and submitted part-level `notes` share one `General notes` graphic (`generated:general-notes`),
+one `GENERAL NOTES` heading and one annotation plane. Each requirement's semantic
+key aliases that same graphic, so per-item ids and questions remain available;
+render the graphic only once by id, as for a read STEP callout. Material, which
+has no independent semantic item id, joins the block (unlinked if material alone).
+The STEP callout contains a separate occurrence per requirement with its own
+DMIA to that requirement's property definition; the heading shares the first
+occurrence. This retains the #137 typing and IIRU uniqueness rules.
+
+Items are numbered from 1, including a single item, with two spaces after the
+number and indented continuation lines, following Draftwright `1c830977`,
+`src/notes.rs::rows` and `plan_with_rows`. Draftwright's `pmi_lowering.rs::sheet_requirements`
+places tolerance and default finish in separate sheet defaults, so the combined
+model-space block uses a defined order: general tolerance classes, default
+finishes, edges, coating, heat treatment, other general notes, material. Each
+category retains input order (structured settings, text attributes, then unstructured
+notes); general notes use explicit positive note indices
+first, then input order. Unstructured notes retain their own `notes` ids; recognized
+finish parameters use the writer's explicit-unit parser, preserving stated precision
+without guessing units. Generic attribute fields of unknown kind remain opaque;
+they can carry unavailable CAD-font symbols rather than note prose. Explicitly
+submitted unstructured part notes may use other kinds. No submitted settings means no block. Retained file
+graphics and notes are unchanged.
+
+Generated general notes use a front annotation plane (X right, Z up, Y at the
+part bounds' centre). The first block's ink starts at `max X + 2h`, with its top
+at `min Z - 2h`, where `h` is the bounds-derived capital height. Later blocks stack
+down, separated by `2h`. Thus notes clear the part and one another in their own
+plane and occupy one column beside the lower-right corner; feature leaders and
+other annotation planes cannot recursively push the column away. The STEP writer
+uses the same rule for its combined notes block. Clearance in all seven possible
+projections is deliberately replaced by clearance in the notes plane; no nearby
+3D annotation can be guaranteed readable from every camera.
 
 Datum-feature symbol links include the owning datum id even when a direct feature
 key is present. Ownership follows the native datum-feature-to-datum relationship,

@@ -493,24 +493,30 @@ fn part_settings_have_shared_wording_and_indexed_general_notes() {
     assert_eq!(
         rows.iter().map(|r| r.text.as_str()).collect::<Vec<_>>(),
         [
-            "MATERIAL: 6082-T6",
             "GENERAL TOLERANCES ISO 2768-m",
             "SURFACE FINISH Ra 3.2 UNLESS OTHERWISE STATED",
             "Break sharp edges 0.2 max",
             "Coating: Black",
             "Heat treatment: T6",
             "First note",
-            "Second note"
+            "Second note",
+            "MATERIAL: 6082-T6"
         ]
     );
-    assert_eq!(rows[6].source, Source::Attribute(4));
-    assert_eq!(rows[7].source, Source::Attribute(0));
+    assert_eq!(rows[5].source, Source::Attribute(4));
+    assert_eq!(rows[6].source, Source::Attribute(0));
     let block = notes::notes_block(&rows);
     assert_eq!(block.runs[0].text, "GENERAL NOTES");
     assert_eq!(block.runs.len(), rows.len() + 1);
-    assert_eq!(block.runs[4].text, "1  Break sharp edges 0.2 max");
-    assert_eq!(block.runs[7].text, "4  First note");
-    assert_eq!(block.runs[8].text, "5  Second note");
+    assert_eq!(block.runs[1].text, "1  GENERAL TOLERANCES ISO 2768-m");
+    assert_eq!(
+        block.runs[2].text,
+        "2  SURFACE FINISH Ra 3.2 UNLESS OTHERWISE STATED"
+    );
+    assert_eq!(block.runs[3].text, "3  Break sharp edges 0.2 max");
+    assert_eq!(block.runs[6].text, "6  First note");
+    assert_eq!(block.runs[7].text, "7  Second note");
+    assert_eq!(block.runs[8].text, "8  MATERIAL: 6082-T6");
     for (kind, text, expected) in [
         ("surface treatment", "Anodise black", "Anodise black"),
         ("surface treatment", "Zinc plated", "Zinc plated"),

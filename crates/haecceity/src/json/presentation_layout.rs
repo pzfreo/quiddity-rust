@@ -21,6 +21,9 @@ pub struct Plane {
 pub struct TextPlacement {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text_index: Option<usize>,
+    /// True when this run is already drawn by the graphic's polylines.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stroked: Option<bool>,
     pub origin: [f64; 3],
     pub x_axis: [f64; 3],
     pub normal: [f64; 3],
@@ -51,6 +54,7 @@ impl TextPlacement {
     fn at(frame: Transform, scale: f64) -> Option<Self> {
         Some(Self {
             text_index: None,
+            stroked: None,
             origin: geom::scale(frame.origin, scale),
             x_axis: geom::unit(frame.axes[0])?,
             normal: geom::unit(geom::cross(frame.axes[0], frame.axes[1]))?,
@@ -450,15 +454,8 @@ pub(super) fn generated(
     graphic: &mut Graphic,
     callout: &crate::presentation::Callout,
     placed: &crate::presentation::placement::Placed,
-    height: f64,
-    extent: f64,
-    notes: bool,
 ) {
-    let scale = if notes {
-        height / 3.
-    } else {
-        (height / 3.).min(0.32 * extent.max(height) / callout.size[0].max(1.))
-    };
+    let scale = placed.text_scale;
     if !placed.origin.iter().all(|n| n.is_finite()) {
         graphic
             .unsupported
@@ -466,22 +463,7 @@ pub(super) fn generated(
         return;
     }
     let up = geom::cross(placed.normal, placed.along);
-    let mut origin = placed.origin;
-    if !notes {
-        let mut ink = geom::Bounds::empty();
-        for p in callout.polylines().iter().flatten() {
-            ink.add([p[0], p[1], 0.]);
-        }
-        if ink.max_extent().is_finite() {
-            origin = geom::sub(
-                origin,
-                geom::add(
-                    geom::scale(placed.along, ink.min[0] * scale),
-                    geom::scale(up, ink.min[1] * scale),
-                ),
-            );
-        }
-    }
+    let origin = placed.text_origin;
     let mut used = BTreeSet::new();
     for run in &callout.runs {
         if let Some((index, _)) = callout
@@ -493,6 +475,10 @@ pub(super) fn generated(
             used.insert(index);
             graphic.text_placements.push(TextPlacement {
                 text_index: Some(index),
+                // `placed.lines` contains Callout::polylines(): font letters
+                // and explicit geometric symbols represented by these runs.
+                // This records the rendering operation, not Graphic::source.
+                stroked: Some(true),
                 origin: geom::add(
                     origin,
                     geom::add(
