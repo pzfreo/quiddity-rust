@@ -204,13 +204,14 @@ rules (all copies passed SFA 5.41):
 - A datum annotation plane must contain its face normal, rather than be coplanar with the
   face; its leader starts inside that face, not at a shared corner vertex.
 
-These explain the previously symbolic spindle datum B: it is a multi-face datum and a
-location reference. The corners sample's datum B also had a coplanar annotation plane.
-The writer now follows all three measured rules; automated graph/interior/normal assertions
-cover every datum and multi-face aspect on the three samples. The maintainer's next import
-will confirm typing on the regenerated output. Linear distances remain symbolic, as with
-NIST's own files. No `MBD_0` characterized object or mechanical-design/draughting saved-view
-relationship is added.
+The writer follows all three measured rules; automated graph/interior/normal assertions
+cover every datum and multi-face aspect on the three samples. The spindle's two-face
+composite Datum B nevertheless remains symbolic in Solid Edge 2026. The maintainer
+confirmed that NIST CTC-01's two-face `Simple Datum.2` is symbolic there too: this is a
+known Solid Edge limitation, not a reason to change the valid composite or its associations.
+The corners sample's former coplanar datum plane is corrected. Linear distances remain
+symbolic, as with NIST's own files. No `MBD_0` characterized object or
+mechanical-design/draughting saved-view relationship is added.
 
 Round 5 adds visibility for non-geometric requirements. `presentation::notes` ports
 Draftwright aaa7a73's `dims/gdt.rs::finish_symbol`, `title_block.rs::removal_marks`,
@@ -226,9 +227,28 @@ model has no lay field; no lay or process requirement is inferred from geometry.
 The general-notes callout, occurrence and annotation-plane names are `General notes`
 for the viewer tree. The full block wording remains on its tessellated curve sets;
 the geometric-set annotation type remains `note`, and the drawn text is unchanged.
-A part with written settings gets one front-facing `GENERAL NOTES` block to the right of
+A part with written settings gets one front-facing `GENERAL NOTES` block outside
 the part and all callout ink/extension lines, including kept foreign tessellated/polyline
 annotations (repositioned tessellated sets are transformed when reserving their space).
+Round 8 replaces X-only separation, which did not survive isometric projection. The
+writer reserves each callout's complete occupied bounds and tries 27 fixed stations
+(left/centre/right, behind/centre/front, below/centre/above). Among stations with at least
+two text heights of separating-axis clearance in every principal/isometric projection,
+it chooses the smallest combined maximum extent, then the shortest distance to the part.
+If no station clears, double the outside gap and repeat. This is a deterministic rule for
+one notes block; no sheet layout or callout rearrangement is introduced. It avoids the
+excessive empty space of a single fixed diagonal. Text size, front-facing plane and all
+other callouts are unchanged. The serialized tests independently project convex hulls of all
+actual strokes, including leaders/extensions, and assert positive notes-to-callout clearance
+for every annotation type in all seven views, even edge-on. Existing dimension-to-dimension
+text/line checks remain. A blanket all-pairs full-extent assertion would reject intentional
+shared witnesses: the spindle's 3 and 4.9 dimensions have the same extension foot
+`[0.075, 0, 1.5]` and a common extension segment. Those measured witnesses are retained;
+no claim of blanket all-pairs full-extent separation is made. The broader audit also
+finds pre-existing non-notes frame/diameter intersections in some isometric projections
+(e.g. spindle `⌖ ⌀0.3Ⓜ A` versus `⌀3.3 H11`). These accepted feature-local placements
+are retained; eliminating every such intersection would be a separate layout change,
+not accomplished by relocating the notes.
 Only submitted settings are stated, in this order: material identification; general
 tolerance classes; default finish parameters; edge condition; coating; heat treatment;
 free `general note` values sorted by their explicit `note index` (stable input order
@@ -273,6 +293,14 @@ reference comparisons retain all verdicts; diagnostic IDs may follow entity renu
 `export_written_files` selects by feature. `tools/check_pmi_occt.py` defaults to the
 presentation folder; set `QUIDDITY_PMI_WRITE_FIXTURES=write` to recapture feature-off output.
 
+
+Round-8 golden changes use the same eight feature-on STEP/OCP pairs listed for round 7:
+only general-notes coordinates and annotation-plane origins move to a clear outside station
+for all projections. The settings test's right-hand-side-only assertion is replaced by the
+stronger seven-view full-ink clearance assertion, permitting clear left/behind stations.
+All non-notes entities, note wording/size, properties, styles and associations
+are identical; matching OCP capture hashes are refreshed. All sixteen feature-off pairs
+remain byte-identical. No snapshot payload expectation changes.
 
 Round-7 golden changes are feature-on only: `assembly_plate_pin_intent`, `every_kind`,
 `pmi_gaps`, `pmi_gaps_gram`, `editor_assembly_pin_alone`, `spool_fits_intent`,

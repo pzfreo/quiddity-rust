@@ -119,25 +119,76 @@ impl Layout {
         self.occupied.push(bounds);
         Some(placed)
     }
-    /// Front-facing notes to the right of the part and every existing annotation.
-    /// The strict X separation also avoids overlap in front/top projections.
+    /// Front-facing notes at one of a fixed set of outside-box stations. Choose
+    /// the most compact clear station; double the gap only if none clears all
+    /// seven views. Full leaders/extensions reserve space, not only text boxes.
     pub fn notes(&mut self, c: &Callout) -> Placed {
         let scale = self.height / 3.;
-        let right = self
-            .occupied
+        let local = c.polylines();
+        let mut ink = Bounds::empty();
+        for p in local.iter().flatten() {
+            ink.add([p[0] * scale, 0., p[1] * scale]);
+        }
+        let half = geom::scale(geom::sub(ink.max, ink.min), 0.5);
+        let mut occupied = self.bounds;
+        for b in &self.occupied {
+            occupied.add(b.min);
+            occupied.add(b.max);
+        }
+        let centre = occupied.centre();
+        let gap = 2. * self.height;
+        let mut distance = gap;
+        let origin = loop {
+            let stations: [[f64; 3]; 3] = std::array::from_fn(|k| {
+                [
+                    occupied.min[k] - half[k] - distance,
+                    centre[k],
+                    occupied.max[k] + half[k] + distance,
+                ]
+            });
+            let mut best: Option<(f64, f64, V3)> = None;
+            for x in stations[0] {
+                for y in stations[1] {
+                    for z in stations[2] {
+                        let centre = [x, y, z];
+                        let bounds = Bounds {
+                            min: geom::sub(centre, half),
+                            max: geom::add(centre, half),
+                        };
+                        if !std::iter::once(&self.bounds)
+                            .chain(&self.occupied)
+                            .all(|other| {
+                                super::linear::VIEWS.into_iter().all(|view| {
+                                    projected_bounds_clearance(bounds, *other, view) >= gap
+                                })
+                            })
+                        {
+                            continue;
+                        }
+                        let mut combined = occupied;
+                        combined.add(bounds.min);
+                        combined.add(bounds.max);
+                        let fit = combined.max_extent();
+                        let reach = geom::dist(centre, self.bounds.centre());
+                        if best.as_ref().is_none_or(|(f, r, _)| {
+                            fit.total_cmp(f).then(reach.total_cmp(r)).is_lt()
+                        }) {
+                            best = Some((fit, reach, geom::sub(centre, ink.centre())));
+                        }
+                    }
+                }
+            }
+            if let Some((_, _, origin)) = best {
+                break origin;
+            }
+            // Stations offset on two axes are parallel to none of the seven
+            // views, so a finite occupied extent always has a clear outer layer.
+            distance *= 2.;
+        };
+        let lines = local
             .iter()
-            .map(|b| b.max[0])
-            .fold(self.bounds.max[0], f64::max);
-        let origin = [
-            right + 2. * self.height,
-            self.bounds.min[1],
-            self.bounds.max[2] - c.size[1] * scale,
-        ];
-        let lines = c
-            .polylines()
-            .into_iter()
-            .map(|l| {
-                l.into_iter()
+            .map(|line| {
+                line.iter()
                     .map(|p| {
                         [
                             origin[0] + p[0] * scale,
@@ -147,7 +198,7 @@ impl Layout {
                     })
                     .collect()
             })
-            .collect::<Vec<_>>();
+            .collect::<Vec<Vec<V3>>>();
         self.reserve(&lines);
         Placed {
             anchor: origin,
@@ -378,4 +429,75 @@ pub(crate) fn boxes_overlap(a: Bounds, b: Bounds, padding: f64) -> bool {
     (0..3)
         .filter(|&k| (a.max[k] - a.min[k]).abs() > 1e-9 || (b.max[k] - b.min[k]).abs() > 1e-9)
         .all(|k| a.min[k] < b.max[k] + padding && a.max[k] + padding > b.min[k])
+}
+
+/// Separating-axis clearance of projected 3D bounds, including non-coplanar ink.
+/// A projected box has edges along the projected world axes; their three normals
+/// are sufficient for the separating-axis test. Unlike a 3D overlap, this detects
+/// annotations which collide only after projection.
+fn projected_bounds_clearance(a: Bounds, b: Bounds, view: V3) -> f64 {
+    [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]
+        .into_iter()
+        .filter_map(|axis| geom::unit(geom::cross(view, axis)))
+        .map(|axis| {
+            let interval = |bounds: Bounds| {
+                let centre = geom::dot(bounds.centre(), axis);
+                let radius = (0..3)
+                    .map(|k| (bounds.max[k] - bounds.min[k]) * axis[k].abs() / 2.)
+                    .sum::<f64>();
+                [centre - radius, centre + radius]
+            };
+            let a = interval(a);
+            let b = interval(b);
+            (a[0] - b[1]).max(b[0] - a[1])
+        })
+        .fold(f64::NEG_INFINITY, f64::max)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn notes_clear_complete_ink_in_all_views_without_changing_size_or_front_plane() {
+        let mut layout = Layout::new(Bounds {
+            min: [0., -4., -4.],
+            max: [37.6, 4., 4.],
+        });
+        let obstacles = vec![
+            vec![[37., -8., -5.], [43., 8., 10.]],
+            vec![[-2., -30., 25.], [30., 12., 15.]],
+        ];
+        layout.reserve(&obstacles);
+        let c = super::super::label("GENERAL NOTES\nMATERIAL: Steel C45");
+        let first = layout.clone().notes(&c);
+        let placed = layout.notes(&c);
+        assert_eq!(first.lines, placed.lines, "deterministic placement");
+        assert_eq!(placed.normal, [0., -1., 0.]);
+        assert_eq!(placed.along, [1., 0., 0.]);
+        for (actual, expected) in placed
+            .lines
+            .iter()
+            .flatten()
+            .zip(c.polylines().iter().flatten())
+        {
+            assert_eq!(actual[1], placed.origin[1]);
+            assert!(
+                (actual[0] - placed.origin[0] - expected[0] * layout.text_height() / 3.).abs()
+                    < 1e-12
+            );
+            assert!(
+                (actual[2] - placed.origin[2] - expected[1] * layout.text_height() / 3.).abs()
+                    < 1e-12
+            );
+        }
+        for view in super::super::linear::VIEWS {
+            assert!(
+                projected_bounds_clearance(
+                    *layout.occupied.last().unwrap(),
+                    layout.occupied[0],
+                    view
+                ) >= 2. * layout.text_height()
+            );
+        }
+    }
 }
