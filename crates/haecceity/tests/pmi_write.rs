@@ -7549,7 +7549,12 @@ fn occt_density_repair_requires_exactly_two_mass_and_length_factors() {
     let text = String::from_utf8(bytes).unwrap();
     // The Round 3 reproducer is a typed version of OCCT's unit bug.
     // A reversed derived-unit SET must work as well.
-    for input in [text.clone(), text.replace("((#507,#508))", "((#508,#507))")] {
+    for input in [
+        text.clone(),
+        text.replace("((#507,#508))", "((#508,#507))"),
+        text.replace("(#505,3.)", "(#505,3.00)")
+            .replace("(#506,2.)", "(#506,2.E0)"),
+    ] {
         let f = open_bytes(input.into_bytes());
         let read = pmi::read(&f.doc, &f.parts).unwrap();
         let d = read.parts[0]
@@ -7574,6 +7579,9 @@ fn occt_density_repair_requires_exactly_two_mass_and_length_factors() {
     for input in [
         text.replace("(#505,3.)", "(#505,1.)"),
         text.replace("(#506,2.)", "(#506,3.)"),
+        // Different exact decimals must not qualify through f64 rounding.
+        text.replace("(#505,3.)", "(#505,3.00000000000000000001)"),
+        text.replace("(#506,2.)", "(#506,2.00000000000000000001)"),
         // Same aggregate mass^3/length^2 dimensions, but three factors: refuse.
         text.replace("(#505,3.)", "(#505,1.5)")
             .replace("((#507,#508))", "((#507,#508,#513))")

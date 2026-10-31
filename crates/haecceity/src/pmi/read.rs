@@ -5440,19 +5440,11 @@ impl<'a> Reader<'a> {
         };
         let mut sum = [0.; 7];
         for element in self.get_refs(unit, "derived_unit", "elements") {
-            let Some(exponent) = number(self.get(element, "derived_unit_element", "exponent"))
-            else {
-                return None;
-            };
-            let Some(named) = self.get_ref(element, "derived_unit_element", "unit") else {
-                return None;
-            };
+            let exponent = number(self.get(element, "derived_unit_element", "exponent"))?;
+            let named = self.get_ref(element, "derived_unit_element", "unit")?;
             if let Some(dimensions) = self.get_ref(named, "named_unit", "dimensions") {
                 for (i, slot) in slots.iter().enumerate() {
-                    let Some(power) = number(self.get(dimensions, "dimensional_exponents", slot))
-                    else {
-                        return None;
-                    };
+                    let power = number(self.get(dimensions, "dimensional_exponents", slot))?;
                     sum[i] += power * exponent;
                 }
             } else if let Some(i) = kinds.iter().position(|kind| self.is(named, kind)) {
@@ -5480,20 +5472,24 @@ impl<'a> Reader<'a> {
         for element in elements {
             let named = self.get_ref(element, "derived_unit_element", "unit")?;
             let exponent = match self.get(element, "derived_unit_element", "exponent")? {
-                Attribute::Real(value) => *value,
-                Attribute::Integer(value) => *value as f64,
+                value @ (Attribute::Real(_) | Attribute::Integer(_)) => {
+                    Decimal::parse(&self.real_text(element, value)?).ok()?
+                }
                 _ => return None,
             };
-            let value = if self.is(named, "mass_unit") && exponent == 3. && !mass {
+            let (expected, value) = if self.is(named, "mass_unit") && !mass {
                 mass = true;
-                "1."
-            } else if self.is(named, "length_unit") && exponent == 2. && !length {
+                ("3.", "1.")
+            } else if self.is(named, "length_unit") && !length {
                 length = true;
-                "-3."
+                ("2.", "-3.")
             } else {
                 return None;
             };
-            corrected.push(Decimal::parse(value).expect("constant decimal"));
+            if !exponent.cmp_value(&Decimal::parse(expected).ok()?).is_eq() {
+                return None;
+            }
+            corrected.push(Decimal::parse(value).ok()?);
         }
         (mass && length).then_some(corrected)
     }
