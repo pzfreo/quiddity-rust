@@ -315,7 +315,15 @@ pub(crate) fn recognise_in(ctx: &Context<'_>, mut inventory: Inventory) -> Featu
     features.section_recess_refusal = refusal;
     let mut failures = std::mem::take(&mut features.failures);
     let before = failures.len();
-    isolation::guarded(&mut failures, "holes", "claim_drill_point", || {
+    macro_rules! post {
+        ($family:literal, $stage:literal, $work:expr $(,)?) => {
+            // Never let a later pass inspect state mutated by a panicking pass.
+            if failures.len() == before {
+                isolation::guarded(&mut failures, $family, $stage, $work);
+            }
+        };
+    }
+    post!("holes", "claim_drill_point", || {
         // Complete published face claims only after every recognition, reconciliation
         // and projection decision. Constituent geometry must not alter family selection.
         for (record, faces) in features
@@ -328,43 +336,33 @@ pub(crate) fn recognise_in(ctx: &Context<'_>, mut inventory: Inventory) -> Featu
             }
         }
     });
-    isolation::guarded(
-        &mut failures,
-        "slots",
-        "claim_rectangular_end_walls",
-        || {
-            for (record, faces) in features
-                .slots
-                .iter()
-                .zip(features.defining.get_mut("slots").unwrap())
-            {
-                slots::claim_rectangular_end_walls(ctx.part, record, faces);
+    post!("slots", "claim_rectangular_end_walls", || {
+        for (record, faces) in features
+            .slots
+            .iter()
+            .zip(features.defining.get_mut("slots").unwrap())
+        {
+            slots::claim_rectangular_end_walls(ctx.part, record, faces);
+        }
+    });
+    post!("polygonal_bosses", "claim_terminal_cap", || {
+        for (record, faces) in features
+            .polygonal_bosses
+            .iter()
+            .zip(features.defining.get_mut("polygonal_bosses").unwrap())
+        {
+            if let Some(constituent) = boss_constituents.get(faces) {
+                polygonal_bosses::claim_terminal_cap(ctx.part, record, faces, constituent);
             }
-        },
-    );
-    isolation::guarded(
-        &mut failures,
-        "polygonal_bosses",
-        "claim_terminal_cap",
-        || {
-            for (record, faces) in features
-                .polygonal_bosses
-                .iter()
-                .zip(features.defining.get_mut("polygonal_bosses").unwrap())
-            {
-                if let Some(constituent) = boss_constituents.get(faces) {
-                    polygonal_bosses::claim_terminal_cap(ctx.part, record, faces, constituent);
-                }
-            }
-        },
-    );
-    isolation::guarded(&mut failures, "cylindrical_profiles", "append", || {
+        }
+    });
+    post!("cylindrical_profiles", "append", || {
         cylindrical_profiles::append(ctx, &mut features)
     });
-    isolation::guarded(&mut failures, "turned_bodies", "suppress_od_bosses", || {
+    post!("turned_bodies", "suppress_od_bosses", || {
         turned_bodies::suppress_od_bosses(ctx.part, &mut features)
     });
-    isolation::guarded(&mut failures, "face_grooves", "append", || {
+    post!("face_grooves", "append", || {
         face_grooves::append(ctx, &mut features)
     });
     if failures.len() != before {

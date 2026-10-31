@@ -617,6 +617,8 @@ anchors continue to refer to the original defining faces. No PMI schema changes.
 
 ## Incomplete recognition (For #161)
 
+The design follows xu9299's proposal in Python quiddity [#806](https://github.com/pzfreo/quiddity/issues/806) and [PR #807](https://github.com/pzfreo/quiddity/pull/807).
+
 Family isolation is always on in native builds with unwinding. If discovery or a
 family post-pass panics, independent families still return results. Only incomplete
 runs add these top-level fields to the `/6` document:
@@ -653,7 +655,7 @@ Stages are `discover`, `section_recess_projection`, `claim_drill_point`,
 `claim_rectangular_end_walls`, `claim_terminal_cap`, `append`, or `suppress_od_bosses`.
 A failed family contributes no candidates, defining faces, claims or refusals to
 reconciliation/publication. A failed mutating post-pass discards its result and rebuilds
-reconciliation with that family revoked. Existing ordinary geometry refusals retain their
+reconciliation with that family revoked before any later post-pass runs. Existing ordinary geometry refusals retain their
 contract; they are distinct from panics.
 
 STEP reading, context construction, reconciliation, document assembly and output validation

@@ -1,5 +1,7 @@
 //! Family panic boundaries. Shared setup, reconciliation and publication stay outside.
 use std::cell::Cell;
+#[cfg(test)]
+use std::cell::RefCell;
 use std::panic::{self, AssertUnwindSafe};
 #[cfg(panic = "unwind")]
 use std::sync::Once;
@@ -21,6 +23,8 @@ thread_local! {
     static GUARDED: Cell<usize> = const { Cell::new(0) };
     #[cfg(test)]
     pub(super) static INJECT: Cell<Option<(&'static str, &'static str)>> = const { Cell::new(None) };
+    #[cfg(test)]
+    static TRACE: RefCell<Option<Vec<(&'static str, &'static str)>>> = const { RefCell::new(None) };
 }
 
 /// Install one dispatcher, rather than swapping process-global hooks around each call.
@@ -184,6 +188,13 @@ pub(super) fn guarded<T: Default>(
 
 #[cfg(test)]
 fn inject(family: &'static str, stage: &'static str, before: bool) {
+    if before {
+        TRACE.with(|trace| {
+            if let Some(trace) = trace.borrow_mut().as_mut() {
+                trace.push((family, stage));
+            }
+        });
+    }
     // Discovery fails on entry; post-passes fail after their mutations to exercise revocation.
     if before == (stage == "discover") {
         INJECT.with(|inject| {
@@ -333,9 +344,20 @@ mod tests {
         )
         .unwrap();
         assert!(features::recognise(&disc).bosses.is_empty());
+        TRACE.with(|trace| trace.replace(Some(Vec::new())));
         let found = injected("turned_bodies", "suppress_od_bosses", || {
             features::recognise(&disc)
         });
+        let trace = TRACE.with(|trace| trace.replace(None)).unwrap();
+        let failed_pass = trace
+            .iter()
+            .position(|step| *step == ("turned_bodies", "suppress_od_bosses"))
+            .unwrap();
+        assert_eq!(
+            trace[failed_pass + 1],
+            ("countersinks", "discover"),
+            "rebuild before any later post-pass can inspect partial state"
+        );
         assert!(found.turned_bodies.is_empty());
         assert!(
             found
