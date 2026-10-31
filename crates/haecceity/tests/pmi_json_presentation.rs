@@ -349,7 +349,7 @@ fn import_keeps_unchanged_foreign_callouts_and_reports_replaced_ones() {
     let mut semantic =
         json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
     let before = presentation::read(&doc, &read, PartId(0), &semantic).unwrap();
-    let changed_root = before.items[&dimension_id][0].step_ids[0];
+    let changed_root = *before.items[&dimension_id][0].step_ids.iter().find(|id|matches!(doc.get(**id),Some(p21::RawEntity::Simple{name,..}) if name.eq_ignore_ascii_case("draughting_callout"))).unwrap();
     semantic.pmi.dimensions[0].nominal = Some(Value::length(
         Decimal::parse("11.").unwrap(),
         LengthUnit::Millimetre,
