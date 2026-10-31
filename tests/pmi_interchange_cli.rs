@@ -209,7 +209,7 @@ fn every_accepted_semantic_fixture_imports() {
         }
     }
     assert!(
-        accepted >= 3,
-        "the xcaf fixture and both #142 regressions must be accepted"
+        accepted >= 4,
+        "the xcaf fixture and all three #142 producer regressions must be accepted"
     );
 }

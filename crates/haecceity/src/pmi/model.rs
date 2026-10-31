@@ -2894,24 +2894,6 @@ pub struct Density {
     pub unit: Vec<(String, Decimal)>,
 }
 
-impl Density {
-    /// Whether the named factors state mass / length cubed, rather than another quantity.
-    pub(crate) fn is_mass_per_volume(&self) -> bool {
-        let mut mass = 0.;
-        let mut length = 0.;
-        for (name, exponent) in &self.unit {
-            match name.as_str() {
-                "gram" | "kilogram" | "milligram" => mass += exponent.to_f64(),
-                "metre" | "centimetre" | "millimetre" | "micrometre" | "inch" | "foot" => {
-                    length += exponent.to_f64()
-                }
-                _ => return false,
-            }
-        }
-        mass == 1. && length == -3.
-    }
-}
-
 /// A note: descriptive text of a requirement, on the part or on a feature.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "json", derive(serde::Serialize))]

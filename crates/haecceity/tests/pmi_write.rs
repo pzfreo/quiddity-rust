@@ -7425,4 +7425,28 @@ fn invalid_occt_density_units_report_the_dimensional_reason_and_old_grams_still_
     assert!(text.contains("CONVERSION_BASED_UNIT('gram',"));
     assert!(text.contains("SI_UNIT(.KILO.,.GRAM.)"));
     assert_eq!(written.read.parts[0].material, read.parts[0].material);
+    let custom = text.replace(
+        "CONVERSION_BASED_UNIT('gram',",
+        "CONVERSION_BASED_UNIT('custom mass',",
+    );
+    let custom = open_bytes(custom.into_bytes());
+    let read = pmi::read(&custom.doc, &custom.parts).unwrap();
+    assert_eq!(
+        read.parts[0]
+            .material
+            .as_ref()
+            .unwrap()
+            .density
+            .as_ref()
+            .unwrap()
+            .unit[0]
+            .0,
+        "custom mass"
+    );
+    assert!(
+        !read
+            .findings
+            .iter()
+            .any(|f| f.detail.contains("not mass / length cubed"))
+    );
 }

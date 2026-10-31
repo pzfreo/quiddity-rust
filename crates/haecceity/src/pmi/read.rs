@@ -5360,7 +5360,7 @@ impl<'a> Reader<'a> {
                             value,
                             unit: elements,
                         };
-                        if !density.is_mass_per_volume() {
+                        if !self.density_dimensions(unit) {
                             self.find(FindingKind::Nonconformance, part, item, &[pdef, unit],
                                 "density derived unit is not mass / length cubed (mass 1, length -3); not read");
                             return;
@@ -5395,6 +5395,58 @@ impl<'a> Reader<'a> {
         st.pmi.material = Some(m);
         st.prov.material.extend(prov);
         st.prov.material = ids(std::mem::take(&mut st.prov.material));
+    }
+
+    /// Inspect dimensions, not unit names: custom conversion-based mass/length
+    /// units remain readable even when the writer does not know their scale name.
+    fn density_dimensions(&self, unit: u64) -> bool {
+        let kinds = [
+            "length_unit",
+            "mass_unit",
+            "time_unit",
+            "electric_current_unit",
+            "thermodynamic_temperature_unit",
+            "amount_of_substance_unit",
+            "luminous_intensity_unit",
+        ];
+        let slots = [
+            "length_exponent",
+            "mass_exponent",
+            "time_exponent",
+            "electric_current_exponent",
+            "thermodynamic_temperature_exponent",
+            "amount_of_substance_exponent",
+            "luminous_intensity_exponent",
+        ];
+        let number = |value| match value {
+            Some(Attribute::Real(n)) => Some(*n),
+            Some(Attribute::Integer(n)) => Some(*n as f64),
+            _ => None,
+        };
+        let mut sum = [0.; 7];
+        for element in self.get_refs(unit, "derived_unit", "elements") {
+            let Some(exponent) = number(self.get(element, "derived_unit_element", "exponent"))
+            else {
+                return false;
+            };
+            let Some(named) = self.get_ref(element, "derived_unit_element", "unit") else {
+                return false;
+            };
+            if let Some(dimensions) = self.get_ref(named, "named_unit", "dimensions") {
+                for (i, slot) in slots.iter().enumerate() {
+                    let Some(power) = number(self.get(dimensions, "dimensional_exponents", slot))
+                    else {
+                        return false;
+                    };
+                    sum[i] += power * exponent;
+                }
+            } else if let Some(i) = kinds.iter().position(|kind| self.is(named, kind)) {
+                sum[i] += exponent;
+            } else if !self.is(named, "plane_angle_unit") && !self.is(named, "solid_angle_unit") {
+                return false;
+            }
+        }
+        sum == [-3., 1., 0., 0., 0., 0., 0.]
     }
 
     fn derived_unit(&mut self, unit: u64) -> Option<Vec<(String, Decimal)>> {
