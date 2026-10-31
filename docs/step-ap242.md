@@ -459,13 +459,38 @@ These override anything below and any stream brief that says otherwise.
    including compressed files: 31 and 90 respectively declare AP214. The only entity
    keyword absent from the target was `PRODUCT_TYPE`: nine instances across exactly the
    six issue files, none in the corpus. No other table entries are justified by these inputs.
-   Comparing the AP214 edition 3 EXPRESS entity inventory with N11521 finds 45 other
+   Comparing the [AP214 edition 3 EXPRESS entity inventory](https://github.com/stepcode/stepcode/blob/8cc8fc75905a10333e5bf29b6e6a568d737dffa3/data/ap214e3/AP214E3_2010.exp)
+   with N11521 finds 45 other
    AP214-only declarations, none used in those AP214 inputs. In particular `seam_edge`
    adds `pcurve_reference: pcurve` to `oriented_edge`, so their explicit attributes differ
    and it must remain refused. `application_context_relationship` has no AP242 counterpart
    and also stays refused (the regression test pins the unchanged undeclared-entity message).
    The AP214 edition 3 long form itself no longer declares the older CD `product_type`;
    the legacy declaration evidence above is therefore necessary.
+
+   Local writer evidence (2026-10-31, against `origin/main` at `d832ceac`): every part
+   received material `6061-T6` and a `0.05 mm` flatness on a planar face, in Add mode.
+   Every file read back with zero `differences_as_stated`; every original record was
+   compared byte for byte, allowing only the keyword substitutions listed here.
+
+   | FreeCAD input | Parts written | Rewritten instance ids | Result |
+   | --- | ---: | --- | --- |
+   | `hex-standoff-m3.step` | 1 | 769 | pass |
+   | `nema17-mount-bracket.step` | 1 | 24, 3381 | pass |
+   | `bearing-608zz.step` | 1 | 684 | pass |
+   | `bearing-lm10uu.step` | 1 | 922 | pass |
+   | `gt2-pulley.stp` | 3 | 702, 1398, 6389 | pass |
+   | `retaining-ring-din471-m10.step` | 1 | 1014 | pass |
+
+   `corner-bracket-2020.step`, `sk08.step`, `l-plate-5-holes.step` (FreeCAD) and
+   `angle-bracket.step` (text-to-cad) also passed the same writer/read-back and original
+   record checks, with no rewrites. Their complete output files, including appended PMI,
+   were byte-identical to those produced by an isolated build of `origin/main`.
+   A synthetic AP214 `application_context_relationship` file refused with an identical
+   error message on both builds. The original Apache-2.0 analytic disc fixture in
+   `crates/haecceity/tests/fixtures/ap214_product_type.step` additionally pins mixed case,
+   comments, escaped description text, exact whole-file restoration outside appended
+   PMI, the schema change and the one keyword substitution, and rejection of extra attributes.
 2. **Material as specify-core writes it.** The writer writes the material's name in the CAx-IF
    'material name' construct exactly as specify-core's files carry it (a `REPRESENTATION('material
    name', …)` whose `DESCRIPTIVE_REPRESENTATION_ITEM` holds the name, related to the part as
