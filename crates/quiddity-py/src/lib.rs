@@ -4,6 +4,8 @@ use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PyString};
 use quiddity::{Part, file_api, kernel::step, serve};
 
+mod pmi;
+
 #[derive(Clone)]
 enum Input {
     Path(String),
@@ -107,12 +109,6 @@ fn cli(py: Python<'_>, argv: Vec<String>) -> PyResult<u8> {
     .map_err(|_| PyRuntimeError::new_err("Rust CLI panicked"))
 }
 
-#[pyfunction]
-fn pmi_json(py: Python<'_>, argv: Vec<String>) -> PyResult<String> {
-    py.detach(|| quiddity::cli::pmi_json(&argv))
-        .map_err(PyValueError::new_err)
-}
-
 #[pymodule]
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
@@ -123,6 +119,6 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(correspond, m)?)?;
     m.add_function(wrap_pyfunction!(capabilities, m)?)?;
     m.add_function(wrap_pyfunction!(cli, m)?)?;
-    m.add_function(wrap_pyfunction!(pmi_json, m)?)?;
+    pmi::register(m)?;
     Ok(())
 }

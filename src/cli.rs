@@ -669,9 +669,3 @@ fn pmi_write(w: &WriteArgs) -> Result<String, String> {
     );
     Ok(serde_json::to_string_pretty(&json).expect("JSON serialises"))
 }
-
-/// PMI JSON interchange through the same verified implementation as the command line.
-#[cfg(feature = "json-import")]
-pub fn pmi_json(args: &[String]) -> Result<String, String> {
-    pmi_interchange::run(args)
-}

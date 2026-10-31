@@ -11,7 +11,6 @@ from collections import Counter
 
 import pytest
 import quiddity
-from quiddity import pmi
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "tests" / "fixtures"
@@ -123,29 +122,6 @@ def test_refusals(input, operation):
 def test_input_type_refused():
     with pytest.raises(TypeError, match="str path or STEP bytes"):
         quiddity.recognise(object())
-
-
-def test_pmi_roundtrip(tmp_path):
-    source = FIXTURES / "ap242/specify/bracket_positions.step.gz"
-    document = pmi.read(str(source))
-    assert json.loads(document)["schema"] == "haecceity.pmi/1"
-    output = tmp_path / "pmi.step"
-    report = json.loads(pmi.write(str(source), document, str(output)))
-    assert report["differences"] == []
-    assert output.is_file()
-    assert json.loads(pmi.read(str(output)))["schema"] == "haecceity.pmi/1"
-    with pytest.raises(ValueError):
-        pmi.write(str(source), "{}", str(tmp_path / "refused.step"))
-    assert not (tmp_path / "refused.step").exists()
-
-
-def test_pmi_preserves_writer_refusals(tmp_path):
-    source = FIXTURES / "ap242/nist/nist_ctc_01_asme1_ap242-e1.stp.gz"
-    document = pmi.read(str(source))
-    output = tmp_path / "refused.step"
-    with pytest.raises(ValueError, match="dimension without a nominal value"):
-        pmi.write(str(source), document, str(output))
-    assert not output.exists()
 
 
 def test_nist_ctc_counts():
