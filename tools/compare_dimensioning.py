@@ -39,7 +39,26 @@ def axis(parameter):
 def dw_quantities(plan):
     result = []
     statements = 0
-    for d in plan.get("dimensions", []):
+    dimensions = list(plan.get("dimensions", []))
+    stated = {(m["feature"], m["parameter"]) for d in dimensions for m in d["measurements"]}
+    omitted = {o["id"]: o for o in plan.get("omitted", [])}
+    # A table changes representation, not which quantities the planner requested.
+    # Count its covered pitch/location wants even though they left `dimensions`.
+    for table in plan.get("hole_tables", []):
+        table_locations = set()
+        for m in table.get("covered", []):
+            claim = (m["feature"], m["parameter"])
+            if claim in stated:
+                continue
+            signature = (m["parameter"], round(m["value"], 3))
+            if m["parameter"].startswith("location.length."):
+                if signature in table_locations:
+                    continue
+                table_locations.add(signature)
+            id_ = f"d:{m['feature']}/{m['parameter']}"
+            dimensions.append({"id": id_, "label": omitted.get(id_, {}).get("label", str(m["value"])), "measurements": [m]})
+            stated.add(claim)
+    for d in dimensions:
         ms = [m for m in d["measurements"] if m["feature"] in ("envelope", "step_level") or m["feature"].startswith(("f:hole:", "f:hole_pattern:"))]
         if not ms:
             continue

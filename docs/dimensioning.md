@@ -141,8 +141,8 @@ Slots, recesses, bosses, turned ladders and dimension schemes remain later slice
 on a plate and all entries in Draftwright's `tools/quality_parts.txt`. It emits a
 JSON-lines report outside the repository: total required quantities, Draftwright
 hole/level/envelope statements and expanded quantities, plus **every** unmatched
-quantity and its source id. It includes unplaced wants and expands compound
-callouts. Axis matching maps the inferred frame back onto file axes; a reversed
+quantity and its source id. It includes unplaced wants, restores wants conveyed
+by hole tables from their `covered` records, and expands compound callouts. Axis matching maps the inferred frame back onto file axes; a reversed
 origin can still produce complementary offsets. Use the original plate (its SHA is
 in the issue's recorded binding), not Specify's annotated output, which selects
 Draftwright's authored-PMI policy. The supplied binary may predate the source;
