@@ -47,3 +47,25 @@ Raw paired instruction counts (columns remain base/head regardless of execution 
 The corpus root was the pinned `scratchpad/corpus-pin/tests/corpus` specified in the task.
 Test binaries were run sequentially throughout validation, including when load exceeded 19.
 The implementation has no opt-in flag and no release-build fault injection.
+
+
+## Final validation
+
+The final implementation (`8c98a125`) passed:
+
+- `cargo fmt --all --check`.
+- `cargo clippy --workspace --all-targets --release -- -D warnings`.
+- Ten isolation unit tests in release mode with `json-import`, including every discovery
+  boundary, the 16-face #805 island pocket and independent pads, countersink blockers,
+  actual post-pass mutation rollback, rebuilding before the next post-pass, payloads,
+  deterministic ordering, shared CLI/wheel/server metadata and scoped hook behavior.
+- Root `cli` (19), `pmi_cli` (16) and `brep_write` (6) tests, with `json-import` and the
+  pinned corpus. Four optional full B-rep sweeps retain their standard ignored annotations.
+- A freshly rebuilt abi3 Python 3.11+ wheel: all 59 Python tests passed on CPython 3.12,
+  with `QUIDDITY_CORPUS_REQUIRED=1`, the pinned corpus and native CLI comparisons enabled.
+- `cargo run -p snapshot-tool --release -- --check`, with the specified pinned corpus,
+  `QUIDDITY_CORPUS_REQUIRED=1`, and a clean committed source tree: all 2,700 compressed
+  snapshots reproduced byte for byte. No snapshots or provenance were regenerated.
+
+No required checks remain outstanding. All commits are local on `cx/q-isolate`;
+nothing was pushed or posted.
