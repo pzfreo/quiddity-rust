@@ -41,7 +41,7 @@ pub struct Hole {
     pub depth: Option<f64>,
     /// Through material segment length, used only to count drilling across narrow slits.
     pub traversal: Option<f64>,
-    pub bottom: String,
+    pub bottom: crate::features::holes::Bottom,
     pub details: Vec<Size>,
 }
 

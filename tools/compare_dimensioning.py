@@ -66,7 +66,7 @@ def dw_quantities(plan):
         groups = collections.defaultdict(list)
         for m in ms:
             p = m["parameter"]
-            if p.startswith(("location.length.", "step_height", "step_position")) or m["feature"] == "envelope":
+            if p.startswith(("location.length.", "step_height", "step_position")) or (m["feature"] == "envelope" and p in ("width.length", "depth.length", "height.length")):
                 role = "location"
             elif "pitch" in p:
                 role = "pitch"

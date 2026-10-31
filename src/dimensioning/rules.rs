@@ -532,7 +532,7 @@ pub(super) fn plan(input: &Input) -> (Vec<Required>, Vec<Conveyed>) {
         }
         let (lo, hi) = (&ps[0].support, &ps[ps.len() - 1].support);
         let mut overall = location(lo, hi, axis, None, input);
-        overall.covers = ps.iter().map(|p| p.support.feature.clone()).collect();
+        overall.covers = vec![lo.feature.clone(), hi.feature.clone()];
         if overall.nominal > NEAR {
             out.push(overall);
         }
@@ -615,8 +615,9 @@ fn plane_span(r: &Required) -> Option<(usize, f64, f64)> {
         _ => None,
     }
 }
-/// Draftwright lint's bounded breadth-first station walk. Point locations and pitch are
-/// never edges in this graph; equality of scalar values is not physical determination.
+/// Draftwright lint's bounded breadth-first station walk. Point locations and pitches
+/// alone are not edges. A merged plane claim preserves its survivor's plane ownership;
+/// equality of scalar values alone is not physical determination.
 fn path(edges: &[(usize, f64, f64, Id)], target: (usize, f64, f64)) -> Option<Vec<Id>> {
     let (axis, lo, hi) = target;
     let mut queue = vec![(lo, Vec::new())];
@@ -663,10 +664,15 @@ fn consolidate(
             .then(a.id.cmp(&b.id))
     });
     let mut kept: Vec<Required> = Vec::new();
+    let mut plane_owners = BTreeSet::new();
     for mut r in out {
+        let physical_plane_interval = plane_span(&r).is_some();
         r.covers.sort();
         r.covers.dedup();
         if let Some(owner) = kept.iter_mut().find(|o| same(o, &r)) {
+            if physical_plane_interval {
+                plane_owners.insert(owner.id.clone());
+            }
             if owner.id != r.id {
                 conveyed.push(Conveyed {
                     id: r.id,
@@ -678,6 +684,9 @@ fn consolidate(
             owner.covers.sort();
             owner.covers.dedup();
         } else {
+            if physical_plane_interval {
+                plane_owners.insert(r.id.clone());
+            }
             kept.push(r);
         }
     }
@@ -685,7 +694,7 @@ fn consolidate(
     let mut edges = Vec::new();
     let mut result = Vec::new();
     for mut r in kept {
-        if let Some(target) = plane_span(&r) {
+        if let Some(target) = plane_owners.contains(&r.id).then(|| span(&r)).flatten() {
             let eligible = edges
                 .iter()
                 .filter(|(_, _, _, id)| {

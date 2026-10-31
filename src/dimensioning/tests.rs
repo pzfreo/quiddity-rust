@@ -36,7 +36,7 @@ fn hole(n: usize, x: f64, y: f64) -> Hole {
         diameter: 6.6,
         depth: None,
         traversal: None,
-        bottom: "through".into(),
+        bottom: crate::features::holes::Bottom::Through,
         details: vec![],
     }
 }
@@ -119,10 +119,10 @@ fn through_traversal_depth_is_not_a_requirement_but_blind_depth_is() {
     assert_eq!(size_count(&r), 1);
     assert!(r.iter().any(|r| r.count == 2));
     i.holes[0].depth = Some(5.);
-    i.holes[0].bottom = "flat".into();
+    i.holes[0].bottom = crate::features::holes::Bottom::Flat;
     assert_eq!(size_count(&plan(&i).0), 3);
     i.holes[1].depth = Some(8.);
-    i.holes[1].bottom = "flat".into();
+    i.holes[1].bottom = crate::features::holes::Bottom::Flat;
     assert_eq!(size_count(&plan(&i).0), 4);
 }
 #[test]
@@ -623,5 +623,45 @@ fn principal_direction_normalizes_and_does_not_swallow_small_inclinations() {
         ([0.; 3], None),
     ] {
         assert_eq!(super::rules::principal(d), expected);
+    }
+}
+
+#[test]
+fn merged_point_survivor_retains_its_physical_plane_chain_ownership() {
+    for references in [false, true] {
+        let (rs, cs) = merged(
+            vec![
+                loc("a-hole", 0., 10., false),
+                loc("a-plane", 0., 10., true),
+                loc("b", 10., 30., true),
+                loc("c", 0., 30., true),
+            ],
+            &[],
+            references,
+        );
+        assert_eq!(rs[0].id, "a-hole");
+        assert_eq!(rs[0].covers, ["a-hole", "a-plane"]);
+        if references {
+            assert_eq!(rs.len(), 3);
+            assert_eq!(rs[2].reference.as_ref().unwrap(), &["a-hole", "b"]);
+        } else {
+            assert_eq!(rs.len(), 2);
+            assert_eq!(cs.iter().find(|c| c.id == "c").unwrap().by, ["a-hole", "b"]);
+        }
+    }
+}
+
+#[test]
+fn an_overall_extent_does_not_claim_to_locate_interior_steps() {
+    let mut i = input();
+    add_planes(&mut i, 0, &[0., 20., 80., 100.]);
+    let rs = plan(&i).0;
+    let overall = rs.iter().find(|r| r.nominal == 100.).unwrap();
+    assert_eq!(overall.covers, ["plane:0:0", "plane:0:3"]);
+    for (nominal, feature) in [(20., "plane:0:1"), (80., "plane:0:2")] {
+        assert_eq!(
+            rs.iter().find(|r| r.nominal == nominal).unwrap().covers,
+            [feature]
+        );
     }
 }

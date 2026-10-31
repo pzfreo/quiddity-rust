@@ -39,9 +39,10 @@ sides receive synthetic envelope supports; these have no face anchors.
 Consumers with existing recognition can build `Input` directly, using the same
 contract: unique face-derived feature ids, sorted face sets, finite coordinates,
 positive sizes, valid axes `0..3`, normalized drilling directions and canonical
-size-role names. `Plane.body` and `Support.body` must agree. Do not substitute
+size-role names. When known, `Plane.body` and `Support.body` must agree. Do not substitute
 recognition ordinals for identity. `Hole.depth` is blind depth; `traversal` is a
 through segment's material length, used only to count drilling across narrow slits.
+`Hole.bottom` reuses recognition’s typed `Bottom` enum.
 `specified` contains the file's already stated requirements, with its tolerance
 classes and ids; the adapter does not read or reinterpret semantic PMI itself.
 
@@ -66,7 +67,9 @@ consumers need not follow chains of omitted ids. `covers` retains displaced clai
 
 `Required::dimension_kind(resolve)` returns haecceity's `pmi::DimensionKind` using a
 consumer-supplied feature-arena resolver. Planner string ids never pretend to be
-PMI arena indices. `Pattern::pmi_feature(resolve)` returns
+PMI arena indices. For coincident claims, the resolver can allocate a per-requirement
+group from `covers`; the helper maps the kind but does not populate or validate the
+consumer’s feature arena. `Pattern::pmi_feature(resolve)` returns
 `Feature::Group { kind: PatternOfFeatures, members }`. For counted unpatterned
 sizes, consumers can build a `MultipleElements` group from `covers`. Support face
 sets can be lowered to `Feature::Items` with `Anchor::Face`. Angles lower as angular
@@ -105,7 +108,8 @@ Adapted from pzfreo/draftwright-rust `origin/main` **1c830977** (same copyright 
   never merge coincident supports.
 - `lint/redundancy.rs::path`: a bounded breadth-first station walk detects closed
   physical-plane chains per axis, body and tolerance contract. Point locations and
-  pitches never supply plane edges. Already specified requirements are authoritative;
+  pitches alone never supply plane edges; a survivor carrying a merged plane claim
+  retains that interval’s graph ownership. Already specified requirements are authoritative;
   generated determined intervals are conveyed by the existing path. With
   `policy.references`, untoleranced determined intervals remain as references.
   Toleranced requirements never become references. Unrelated equal values do not

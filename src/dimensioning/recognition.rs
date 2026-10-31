@@ -88,7 +88,7 @@ impl Input {
                     diameter: h.diameter,
                     depth: (h.bottom != Bottom::Through).then_some(h.depth),
                     traversal: (h.bottom == Bottom::Through).then_some(h.depth),
-                    bottom: format!("{:?}", h.bottom),
+                    bottom: h.bottom,
                     details,
                 }
             })
