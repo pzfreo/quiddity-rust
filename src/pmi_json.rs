@@ -2647,7 +2647,7 @@ pub fn write_report_json(
             "instances",
             json!({
                 "added": report.added,
-                "replaced": report.rewritten.len() + report.repairs.len(),
+                "replaced": report.rewritten.len() + report.repairs.len() + report.edition_rewrites.len(),
                 "removed": report.removed.len(),
             }),
         )
@@ -2674,6 +2674,12 @@ pub fn write_report_json(
                     }))
                     .collect::<Vec<_>>()
             ),
+        )
+        .opt(
+            "edition_rewrites",
+            (!report.edition_rewrites.is_empty()).then(|| json!(report.edition_rewrites.iter()
+                .map(|r| json!({"id": r.id, "from": r.from, "to": r.to}))
+                .collect::<Vec<_>>())),
         )
         .put("validated_against", json!(report.validated_against))
         .opt(
