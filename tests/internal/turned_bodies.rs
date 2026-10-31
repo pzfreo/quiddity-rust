@@ -330,3 +330,50 @@ fn arbitrary_rotation_and_translation_preserve_the_disc_and_profile() {
         near(json["turned_bodies"][0]["length"].as_f64().unwrap(), 7.);
     }
 }
+
+#[test]
+fn spanner_flats_preserve_all_three_steps_and_explain_shoulders() {
+    for name in ["spindle_plain.step", "spindle_flats.step"] {
+        let p = part(name);
+        let f = features::recognise(&p);
+        assert_eq!(f.turned_steps.len(), 3, "{name}");
+        assert_eq!(f.turned_bodies.len(), 1, "{name}");
+        let mut sizes: Vec<_> = f
+            .turned_steps
+            .iter()
+            .map(|s| (s.diameter, s.length()))
+            .collect();
+        sizes.sort_by(|a, b| a.0.total_cmp(&b.0));
+        assert_eq!(sizes, vec![(10., 18.), (15., 22.), (24., 12.)]);
+        near(f.turned_bodies[0].od, 24.);
+        assert_eq!(
+            f.flats.len(),
+            if name == "spindle_flats.step" { 2 } else { 0 }
+        );
+        // Legitimate overlapping slab and shoulder descriptions. The published
+        // riser's height_axis is file Y, so -12 is the head's radial extent.
+        assert_eq!(f.plates.len(), 1);
+        assert_eq!(f.risers.len(), 1);
+        if name == "spindle_flats.step" {
+            for face in [5, 7] {
+                assert!(f.defining["turned_bodies"][0].contains(&face));
+                assert!(
+                    f.turned_bodies[0]
+                        .profile
+                        .iter()
+                        .any(|s| s.face == face && s.kind == "plane_shoulder")
+                );
+            }
+        }
+    }
+    for name in [
+        "prismatic.step",
+        "rejected_bored_box.step",
+        "golden_polygonal_boss.step",
+    ] {
+        assert!(
+            turned_bodies::discover(&Context::new(&part(name))).is_empty(),
+            "{name}"
+        );
+    }
+}

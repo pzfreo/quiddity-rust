@@ -227,7 +227,9 @@ fn proposals_coaxial<'c>(
         .fold(f64::NEG_INFINITY, f64::max);
     if cross <= 0.0
         || max_od < OD_FILL_MIN * cross
-        || (perp[0] - perp[1]).abs() > SQUARENESS_TOL * cross
+        || ((perp[0] - perp[1]).abs() > SQUARENESS_TOL * cross
+            && super::turned_bodies::flat_interrupted_faces(&Context::new(part), &scope.faces)
+                .is_none())
     {
         return vec![];
     }
