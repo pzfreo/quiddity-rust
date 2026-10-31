@@ -81,7 +81,7 @@ pub struct CalloutLink {
     /// The definition's STEP instance, retained even when it is not modelled.
     pub definition: u64,
     /// Model items named by the definition. Empty means unresolved; `entity` explains what
-    /// was associated instead. Shape-aspect definitions resolve to their features only.
+    /// was associated instead. Plain shape-aspect definitions resolve to their features only.
     pub targets: Vec<CalloutTarget>,
     /// The definition's entity type, lower case (complex leaves joined by `+`).
     pub entity: String,

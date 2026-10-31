@@ -51,7 +51,8 @@ association, not graphic-only; an empty link list means graphic-only.
 The list includes every draughting callout and annotation occurrence outside a
 callout, including tessellated and annotation-plane-held occurrences. Planes
 are containers, not additional callouts. Associations on contained occurrences
-and holding planes are included. Shape aspects resolve to features; unsupported
+and holding planes are included. Plain shape aspects resolve to features; datum features also name the datums they
+establish. Unsupported
 or refused semantic definitions retain their entity type instead of disappearing.
 `Note.callouts` and the presentation accounting count keep their existing meaning.
 
