@@ -6,6 +6,10 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- For #141, add `quiddity::dimensioning`: shared, view-independent requirements for
+  prismatic holes, patterns and plane levels, with face-derived ids, datum origins,
+  tolerance-aware consolidation and explicit conveyance/reference relationships.
+
 ## 0.2.8 (2026-10-31)
 
 Upgrading from 0.2.7: recognition schema `/6` and fingerprints `/3` are unchanged.

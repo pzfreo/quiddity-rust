@@ -1,0 +1,627 @@
+use super::*;
+use crate::frames::{FrameGauge, PartFrame};
+use crate::kernel::pmi;
+fn input() -> Input {
+    Input {
+        frame: PartFrame {
+            origin: [0.; 3],
+            x: [1., 0., 0.],
+            y: [0., 1., 0.],
+            z: [0., 0., 1.],
+            gauge: FrameGauge::Full,
+        },
+        bounds: [[0.; 3], [100., 60., 10.]],
+        holes: vec![],
+        patterns: vec![],
+        planes: vec![],
+        datums: vec![],
+        round_axes: vec![],
+        specified: vec![],
+        policy: Policy::default(),
+    }
+}
+fn support(id: &str, at: Point, plane: bool) -> Support {
+    Support {
+        feature: id.into(),
+        faces: vec![],
+        body: None,
+        at,
+        plane,
+    }
+}
+fn hole(n: usize, x: f64, y: f64) -> Hole {
+    Hole {
+        support: support(&format!("hole:{n}"), [x, y, 10.], false),
+        direction: [0., 0., -1.],
+        diameter: 6.6,
+        depth: None,
+        traversal: None,
+        bottom: "through".into(),
+        details: vec![],
+    }
+}
+fn pattern(i: &Input, arrangement: Arrangement) -> Pattern {
+    Pattern {
+        members: i.holes.iter().map(|h| h.support.feature.clone()).collect(),
+        arrangement,
+    }
+}
+fn loc(id: &str, a: f64, b: f64, plane: bool) -> Required {
+    Required {
+        id: id.into(),
+        kind: Kind::Location {
+            from: support(&format!("{id}:a"), [a, 0., 0.], plane),
+            to: support(&format!("{id}:b"), [b, 0., 0.], plane),
+            axis: 0,
+        },
+        nominal: (b - a).abs(),
+        count: 1,
+        pattern: None,
+        tolerance: Tolerance::Untoleranced,
+        reference: None,
+        covers: vec![id.into()],
+    }
+}
+fn merged(
+    rs: Vec<Required>,
+    specified: &[&str],
+    references: bool,
+) -> (Vec<Required>, Vec<Conveyed>) {
+    super::rules::test_consolidate(rs, specified, references)
+}
+fn size_count(rs: &[Required]) -> usize {
+    rs.iter()
+        .filter(|r| matches!(r.kind, Kind::Size { .. }))
+        .count()
+}
+// Draftwright dims/holes.rs: coincidence, specified priority, stable tie break.
+#[test]
+fn raw_ends_and_tolerance_constrain_merging() {
+    for (delta, tol, expected) in [
+        (0.02, Tolerance::Untoleranced, 2),
+        (1e-9, Tolerance::Untoleranced, 1),
+        (0., Tolerance::Basic, 2),
+        (0., Tolerance::General, 2),
+        (0., Tolerance::Explicit("±0.1".into()), 2),
+    ] {
+        let a = loc("a", 0., 40., false);
+        let mut b = loc("b", 0., 40. + delta, false);
+        b.tolerance = tol;
+        assert_eq!(merged(vec![a, b], &[], false).0.len(), expected);
+    }
+}
+#[test]
+fn specified_then_smaller_id_owns_coincident_claims() {
+    let a = loc("a", 0., 40., false);
+    let b = loc("b", 0., 40., false);
+    for (specified, expected) in [(vec![], "a"), (vec!["b"], "b")] {
+        let (rs, cs) = merged(vec![b.clone(), a.clone()], &specified, false);
+        assert_eq!(rs[0].id, expected);
+        assert_eq!(rs[0].covers, ["a", "b"]);
+        assert_eq!(cs[0].by, [expected]);
+    }
+}
+#[test]
+fn basic_50_does_not_merge_with_general_50() {
+    let mut a = loc("a", 0., 50., false);
+    a.tolerance = Tolerance::Basic;
+    let mut b = a.clone();
+    b.id = "b".into();
+    b.tolerance = Tolerance::General;
+    assert_eq!(merged(vec![a, b], &[], false).0.len(), 2);
+}
+// bridge/holes.rs and dimension_rules: identical requirements, blind versus through.
+#[test]
+fn through_traversal_depth_is_not_a_requirement_but_blind_depth_is() {
+    let mut i = input();
+    i.holes = vec![hole(1, 15., 15.), hole(2, 45., 15.)];
+    let r = plan(&i).0;
+    assert_eq!(size_count(&r), 1);
+    assert!(r.iter().any(|r| r.count == 2));
+    i.holes[0].depth = Some(5.);
+    i.holes[0].bottom = "flat".into();
+    assert_eq!(size_count(&plan(&i).0), 3);
+    i.holes[1].depth = Some(8.);
+    i.holes[1].bottom = "flat".into();
+    assert_eq!(size_count(&plan(&i).0), 4);
+}
+#[test]
+fn compound_hole_preserves_every_quantity() {
+    let mut i = input();
+    let mut h = hole(1, 50., 30.);
+    h.depth = Some(5.);
+    for (role, nominal, kind) in [
+        ("counterbore.diameter", 12., SizeKind::Diameter),
+        ("counterbore.depth", 2., SizeKind::Length),
+        ("spotface.diameter", 16., SizeKind::Diameter),
+        ("spotface.depth", 1., SizeKind::Length),
+        ("countersink.diameter", 20., SizeKind::Diameter),
+        ("countersink.angle", 90., SizeKind::Angle),
+    ] {
+        h.details.push(Size {
+            role: role.into(),
+            nominal,
+            kind,
+        });
+    }
+    i.holes.push(h);
+    let rs = plan(&i).0;
+    assert_eq!(size_count(&rs), 8);
+    let angle = rs
+        .iter()
+        .find(|r| matches!(&r.kind,Kind::Size {role,..} if role=="countersink.angle"))
+        .unwrap();
+    assert!(matches!(
+        angle.dimension_kind(|_| pmi::FeatureId(0)),
+        pmi::DimensionKind::Size {
+            angle: Some(pmi::AngleSelection::Equal),
+            ..
+        }
+    ));
+}
+// dimension_rules grid: one size, one centre, pitch for each varying coordinate.
+#[test]
+fn plate_has_eleven_requirements_and_conveys_member_locations() {
+    let mut i = input();
+    for x in [20., 50., 80.] {
+        for y in [15., 45.] {
+            i.holes.push(hole(i.holes.len(), x, y));
+        }
+    }
+    i.patterns.push(pattern(&i, Arrangement::Grid));
+    let mut h = hole(8, 50., 30.);
+    h.diameter = 8.;
+    i.holes.push(h);
+    let mut h = hole(9, 95., 30.);
+    h.diameter = 4.2;
+    i.holes.push(h);
+    let (rs, cs) = plan(&i);
+    assert_eq!(rs.len(), 11, "{rs:#?}");
+    assert!(rs.iter().any(|r| r.count == 6 && r.nominal == 6.6));
+    assert_eq!(
+        rs.iter()
+            .filter(|r| matches!(r.pattern, Some(PatternRole::Pitch { .. })))
+            .count(),
+        2
+    );
+    assert!(
+        rs.iter()
+            .any(|r| r.pattern == Some(PatternRole::Pitch { intervals: 2 }) && r.nominal == 30.)
+    );
+    assert!(
+        cs.iter()
+            .all(|c| !c.by.is_empty() && c.by.iter().all(|id| rs.iter().any(|r| r.id == *id)))
+    );
+}
+#[test]
+fn grid_is_located_by_centre_and_line_by_first_member() {
+    for arrangement in [Arrangement::Grid, Arrangement::Line] {
+        let mut i = input();
+        i.holes = vec![hole(1, 10., 20.), hole(2, 30., 20.), hole(3, 50., 20.)];
+        i.patterns.push(pattern(&i, arrangement.clone()));
+        let rs = plan(&i).0;
+        let expected = if arrangement == Arrangement::Grid {
+            PatternRole::Centre
+        } else {
+            PatternRole::FirstMember
+        };
+        assert!(rs.iter().any(|r| r.pattern == Some(expected.clone())
+            && r.nominal
+                == if arrangement == Arrangement::Grid {
+                    30.
+                } else {
+                    10.
+                }));
+        assert!(rs.iter().any(|r|r.pattern==Some(PatternRole::Pitch {intervals:2}) && r.nominal==20.));
+    }
+}
+#[test]
+fn uneven_or_missing_lattice_members_are_dimensioned_singly() {
+    for holes in [
+        vec![hole(1, 10., 10.), hole(2, 20., 13.), hole(3, 35., 10.)],
+        vec![hole(1, 10., 10.), hole(2, 20., 10.), hole(3, 10., 20.)],
+    ] {
+        let mut i = input();
+        i.holes = holes;
+        i.patterns.push(pattern(&i, Arrangement::Grid));
+        let rs = plan(&i).0;
+        assert!(!rs.iter().any(|r| r.pattern.is_some()));
+        assert!(rs.iter().any(|r| r.count == 3));
+    }
+}
+#[test]
+fn oblique_coaxial_or_nonidentical_pattern_is_declined() {
+    for mode in 0..4 {
+        let mut i = input();
+        i.holes = vec![hole(1, 10., 10.), hole(2, 30., 10.)];
+        match mode {
+            0 => {
+                for h in &mut i.holes {
+                    h.direction = [0., 0.6, 0.8];
+                }
+            }
+            1 => {
+                i.holes[1].support.at = i.holes[0].support.at;
+                i.holes[1].support.at[2] += 10.;
+            }
+            2 => i.holes[1].diameter = 8.,
+            _ => i.holes[1].depth = Some(5.),
+        }
+        i.patterns.push(pattern(&i, Arrangement::Line));
+        assert!(!plan(&i).0.iter().any(|r| r.pattern.is_some()));
+    }
+}
+fn circle(n: usize) -> Input {
+    let mut i = input();
+    for j in 0..n {
+        let angle = j as f64 * std::f64::consts::TAU / n as f64;
+        i.holes
+            .push(hole(j, 50. + 20. * angle.cos(), 30. + 20. * angle.sin()));
+    }
+    i.patterns.push(pattern(
+        &i,
+        Arrangement::BoltCircle {
+            centre: [50., 30., 10.],
+            diameter: 40.,
+        },
+    ));
+    i
+}
+#[test]
+fn small_bolt_circle_requires_parallel_centre_corroboration() {
+    for n in [3, 4, 5, 6] {
+        let mut i = circle(n);
+        assert_eq!(
+            plan(&i)
+                .0
+                .iter()
+                .any(|r| r.pattern == Some(PatternRole::Centre)),
+            n >= 5
+        );
+        i.round_axes.push(([50.49, 30., 10.], [0., 0., 1.]));
+        assert!(
+            plan(&i)
+                .0
+                .iter()
+                .any(|r| r.pattern == Some(PatternRole::Centre))
+        );
+        i.round_axes[0].1 = [1., 0., 0.];
+        assert_eq!(
+            plan(&i)
+                .0
+                .iter()
+                .any(|r| r.pattern == Some(PatternRole::Centre)),
+            n >= 5
+        );
+    }
+    let mut i = circle(4);
+    let mut h = hole(10, 50., 30.);
+    h.diameter = 8.;
+    i.holes.push(h);
+    assert!(
+        plan(&i)
+            .0
+            .iter()
+            .any(|r| r.pattern == Some(PatternRole::Centre))
+    );
+}
+#[test]
+fn missing_duplicate_and_overlapping_members_do_not_claim_twice() {
+    let mut i = input();
+    i.holes = vec![hole(1, 10., 20.), hole(2, 30., 20.), hole(3, 50., 20.)];
+    let mut p = pattern(&i, Arrangement::Line);
+    p.members.push("missing".into());
+    i.patterns.push(p);
+    assert!(!plan(&i).0.iter().any(|r| r.pattern.is_some()));
+    i.patterns.clear();
+    i.patterns.push(pattern(&i, Arrangement::Line));
+    let mut p = i.patterns[0].clone();
+    p.members.pop();
+    i.patterns.push(p);
+    let rs = plan(&i).0;
+    assert_eq!(size_count(&rs), 1);
+    assert!(rs.iter().any(|r| r.count == 3));
+}
+// repeated_dimensions: one pitch for parallel rows on the same physical stations.
+#[test]
+fn parallel_rows_share_pitch_but_different_stations_do_not() {
+    for offset in [0., 5.] {
+        let mut i = input();
+        for (j, (x, y)) in [
+            (10., 10.),
+            (30., 10.),
+            (50., 10.),
+            (10. + offset, 40.),
+            (30. + offset, 40.),
+            (50. + offset, 40.),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            i.holes.push(hole(j, x, y));
+        }
+        for ids in [[0, 1, 2], [3, 4, 5]] {
+            i.patterns.push(Pattern {
+                members: ids
+                    .iter()
+                    .map(|&j| i.holes[j].support.feature.clone())
+                    .collect(),
+                arrangement: Arrangement::Line,
+            });
+        }
+        assert_eq!(
+            plan(&i)
+                .0
+                .iter()
+                .filter(|r| matches!(r.pattern, Some(PatternRole::Pitch { .. })))
+                .count(),
+            if offset == 0. { 1 } else { 2 }
+        );
+    }
+}
+#[test]
+fn face_level_and_axis_location_share_one_statement() {
+    let a = loc("level", 0., 12.5, true);
+    let b = loc("hole", 0., 12.5, false);
+    let (rs, cs) = merged(vec![a, b], &["hole"], false);
+    assert_eq!(rs.len(), 1);
+    assert_eq!(rs[0].id, "hole");
+    assert_eq!(cs[0].by, ["hole"]);
+}
+// lint/redundancy and h5_chains: physical station graphs, no closed driving chains.
+#[test]
+fn closed_plane_chain_conveys_last_interval_or_makes_a_reference() {
+    for references in [false, true] {
+        let (rs, cs) = merged(
+            vec![
+                loc("a", 0., 10., true),
+                loc("b", 10., 30., true),
+                loc("c", 0., 30., true),
+            ],
+            &[],
+            references,
+        );
+        if references {
+            assert_eq!(rs.len(), 3);
+            assert_eq!(rs[2].reference.as_ref().unwrap(), &["a", "b"]);
+        } else {
+            assert_eq!(rs.len(), 2);
+            assert_eq!(cs[0].by, ["a", "b"]);
+        }
+    }
+}
+#[test]
+fn equal_values_different_planes_and_point_paths_are_not_determination() {
+    let rs = vec![
+        loc("a", 0., 10., true),
+        loc("b", 20., 30., true),
+        loc("c", 0., 30., true),
+    ];
+    assert_eq!(merged(rs, &[], false).0.len(), 3);
+    let rs = vec![
+        loc("a", 0., 10., false),
+        loc("b", 10., 30., false),
+        loc("c", 0., 30., true),
+    ];
+    assert_eq!(merged(rs, &[], false).0.len(), 3);
+}
+#[test]
+fn no_toleranced_dimension_is_made_reference_and_specified_chain_is_retained() {
+    for tol in [
+        Tolerance::General,
+        Tolerance::Basic,
+        Tolerance::Explicit("±0.1".into()),
+    ] {
+        let rs = [
+            loc("a", 0., 10., true),
+            loc("b", 10., 30., true),
+            loc("c", 0., 30., true),
+        ]
+        .map(|mut r| {
+            r.tolerance = tol.clone();
+            r
+        })
+        .to_vec();
+        let (rs, _) = merged(rs, &["c"], true);
+        assert!(rs.iter().all(|r| r.reference.is_none()));
+        assert!(rs.iter().any(|r| r.id == "c"));
+    }
+}
+#[test]
+fn mixed_tolerance_chain_does_not_determine_a_basic_interval() {
+    let mut c = loc("c", 0., 30., true);
+    c.tolerance = Tolerance::Basic;
+    assert_eq!(
+        merged(
+            vec![loc("a", 0., 10., true), loc("b", 10., 30., true), c],
+            &[],
+            true
+        )
+        .0
+        .len(),
+        3
+    );
+}
+fn add_planes(i: &mut Input, axis: usize, stations: &[f64]) {
+    for (j, &v) in stations.iter().enumerate() {
+        let mut at = [0.; 3];
+        at[axis] = v;
+        i.planes.push(Plane {
+            support: support(&format!("plane:{axis}:{j}"), at, true),
+            axis,
+            body: 0,
+        });
+    }
+}
+#[test]
+fn every_prismatic_shoulder_and_outer_level_has_one_owner_in_each_axis() {
+    let mut i = input();
+    for (axis, stations) in [
+        (0, vec![0., 20., 80., 100.]),
+        (1, vec![0., 30., 60.]),
+        (2, vec![0., 4., 10.]),
+    ] {
+        add_planes(&mut i, axis, &stations);
+    }
+    let rs = plan(&i).0;
+    assert_eq!(rs.len(), 7);
+    for nominal in [100., 60., 10., 20., 80., 30., 4.] {
+        assert!(rs.iter().any(|r| r.nominal == nominal));
+    }
+}
+#[test]
+fn datums_choose_label_order_explicit_origin_overrides_and_zero_is_omitted() {
+    let mut i = input();
+    add_planes(&mut i, 0, &[0., 20., 100.]);
+    i.planes[0].support.faces = vec![0];
+    i.planes[1].support.faces = vec![1];
+    i.planes[2].support.faces = vec![2];
+    i.datums = vec![
+        Datum {
+            label: "B".into(),
+            faces: vec![0],
+        },
+        Datum {
+            label: "A".into(),
+            faces: vec![2],
+        },
+    ];
+    i.holes.push(hole(1, 20., 30.));
+    assert!(plan(&i).0.iter().any(|r| r.nominal == 80.));
+    i.policy.origins[0] = Origin::Datum("B".into());
+    assert!(plan(&i).0.iter().any(|r| r.nominal == 20.));
+    i.policy.origins[0] = Origin::Maximum;
+    assert!(plan(&i).0.iter().any(|r| r.nominal == 80.));
+    i.policy.origins[0] = Origin::Minimum;
+    i.holes[0].support.at[0] = 0.;
+    assert!(!plan(&i).0.iter().any(|r| r.nominal == 0.));
+}
+#[test]
+fn distinct_bodies_never_merge_equal_plane_spans() {
+    let a = loc("a", 0., 10., true);
+    let mut b = loc("b", 0., 10., true);
+    if let Kind::Location { to, .. } = &mut b.kind {
+        to.body = Some(1);
+    }
+    assert_eq!(merged(vec![a, b], &[], false).0.len(), 2);
+}
+#[test]
+fn recognition_order_member_order_and_faces_do_not_change_output_or_ids() {
+    let mut i = input();
+    for x in [20., 50., 80.] {
+        for y in [15., 45.] {
+            i.holes.push(hole(i.holes.len(), x, y));
+        }
+    }
+    i.patterns.push(pattern(&i, Arrangement::Grid));
+    add_planes(&mut i, 0, &[0., 20., 100.]);
+    let expected = plan(&i);
+    i.holes.reverse();
+    i.planes.reverse();
+    i.patterns[0].members.reverse();
+    i.datums.reverse();
+    assert_eq!(expected, plan(&i));
+    assert_eq!(expected, plan(&i));
+}
+#[test]
+fn pmi_group_and_dimensions_use_consumers_feature_arena() {
+    let mut i = input();
+    i.holes = vec![hole(1, 10., 20.), hole(2, 30., 20.)];
+    let p = pattern(&i, Arrangement::Line);
+    assert!(
+        matches!(p.pmi_feature(|s|pmi::FeatureId(usize::from(s=="hole:2"))),pmi::Feature::Group {kind:pmi::GroupKind::PatternOfFeatures,members} if members==[pmi::FeatureId(0),pmi::FeatureId(1)])
+    );
+    assert!(matches!(
+        loc("a", 0., 10., false).dimension_kind(|_| pmi::FeatureId(5)),
+        pmi::DimensionKind::Location {
+            from: pmi::FeatureId(5),
+            to: pmi::FeatureId(5),
+            ..
+        }
+    ));
+}
+#[test]
+fn specified_member_remains_an_authority_without_a_conveyed_self_reference() {
+    let mut i = input();
+    i.holes = vec![hole(1, 10., 20.), hole(2, 30., 20.)];
+    i.patterns.push(pattern(&i, Arrangement::Line));
+    let mut r = super::rules::test_member_location(&i);
+    r.tolerance = Tolerance::Basic;
+    i.specified.push(r.clone());
+    let (rs, cs) = plan(&i);
+    assert!(rs.contains(&r));
+    assert!(!cs.iter().any(|c| c.id == r.id));
+}
+
+#[test]
+fn slit_segments_count_one_drilling_but_wide_gaps_blind_and_enlarged_bores_do_not() {
+    for (gap, blind, enlarged, expected) in [
+        (1.2, false, false, 1),
+        (48., false, false, 2),
+        (1.2, true, false, 2),
+        (1.2, false, true, 2),
+    ] {
+        let mut i = input();
+        let mut a = hole(1, 0., 20.);
+        a.traversal = Some(8.9);
+        a.support.at[2] = 0.;
+        a.direction = [0., 0., 1.];
+        let mut b = a.clone();
+        b.support.feature = "hole:2".into();
+        b.support.at[2] = 8.9 + gap;
+        for h in [&mut a, &mut b] {
+            if blind {
+                h.depth = Some(8.9);
+                h.traversal = None;
+            }
+            if enlarged {
+                h.details.push(Size {
+                    role: "counterbore.diameter".into(),
+                    nominal: 12.,
+                    kind: SizeKind::Diameter,
+                });
+            }
+        }
+        i.holes = vec![a, b];
+        let rs = plan(&i).0;
+        assert!(
+            rs.iter()
+                .filter(|r| matches!(r.kind, Kind::Size { .. }))
+                .all(|r| r.count == expected)
+        );
+    }
+}
+#[test]
+fn adapter_keeps_face_identity_and_part_frame_for_real_recognition() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/ties/square_hole_grid.step");
+    let part = crate::read_step_file(&path).unwrap();
+    let i = Input::from_recognition(&part, vec![], Policy::default()).unwrap();
+    assert!(!i.holes.is_empty());
+    assert!(
+        i.holes
+            .iter()
+            .all(|h| !h.support.faces.is_empty() && h.support.feature.starts_with("hole:"))
+    );
+    assert_eq!(
+        plan(&i),
+        plan(&Input::from_recognition(&part, vec![], Policy::default()).unwrap())
+    );
+    for h in &i.holes {
+        let at = i.frame.to_world(h.support.at);
+        assert!(at.iter().all(|x| x.is_finite()));
+    }
+}
+
+#[test]
+fn principal_direction_normalizes_and_does_not_swallow_small_inclinations() {
+    for (d, expected) in [
+        ([0., 0., -1.], Some(2)),
+        ([1e-9, 2., 0.], Some(1)),
+        ([0., 0.01, 1.], None),
+        ([0., 0.001, 1.], None),
+        ([0.; 3], None),
+    ] {
+        assert_eq!(super::rules::principal(d), expected);
+    }
+}
