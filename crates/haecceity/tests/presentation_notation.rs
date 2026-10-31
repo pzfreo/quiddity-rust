@@ -26,11 +26,11 @@ fn dimension(tolerance: DimTolerance) -> Dimension {
 fn dimension_bands_state_the_same_requirement_as_draftwright() {
     for (upper, lower, text) in [
         ("0.2", "-0.2", "⌀10.0 ±0.2"),
-        ("0.0762", "-0.0254", "⌀10.0 +0.0762 -0.0254"),
-        ("0.09", "0.0", "⌀10.0 +0.09 0"),
-        ("0.0", "-0.2", "⌀10.0 0 -0.2"),
-        ("-0.014", "-0.039", "⌀10.0 -0.014 -0.039"),
-        ("0.039", "0.014", "⌀10.0 +0.039 +0.014"),
+        ("0.0762", "-0.0254", "⌀10.0 +0.0762/-0.0254"),
+        ("0.09", "0.0", "⌀10.0 +0.09/0"),
+        ("0.0", "-0.2", "⌀10.0 0/-0.2"),
+        ("-0.014", "-0.039", "⌀10.0 -0.014/-0.039"),
+        ("0.039", "0.014", "⌀10.0 +0.039/+0.014"),
     ] {
         let d = dimension(DimTolerance::Deviations(
             Bounds::new(mm(upper), mm(lower)).unwrap(),
@@ -103,7 +103,7 @@ fn deviations_in_another_unit_use_the_nominals_unit_even_at_zero() {
     let lower = Value::length(decimal("0.0"), LengthUnit::Metre);
     let mut d = dimension(DimTolerance::Deviations(Bounds::new(upper, lower).unwrap()));
     d.nominal = Some(mm("0.0"));
-    assert_eq!(presentation::dimension_text(&d), "⌀0.0 +1.0 0");
+    assert_eq!(presentation::dimension_text(&d), "⌀0.0 +1.0/0");
 }
 
 #[test]
@@ -573,5 +573,127 @@ fn multiline_general_notes_keep_their_lines_and_clear_neighboring_rows() {
             (pair[0].at[0] + a.min[0] - (pair[1].at[0] + b.min[0])).abs() < 1e-12,
             "left alignment"
         );
+    }
+}
+
+#[test]
+fn public_frames_use_the_sheet_font_without_a_part_model() {
+    use presentation::gdt;
+    let datums = vec!["A".into(), "B-C".into()];
+    for (tolerance, zone, expected_ink) in [
+        ("0.05", None, "0.05"),
+        ("0.0254", Some("diameter"), "0.0254"),
+        ("0.25", Some("spherical_diameter"), "Sø0.25"),
+    ] {
+        let measured = std::cell::RefCell::new(Vec::new());
+        let width = |s: &str, h: f64| {
+            measured.borrow_mut().push((s.to_owned(), h));
+            7.
+        };
+        let frame = gdt::control_frame("position", tolerance, zone, Some("M"), &datums, &width);
+        assert_eq!(*measured.borrow(), [(expected_ink.to_owned(), 3.)]);
+        let wider =
+            gdt::control_frame("position", tolerance, zone, Some("M"), &datums, &|_, _| 17.);
+        assert!((wider.size[0] - frame.size[0] - 10.).abs() < 1e-12);
+        assert_eq!(frame.cells, wider.cells);
+        assert_eq!(frame.size[1], 6.);
+        assert!((wider.letters[0].at[0] - frame.letters[0].at[0] - 5.).abs() < 1e-12);
+        assert!(
+            (wider.letters.last().unwrap().at[0] - frame.letters.last().unwrap().at[0] - 10.).abs()
+                < 1e-12
+        );
+    }
+}
+
+#[test]
+fn public_symbols_match_every_model_name_and_have_geometry() {
+    use presentation::gdt;
+    for (name, expected) in [
+        ("straightness", "⏤"),
+        ("flatness", "⏥"),
+        ("circularity", "○"),
+        ("cylindricity", "⌭"),
+        ("profile_line", "⌒"),
+        ("profile_surface", "⌓"),
+        ("angularity", "∠"),
+        ("perpendicularity", "⟂"),
+        ("parallelism", "∥"),
+        ("position", "⌖"),
+        ("concentricity", "◎"),
+        ("coaxiality", "◎"),
+        ("symmetry", "⌯"),
+        ("circular_runout", "↗"),
+        ("total_runout", "⌰"),
+    ] {
+        assert_eq!(gdt::symbol(name), expected);
+        let mut c = presentation::Callout::default();
+        gdt::characteristic(name, [4., 5.], &mut c);
+        assert!(!c.polylines().is_empty(), "{name}");
+    }
+}
+
+#[test]
+fn public_label_and_finish_use_supplied_widths_and_removal_marks() {
+    use presentation::notes;
+    let label = presentation::label_with_width("Plex", &|s, h| {
+        assert_eq!((s, h), ("Plex", 3.));
+        7.
+    });
+    assert_eq!(label.size, [10.6, 6.]);
+    assert_eq!(label.letters[0].at, [5.3, 3.]);
+    assert_eq!(
+        presentation::label("Plex").size[0],
+        presentation::text_width("Plex", 3.) + 3.6
+    );
+    let texture = SurfaceTexture {
+        on: None,
+        material_removal: MaterialRemoval::Required,
+        parameters: vec![SurfaceTextureParameter {
+            characteristic: "Ra".into(),
+            value: Length {
+                value: decimal("3.2"),
+                unit: LengthUnit::Micrometre,
+            },
+        }],
+    };
+    let a = notes::surface_texture_with_width(&texture, &|s, h| {
+        assert_eq!((s, h), ("Ra 3.2", 3.));
+        7.
+    });
+    let b = notes::surface_texture_with_width(&texture, &|_, _| 17.);
+    assert!((b.size[0] - a.size[0] - 10.).abs() < 1e-12);
+    assert!((b.letters[0].at[0] - a.letters[0].at[0] - 5.).abs() < 1e-12);
+    let (bar, arcs) = notes::removal_marks(MaterialRemoval::Required, 6.);
+    assert_eq!(
+        bar,
+        [[
+            [-6. * (1. / 3f64.sqrt()), 6.],
+            [6. * (1. / 3f64.sqrt()), 6.]
+        ]]
+    );
+    assert!(arcs.is_empty());
+    let (bar, arcs) = notes::removal_marks(MaterialRemoval::NotAllowed, 6.);
+    assert!(bar.is_empty());
+    assert_eq!(arcs, [[0., 4., 2., 0., 360.]]);
+    assert_eq!(
+        notes::removal_marks(MaterialRemoval::AnyProcessAllowed, 6.),
+        (vec![], vec![])
+    );
+}
+
+#[test]
+fn public_fit_discovery_lists_are_ordered_and_match_the_table() {
+    use presentation::tolerance::*;
+    assert_eq!(HOLE_CLASSES, ["H", "G", "F"]);
+    assert_eq!(SHAFT_CLASSES, ["h", "g", "f", "js", "k", "n", "p"]);
+    assert_eq!(GRADES, [5, 6, 7, 8, 9, 10, 11]);
+    assert_eq!(MAX_NOMINAL_MM, 250.);
+    for class in HOLE_CLASSES.into_iter().chain(SHAFT_CLASSES) {
+        for grade in GRADES {
+            let code = format!("{class}{grade}");
+            assert_eq!(fit(&code), Ok((class, grade)));
+            assert!(deviations(&code, MAX_NOMINAL_MM).is_some());
+            assert!(deviations(&code, MAX_NOMINAL_MM + 0.001).is_none());
+        }
     }
 }

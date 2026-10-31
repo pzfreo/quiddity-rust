@@ -1,8 +1,13 @@
 //! Requirement notation ported from pzfreo/draftwright-rust aaa7a73,
 //! src/dims/tolerance.rs (Paul Fremantle; port authorized by the copyright owner for #137). Sheet precision and authoring stay there.
-const HOLE_CLASSES: [&str; 3] = ["H", "G", "F"];
-const SHAFT_CLASSES: [&str; 7] = ["h", "g", "f", "js", "k", "n", "p"];
-const GRADES: std::ops::RangeInclusive<u32> = 5..=11;
+/// Supported hole letters in discovery/refusal order.
+pub const HOLE_CLASSES: [&str; 3] = ["H", "G", "F"];
+/// Supported shaft letters in discovery/refusal order.
+pub const SHAFT_CLASSES: [&str; 7] = ["h", "g", "f", "js", "k", "n", "p"];
+/// Supported ISO 286 grades, in increasing order.
+pub const GRADES: [u32; 7] = [5, 6, 7, 8, 9, 10, 11];
+/// Inclusive upper nominal diameter supported by the fit table, in millimetres.
+pub const MAX_NOMINAL_MM: f64 = 250.;
 /// An ISO 286 class from draftwright's table: its letters and grade, or why not.
 pub fn fit(code: &str) -> Result<(&str, u32), String> {
     let letters = code.trim_end_matches(|c: char| c.is_ascii_digit());
@@ -30,7 +35,18 @@ pub fn fit(code: &str) -> Result<(&str, u32), String> {
 
 /// ISO 286 nominal size bands: the upper bound, mm, of each "over the previous, up to and
 /// including this" step (draftwright's `fits._BANDS`).
-const BANDS: [f64; 10] = [3.0, 6.0, 10.0, 18.0, 30.0, 50.0, 80.0, 120.0, 180.0, 250.0];
+const BANDS: [f64; 10] = [
+    3.0,
+    6.0,
+    10.0,
+    18.0,
+    30.0,
+    50.0,
+    80.0,
+    120.0,
+    180.0,
+    MAX_NOMINAL_MM,
+];
 /// Standard tolerance grades IT5 to IT11, µm, per band (ISO 286-1 Table 1; `fits._IT`).
 const IT: [[i32; 10]; 7] = [
     [4, 5, 6, 8, 9, 11, 13, 15, 18, 20],
@@ -124,7 +140,7 @@ pub fn band(upper: f64, lower: f64) -> String {
     } else {
         let up = if upper < 0.0 { '-' } else { '+' };
         let down = if lower > 0.0 { '+' } else { '-' };
-        format!("{} {}", signed(upper, up), signed(lower, down))
+        format!("{}/{}", signed(upper, up), signed(lower, down))
     }
 }
 
@@ -160,7 +176,7 @@ pub fn band_text(upper: &crate::pmi::Decimal, lower: &crate::pmi::Decimal) -> St
     {
         format!("±{}", printed(upper.as_str().trim_start_matches('+')))
     } else {
-        format!("{} {}", signed(upper), signed(lower))
+        format!("{}/{}", signed(upper), signed(lower))
     }
 }
 
@@ -181,12 +197,12 @@ mod tests {
     #[test]
     fn imported_bands_print_as_draftwright_prints_them() {
         assert_eq!(band(0.2, -0.2), "±0.2");
-        assert_eq!(band(0.09, 0.0), "+0.09 0");
-        assert_eq!(band(0.0, -0.2), "0 -0.2");
-        assert_eq!(band(0.0762, -0.0254), "+0.0762 -0.0254");
+        assert_eq!(band(0.09, 0.0), "+0.09/0");
+        assert_eq!(band(0.0, -0.2), "0/-0.2");
+        assert_eq!(band(0.0762, -0.0254), "+0.0762/-0.0254");
         assert_eq!(band(1.0, -1.0), "±1.0");
-        assert_eq!(band(-0.014, -0.039), "-0.014 -0.039");
-        assert_eq!(band(0.039, 0.014), "+0.039 +0.014");
+        assert_eq!(band(-0.014, -0.039), "-0.014/-0.039");
+        assert_eq!(band(0.039, 0.014), "+0.039/+0.014");
     }
 
     #[test]

@@ -8,7 +8,7 @@
 
 use crate::pmi::*;
 
-mod gdt;
+pub mod gdt;
 pub mod linear;
 pub mod notes;
 pub mod placement;
@@ -36,6 +36,12 @@ pub struct Callout {
     pub size: [f64; 2],
     /// Draftwright's leader-bend scope symbol: one ring for all-around, two for all-over.
     pub leader_rings: u8,
+}
+
+/// Hershey ink width, in drawing units at the supplied capital height.
+pub fn text_width(value: &str, height: f64) -> f64 {
+    let ink = font().text(value, height);
+    ink.max[0] - ink.min[0]
 }
 
 pub fn font() -> &'static text::Font {
@@ -217,8 +223,13 @@ pub fn dimension(d: &Dimension) -> Callout {
 }
 
 pub fn label(value: &str) -> Callout {
-    let ink = font().text(value, 3.0);
-    let size = [ink.max[0] - ink.min[0] + 3.6, 6.0];
+    label_with_width(value, &text_width)
+}
+
+/// A label using the caller's ink width at the requested capital height.
+/// Coordinates, padding and text height are in the same drawing units as the width.
+pub fn label_with_width(value: &str, width: &dyn Fn(&str, f64) -> f64) -> Callout {
+    let size = [width(value, 3.0) + 3.6, 6.0];
     let text = Text {
         text: value.into(),
         at: [size[0] / 2.0, 3.0],
@@ -299,6 +310,7 @@ pub fn tolerance(t: &GeometricTolerance, p: &PartPmi) -> Callout {
         zone,
         material,
         &datums,
+        &text_width,
     );
     // Draftwright pmi.rs support()/tolerance() and dims/gdt.rs leader scope rings.
     fn around(p: &PartPmi, f: FeatureId, depth: usize) -> bool {

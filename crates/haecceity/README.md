@@ -33,6 +33,53 @@ frames use short feature-scaled offsets with a deterministic stagger. Multi-face
 are composite, and location references use non-datum aspects in both feature configurations. Straight dimensions use two
 measured witnesses, extension lines and arrowed lines on shortest-first ladders. See the [AP242 writer structure](../../docs/step-ap242.md#graphical-callouts-137).
 
+Drawing clients can use these public functions without constructing `PartPmi`:
+
+```rust
+use haecceity::presentation::{self, gdt, notes, tolerance};
+let plex_width = |text: &str, height: f64| text.chars().count() as f64 * height * 0.6;
+let frame = gdt::control_frame("position", "0.05", Some("diameter"), Some("M"),
+    &["A".into(), "B-C".into()], &plex_width);
+assert_eq!(frame.cells, ["⌖", "⌀0.05Ⓜ", "A", "B-C"]);
+let label = presentation::label_with_width("⌀10 H7", &plex_width);
+assert_eq!(gdt::symbol("profile_surface"), "⌓");
+assert_eq!(tolerance::HOLE_CLASSES, ["H", "G", "F"]);
+```
+
+`gdt::control_frame(name: &str, tolerance: &str, zone: Option<&str>,
+material: Option<&str>, datums: &[String], width: &dyn Fn(&str, f64) -> f64) -> Callout`
+accepts already formatted cells. The width function measures ink at the supplied capital
+height in the same drawing units as the returned geometry. `gdt::symbol(name: &str) ->
+&'static str` uses model names (`profile_line`, `profile_surface`, `circular_runout`,
+`total_runout`, etc.; see its rustdoc). `gdt::characteristic(name, centre, &mut Callout)`
+adds just the characteristic geometry. `label_with_width(value, width)` and
+`notes::surface_texture_with_width(&SurfaceTexture, width)` size labels and ISO 1302
+symbols with the same convention. `notes::removal_marks(MaterialRemoval, short_height)`
+returns strokes and arcs about the symbol tip. Existing `label`, `surface_texture`,
+`dimension` and `tolerance` use `text_width(value, height)` (Hershey ink width).
+`Callout::letters` is the font-drawn layer; `runs` also includes geometrically drawn symbols.
+
+`tolerance::{HOLE_CLASSES, SHAFT_CLASSES, GRADES}` are ordered arrays for discovery and
+refusal messages; `MAX_NOMINAL_MM` is the inclusive 250 mm table limit. These describe the
+supported subset, not every ISO 286 class.
+
+Dimension strings use U+2300 `⌀` (Unicode's diameter sign), not U+00F8 `ø` (a letter).
+ISO 129-1:2018 §§7.1–7.2 specifies the diameter symbol before the value; ISO 1101:2017
+§8.2.2.1.1 uses it for circular/cylindrical tolerance zones. Neither standard prescribes
+Unicode code points; this API chooses the semantically correct character. A single-line
+asymmetric band is `+upper/lower`, including an unsigned zero (`+0.09/0`). This is the
+explicit single-line form in ISO 129-1:2004 §6.2, Figure 29. ISO 129-1:2018 §6.2,
+Figures 31–34 specifies stacked deviations (upper above lower) or an ISO code; §4.1.7
+requires signs except for zero and decimal alignment when stacked. Drawing clients targeting
+the 2018 presentation should stack the two deviations. `limits_term` already returns upper,
+newline, lower; slash-separated dimension text is the unambiguous plain-text form, not a
+claim that the 2018 edition specifies inline deviations. Sources:
+[ISO 129-1:2018](https://www.iso.org/standard/64007.html),
+[ISO 129-1:2004 §6.2](https://s538bda2d5ed2d98d.jimcontent.com/download/version/1588561433/module/9041319182/name/ISO%2520129_2004.pdf),
+[ISO 1101:2017](https://www.iso.org/standard/66777.html).
+Draftwright should replace `ø`/`Sø` with `⌀`/`S⌀` in dimension labels and retain the slash
+for inline asymmetric deviations. Geometry may still use an existing font's slashed-ring glyph.
+
 Enable the optional `f3d` feature for `haecceity::f3d::read_f3d_file`: visible Autodesk
 Fusion solid geometry in millimetres, including placements, with no imported PMI.
 

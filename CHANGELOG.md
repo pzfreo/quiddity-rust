@@ -17,6 +17,18 @@ in [docs/alpha1.md](docs/alpha1.md).
   JSON writes retain the existing AP242 refusals;
   complete source STEP closure remains blocked on the documented writer/source cases.
 
+- For Draftwright #258/#269, public font-width-driven control frames, labels and surface
+  texture symbols, GD&T symbol geometry/lookup, ISO 1302 removal marks and ordered fit-table
+  discovery constants. Existing Hershey wrappers retain their sizing.
+
+### Fixed
+
+- Single-line asymmetric dimension bands now separate upper/lower deviations with `/`
+  (ISO 129-1:2004 §6.2); diameter text retains `⌀`. ISO 129-1:2018 §6.2 drawing presentation
+  uses stacked deviations or an ISO code; the README distinguishes that from plain text.
+- Blank and whitespace-only general-note rows retain spacing without emitting empty
+  tessellated curve sets. Specify can remove its `(blank)` workaround.
+
 ## 0.2.6 (2026-10-30)
 
 Upgrading from 0.2.5: recognition schema `/6` and fingerprints `/3` are unchanged. haecceity's

@@ -18,8 +18,12 @@ fn circle(c: P2, r: f64) -> [f64; 5] {
     [c[0], c[1], r, 0.0, 360.0]
 }
 
-/// The ISO 1101 symbol of draftwright's characteristic, as the text layer states it.
-fn symbol(characteristic: &str) -> &'static str {
+/// ISO 1101 symbol for the model's GD&T name: `straightness`, `flatness`,
+/// `circularity`, `cylindricity`, `profile_line`, `profile_surface`, `angularity`,
+/// `perpendicularity`, `parallelism`, `position`, `concentricity`, `coaxiality`,
+/// `symmetry`, `circular_runout`, or `total_runout`.
+/// Unknown names retain the historical total-runout fallback.
+pub fn symbol(characteristic: &str) -> &'static str {
     match characteristic {
         "straightness" => "⏤",
         "flatness" => "⏥",
@@ -41,7 +45,7 @@ fn symbol(characteristic: &str) -> &'static str {
 /// The characteristic's strokes about *c* (`_characteristic_edges`, s = 0.42 h). Coaxiality,
 /// which draftwright's frame does not know, is drawn as concentricity's symbol, which ISO 1101
 /// gives both.
-fn characteristic(name: &str, c: P2, laid: &mut Laid) {
+pub fn characteristic(name: &str, c: P2, laid: &mut Laid) {
     let s = 0.42 * TEXT;
     let p = |x: f64, y: f64| [c[0] + x * s, c[1] + y * s];
     let mut st: Vec<[P2; 2]> = Vec::new();
@@ -114,18 +118,17 @@ fn characteristic(name: &str, c: P2, laid: &mut Laid) {
     laid.arcs.extend(arcs);
 }
 
-/// The width of *s*'s ink at *size* in the labels' font.
-fn width(s: &str, size: f64) -> f64 {
-    let l = super::font().text(s, size);
-    l.max[0] - l.min[0]
-}
-
+/// A local ISO 1101 frame from plain cells, independent of `PartPmi`.
+/// `width` measures text ink at the supplied capital height in drawing units.
+/// `zone` is `diameter` or `spherical_diameter`; `material` is `M` or `L`.
+/// Datums are already formatted compartments (for example `A-B`).
 pub fn control_frame(
     name: &str,
     tolerance: &str,
     zone: Option<&str>,
     material: Option<&str>,
     datums: &[String],
+    width: &dyn Fn(&str, f64) -> f64,
 ) -> Laid {
     let mut laid = Laid::default();
     let cy = H / 2.0;
