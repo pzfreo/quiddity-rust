@@ -327,6 +327,70 @@ pub fn validate_schema(v: &Value) -> Result<()> {
     schema::check(v, pmi_schema(), pmi_schema(), "")
 }
 
+/// Validate authorability without geometry. Topology anchors are treated as opaque
+/// identities; their existence, units relative to the part, and geometry are checked on import.
+/// This adds constructors, reference checks and shared writer refusals to [`validate_schema`].
+pub fn validate(v: &Value) -> Result<()> {
+    validate_schema(v)?;
+    let mut projected = v.clone();
+    let mut faces = BTreeMap::new();
+    let mut edges = BTreeMap::new();
+    schema::walk(
+        &mut projected["pmi"],
+        &pmi_schema()["$defs"]["PartPmi"],
+        pmi_schema(),
+        &mut |kind, value| {
+            let table = match kind {
+                "FaceIndex" => &mut faces,
+                "EdgeIndex" => &mut edges,
+                _ => return Ok(()),
+            };
+            let key = identity::canonical(value)?;
+            let next = table.len();
+            *value = json!(*table.entry(key).or_insert(next));
+            Ok(())
+        },
+    )?;
+    let anchors = Anchors {
+        names: vec![None; faces.len()],
+        fingerprints: vec![None; faces.len()],
+        edge_count: edges.len(),
+    };
+    let semantic = from_value(&projected, &anchors)?;
+    validate_authoring(&semantic.pmi)
+}
+
+fn validate_authoring(p: &PartPmi) -> Result<()> {
+    let refusals = pmi::write::model_refusals(pmi::PartId(0), p);
+    if !refusals.is_empty() {
+        return Err(Error(pmi::write::WriteError::Refused(refusals).to_string()));
+    }
+    // All REAL-bearing paths must carry writable Part 21 text, including supplemental
+    // geometry and placement vectors. COUNT_MEASURE additionally permits canonical integers.
+    let mut raw = serde_json::to_value(p)?;
+    schema::walk_path(
+        &mut raw,
+        &model_schema(),
+        pmi_schema(),
+        "",
+        &mut |kind, value, path| {
+            if kind == "Decimal" {
+                let text = value
+                    .as_str()
+                    .ok_or_else(|| Error(format!("{path}: invalid decimal")))?;
+                let integer_count = path.ends_with("/count")
+                    && text.parse::<i64>().is_ok_and(|n| n.to_string() == text);
+                if !integer_count {
+                    crate::p21::encode_real_text(text).map_err(|e| {
+                        Error(format!("{path}: {e}; stated decimal is not rewritten"))
+                    })?;
+                }
+            }
+            Ok(())
+        },
+    )
+}
+
 /// Decode, apply constructors/model invariants, and resolve all topology anchors.
 pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
     validate_schema(v)?;
@@ -487,6 +551,7 @@ pub fn write(
     let mut values = Vec::new();
     let mut ids = BTreeMap::new();
     for (part, input) in requested {
+        validate_authoring(&input.pmi)?;
         let encoded = to_value(input)?;
         values.push((*part, input.pmi.clone()));
         let mut item_ids = input.ids.clone();

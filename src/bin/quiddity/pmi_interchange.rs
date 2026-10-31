@@ -14,7 +14,7 @@ pub(super) fn run(args: &[String]) -> Result<String, String> {
             if value["schema"] == "haecceity.presentation/1" {
                 interchange::presentation::validate(&value)
             } else {
-                interchange::validate_schema(&value)
+                interchange::validate(&value)
             }
             .map_err(|e| e.to_string())?;
             Ok(json!({"valid":true,"schema":value["schema"]}))

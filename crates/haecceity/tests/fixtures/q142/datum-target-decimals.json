@@ -1,0 +1,153 @@
+{
+  "schema": "haecceity.pmi/1",
+  "units": {
+    "length": [
+      {
+        "id": "unit/mm",
+        "value": "millimetre"
+      }
+    ],
+    "angle": [],
+    "density": [],
+    "other": []
+  },
+  "pmi": {
+    "standards": [],
+    "decimal_places": null,
+    "features": [
+      {
+        "id": "feature/3",
+        "value": {
+          "items": [
+            {
+              "face": {
+                "name": "top"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "feature/4",
+        "value": {
+          "items": [
+            {
+              "face": {
+                "name": "top"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "datum_targets": [
+      {
+        "id": "datum_target/D1",
+        "value": {
+          "number": 1,
+          "shape": "point",
+          "movable": null,
+          "on": "feature/3",
+          "placement": {
+            "origin": [
+              {
+                "unit": "unit/mm",
+                "value": "-30.0"
+              },
+              {
+                "unit": "unit/mm",
+                "value": "0.0"
+              },
+              {
+                "unit": "unit/mm",
+                "value": "10.0"
+              }
+            ],
+            "axis": [
+              "0.0",
+              "0.0",
+              "1.0"
+            ],
+            "ref_direction": [
+              "1.0",
+              "0.0",
+              "0.0"
+            ]
+          }
+        }
+      },
+      {
+        "id": "datum_target/D2",
+        "value": {
+          "number": 2,
+          "shape": {
+            "rectangle": {
+              "length": {
+                "unit": "unit/mm",
+                "value": "8.0"
+              },
+              "width": {
+                "unit": "unit/mm",
+                "value": "4.0"
+              }
+            }
+          },
+          "movable": null,
+          "on": "feature/4",
+          "placement": {
+            "origin": [
+              {
+                "unit": "unit/mm",
+                "value": "30.0"
+              },
+              {
+                "unit": "unit/mm",
+                "value": "0.0"
+              },
+              {
+                "unit": "unit/mm",
+                "value": "10.0"
+              }
+            ],
+            "axis": [
+              "0.0",
+              "0.0",
+              "1.0"
+            ],
+            "ref_direction": [
+              "1.0",
+              "0.0",
+              "0.0"
+            ]
+          }
+        }
+      }
+    ],
+    "datums": [
+      {
+        "id": "datum/D",
+        "value": {
+          "feature": null,
+          "label": "D",
+          "targets": [
+            "datum_target/D1",
+            "datum_target/D2"
+          ]
+        }
+      }
+    ],
+    "dimensions": [],
+    "tolerances": [],
+    "tolerance_relations": [],
+    "general": [],
+    "threads": [],
+    "knurls": [],
+    "holes": [],
+    "material": null,
+    "notes": [],
+    "surface_textures": [],
+    "attributes": [],
+    "geometry": [],
+    "derived_geometry": []
+  }
+}

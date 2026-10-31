@@ -217,6 +217,17 @@ Duplicate identifiers on independent source requirements are also an explicit JS
 than silently renumbered. `json::write` verifies the emitted semantic model by
 reading it back before returning bytes. It never removes refused requirements.
 
+`json::validate` and `pmi json validate` also check constructors, reference closure,
+and the writer's geometry-independent authoring refusals. `json::validate_schema`
+remains a structural schema check, suitable for read-only model interchange.
+Import still checks face/edge existence, the geometry context and its units,
+file-edition compatibility and native schema/rule validation against the actual STEP.
+Stated REAL tokens must use Part 21 syntax (a decimal point and uppercase `E` for
+exponents); integer-only and lowercase-exponent strings are refused for REAL fields,
+consistently with dimensions. COUNT_MEASURE also permits canonical integers.
+Placements, target sizes and movable directions retain every decimal occurrence,
+including different spellings of equal numbers in the same vector.
+
 The strict corpus STEP closure test is separately runnable with `--ignored` so
 these pre-existing refusals remain visible. The local SFA sample test, also
 explicitly invoked, records any supported-subset exclusions in adjacent audit
@@ -238,7 +249,19 @@ without migrating notes into attributes. All note kinds and arbitrary text
 | `kind: "surface texture"`, `"coating"`, `"edges"`, `"general note"`, or any caller string | Same property, with the exact kind in its description |
 | `text` | One `descriptive_representation_item('note text',text)` in its representation |
 | `on: null` | Part `product_definition_shape` |
-| `on: {feature/dimension/tolerance/datum_target: id}` | Referenced item's native carrier |
+| `on: {feature/datum_target: id}` | Referenced item's native shape aspect |
+| `on: {dimension/tolerance: id}` | Referenced native dimension or tolerance, in an edition whose SELECT permits it |
+
+For #142, notes and attribute sets owned by dimensions or tolerances trigger the
+existing JSON-only ed1 → ed4 upgrade, with the schema change recorded in
+`WriteReport.schema` and the complete upgraded file validated. AP242 ed1's
+`characterized_definition` excludes `dimensional_size` and `geometric_tolerance`;
+ed4 includes them through `characterized_item`. The direct property attachment is
+allowed from ed2 onward by [CAx-IF PMI v4.1 §§7.4.2 and 10.1.2.1–2](https://www.mbx-if.org/home/wp-content/uploads/2024/06/rec_pracs_pmi_v41.pdf).
+We choose that form to identify the exact requirement even when several dimensions
+or tolerances share one shape aspect. All `NoteOwner` variants remain supported;
+no owner is inferred from shared geometry. Ordinary non-JSON writes keep their
+existing schema policy and bytes.
 
 The reader already recognises this manufacturing-requirement form. A property
 named `semantic text` associated with a general property remains an AttributeSet;

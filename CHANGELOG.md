@@ -23,6 +23,11 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
+- For #142, PMI JSON imports preserve stated target placement/direction decimals,
+  including distinct tokens for equal REAL values. Dimension/tolerance-owned notes
+  use direct AP242 characterized-item properties, upgrading edition 1 JSON writes
+  to edition 4. Validation now shares geometry-independent writer refusals with import.
+
 - Single-line asymmetric dimension bands now separate upper/lower deviations with `/`
   (ISO 129-1:2004 §6.2); diameter text retains `⌀`. ISO 129-1:2018 §6.2 drawing presentation
   uses stacked deviations or an ISO code; the README distinguishes that from plain text.
