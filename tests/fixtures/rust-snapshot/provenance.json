@@ -112,8 +112,8 @@
     "tests/fixtures/ap242/assembly/nested.step": "13a91d18297a06b9cde494a7d3f978d42faa16639217d6479922480773b86cc6",
     "tests/fixtures/ap242/assembly/wrapped.step": "7abc9d96cc743623f9a5c5c923ffafded48f99a6f48745ffa4386d5e8e57368d",
     "tests/fixtures/ap242/derived/GRM-03_thumbwheel_drive_screw_AP242_PMI.step.gz": "48b4a9f8ac8348d17b953afe7d9a49577aa60bdca653c6e4b1f62443d99d5244",
-    "tests/fixtures/ap242/derived/README.md": "978cfee3c41b86ebda01fdc57b3b2ccb115cc10ce8c8a3a9f5febe6863294490",
-    "tests/fixtures/ap242/derived/nist-baseline.json": "febc06a13c6009ca7a78eeb8c103a10b8a6fb58fca3c55ab0446eb54ba1e66a5",
+    "tests/fixtures/ap242/derived/README.md": "d08687e4436149888726e9b11d3c7b05bbe4d76c9e425ef9a83f28c710b1a2cc",
+    "tests/fixtures/ap242/derived/nist-baseline.json": "8169573c71c6fa6afc5d8791d856b328cb981f86855db91eaf305d69ebd78da2",
     "tests/fixtures/ap242/express/corpus_upgrade.json": "30a93be4ee3dce8b587346ea9ba2bc920d8ee08b00f59119fa5f31441db36553",
     "tests/fixtures/ap242/express/families.json": "2b5d5bf7d5f8af9c9f3c82c1a516f3e08849817721590edf81b7d4618b59e322",
     "tests/fixtures/ap242/express/known_nist_violations.json": "e8b4502cda2934c7b2030490a42858bf2dd16184ef756729ca981e1011a029f5",
@@ -5872,5 +5872,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "fe0860b490f9ea02567b35273a792f628c5f54ad"
+  "source_commit": "9d30f33e6252126be9483e4caa08ac6eb653cf90"
 }
