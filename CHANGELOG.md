@@ -6,28 +6,9 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
-## 0.2.7 (2026-10-31)
+### Changed
 
-Upgrading from 0.2.6: recognition schema `/6` and fingerprints `/3` are unchanged, and so is semantic PMI written by default builds. Changes:
-- **New opt-in `json` feature:** PMI as JSON (`haecceity.pmi/1`, with the companion `haecceity.presentation/1`), JSON Schemas, and the `quiddity pmi json` CLI (build with `--features json`).
-- **Presentation (on by default):** single-line dimension deviations are now drawn as `+upper/lower` (ISO 129-1:2004 §6.2); blank note lines draw no curve; the general-notes block and frame/diameter callouts are placed clear of each other in projected views. Written callout graphics therefore differ from 0.2.6.
-- **New public API:** font-width-driven notation geometry (control frames, symbols, labels, surface texture, removal marks) and ordered fit-class lists, for drawing renderers.
-
-### Added
-
-- For #142, opt-in `json` exports versioned AP242 semantic PMI and As Drawn/generated
-  presentation JSON with stable requirement ids. `json-import` adds packaged JSON Schemas,
-  validation, import and face-name/support anchors, plus `pmi json export`, `import`,
-  `validate` and `presentation` CLI commands.
-  V1 references use item ids; fallback ids derive from content. JSON writes preserve
-  collection order, support projections, notes and attribute fields, keep foreign
-  graphics for surviving requirements, and verify every item's id and content on read-back.
-  JSON writes retain the existing AP242 refusals;
-  complete source STEP closure remains blocked on the documented writer/source cases.
-
-- For Draftwright #258/#269, public font-width-driven control frames, labels and surface
-  texture symbols, GD&T symbol geometry/lookup, ISO 1302 removal marks and ordered fit-table
-  discovery constants. Existing Hershey wrappers retain their sizing.
+- For #142, the `json` feature is now serialise-only (export of `haecceity.pmi/1` and `haecceity.presentation/1`, and id assignment). The new `json-import` feature adds parsing, validation, the packaged schemas and the JSON → STEP path. The CLI requires `json-import`. This keeps WASM consumers small.
 
 ### Fixed
 
@@ -54,6 +35,31 @@ Upgrading from 0.2.6: recognition schema `/6` and fingerprints `/3` are unchange
   including distinct tokens for equal REAL values. Dimension/tolerance-owned notes
   use direct AP242 characterized-item properties, upgrading edition 1 JSON writes
   to edition 4. Validation now shares geometry-independent writer refusals with import.
+
+
+## 0.2.7 (2026-10-31)
+
+Upgrading from 0.2.6: recognition schema `/6` and fingerprints `/3` are unchanged, and so is semantic PMI written by default builds. Changes:
+- **New opt-in `json` feature:** PMI as JSON (`haecceity.pmi/1`, with the companion `haecceity.presentation/1`), JSON Schemas, and the `quiddity pmi json` CLI (build with `--features json`).
+- **Presentation (on by default):** single-line dimension deviations are now drawn as `+upper/lower` (ISO 129-1:2004 §6.2); blank note lines draw no curve; the general-notes block and frame/diameter callouts are placed clear of each other in projected views. Written callout graphics therefore differ from 0.2.6.
+- **New public API:** font-width-driven notation geometry (control frames, symbols, labels, surface texture, removal marks) and ordered fit-class lists, for drawing renderers.
+
+### Added
+
+- For #142, opt-in `json` exposes versioned AP242 semantic PMI and As Drawn/generated
+  presentation JSON, packaged JSON Schemas, stable requirement ids and face-name/support
+  anchors, plus `pmi json export`, `import`, `validate` and `presentation` CLI commands.
+  V1 references use item ids; fallback ids derive from content. JSON writes preserve
+  collection order, support projections, notes and attribute fields, keep foreign
+  graphics for surviving requirements, and verify every item's id and content on read-back.
+  JSON writes retain the existing AP242 refusals;
+  complete source STEP closure remains blocked on the documented writer/source cases.
+
+- For Draftwright #258/#269, public font-width-driven control frames, labels and surface
+  texture symbols, GD&T symbol geometry/lookup, ISO 1302 removal marks and ordered fit-table
+  discovery constants. Existing Hershey wrappers retain their sizing.
+
+### Fixed
 
 - Single-line asymmetric dimension bands now separate upper/lower deviations with `/`
   (ISO 129-1:2004 §6.2); diameter text retains `⌀`. ISO 129-1:2018 §6.2 drawing presentation
