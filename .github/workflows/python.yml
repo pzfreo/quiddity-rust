@@ -1,0 +1,168 @@
+name: Python package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - 'crates/quiddity-py/**'
+      - 'tests/python/**'
+      - 'src/**'
+      - 'crates/haecceity/**'
+      - 'tests/fixtures/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/python.yml'
+  # A GitHub release publishes to PyPI (maintainer decision 2026-10-31: "If we release on gh then
+  # its good on pypi"). A manual run on main can publish too, as a fallback.
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the built wheels and sdist to PyPI
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  wheels:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: linux-x86_64, os: ubuntu-22.04, target: x86_64, manylinux: '2_28' }
+          - { name: linux-aarch64, os: ubuntu-24.04-arm, target: aarch64, manylinux: '2_28' }
+          - { name: macos-arm64, os: macos-latest, target: aarch64-apple-darwin }
+          - { name: macos-x86_64, os: macos-15-intel, target: x86_64-apple-darwin }
+          - { name: windows-x64, os: windows-latest, target: x86_64-pc-windows-msvc }
+    runs-on: ${{ matrix.os }}
+    env:
+      CARGO_TERM_COLOR: always
+      # rustc's thin-LTO threads overflow Windows' default stack on step-io (as cli.yml).
+      RUST_MIN_STACK: '67108864'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      # Windows checkouts store symlinks as target text, so copy the actual licences.
+      - if: runner.os == 'Windows'
+        run: |
+          rm crates/quiddity-py/LICENSE crates/quiddity-py/NOTICE
+          cp LICENSE NOTICE crates/quiddity-py/
+      # The toolchain comes from rust-toolchain.toml.
+      - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        with:
+          target: ${{ matrix.target }}
+          manylinux: ${{ matrix.manylinux || 'auto' }}
+          args: --release --locked -m crates/quiddity-py/Cargo.toml --out dist
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: wheel-${{ matrix.name }}
+          path: dist/*.whl
+          if-no-files-found: error
+
+  sdist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        with:
+          command: sdist
+          args: -m crates/quiddity-py/Cargo.toml --out dist
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  test:
+    needs: wheels
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: linux-x86_64, os: ubuntu-22.04, python: '3.11' }
+          - { name: linux-aarch64, os: ubuntu-24.04-arm, python: '3.11' }
+          - { name: macos-arm64, os: macos-latest, python: '3.11' }
+          - { name: macos-x86_64, os: macos-15-intel, python: '3.11' }
+          - { name: windows-x64, os: windows-latest, python: '3.11' }
+          # Also check forward compatibility of the abi3 wheel.
+          - { name: linux-x86_64, os: ubuntu-22.04, python: '3.15' }
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: wheel-${{ matrix.name }}
+          path: dist
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - run: uv venv --python ${{ matrix.python }} .venv
+      - name: Install the wheel, and pytest
+        run: |
+          uv pip install --python .venv pytest
+          # --no-cache: a cached wheel of the same version would hide this build.
+          uv pip install --python .venv --no-index --no-cache --find-links dist quiddity
+      - name: The wheel carries the licence
+        run: |
+          .venv/${{ runner.os == 'Windows' && 'Scripts' || 'bin' }}/python - <<'EOF'
+          import glob, zipfile
+          (wheel,) = glob.glob("dist/*.whl")
+          names = zipfile.ZipFile(wheel).namelist()
+          for name in ("LICENSE", "NOTICE"):
+              (found,) = [n for n in names if n.endswith(".dist-info/licenses/" + name)]
+              text = zipfile.ZipFile(wheel).read(found).decode()
+              assert len(text) > 100, (found, text)
+          EOF
+      - run: .venv/${{ runner.os == 'Windows' && 'Scripts' || 'bin' }}/python -m pytest tests/python -q
+
+  test-sdist:
+    needs: sdist
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: sdist
+          path: dist
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - run: rustup show
+      - run: uv venv --python 3.11 .venv
+      - run: uv pip install --python .venv pytest dist/*.tar.gz
+      - run: .venv/bin/python -m pytest tests/python -q
+
+  publish:
+    needs: [wheels, sdist, test, test-sdist]
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write # PyPI trusted publishing
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          sparse-checkout: |
+            crates/quiddity-py/pyproject.toml
+            Cargo.toml
+      # A release publishes only when its tag, the wheel's version and the crates' version agree.
+      - if: github.event_name == 'release'
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          wheel=$(sed -n 's/^version = "\(.*\)"/\1/p' crates/quiddity-py/pyproject.toml | head -1)
+          crate=$(sed -n '/^\[package\]/,/^\[/s/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          echo "tag=$tag wheel=$wheel crate=$crate"
+          test "$tag" = "$wheel" && test "$tag" = "$crate"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3

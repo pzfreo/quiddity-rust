@@ -1,5 +1,7 @@
 # quiddity-rust
 
+Python users: [quiddity 0.4.0 wheel API and migration guide](docs/python.md).
+
 Find the manufacturing features in a STEP model (holes, pockets, slots, bosses, steps,
 fillets, patterns and turned profiles), with their measured sizes and positions. quiddity
 also matches the features of two revisions of a part, and reads and writes AP242 PMI

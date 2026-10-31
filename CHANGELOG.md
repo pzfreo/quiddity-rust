@@ -17,6 +17,26 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Added
 
+- Python `pmi.write(..., report=True)` returns `(bytes, dict)` with verification
+  differences, input/output reader findings, writer diagnostics and instance counts.
+- The wheel now targets `abi3-py311` and CPython 3.11+, with CI smoke coverage on
+  3.11 for all five platforms and on the newest CPython for Linux x86_64.
+
+- In-process Python PMI interchange: STEP path/bytes plus a PMI dict/JSON string
+  produce verified AP242 STEP bytes without temporary files. PMI/presentation reads
+  return dicts, named/index anchors are selectable, `PmiError` preserves reasons and
+  available findings, and both JSON Schemas ship as dicts and package resources.
+  This replaces the provisional Python CLI-path wrappers; recognition is unchanged.
+- A dependency-free `quiddity` 0.4.0 Python wheel (`crates/quiddity-py`), using
+  PyO3 abi3 for CPython 3.11+, with STEP path/byte recognition, evidence, anchors,
+  fingerprints, correspondence, capabilities, verified PMI JSON import/export,
+  and the shared Rust CLI. This replaces the Python 0.3.11 API; see `docs/python.md`.
+- Additive `quiddity-rust/evidence/1` JSON with records, defining/constituent,
+  instance and host faces, source STEP identities and reconciliation candidates;
+  `quiddity evidence <step> [--framed]`, `fingerprints` and `capabilities` commands.
+- Python smoke/corpus tests and a five-platform wheel/sdist workflow. A published GitHub
+  release (or a manual dispatch) publishes to PyPI after checking that the tag, wheel
+  and crate versions agree; pushes never publish.
 - Public `presentation::size_prefix` for drawing clients, and
   `presentation::label_lines_with_width` for independent, unpadded per-line geometry
   with caller-supplied ink widths. Existing padded labels retain their geometry.

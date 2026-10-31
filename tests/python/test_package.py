@@ -1,0 +1,144 @@
+"""The installed wheel on committed STEP fixtures; no CAD Python dependency."""
+import gzip
+import hashlib
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+from collections import Counter
+
+import pytest
+import quiddity
+
+ROOT = Path(__file__).resolve().parents[2]
+FIXTURES = ROOT / "tests" / "fixtures"
+PLATE = FIXTURES / "filleted_plate_with_holes.step"
+
+
+def cli(*args):
+    return subprocess.run([sys.executable, "-m", "quiddity", *map(str, args)], capture_output=True)
+
+
+@pytest.mark.parametrize("fixture", ["filleted_plate_with_holes.step", "turned_body_disc.step", "golden_oriented_slots.step"])
+def test_recognise_matches_cli(fixture):
+    path = FIXTURES / fixture
+    text = quiddity.recognise(str(path))
+    run = cli(path)
+    assert run.returncode == 0, run.stderr
+    assert text.encode() == run.stdout
+    assert quiddity.recognise(path.read_bytes()) == text
+    document = json.loads(text)["document"]
+    assert document["schema_version"] == "quiddity-rust/recognition/6"
+    assert document["coordinate_space"] == "file"
+    assert document["source_sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert document["records"]
+    native_cli = os.environ.get("QUIDDITY_CLI")
+    if native_cli:
+        native = subprocess.run([native_cli, str(path)], capture_output=True, check=True)
+        assert text.encode() == native.stdout
+
+
+@pytest.mark.parametrize("framed", [False, True])
+def test_evidence(framed):
+    data = json.loads(quiddity.evidence(PLATE.read_bytes(), framed=framed))
+    assert data == json.loads(quiddity.evidence(str(PLATE), framed=framed))
+    assert data["schema_version"] == "quiddity-rust/evidence/1"
+    assert data["coordinate_space"] == ("part" if framed else "file")
+    assert (data["frame"] is not None) == framed
+    assert len(data["face_sources"]) == data["face_count"]
+    assert all(source["entity"] > 0 for source in data["face_sources"])
+    assert data["features"]
+    for feature in data["features"]:
+        assert isinstance(feature["index"], int)
+        assert isinstance(feature["family"], str)
+        assert isinstance(feature["record"], dict)
+        for faces in [feature["defining_faces"], feature["constituent_faces"], feature["host_faces"], *feature["instance_faces"]]:
+            assert faces == sorted(set(faces))
+            assert all(0 <= face < data["face_count"] for face in faces)
+        assert all(0 <= member < len(data["features"]) for member in feature["members"])
+    holes = [f for f in data["features"] if f["family"] == "holes"]
+    assert holes
+    for hole in holes:
+        assert set(("bottom", "cbore", "spotface", "csink", "diameter", "axis", "location", "depth")) <= hole["record"].keys()
+        assert hole["defining_faces"]
+    run = cli("evidence", PLATE, *(["--framed"] if framed else []))
+    assert run.returncode == 0, run.stderr
+    assert json.loads(run.stdout) == data
+
+
+def test_framed_evidence_refusal():
+    sphere = FIXTURES / "captured/frames/sphere.step"
+    with pytest.raises(ValueError, match="no part frame"):
+        quiddity.evidence(str(sphere), framed=True)
+
+
+def test_anchor_and_fingerprints():
+    anchor = json.loads(quiddity.anchor(str(PLATE), 0))
+    assert anchor == json.loads(quiddity.anchor(PLATE.read_bytes(), 0))
+    assert anchor["face"] == 0
+    assert len(anchor["point"]) == 3 and len(anchor["uv"]) == 2
+    fp = json.loads(quiddity.fingerprints(str(PLATE)))
+    assert fp["fingerprint_version"] == "quiddity-rust/fingerprint/3"
+    assert fp == json.loads(quiddity.fingerprints(PLATE.read_bytes()))
+    assert fp == json.loads(quiddity.recognise(str(PLATE)))["fingerprints"]
+    assert fp == json.loads(cli("fingerprints", PLATE).stdout)
+    with pytest.raises(ValueError, match="out of range"):
+        quiddity.anchor(str(PLATE), 100000)
+    with pytest.raises(OverflowError):
+        quiddity.anchor(str(PLATE), -1)
+
+
+def test_correspond():
+    before = gzip.decompress((FIXTURES / "revisions/hole_moved.old.step.gz").read_bytes())
+    after = gzip.decompress((FIXTURES / "revisions/hole_moved.new.step.gz").read_bytes())
+    result = json.loads(quiddity.correspond(before, after))
+    assert result == json.loads(cli("correspond", FIXTURES / "revisions/hole_moved.old.step.gz", FIXTURES / "revisions/hole_moved.new.step.gz").stdout)
+    assert result["features"]
+
+
+def test_capabilities_version_and_console_script():
+    assert quiddity.__version__ == "0.4.0"
+    assert not importlib.metadata.requires("quiddity")
+    assert importlib.metadata.metadata("quiddity")["Requires-Python"] == ">=3.11"
+    caps = json.loads(quiddity.capabilities())
+    assert caps["evidence"] == "quiddity-rust/evidence/1"
+    assert caps["fingerprints"] == "quiddity-rust/fingerprint/3"
+    assert caps["pmi_json_import"] is True
+    assert caps == json.loads(cli("capabilities").stdout)
+    executable = Path(sys.executable).parent / ("quiddity.exe" if os.name == "nt" else "quiddity")
+    run = subprocess.run([str(executable), "--help"], capture_output=True)
+    assert run.returncode == 0 and b"quiddity evidence" in run.stdout
+    assert cli("evidence").returncode == 2
+
+
+@pytest.mark.parametrize("input", [b"", b"this is not STEP", (FIXTURES / "broken/empty_data.step").read_bytes(), str(FIXTURES / "does-not-exist.step")])
+@pytest.mark.parametrize("operation", [quiddity.recognise, quiddity.evidence, quiddity.fingerprints, lambda step: quiddity.anchor(step, 0), lambda step: quiddity.correspond(step, str(PLATE))])
+def test_refusals(input, operation):
+    with pytest.raises(ValueError, match=r".+"):
+        operation(input)
+
+
+def test_input_type_refused():
+    with pytest.raises(TypeError, match="str path or STEP bytes"):
+        quiddity.recognise(object())
+
+
+def test_nist_ctc_counts():
+    corpus = os.environ.get("QUIDDITY_CORPUS")
+    if not corpus:
+        if os.environ.get("QUIDDITY_CORPUS_REQUIRED"):
+            pytest.fail("QUIDDITY_CORPUS_REQUIRED requires QUIDDITY_CORPUS")
+        pytest.skip("set QUIDDITY_CORPUS for NIST CTC counts")
+    # Counts frozen from the existing Rust caller-space evidence snapshot, independently
+    # of this binding. This also checks every feature's face evidence on the five CTC parts.
+    snapshot = json.loads(gzip.decompress((FIXTURES / "rust-snapshot/recognition_evidence.json.gz").read_bytes()))
+    cases = [item for item in snapshot if item["file"].startswith("nist/nist_ctc_")]
+    assert len(cases) == 5
+    for item in cases:
+        expected = Counter(feature["family"] for feature in item["view"]["Ok"]["features"])
+        actual = json.loads(quiddity.evidence(str(Path(corpus) / item["file"])))
+        assert Counter(feature["family"] for feature in actual["features"]) == expected, item["file"]
+        recognised = json.loads(quiddity.recognise(str(Path(corpus) / item["file"])))
+        assert recognised["document"]["face_count"] == actual["face_count"]

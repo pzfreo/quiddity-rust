@@ -1,0 +1,28 @@
+[build-system]
+requires = ["maturin>=1.9,<2"]
+build-backend = "maturin"
+
+[project]
+name = "quiddity"
+version = "0.4.0"
+description = "Rust-built manufacturing feature recognition from STEP paths or bytes"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.11"
+dependencies = []
+classifiers = ["Programming Language :: Python :: 3", "Programming Language :: Rust"]
+
+[project.urls]
+Source = "https://github.com/pzfreo/quiddity-rust"
+Documentation = "https://github.com/pzfreo/quiddity-rust/blob/main/docs/python.md"
+
+[project.scripts]
+quiddity = "quiddity.cli:run"
+
+[tool.maturin]
+python-source = "python"
+module-name = "quiddity._native"
+manifest-path = "Cargo.toml"
+strip = true
+exclude = ["**/__pycache__/**"]

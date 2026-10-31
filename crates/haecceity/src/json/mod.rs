@@ -329,6 +329,40 @@ pub fn to_value(p: &Semantic) -> Result<Value> {
     Ok(out)
 }
 
+/// Export with unique STEP face names instead of run-local face indices.
+/// Refuses missing or ambiguous names for every referenced face; no mixed addressing.
+#[cfg(feature = "json-import")]
+pub fn to_value_with_face_names(p: &Semantic, anchors: &Anchors) -> Result<Value> {
+    let mut indexed = p.clone();
+    indexed.anchor_bindings.clear();
+    let mut value = to_value(&indexed)?;
+    walk::wire(&mut value["pmi"], &mut |kind, face| {
+        if kind == "FaceIndex" {
+            let index =
+                face.as_u64()
+                    .ok_or_else(|| Error("invalid face index".into()))? as usize;
+            let name = anchors
+                .names
+                .get(index)
+                .and_then(Option::as_ref)
+                .ok_or_else(|| Error(format!("face {index} has no STEP name")))?;
+            if anchors
+                .names
+                .iter()
+                .filter(|n| n.as_ref() == Some(name))
+                .count()
+                != 1
+            {
+                return Err(Error(format!("ambiguous face name {name:?}")));
+            }
+            *face = json!({"name": name});
+        }
+        Ok(())
+    })?;
+    validate_schema(&value)?;
+    Ok(value)
+}
+
 /// Validate the exact schema shipped with this crate, including rejecting extra fields.
 #[cfg(feature = "json-import")]
 pub fn validate_schema(v: &Value) -> Result<()> {

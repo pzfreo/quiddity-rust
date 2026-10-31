@@ -29,7 +29,7 @@
 //! Python's view reads it.
 //!
 //! Not ported: the view's association coverage, its bounded report (`RecognitionReport`) and the
-//! framed variant (`build_framed_recognition_evidence`).
+//! legacy framed-view API. The owned [`document`] supports a framed projection.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
@@ -665,4 +665,92 @@ fn axial_hosts(
         .filter(|(_, o)| chosen.iter().any(|t| (o - t).abs() <= tolerance))
         .map(|(f, _)| f)
         .collect())
+}
+
+/// Versioned, owned JSON boundary for an evidence run. Face indices always refer to the
+/// input STEP part, including when the geometry was transformed to a local frame.
+#[derive(Clone, Debug, Serialize)]
+pub struct EvidenceDocument {
+    pub schema_version: &'static str,
+    pub coordinate_space: &'static str,
+    pub frame: Option<crate::frames::PartFrame>,
+    pub face_count: usize,
+    /// Face index → original STEP entity and placed instance, when loaded from STEP.
+    pub face_sources: Vec<Option<EvidenceFaceSource>>,
+    pub features: Vec<EvidenceRecord>,
+    pub candidates: Vec<EvidenceCandidate>,
+    pub rejected_candidates: Vec<usize>,
+}
+
+/// STEP identity of one face. Names on these entities can bind an export to live CAD faces.
+#[derive(Clone, Debug, Serialize)]
+pub struct EvidenceFaceSource {
+    pub entity: u64,
+    pub instance: usize,
+}
+
+/// One feature with its record and physical evidence. `index` is family-local;
+/// `members` contains positions in the document's features array.
+#[derive(Clone, Debug, Serialize)]
+pub struct EvidenceRecord {
+    pub index: usize,
+    pub family: &'static str,
+    pub record: Value,
+    pub defining_faces: Vec<usize>,
+    pub constituent_faces: Vec<usize>,
+    pub instance_faces: Vec<Vec<usize>>,
+    pub host_faces: Vec<usize>,
+    pub members: Vec<usize>,
+}
+
+/// Project caller-space evidence, or infer a part frame and project in its local coordinates.
+/// Framed requests refuse explicitly when a frame cannot be inferred. Neither mode renumbers
+/// faces. This is additive to the recognition/6 publication contract.
+pub fn document(part: &Part, framed: bool) -> Result<EvidenceDocument, EvidenceViewError> {
+    let frame = if framed {
+        Some(
+            crate::frames::infer_part_frame(part)
+                .map_err(|e| EvidenceViewError(format!("no part frame: {}", e.as_str())))?,
+        )
+    } else {
+        None
+    };
+    let working = frame
+        .as_ref()
+        .map(|f| part.transformed(&f.normalisation()))
+        .transpose()
+        .map_err(|e| EvidenceViewError(e.to_string()))?;
+    let view = build_recognition_evidence(working.as_ref().unwrap_or(part))?;
+    let features = view
+        .features
+        .iter()
+        .enumerate()
+        .map(|(position, feature)| EvidenceRecord {
+            index: feature.index,
+            family: feature.family,
+            record: view.record(position),
+            defining_faces: feature.defining.clone(),
+            constituent_faces: feature.constituent.clone(),
+            instance_faces: feature.groups.clone(),
+            host_faces: feature.hosts.clone(),
+            members: feature.members.clone(),
+        })
+        .collect();
+    Ok(EvidenceDocument {
+        schema_version: "quiddity-rust/evidence/1",
+        coordinate_space: if framed { "part" } else { "file" },
+        frame,
+        face_count: part.faces.len(),
+        face_sources: (0..part.faces.len())
+            .map(|face| {
+                part.face_source(face).map(|source| EvidenceFaceSource {
+                    entity: source.entity,
+                    instance: source.instance,
+                })
+            })
+            .collect(),
+        features,
+        candidates: view.candidates,
+        rejected_candidates: view.rejected_candidates,
+    })
 }

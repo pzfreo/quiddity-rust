@@ -153,6 +153,29 @@ type StepRecognition = (Part, Recognition, RecognitionDocument, Vec<String>);
 fn recognise_step_document(path: &str, placement: &Placement) -> Result<StepRecognition, Failure> {
     // Hash and parse one snapshot: a file changed during frame inference cannot mix sources.
     let bytes = std::fs::read(path).map_err(|e| read_failure(path, &e))?;
+    recognise_bytes_placed(path, bytes, placement)
+}
+
+/// Recognise a STEP byte snapshot. The source digest covers these exact bytes.
+pub fn recognise_bytes(
+    path: &str,
+    bytes: Vec<u8>,
+) -> Result<(RecognitionOutput, Vec<String>), Failure> {
+    let (_, recognition, document, warnings) = recognise_bytes_placed(path, bytes, &IDENTITY)?;
+    Ok((
+        RecognitionOutput {
+            recognition,
+            document,
+        },
+        warnings,
+    ))
+}
+
+fn recognise_bytes_placed(
+    path: &str,
+    bytes: Vec<u8>,
+    placement: &Placement,
+) -> Result<StepRecognition, Failure> {
     let source_sha256 = Sha256::digest(&bytes)
         .iter()
         .map(|b| format!("{b:02x}"))
