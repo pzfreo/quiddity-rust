@@ -13,7 +13,7 @@
 //! CPU) are ignored by default:
 //!
 //! ```text
-//! QUIDDITY_CORPUS=../quiddity/tests/corpus cargo test --release --test brep_write -- --ignored
+//! QUIDDITY_CORPUS=../quiddity-corpus cargo test --release --test brep_write -- --ignored
 //! ```
 
 #[path = "common/parallel.rs"]
@@ -38,7 +38,7 @@ fn corpus_dir() -> Option<PathBuf> {
         let dir = std::env::var("QUIDDITY_CORPUS")
             .map(PathBuf::from)
             .unwrap_or_else(|_| {
-                Path::new(env!("CARGO_MANIFEST_DIR")).join("../quiddity/tests/corpus")
+                Path::new(env!("CARGO_MANIFEST_DIR")).join("../quiddity-corpus")
             });
         dir.is_dir().then_some(dir)
     };
