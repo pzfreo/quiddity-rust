@@ -132,7 +132,8 @@ python -m pytest tests/python -q
 
 `.github/workflows/python.yml` builds abi3 wheels for Linux x86_64/aarch64,
 macOS arm64/x86_64 and Windows x64, plus an sdist. Each wheel runs the smoke
-suite on CPython 3.12; Linux x86_64 also tests a newer CPython. The corpus test
+suite on CPython 3.12; Linux x86_64 also tests a newer CPython. A separate Linux
+job installs the sdist and runs the same smoke suite. The corpus test
 skips without `QUIDDITY_CORPUS` and fails if required corpus inputs are missing.
 Publishing is possible only through `workflow_dispatch` with `publish=true` on
 `main`, after all builds/tests pass, using the `pypi` environment and PyPI trusted
