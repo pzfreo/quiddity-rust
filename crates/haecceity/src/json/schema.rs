@@ -23,12 +23,12 @@ pub(super) fn check(v: &Value, s: &Value, root: &Value, path: &str) -> Result<()
         }
     }
     if let Some(c) = s.get("const")
-        && v != c
+        && !equal(v, c)
     {
         return fail("wrong constant or schema version");
     }
     if let Some(e) = s["enum"].as_array()
-        && !e.contains(v)
+        && !e.iter().any(|candidate| equal(v, candidate))
     {
         return fail("unknown enumeration value");
     }
@@ -141,6 +141,7 @@ pub(super) fn walk(
         ]
         .contains(&name)
         {
+            integer_value(v)?;
             return f(name, v);
         }
         return walk(
@@ -150,6 +151,9 @@ pub(super) fn walk(
             root,
             f,
         );
+    }
+    if s["type"] == "integer" {
+        integer_value(v)?;
     }
     for key in ["oneOf", "anyOf"] {
         if let Some(branches) = s[key].as_array() {
@@ -189,4 +193,36 @@ pub(super) fn walk(
         }
     }
     Ok(())
+}
+
+fn equal(a: &Value, b: &Value) -> bool {
+    a == b || (a.is_number() && b.is_number() && a.as_f64() == b.as_f64())
+}
+
+pub(super) fn unsigned(v: &Value) -> Option<u64> {
+    v.as_u64().or_else(|| {
+        v.as_f64()
+            .filter(|n| n.fract() == 0. && *n >= 0. && *n < (u64::MAX as f64))
+            .map(|n| n as u64)
+    })
+}
+
+fn integer_value(v: &mut Value) -> Result<()> {
+    if !v.is_f64() {
+        return Ok(());
+    }
+    if let Some(n) = unsigned(v) {
+        *v = Value::from(n);
+        return Ok(());
+    }
+    if let Some(n) = v
+        .as_f64()
+        .filter(|n| n.fract() == 0. && *n < 0. && *n >= (i64::MIN as f64))
+    {
+        *v = Value::from(n as i64);
+        return Ok(());
+    }
+    Err(Error(
+        "integer outside the model's representable range".into(),
+    ))
 }

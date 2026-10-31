@@ -443,3 +443,21 @@ fn a_target_and_its_support_aspect_share_one_file_identifier() {
             .any(|id| id == "DT #18373 on DATUM #18319")
     );
 }
+
+#[test]
+fn json_schema_integer_values_can_have_a_decimal_point() {
+    let mut a = anchors();
+    a.bind_support(2, "verified").unwrap();
+    let mut expected = test_model();
+    expected.decimal_places = Some(3);
+    let mut value = json::to_value(&json::identify(expected.clone(), None).unwrap()).unwrap();
+    value["pmi"]["decimal_places"] = json!(3.0);
+    for face in [
+        json!(0.0),
+        json!({"fingerprint":{"schema":2.0,"faces":"verified","support":[0.0]}}),
+    ] {
+        value["pmi"]["features"][0]["items"][0]["face"] = face;
+        json::validate_schema(&value).unwrap();
+        assert_eq!(json::from_value(&value, &a).unwrap().pmi, expected);
+    }
+}

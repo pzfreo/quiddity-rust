@@ -128,14 +128,12 @@ impl Anchors {
         let support_key;
         let (kind, key, list) = if v["fingerprint"].is_object() {
             let f = &v["fingerprint"];
-            let schema = f["schema"]
-                .as_u64()
+            let schema = schema::unsigned(&f["schema"])
                 .ok_or_else(|| Error("invalid fingerprint schema".into()))?;
             let faces = f["faces"]
                 .as_str()
                 .ok_or_else(|| Error("missing face fingerprint".into()))?;
-            let support = f["support"][0]
-                .as_u64()
+            let support = schema::unsigned(&f["support"][0])
                 .ok_or_else(|| Error("missing face support".into()))?;
             support_key = format!("{schema}:{faces}/{support}");
             ("fingerprint", support_key.as_str(), &self.fingerprints)
