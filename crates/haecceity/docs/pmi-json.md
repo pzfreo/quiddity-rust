@@ -239,6 +239,15 @@ emission, never a deduction from `source`. File literals have absent `stroked`
 those with the client's font. Old documents may omit the flag. Empty-ink cases retain a diagnostic instead of non-finite
 coordinates. Existing strokes, tessellated fills and text strings are unchanged.
 
+Regeneration resolves linear dimensions from their semantic witnesses, orders
+rungs shortest first, and retains common outer annotation planes. Compact ladders
+reserve actual glyph ink rather than padded notation cells. Datum flags are placed
+before labels; control frames attach near their first cell. Parallel annotation
+planes pack together; unrelated camera planes do not force labels outward. This
+uses the generated saved-view model, while the STEP writer retains its seven-view
+clearance policy. Text origins and heights come from the actual stroke transform,
+including the span clipping of short dimensions and the tip offset of surface symbols.
+
 Camera direction points into the scene (negative camera Z), and up is camera Y.
 A draughting model without a camera still supplies a membership group, omitting
 both direction and up. File cameras are never guessed. Generated output supplies

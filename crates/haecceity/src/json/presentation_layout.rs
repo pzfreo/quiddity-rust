@@ -454,15 +454,8 @@ pub(super) fn generated(
     graphic: &mut Graphic,
     callout: &crate::presentation::Callout,
     placed: &crate::presentation::placement::Placed,
-    height: f64,
-    extent: f64,
-    notes: bool,
 ) {
-    let scale = if notes {
-        height / 3.
-    } else {
-        (height / 3.).min(0.32 * extent.max(height) / callout.size[0].max(1.))
-    };
+    let scale = placed.text_scale;
     if !placed.origin.iter().all(|n| n.is_finite()) {
         graphic
             .unsupported
@@ -470,22 +463,7 @@ pub(super) fn generated(
         return;
     }
     let up = geom::cross(placed.normal, placed.along);
-    let mut origin = placed.origin;
-    if !notes {
-        let mut ink = geom::Bounds::empty();
-        for p in callout.polylines().iter().flatten() {
-            ink.add([p[0], p[1], 0.]);
-        }
-        if ink.max_extent().is_finite() {
-            origin = geom::sub(
-                origin,
-                geom::add(
-                    geom::scale(placed.along, ink.min[0] * scale),
-                    geom::scale(up, ink.min[1] * scale),
-                ),
-            );
-        }
-    }
+    let origin = placed.text_origin;
     let mut used = BTreeSet::new();
     for run in &callout.runs {
         if let Some((index, _)) = callout

@@ -8,6 +8,10 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
+- Regenerated PMI uses measured, compact dimension ladders and reserves datum
+  flags before labels. Saved-view packing keeps labels near their features and
+  text placements use the actual stroke transform, including clipped short spans.
+
 - For #161, isolate panicking recognition families and block their dependents while
   preserving independent results. Incomplete recognition/6 and evidence/1 documents
   add optional `failures` and `complete: false`; successful output is unchanged.

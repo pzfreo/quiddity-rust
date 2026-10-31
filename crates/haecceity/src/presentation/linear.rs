@@ -412,8 +412,36 @@ pub fn measurements(
     def: &crate::step::PartDefinition,
     p: &PartPmi,
 ) -> Vec<Option<Measurement>> {
-    let edges = semantic_edges(part, def);
-    let edges = edges.as_slice();
+    measurements_with_edges(part, p, &semantic_edges(part, def))
+}
+/// Resolve PMI edge indices from the same face/loop order as PartDefinition,
+/// without reparsing geometry when generating an in-session presentation.
+pub fn measurements_for_part(part: &Part, p: &PartPmi) -> Vec<Option<Measurement>> {
+    let mut seen = std::collections::BTreeSet::new();
+    let mut edges = Vec::new();
+    for face in &part.faces {
+        for boundary in &face.loops {
+            for j in 0..boundary.edges.len() {
+                let j = if face.reversed {
+                    boundary.edges.len() - 1 - j
+                } else {
+                    j
+                };
+                let i = boundary.edges[j].0;
+                let key = part.edge_source(i).map_or(i as u64, |s| s.entity);
+                if seen.insert(key) {
+                    edges.push(Some(i));
+                }
+            }
+        }
+    }
+    measurements_with_edges(part, p, &edges)
+}
+fn measurements_with_edges(
+    part: &Part,
+    p: &PartPmi,
+    edges: &[Option<usize>],
+) -> Vec<Option<Measurement>> {
     let caster = RayCaster::for_faces(part, (0..part.faces.len()).collect());
     p.dimensions
         .iter()
@@ -422,6 +450,9 @@ pub fn measurements(
                 return None;
             }
             let nominal = d.nominal.as_ref().map_or(0., Value::si).abs();
+            if !nominal.is_finite() || nominal <= 1e-12 {
+                return None;
+            }
             let (a, b) = match d.kind {
                 DimensionKind::Location { from, to, .. } => (
                     elements(part, edges, p, from, 0),
@@ -530,7 +561,16 @@ struct Ink {
     polygons: [Vec<V3>; 2],
 }
 impl Ink {
-    fn overlaps(&self, other: &Self) -> bool {
+    fn overlaps(&self, other: &Self, view_local: bool) -> bool {
+        if view_local {
+            return geom::dot(self.normal, other.normal).abs() > 1. - 1e-8
+                && self.polygons.iter().any(|a| {
+                    other
+                        .polygons
+                        .iter()
+                        .any(|b| projected_clearance(a, b, self.normal) < 1e-8)
+                });
+        }
         VIEWS.into_iter().any(|view| {
             // Edge-on text has zero projected area and cannot be read in that view.
             geom::dot(self.normal, view).abs() > 1e-8
@@ -546,11 +586,13 @@ impl Ink {
 }
 /// Model-space ladder: shortest span first, ties in semantic order, then the first free
 /// outward rung. This is Draftwright's nesting rule, without its sheet layout.
+#[derive(Clone)]
 pub struct Ladder {
     bounds: Bounds,
     groups: Vec<(V3, V3, usize)>,
     labels: Vec<Bounds>,
     ink: Vec<Ink>,
+    compact: bool,
 }
 impl Ladder {
     pub fn new(bounds: Bounds) -> Self {
@@ -559,6 +601,15 @@ impl Ladder {
             groups: Vec::new(),
             labels: Vec::new(),
             ink: Vec::new(),
+            compact: false,
+        }
+    }
+    /// Fit-view ladder: start 0.6 capital heights outside the part and try
+    /// 0.2-height stations against actual glyph ink rather than padded label cells.
+    pub fn compact(bounds: Bounds) -> Self {
+        Self {
+            compact: true,
+            ..Self::new(bounds)
         }
     }
     pub fn reserve(&mut self, b: Bounds) {
@@ -566,6 +617,9 @@ impl Ladder {
     }
     /// Reserve circular/angular dimension text in its real annotation plane.
     pub fn reserve_dimension(&mut self, bounds: Bounds, normal: V3, along: V3) {
+        if !bounds.max_extent().is_finite() {
+            return;
+        }
         let up = geom::cross(normal, along);
         let x = range(bounds, along);
         let y = range(bounds, up);
@@ -598,13 +652,29 @@ impl Ladder {
         let gap = h / 3.;
         let overshoot = 2. * h / 3.;
         let edge = range(self.bounds, v)[1];
+        let mut local_ink = Bounds::empty();
+        for p in c.polylines().iter().flatten() {
+            local_ink.add([p[0], p[1], 0.]);
+        }
+        let ink_size = if self.compact {
+            [
+                local_ink.max[0] - local_ink.min[0],
+                local_ink.max[1] - local_ink.min[1],
+            ]
+        } else {
+            c.size
+        };
         let group = self
             .groups
             .iter()
             .position(|(u, w, _)| geom::dot(*u, d) > 1. - 1e-8 && geom::dot(*w, v) > 1. - 1e-8);
         let mut rung = group.map_or(0, |i| self.groups[i].2);
         let (centre, offset, label_bounds, ink) = loop {
-            let offset = (10. + rung as f64 * 7.) * h / 3.;
+            let offset = if self.compact {
+                (0.6 + rung as f64 * 0.2) * h
+            } else {
+                (10. + rung as f64 * 7.) * h / 3.
+            };
             let level = edge + offset;
             let a = project(geom::add(
                 m.feet[0],
@@ -616,8 +686,8 @@ impl Ladder {
             ));
             let centre = geom::scale(geom::add(a, b), 0.5);
             let mut bb = Bounds::empty();
-            for x in [-c.size[0] / 2., c.size[0] / 2.] {
-                for y in [-c.size[1] / 2., c.size[1] / 2.] {
+            for x in [-ink_size[0] / 2., ink_size[0] / 2.] {
+                for y in [-ink_size[1] / 2., ink_size[1] / 2.] {
                     bb.add(geom::add(
                         centre,
                         geom::add(geom::scale(d, x * scale), geom::scale(v, y * scale)),
@@ -632,18 +702,24 @@ impl Ladder {
                         centre,
                         d,
                         v,
-                        c.size[0] * scale + padding,
-                        c.size[1] * scale + padding,
+                        ink_size[0] * scale + padding,
+                        ink_size[1] * scale + padding,
                     ),
                     rectangle(centre, d, v, length, h / 10.),
                 ],
             };
-            let overlap = self
-                .labels
-                .iter()
-                .any(|b| super::placement::boxes_overlap(bb, *b, padding));
+            let overlap = !self.compact
+                && self
+                    .labels
+                    .iter()
+                    .any(|b| super::placement::boxes_overlap(bb, *b, padding));
             rung += 1;
-            if !overlap && !self.ink.iter().any(|other| ink.overlaps(other)) {
+            if !overlap
+                && !self
+                    .ink
+                    .iter()
+                    .any(|other| ink.overlaps(other, self.compact))
+            {
                 break (centre, offset, bb, ink);
             }
         };
@@ -697,6 +773,14 @@ impl Ladder {
         }));
         LinearPlaced {
             placed: Placed {
+                text_origin: geom::sub(
+                    centre,
+                    geom::add(
+                        geom::scale(d, c.size[0] * scale / 2.),
+                        geom::scale(up, c.size[1] * scale / 2.),
+                    ),
+                ),
+                text_scale: scale,
                 anchor: m.feet[0],
                 origin: centre,
                 normal,

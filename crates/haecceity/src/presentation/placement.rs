@@ -10,6 +10,16 @@ pub struct Placed {
     pub normal: V3,
     pub along: V3,
     pub lines: Vec<Vec<V3>>,
+    /// Actual transform used to stroke local callout coordinates into the model.
+    pub text_origin: V3,
+    pub text_scale: f64,
+}
+
+#[derive(Clone, Copy, Default)]
+struct Packing<'a> {
+    columns: Option<&'a [f64]>,
+    align_start: bool,
+    ink_bounds: bool,
 }
 
 #[derive(Clone)]
@@ -18,6 +28,8 @@ pub struct Layout {
     axes: [usize; 3],
     height: f64,
     occupied: Vec<Bounds>,
+    occupied_normals: Vec<Option<V3>>,
+    view_local: bool,
     callouts: Vec<Vec<V3>>,
     notes_bottom: Option<f64>,
     kept_notes: Vec<Bounds>,
@@ -25,6 +37,14 @@ pub struct Layout {
 impl Layout {
     pub fn new(bounds: Bounds) -> Self {
         Self::with_unit(bounds, 1.)
+    }
+    /// Generated saved views contain their own annotation planes. Pack parallel
+    /// planes together, without moving text to clear unrelated camera planes.
+    pub(crate) fn for_views(bounds: Bounds) -> Self {
+        Self {
+            view_local: true,
+            ..Self::new(bounds)
+        }
     }
     pub fn with_unit(bounds: Bounds, mm_per_unit: f64) -> Self {
         let mut axes = [0, 1, 2];
@@ -43,6 +63,8 @@ impl Layout {
             axes,
             height: text_height(largest * mm_per_unit) / mm_per_unit,
             occupied: Vec::new(),
+            occupied_normals: Vec::new(),
+            view_local: false,
             callouts: Vec::new(),
             notes_bottom: None,
             kept_notes: Vec::new(),
@@ -59,6 +81,7 @@ impl Layout {
         }
         if b.max_extent().is_finite() {
             self.occupied.push(b);
+            self.occupied_normals.push(None);
         }
     }
     /// Keep appended notes clear of existing notes in the front plane.
@@ -109,7 +132,11 @@ impl Layout {
             let collisions = self
                 .occupied
                 .iter()
-                .filter(|b| boxes_overlap(bounds, **b, 0.2 * self.height))
+                .zip(&self.occupied_normals)
+                .filter(|(b, n)| {
+                    (!self.view_local || n.is_none_or(|n| geom::dot(n, normal).abs() > 1. - 1e-8))
+                        && boxes_overlap(bounds, **b, 0.2 * self.height)
+                })
                 .count();
             if best
                 .as_ref()
@@ -123,6 +150,8 @@ impl Layout {
                         normal,
                         along,
                         lines,
+                        text_origin: at([0., 0.]),
+                        text_scale: scale,
                     },
                     bounds,
                 ));
@@ -133,6 +162,7 @@ impl Layout {
         }
         let (_, placed, bounds) = best?;
         self.occupied.push(bounds);
+        self.occupied_normals.push(Some(placed.normal));
         Some(placed)
     }
     /// Front-plane notes column beside the part's lower-right X/Z corner.
@@ -197,6 +227,8 @@ impl Layout {
             normal: [0., -1., 0.],
             along: [1., 0., 0.],
             lines,
+            text_origin: origin,
+            text_scale: scale,
         }
     }
     fn along(&self, normal: V3) -> V3 {
@@ -232,6 +264,49 @@ impl Layout {
         self.face_callout(anchor, outward, c, None)
     }
     pub fn on_feature(&mut self, anchor: V3, outward: V3, c: &Callout, extent: f64) -> Placed {
+        self.feature_callout(anchor, outward, c, extent, Packing::default())
+    }
+    /// A text label reserves its actual ink, without the notation cell's padding.
+    pub(crate) fn on_label(&mut self, anchor: V3, outward: V3, c: &Callout, extent: f64) -> Placed {
+        self.feature_callout(
+            anchor,
+            outward,
+            c,
+            extent,
+            Packing {
+                ink_bounds: true,
+                ..Packing::default()
+            },
+        )
+    }
+    /// Attach a control frame near its first cell rather than centring its whole
+    /// potentially long datum-reference row on the feature.
+    pub(crate) fn on_control(
+        &mut self,
+        anchor: V3,
+        outward: V3,
+        c: &Callout,
+        extent: f64,
+    ) -> Placed {
+        self.feature_callout(
+            anchor,
+            outward,
+            c,
+            extent,
+            Packing {
+                align_start: true,
+                ..Packing::default()
+            },
+        )
+    }
+    fn feature_callout(
+        &mut self,
+        anchor: V3,
+        outward: V3,
+        c: &Callout,
+        extent: f64,
+        packing: Packing<'_>,
+    ) -> Placed {
         let outward = geom::unit(outward).unwrap_or([0., 0., 1.]);
         let mut best = None;
         // Try both readable tangents around the feature normal. A small bore need
@@ -251,14 +326,33 @@ impl Layout {
                 normal = geom::scale(normal, -1.);
             }
             let mut candidate = self.clone();
-            let p = candidate.draw(anchor, [along, outward, normal], c, true, Some(extent));
-            let reach = p
-                .lines
-                .last()
-                .into_iter()
-                .flatten()
-                .map(|q| geom::dist(anchor, *q))
-                .fold(0., f64::max);
+            let p = candidate.draw_columns(
+                anchor,
+                [along, outward, normal],
+                c,
+                (true, Some(extent)),
+                packing,
+            );
+            let reach = if packing.align_start {
+                let run = &c.runs[0];
+                geom::dist(
+                    anchor,
+                    geom::add(
+                        p.text_origin,
+                        geom::add(
+                            geom::scale(p.along, run.at[0] * p.text_scale),
+                            geom::scale(geom::cross(p.normal, p.along), run.at[1] * p.text_scale),
+                        ),
+                    ),
+                )
+            } else {
+                p.lines
+                    .last()
+                    .into_iter()
+                    .flatten()
+                    .map(|q| geom::dist(anchor, *q))
+                    .fold(0., f64::max)
+            };
             if best.as_ref().is_none_or(|(r, _, _)| reach < *r) {
                 best = Some((reach, p, candidate));
             }
@@ -285,7 +379,10 @@ impl Layout {
                 [along, outward, axis],
                 c,
                 (true, Some(extent)),
-                Some(&[-1., 1., -2., 2., -3., 3.]),
+                Packing {
+                    columns: Some(&[-1., 1., -2., 2., -3., 3.]),
+                    ..Packing::default()
+                },
             );
             let reach = placed
                 .lines
@@ -329,7 +426,7 @@ impl Layout {
         face: bool,
         feature_extent: Option<f64>,
     ) -> Placed {
-        self.draw_columns(anchor, basis, c, (face, feature_extent), None)
+        self.draw_columns(anchor, basis, c, (face, feature_extent), Packing::default())
     }
     fn draw_columns(
         &mut self,
@@ -337,14 +434,29 @@ impl Layout {
         basis: [V3; 3],
         c: &Callout,
         placement: (bool, Option<f64>),
-        columns: Option<&[f64]>,
+        packing: Packing<'_>,
     ) -> Placed {
         let (face, feature_extent) = placement;
         let [along, outward, normal] = basis;
         let h = self.height;
         let scale = (h / 3.).min(0.32 * self.bounds.max_extent().max(h) / c.size[0].max(1.));
-        let width = c.size[0] * scale;
-        let height = c.size[1] * scale;
+        let local = c.polylines();
+        let mut ink = Bounds::empty();
+        for p in local.iter().flatten() {
+            ink.add([p[0], p[1], 0.]);
+        }
+        let size = if packing.ink_bounds && ink.max_extent().is_finite() {
+            [ink.max[0] - ink.min[0], ink.max[1] - ink.min[1]]
+        } else {
+            c.size
+        };
+        let alignment = if packing.align_start {
+            (ink.centre()[0] - c.runs[0].at[0]) * scale
+        } else {
+            0.
+        };
+        let width = size[0] * scale;
+        let height = size[1] * scale;
         let up = geom::cross(normal, along);
         let mut chosen = anchor;
         let mut chosen_box = Bounds::empty();
@@ -362,7 +474,7 @@ impl Layout {
                 })
                 .to_vec()
         };
-        let columns: &[f64] = columns.unwrap_or(if face && c.cells.len() == 1 {
+        let columns: &[f64] = packing.columns.unwrap_or(if face && c.cells.len() == 1 {
             &[0.]
         } else {
             &[0., -1., 1., -2., 2., -3., 3.]
@@ -386,7 +498,7 @@ impl Layout {
                     geom::scale(outward, gap + height / 2. + row as f64 * (height + h)),
                     geom::scale(
                         along,
-                        column * (width / 2. + feature_extent.map_or(2. * h, |_| gap)),
+                        alignment + column * (width / 2. + feature_extent.map_or(2. * h, |_| gap)),
                     ),
                 ),
             );
@@ -401,31 +513,40 @@ impl Layout {
             }
             chosen = centre;
             chosen_box = b;
-            if !self.occupied.iter().any(|r| boxes_overlap(b, *r, 0.2 * h))
+            if !self
+                .occupied
+                .iter()
+                .zip(&self.occupied_normals)
+                .any(|(r, n)| {
+                    (!self.view_local || n.is_none_or(|n| geom::dot(n, normal).abs() > 1. - 1e-8))
+                        && boxes_overlap(b, *r, 0.2 * h)
+                })
                 && (!projected
                     || self.callouts.iter().all(|other| {
                         let other_normal = geom::cross(
                             geom::sub(other[1], other[0]),
                             geom::sub(other[3], other[0]),
                         );
-                        super::linear::VIEWS.into_iter().all(|view| {
-                            (geom::dot(normal, view).abs() < 1e-8
-                                && geom::dot(other_normal, view).abs() < 1e-8)
-                                || polygon_clearance(&rectangle(centre), other, view) >= 0.2 * h
-                        })
+                        if self.view_local {
+                            geom::unit(other_normal)
+                                .is_none_or(|n| geom::dot(n, normal).abs() < 1. - 1e-8)
+                                || polygon_clearance(&rectangle(centre), other, normal) >= 0.2 * h
+                        } else {
+                            super::linear::VIEWS.into_iter().all(|view| {
+                                (geom::dot(normal, view).abs() < 1e-8
+                                    && geom::dot(other_normal, view).abs() < 1e-8)
+                                    || polygon_clearance(&rectangle(centre), other, view) >= 0.2 * h
+                            })
+                        }
                     }))
             {
                 break;
             }
         }
         self.occupied.push(chosen_box);
+        self.occupied_normals.push(Some(normal));
         if projected {
             self.callouts.push(rectangle(chosen));
-        }
-        let local = c.polylines();
-        let mut ink = Bounds::empty();
-        for p in local.iter().flatten() {
-            ink.add([p[0], p[1], 0.]);
         }
         let mid = if ink.max_extent().is_finite() {
             ink.centre()
@@ -485,6 +606,8 @@ impl Layout {
         Placed {
             anchor: round(anchor),
             origin: at([ink.min[0], ink.min[1]]),
+            text_origin: at([0., 0.]),
+            text_scale: scale,
             normal,
             along,
             lines,

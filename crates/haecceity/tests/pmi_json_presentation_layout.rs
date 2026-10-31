@@ -500,6 +500,7 @@ fn generated_text_metadata_matches_the_placed_glyph_ink() {
     for p in graphic
         .polylines
         .iter()
+        .skip(10) // Measured linear dimensions precede lettering with ten witness/arrow lines.
         .take(callout.polylines().len())
         .flatten()
     {

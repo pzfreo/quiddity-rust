@@ -3525,6 +3525,8 @@ impl<'a> PartPlan<'a> {
                     // bare-number slot that would push the control frames away.
                     crate::presentation::placement::Placed {
                         anchor: tip,
+                        text_origin: tip,
+                        text_scale: 1.,
                         origin: tip,
                         normal: [0., 0., 1.],
                         along: [1., 0., 0.],
