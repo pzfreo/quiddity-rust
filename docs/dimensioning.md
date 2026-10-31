@@ -44,8 +44,9 @@ The height ladder uses only interior horizontal support proposals (0.5 mm cluste
 1% projected area, interior margin min(0.6 mm, a quarter of the body's height)).
 Pocket/recess floors and walls, slot walls, boss/pad tops, turned faces, chamfers,
 fillets and other later-slice feature faces remain owned by their accepted families;
-they never become raw plane intervals. Pocket floor ownership includes consulted
-constituent faces from the same recognition run, rather than just defining walls. Hole floors belong to their hole depth.
+they never become raw plane intervals. Pocket floor and cylindrical boss cap ownership includes consulted
+constituent faces from the same recognition run, rather than just defining walls. Hole floors and bounded axial annular shoulders adjacent to recognised hole walls
+belong to their hole size/depth; larger entry/support faces remain step evidence.
 Unclaimed interior planes outside the ladder/shoulders are explicitly deferred as
 `non-step plane`. Outer prismatic extents remain required; a curved prismatic side
 can use a synthetic support. A turned envelope acquires no Cartesian requirements.

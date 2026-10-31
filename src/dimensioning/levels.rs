@@ -216,7 +216,7 @@ pub(super) fn recognise(
         .flat_map(|(family, records)| records.iter().map(|faces| deferred(family, faces)))
         .collect();
     for d in &mut deferreds {
-        if (d.family.contains("pocket") || d.family.contains("recess"))
+        if (d.family.contains("pocket") || d.family.contains("recess") || d.family == "bosses")
             && let Some(faces) = constituents.get(d.id.trim_start_matches("deferred:"))
         {
             d.faces = faces.clone();
@@ -228,15 +228,54 @@ pub(super) fn recognise(
             d.faces = r.evidence().constituent_faces().to_vec();
         }
     }
-    let owned: BTreeSet<_> = deferreds
+    let mut owned: BTreeSet<_> = deferreds
         .iter()
         .flat_map(|d| d.faces.iter().copied())
-        .chain(
-            ["holes", "countersinks"]
-                .into_iter()
-                .flat_map(|family| found.defining[family].iter().flatten().copied()),
-        )
+        .chain(["holes", "countersinks"].into_iter().flat_map(|family| {
+            found.defining[family].iter().flat_map(|faces| {
+                let id = super::recognition::face_id(family, faces);
+                faces
+                    .iter()
+                    .copied()
+                    .chain(constituents.get(&id).into_iter().flatten().copied())
+                    .collect::<Vec<_>>()
+            })
+        }))
         .collect();
+    // Annular machining shoulders can be neither defining walls nor terminal evidence.
+    // A bounded axial plane adjacent to a hole wall belongs to that hole's size/depth,
+    // whereas a larger entry/support face remains available to the part's step ladder.
+    for (h, faces) in found.holes.iter().zip(&found.defining["holes"]) {
+        let Some(axis) = super::rules::principal(h.axis) else {
+            continue;
+        };
+        let radius = std::iter::once(h.diameter)
+            .chain(
+                h.cbore
+                    .iter()
+                    .chain(&h.spotface)
+                    .chain(&h.outer_steps)
+                    .map(|s| s.diameter),
+            )
+            .chain(h.csink.iter().map(|s| s.major_diameter))
+            .fold(0., f64::max)
+            / 2.;
+        for f in faces.iter().flat_map(|&f| part.neighbours(f)) {
+            let crate::kernel::geom::Surface::Plane { frame } = &part.faces[f].surface else {
+                continue;
+            };
+            if super::rules::principal(frame.z) != Some(axis) {
+                continue;
+            }
+            let b = part.face_bounds(f);
+            if (0..3).filter(|&k| k != axis).all(|k| {
+                b.min[k] >= h.location[k] - radius - 1e-4
+                    && b.max[k] <= h.location[k] + radius + 1e-4
+            }) {
+                owned.insert(f);
+            }
+        }
+    }
     let eligible = |faces: &[usize]| faces.iter().any(|f| !owned.contains(f));
     let plates: Vec<_> = found
         .plates

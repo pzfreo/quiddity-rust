@@ -796,3 +796,66 @@ fn recognition_keeps_the_unowned_step_height_in_a_mixed_part() {
             .any(|d| d.family.contains("pocket") || d.family.contains("recess"))
     );
 }
+
+#[test]
+fn cylindrical_boss_caps_are_deferred_with_their_consulted_faces() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/revisions/boss_resized.old.step.gz");
+    let part = crate::read_step_file(&path).unwrap();
+    let i = Input::from_recognition(&part, vec![], Policy::default()).unwrap();
+    let local = part.transformed(&i.frame.normalisation()).unwrap();
+    let found = crate::features::recognise(&local);
+    assert!(!found.bosses.is_empty());
+    for (boss, defining) in found.bosses.iter().zip(&found.defining["bosses"]) {
+        let axis = super::rules::principal(boss.axis).unwrap();
+        let cap = local
+            .faces
+            .iter()
+            .enumerate()
+            .find_map(|(f, face)| {
+                let crate::kernel::geom::Surface::Plane { frame } = &face.surface else {
+                    return None;
+                };
+                (super::rules::principal(frame.z) == Some(axis)
+                    && (frame.origin[axis] - boss.location[axis]).abs() < 1e-6)
+                    .then_some(f)
+            })
+            .expect("the fixture's cylindrical boss has a planar cap");
+        assert!(
+            !defining.contains(&cap),
+            "cap is consulted rather than defining"
+        );
+        assert!(
+            i.deferred
+                .iter()
+                .any(|d| d.family == "bosses" && d.faces.contains(&cap))
+        );
+        assert!(i.steps.heights.iter().all(|s| !s.faces.contains(&cap)));
+        assert!(
+            i.steps
+                .shoulders
+                .iter()
+                .all(|p| !p.support.faces.contains(&cap))
+        );
+    }
+}
+
+#[test]
+fn annular_counterbore_floor_is_owned_by_the_hole_depth_not_the_ladder() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/golden_counterbored_and_countersunk_holes.step");
+    let part = crate::read_step_file(&path).unwrap();
+    let i = Input::from_recognition(&part, vec![], Policy::default()).unwrap();
+    assert!(
+        i.holes
+            .iter()
+            .any(|h| h.details.iter().any(|s| s.role == "counterbore.depth"))
+    );
+    assert!(i.steps.heights.is_empty());
+    assert!(
+        plan(&i)
+            .0
+            .iter()
+            .any(|r| matches!(&r.kind,Kind::Size {role,..} if role=="counterbore.depth"))
+    );
+}
