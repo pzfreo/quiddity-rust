@@ -29,6 +29,10 @@ in [docs/alpha1.md](docs/alpha1.md).
 - Blank and whitespace-only general-note rows retain spacing without emitting empty
   tessellated curve sets. Specify can remove its `(blank)` workaround.
 
+- Correct stale optional-NIST tolerance-relation refusal pins against read/replace/read:
+  FTC-08 retains all six relations; FTC-09 still loses dependent endpoints of refused groups.
+  The writer already emits composite, precedence and simultaneity relationships.
+
 ## 0.2.6 (2026-10-30)
 
 Upgrading from 0.2.5: recognition schema `/6` and fingerprints `/3` are unchanged. haecceity's

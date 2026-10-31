@@ -8,12 +8,12 @@
   "Hole: hole definitions (basic_round_hole) are read but not written yet (design: question Q-holes)": "Edition 4 hole occurrences' basic_round_hole definitions (NIST STC-09) are read into PartPmi.holes, but the writer does not write them yet (docs/step-ap242.md question 7, Q-holes); refused by name so that a replace never drops them silently. The occurrences' faces are still written as their features (the written file is unchanged).",
   "Note: notes are the non-standard 'manufacturing requirement' text route, which is not written (decision N)": "specify-core's 'manufacturing requirement' properties (threads, knurls, finish, edge condition, general tolerances as text) are not a standard AP242 form; maintainer decision 5: not written.",
   "Tolerance: a projected tolerance zone without its projection end (§N.N.N.N)": "NIST CTC-04's projected zone names a projection end that identifies no face (read through with a finding); §6.9.2.2 requires the end, so the writer refuses the tolerance rather than write an empty shape aspect.",
-  "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": "Writing tolerance relations (composite feature control frames) is out of scope for this stage (design: Out of scope); refused by name, left out of the round trip.",
   "no part definitions": "NIST FTC-08's -tg file is tessellated only: read_part_definitions finds no solid or shell with faces, so there is no part to write to (as for the reader).",
   "removal refused": "The file has PMI of the part the reader did not read (an unread tolerance whose toleranced feature or datum did not resolve, with its measure qualification, pinned in read/findings.json) that references instances the replace removes; kept PMI must not dangle, so the replace is refused naming it (design item 6: anything else blocks). The id_attributes listed beside it would be removed with their items.",
   "Datum: datum … requires targets whose §N.N description conflicts with datum_target WRN": "Historical refusal retired by maintainer decision 2026-10-20: write the practice §6.6 form with narrowly reported addition-only WR5 exemptions. The 13 CTC-02/FTC-10 targets and their datums now pass clean-copy and full-file round trips; the raw NIST file-wrong rule pins remain unchanged.",
   "DatumTarget: §N.N states the target shape in its description, but datum_target WRN forbids it; omitting the description passes the rules with UNKNOWN but loses the target shape": "Historical refusal retired by maintainer decision 2026-10-20: write the practice §6.6 form with narrowly reported addition-only WR5 exemptions. The 13 CTC-02/FTC-10 targets and their datums now pass clean-copy and full-file round trips; the raw NIST file-wrong rule pins remain unchanged.",
-  "practice/schema conflicts": "Maintainer decision 2026-10-20: actual raw violations on explicitly registered target/decimal-only cell additions only. Every other rule and structural schema validation remains mandatory; target WR4 is avoided by writing empty names."
+  "practice/schema conflicts": "Maintainer decision 2026-10-20: actual raw violations on explicitly registered target/decimal-only cell additions only. Every other rule and structural schema validation remains mandatory; target WR4 is avoided by writing empty names.",
+  "tolerance relations": "Written as GEOMETRIC_TOLERANCE_RELATIONSHIP with composite, precedence or simultaneity names and resolved endpoints (pmi/write.rs tolerance_relations loop). Existing pmi_gaps round trips exercise all three. The 2026-10-31 optional full-NIST run reads/replaces/reads all six FTC-08 relations with no differences or relation refusal; its input SHA-256 remains 7b9283b4288d152fd181d76c39285d7c79fbba34fda1e14a41ac4a983f6d68b3. FTC-09 still loses two relations only because their endpoint tolerances depend on refused unstated-kind groups."
  },
  "roundtrip": {
   "assembly": {
@@ -81,17 +81,6 @@
   },
   "nist_ftc_06_asme1_ap242-e2": {
    "error": "removal refused: {\"other id_attribute\": 27, \"semantic-pmi (geometric_tolerance geometric_tolerance_with_datum_reference surface_profile_tolerance)\": 1, \"semantic-pmi measure_qualification\": 1}",
-   "left out": {
-    "datum targets": 6,
-    "datums": 4,
-    "tolerance relations": 4,
-    "tolerances": 4
-   },
-   "refused": {
-    "Datum: datum … is established by datum targets, which are not written yet": 4,
-    "DatumTarget: datum targets are read but not written yet (design: Out of scope)": 6,
-    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 4
-   },
    "sha256": "b87afb7f25adc0d44d12e182209d50f0b085b533c0742fb8ffd58f4c87403447"
   },
   "nist_ftc_07_asme1_ap242-e2": {
@@ -108,14 +97,8 @@
   },
   "nist_ftc_08_asme1_ap242-e2": {
    "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 3 1 4 } has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
-   "left out": {
-    "tolerance relations": 6
-   },
    "presentation removed": 1267,
    "refuse policy": "refused: 115 presentation blockers of 115",
-   "refused": {
-    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 6
-   },
    "sha256": "7b9283b4288d152fd181d76c39285d7c79fbba34fda1e14a41ac4a983f6d68b3"
   },
   "nist_ftc_09_asme1_ap242-e1": {
@@ -127,8 +110,7 @@
     "tolerances": 14
    },
    "refused": {
-    "Feature: a group of unstated kind (§N.N requires 'multiple elements' or 'pattern of features')": 11,
-    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 2
+    "Feature: a group of unstated kind (§N.N requires 'multiple elements' or 'pattern of features')": 11
    },
    "sha256": "f1215fe15a78085a9fa78dd81714caf774b59071be92580b04ebfdc19f52a1bd"
   },
@@ -155,24 +137,12 @@
   },
   "nist_stc_07_asme1_ap242-e3": {
    "edition": "undetermined: AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF  {1 0 10303 442 4 1 4} has no table; validated against AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF { 1 0 10303 442 7 1 4 }",
-   "left out": {
-    "tolerance relations": 6
-   },
    "presentation removed": 3446,
    "refuse policy": "refused: 382 presentation blockers of 394",
-   "refused": {
-    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 6
-   },
    "sha256": "2dddf9b8894bc241f7ffddf3dc4502baa3d49c374e8784039d14b86473d54832"
   },
   "nist_stc_08_asme1_ap242-e3": {
    "error": "removal refused: {\"other id_attribute\": 21, \"semantic-pmi (geometric_tolerance geometric_tolerance_with_datum_reference surface_profile_tolerance)\": 1, \"semantic-pmi measure_qualification\": 1}",
-   "left out": {
-    "tolerance relations": 4
-   },
-   "refused": {
-    "ToleranceRelation: tolerance relations (composite frames) are read but not written yet (design: Out of scope)": 4
-   },
    "sha256": "64f24b914910ce8e20c9e4bd59637b4fd155715c7c7b51689466534ed7db1442"
   },
   "nist_stc_09_asme1_ap242-e4": {
