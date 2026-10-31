@@ -10,3 +10,9 @@ keeps the diameter dimension, flatness tolerance and tolerance-owned note from
 These fixtures intentionally retain `.0` tokens, caller ids and face-name anchors.
 The tests compare complete JSON values after import/export, validate the written
 schema/rules and cover every note owner, including requirements sharing support.
+
+Round 3: `density-integer-exponents.json` is the producer's minimal g/cm³ unit
+case (integer-spelled exponents). `invalid-density.step.gz` adds only a 13-entity
+material graph to the shared geometry, reproducing OCCT's gram³ × centimetre²
+density; it must retain the material name, omit density and name the dimensional
+reason in a finding. Both old SI-gram and new conversion-based gram are tested.

@@ -611,7 +611,12 @@ toleranced relationships are no longer misread as feature composition; document 
 - **Density (Material Identification and Density R2.1 §4.2)**: 'material property'/'density'
   holds a 'density measure' in its own `derived_unit`. Kilograms are `MASS_UNIT` +
   `SI_UNIT(.KILO.,.GRAM.)`; metres are a length unit, with exponents 1 and -3, respectively.
-  Gram/centimetre and the other supported SI prefixes retain their stated scale and digits.
+  For #142, gram and milligram use conversion-based mass units of 0.001 and 0.000001 kg,
+  following [UDA v1.8 Annex C.1/C.4.2](https://www.mbx-if.org/home/wp-content/uploads/2024/05/rec_prac_user_def_attributes_v18.pdf).
+  This applies to the ordinary writer too; only the two `pmi_gaps_gram` goldens change,
+  with unchanged XCAF captures apart from their source hashes. Density values and
+  gram/centimetre scale remain stated. Reading also accepts the older SI-gram form,
+  and reports a finding when derived-unit dimensions are not M L^-3.
   Unknown scale names and exponents other than aggregate M L^-3 are refused; no geometry
   unit is substituted for the density unit.
 - **Affected planes (§6.9.2.1 Figures 53–54)**: a shape-aspect relationship from the tolerance
@@ -704,7 +709,7 @@ semantic difference. The absent `specify_core` application loader remains explic
 
 Other refusals remain: target sizes/placements that cannot be stated validly, non-exempt movable-target WR3 failures, an unstated group kind, a dimension without its nominal (§5.2.1), a
 projected zone whose model holds no origin geometry (§6.9.2.2), thread/knurl parameter counts
-outside their WHERE rules, non-REAL decimal text, unresolved attribute units/boolean values,
+outside their WHERE rules, non-finite/unrepresentable REAL values, unresolved attribute units/boolean values,
 and the separately scoped hole-definition writer (question 7). They are not silently omitted.
 
 ## Requirements

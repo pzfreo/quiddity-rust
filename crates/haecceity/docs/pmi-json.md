@@ -46,7 +46,19 @@ Canonical files are `crates/haecceity/docs/pmi-json.md` and
 canonical files. Specify's Python package can copy the two schemas into
 `specify_core/schema/` as package data and expose the reference in its documentation;
 that separate repository is not modified here. Rust exposes the schema texts as
-constants under the opt-in `json` feature, independent of `presentation`.
+constants under the opt-in `json-import` feature, independent of `presentation`.
+
+`haecceity/json` is serialization only: `identify`, `identify_with_anchors`,
+`to_value`, `to_string`, and As Drawn/generated presentation export. It uses a
+small generated typed traversal, with no embedded schema, schema engine, JSON
+parser, model deserializer, importer, or transport-order restoration. Native STEP
+exports use index anchors; supplied typed semantic values retain their ids.
+`haecceity/json-import` implies `json` and adds parsing, schema constants,
+validation, `from_value`/`from_str`, writing and checked transport restoration.
+This is the feature for lossless re-import of a JSON producer's custom aliases.
+The CLI's `json-import` feature enables the complete command set; its previous
+`json` feature is retained as a compatibility alias. `presentation` stays separate.
+`examples/json_wasm_size.rs` provides a reproducible WASM size probe.
 
 A document is `{ "schema": "haecceity.pmi/1", "units": { "length": [...],
 "angle": [...], "density": [...], "other": [...] }, "pmi": { ... } }`. The machine-readable schemas use JSON
@@ -91,11 +103,23 @@ For example a diameter size kind is `"diameter"`, a tolerance kind is
 The `$defs` enumerate every alternative and field without relying on this prose.
 
 Decimals are strings, including directions, geometry real values and ratios.
+Integer mantissas and either exponent case are accepted. When a STEP REAL is
+required, the writer adds a decimal point and uppercases `e` as needed (e.g.
+`-3` → `-3.`, `2e1` → `2.E1`), without changing the exact value. JSON transport
+retains and checks the original spelling, including derived-unit exponents.
+Already legal REAL spellings stay verbatim. COUNT_MEASURE still permits native
+integer tokens. Non-finite/unrepresentable REALs are refused by validation and import.
 `Length.unit`, `Angle.unit` and `Geometry.length_unit` are id references into the
 appropriate **document-level** unit table by id; mixed units retain their original
 values without conversion. Unit definitions include named SI/conversion units
 and `other` with the stated exact metres/radians factor. `Density.unit` references `units.density` by id, whose definitions retain the model's
-derived factors (base-unit names and decimal exponents). Other measured attribute
+derived factors (base-unit names and decimal exponents).
+Both writers use [CAx-IF UDA v1.8 Annex C.1 and C.4.2](https://www.mbx-if.org/home/wp-content/uploads/2024/05/rec_prac_user_def_attributes_v18.pdf):
+SI mass is kilogram; gram is a conversion-based mass unit with factor `0.001 kg`
+(and milligram `0.000001 kg`). This follows the explicit g/cm³ example in C.4.2,
+leaving density values, unit names and JSON statements unchanged. Reading also
+accepts older unprefixed SI gram. A derived unit with dimensions other than
+mass/length³ is omitted from density with an explicit read finding. Other measured attribute
 units reference `units.other` by id, preserving their source unit names. Every unit therefore
 lives at document level, including units the model holds only by name.
 
@@ -318,17 +342,37 @@ The reader already recognises this manufacturing-requirement form. A property
 named `semantic text` associated with a general property remains an AttributeSet;
 the two collections are intentionally distinct. Callout observations are retained
 as transport bindings; presentation JSON does not create drawn geometry.
- Feature and
-attribute order, optional descriptions (including null), and general-property
-fields are retained. A transport ordering association records item IDs and
-support projections without replacing native semantic PMI as authority.
-Its `property_definition('haecceity.pmi/1 ordering',…,part)` representation
-contains an `ordering` descriptive item with collection IDs, semantic content
-keys, reference bindings, unit IDs/definitions/order, anchor order, and callout observations. The reader
-rebuilds collections from independently decoded native items and verifies every
-resolved content key. Corrupt or stale ordering records are refused. This metadata
-also distinguishes equal support projections that the native representation shares.
-The carrier lookup cache is crate-private and excluded from `PmiRead` equality.
+
+Feature and attribute order, optional descriptions (including null), and
+general-property fields are retained. The following is a **haecceity producer
+convention**, not a CAx-IF-defined requirement:
+`PROPERTY_DEFINITION('haecceity.pmi/1 ordering',
+'Transport ordering and reference aliases; native PMI remains authoritative',
+<product_definition_shape>)` has a representation containing one
+`DESCRIPTIVE_REPRESENTATION_ITEM('ordering', <compact JSON>)`. SFA may display
+this ordinary property in its property worksheet; it contains no second copy of
+the semantic values.
+
+The JSON contains `items`, grouped by collection, with each caller id, a checked
+native content digest and only necessary reference/sequence/support bindings.
+Empty collections/maps, null bindings, empty callouts and wire anchors are
+omitted. A native singleton face/edge support does not repeat its anchor. Unit
+identities/definitions/order are retained when present; empty tables are omitted.
+Reference bindings use `[collection ordinal, item ordinal]` into this record,
+avoiding repeated id strings. Collection ordinals follow: features, geometry,
+derived_geometry, datum_targets, datums, dimensions, tolerances,
+tolerance_relations, general, threads, knurls, notes, surface_textures, attributes.
+`spellings` retains decimal tokens lost by REAL encoding or exact conversion-unit arithmetic.
+Wire-name/fingerprint anchors, support order/aliases and nonempty callout
+observations remain because native STEP does not recover those exact JSON forms.
+The reader accepts the previous verbose field/default and reference-object forms.
+
+The reader rebuilds collections from independently decoded native items and
+verifies every resolved content key and spelling before restoration. Corrupt or
+stale records are refused. Content digests and alias bindings remain necessary:
+native SETs and shared carriers cannot recover caller order or distinguish equal
+support projections. The carrier lookup cache is crate-private and excluded
+from `PmiRead` equality.
 
 `pmi::write::differences` retains the ordinary STEP writer's comparison of resolved
 meaning as sets, accepting equivalent support aliases and collection order.

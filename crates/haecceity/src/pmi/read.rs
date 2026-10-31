@@ -37,14 +37,14 @@ pub fn read(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadErr
     read_impl(
         doc,
         parts,
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         true,
     )
 }
 
 /// Read authoritative native AP242 values and ids without applying JSON transport
 /// order/aliases. Useful for auditing or recovering stale ordering metadata.
-#[cfg(feature = "json")]
+#[cfg(feature = "json-import")]
 pub fn read_native(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, ReadError> {
     read_impl(doc, parts, false)
 }
@@ -52,7 +52,7 @@ pub fn read_native(doc: &Document, parts: &[PartDefinition]) -> Result<PmiRead, 
 fn read_impl(
     doc: &Document,
     parts: &[PartDefinition],
-    #[cfg(feature = "json")] restore: bool,
+    #[cfg(feature = "json-import")] restore: bool,
 ) -> Result<PmiRead, ReadError> {
     for p in parts {
         for id in [p.product_definition, p.shape] {
@@ -95,7 +95,7 @@ fn read_impl(
         #[cfg(feature = "json")]
         json_carriers: r.json_carriers,
     };
-    #[cfg(feature = "json")]
+    #[cfg(feature = "json-import")]
     if restore {
         crate::json::transport::restore(doc, &mut result)
             .map_err(|e| ReadError::Transport(e.to_string()))?;
@@ -5356,10 +5356,16 @@ impl<'a> Reader<'a> {
                             );
                             return;
                         };
-                        found = Some(Density {
+                        let density = Density {
                             value,
                             unit: elements,
-                        });
+                        };
+                        if !density.is_mass_per_volume() {
+                            self.find(FindingKind::Nonconformance, part, item, &[pdef, unit],
+                                "density derived unit is not mass / length cubed (mass 1, length -3); not read");
+                            return;
+                        }
+                        found = Some(density);
                         prov.extend([pdr, rep, item]);
                     }
                 }

@@ -1,29 +1,42 @@
 //! Lossless semantic PMI JSON, beside `pmi` and `presentation`.
 //!
-//! Use [`to_value`] / [`from_value`] for the versioned wire form. Serde on the
+//! Use `to_value` / `from_value` (with `json-import`) for the versioned wire form. Serde on the
 //! underlying model is an implementation detail: it has neither ids nor a unit table.
 //! See the packaged `docs/pmi-json.md` and the schema constants.
 use crate::p21::{Attribute, Document};
-use crate::pmi::{self, PartIdentifiers, PartPmi};
+#[cfg(feature = "json-import")]
+use crate::pmi;
+use crate::pmi::{PartIdentifiers, PartPmi};
 use crate::step::PartDefinition;
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
+#[cfg(feature = "json-import")]
 use std::sync::OnceLock;
 
+mod walk;
+
 mod identity;
+#[cfg(feature = "json-import")]
 pub(crate) mod invariants;
+#[cfg(feature = "json-import")]
 mod parse;
 /// The file's As Drawn graphics and generated notation, keyed by semantic id.
 pub mod presentation;
+#[cfg(feature = "json-import")]
 mod preserve;
+#[cfg(feature = "json-import")]
 mod schema;
 mod topology;
+#[cfg(feature = "json-import")]
 pub(crate) mod transport;
 mod units;
+#[cfg(feature = "json-import")]
 pub use parse::parse;
 pub use topology::AnchorBinding;
 
+#[cfg(feature = "json-import")]
 pub const PMI_SCHEMA: &str = include_str!("../../schema/haecceity.pmi-1.json");
+#[cfg(feature = "json-import")]
 pub const PRESENTATION_SCHEMA: &str = include_str!("../../schema/haecceity.presentation-1.json");
 pub(crate) const COLLECTIONS: &[&str] = &[
     "features",
@@ -57,6 +70,7 @@ impl From<serde_json::Error> for Error {
     }
 }
 
+#[cfg(feature = "json-import")]
 fn pmi_schema() -> &'static Value {
     static S: OnceLock<Value> = OnceLock::new();
     #[allow(
@@ -129,6 +143,7 @@ impl Anchors {
         Ok(())
     }
 
+    #[cfg(feature = "json-import")]
     fn resolve(&self, v: &Value) -> Result<usize> {
         if let Some(i) = v.as_u64() {
             let i = usize::try_from(i).map_err(|_| Error("face index out of range".into()))?;
@@ -206,6 +221,7 @@ pub fn identify_with_anchors(
     identity::identify(pmi, identifiers, anchors)
 }
 
+#[cfg(feature = "json-import")]
 fn model_schema() -> Value {
     let mut schema = pmi_schema()["$defs"]["PartPmi"].clone();
     for &c in COLLECTIONS {
@@ -238,26 +254,20 @@ pub fn to_value(p: &Semantic) -> Result<Value> {
         }
     }
     let mut raw = serde_json::to_value(&p.pmi)?;
-    schema::walk(
-        &mut raw,
-        &model_schema(),
-        pmi_schema(),
-        &mut |kind, value| {
-            if let Some(collection) = reference_collection(kind) {
-                let index = value
-                    .as_u64()
-                    .ok_or_else(|| Error(format!("invalid {kind}")))?
-                    as usize;
-                *value = json!(
-                    p.ids
-                        .get(collection)
-                        .and_then(|ids| ids.get(index))
-                        .ok_or_else(|| Error(format!("unknown {collection} index {index}")))?
-                );
-            }
-            Ok(())
-        },
-    )?;
+    walk::model(&mut raw, &mut |kind, value| {
+        if let Some(collection) = reference_collection(kind) {
+            let index = value
+                .as_u64()
+                .ok_or_else(|| Error(format!("invalid {kind}")))? as usize;
+            *value = json!(
+                p.ids
+                    .get(collection)
+                    .and_then(|ids| ids.get(index))
+                    .ok_or_else(|| Error(format!("unknown {collection} index {index}")))?
+            );
+        }
+        Ok(())
+    })?;
     let mut used = BTreeSet::new();
     for &c in COLLECTIONS {
         let values = raw[c]
@@ -283,46 +293,44 @@ pub fn to_value(p: &Semantic) -> Result<Value> {
     }
     let mut units = p.unit_table.clone().unwrap_or_else(units::empty);
     units::validate(&units, &mut used)?;
-    schema::walk(
-        &mut raw,
-        &pmi_schema()["$defs"]["PartPmi"],
-        pmi_schema(),
-        &mut |kind, value| {
-            let Some(table) = units::table(kind) else {
-                return Ok(());
-            };
-            let entries = units[table]
-                .as_array_mut()
-                .ok_or_else(|| Error(format!("missing {table} unit table")))?;
-            let id = if let Some(entry) = entries.iter().find(|entry| entry["value"] == *value) {
-                entry["id"]
-                    .as_str()
-                    .ok_or_else(|| Error("missing unit id".into()))?
-                    .to_string()
-            } else {
-                let id = format!(
-                    "unit:{table}:{}",
-                    identity::digest(&identity::canonical(value)?)
-                );
-                if !used.insert(id.clone()) {
-                    return Err(Error(format!(
-                        "unit content id conflicts with item id {id:?}"
-                    )));
-                }
-                entries.push(json!({"id":id,"value":value}));
-                id
-            };
-            *value = json!(id);
-            Ok(())
-        },
-    )?;
+    walk::wire(&mut raw, &mut |kind, value| {
+        let Some(table) = units::table(kind) else {
+            return Ok(());
+        };
+        let entries = units[table]
+            .as_array_mut()
+            .ok_or_else(|| Error(format!("missing {table} unit table")))?;
+        let id = if let Some(entry) = entries.iter().find(|entry| entry["value"] == *value) {
+            entry["id"]
+                .as_str()
+                .ok_or_else(|| Error("missing unit id".into()))?
+                .to_string()
+        } else {
+            let id = format!(
+                "unit:{table}:{}",
+                identity::digest(&identity::canonical(value)?)
+            );
+            if !used.insert(id.clone()) {
+                return Err(Error(format!(
+                    "unit content id conflicts with item id {id:?}"
+                )));
+            }
+            entries.push(json!({"id":id,"value":value}));
+            id
+        };
+        *value = json!(id);
+        Ok(())
+    })?;
+    #[cfg(feature = "json-import")]
     topology::apply(&mut raw, &p.anchor_bindings)?;
     let out = json!({"schema":"haecceity.pmi/1","units":units,"pmi":raw});
+    #[cfg(feature = "json-import")]
     validate_schema(&out)?;
     Ok(out)
 }
 
 /// Validate the exact schema shipped with this crate, including rejecting extra fields.
+#[cfg(feature = "json-import")]
 pub fn validate_schema(v: &Value) -> Result<()> {
     schema::check(v, pmi_schema(), pmi_schema(), "")
 }
@@ -330,6 +338,7 @@ pub fn validate_schema(v: &Value) -> Result<()> {
 /// Validate authorability without geometry. Topology anchors are treated as opaque
 /// identities; their existence, units relative to the part, and geometry are checked on import.
 /// This adds constructors, reference checks and shared writer refusals to [`validate_schema`].
+#[cfg(feature = "json-import")]
 pub fn validate(v: &Value) -> Result<()> {
     validate_schema(v)?;
     let mut projected = v.clone();
@@ -360,6 +369,7 @@ pub fn validate(v: &Value) -> Result<()> {
     validate_authoring(&semantic.pmi)
 }
 
+#[cfg(feature = "json-import")]
 fn validate_authoring(p: &PartPmi) -> Result<()> {
     let refusals = pmi::write::model_refusals(pmi::PartId(0), p);
     if !refusals.is_empty() {
@@ -368,30 +378,22 @@ fn validate_authoring(p: &PartPmi) -> Result<()> {
     // All REAL-bearing paths must carry writable Part 21 text, including supplemental
     // geometry and placement vectors. COUNT_MEASURE additionally permits canonical integers.
     let mut raw = serde_json::to_value(p)?;
-    schema::walk_path(
-        &mut raw,
-        &model_schema(),
-        pmi_schema(),
-        "",
-        &mut |kind, value, path| {
-            if kind == "Decimal" {
-                let text = value
-                    .as_str()
-                    .ok_or_else(|| Error(format!("{path}: invalid decimal")))?;
-                let integer_count = path.ends_with("/count")
-                    && text.parse::<i64>().is_ok_and(|n| n.to_string() == text);
-                if !integer_count {
-                    crate::p21::encode_real_text(text).map_err(|e| {
-                        Error(format!("{path}: {e}; stated decimal is not rewritten"))
-                    })?;
-                }
-            }
-            Ok(())
-        },
-    )
+    transport::walk_reals(&mut raw, &mut |path, value, _| {
+        let text = value
+            .as_str()
+            .ok_or_else(|| Error(format!("{path}: invalid decimal")))?;
+        let integer_count =
+            path.ends_with("/count") && text.parse::<i64>().is_ok_and(|n| n.to_string() == text);
+        if !integer_count {
+            pmi::write::real_text(&pmi::Decimal::parse(text).map_err(|e| Error(e.0))?)
+                .map_err(|e| Error(format!("{path}: {e}")))?;
+        }
+        Ok(())
+    })
 }
 
 /// Decode, apply constructors/model invariants, and resolve all topology anchors.
+#[cfg(feature = "json-import")]
 pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
     validate_schema(v)?;
     let mut used = BTreeSet::new();
@@ -481,6 +483,7 @@ pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
 /// External item ids, unit-table identities and wire anchors are checked separately
 /// by [`write`] and by whole-document JSON identity checks.
 #[must_use]
+#[cfg(feature = "json-import")]
 pub fn identity_differences(a: &PartPmi, b: &PartPmi) -> Vec<String> {
     let mut out = Vec::new();
     if a.standards != b.standards {
@@ -540,8 +543,9 @@ pub fn identity_differences(a: &PartPmi, b: &PartPmi) -> Vec<String> {
     out
 }
 
-/// Replace selected parts' PMI using JSON ids. The ordinary STEP writer is unchanged.
+/// Replace selected parts' PMI using JSON ids and the shared STEP writer.
 /// Refusals come from the existing AP242 writer and retain the item and reason.
+#[cfg(feature = "json-import")]
 pub fn write(
     doc: &Document,
     parts: &[PartDefinition],
@@ -625,6 +629,7 @@ pub fn write(
     Ok((bytes, report))
 }
 
+#[cfg(feature = "json-import")]
 fn validate_feature_roles(p: &PartPmi) -> Result<()> {
     use pmi::{Feature, GroupKind};
     for datum in &p.datums {
@@ -668,6 +673,7 @@ fn validate_feature_roles(p: &PartPmi) -> Result<()> {
 }
 
 /// Parse and decode one versioned semantic document. Duplicate keys are errors.
+#[cfg(feature = "json-import")]
 pub fn from_str(text: &str, anchors: &Anchors) -> Result<Semantic> {
     from_value(&parse(text)?, anchors)
 }
@@ -678,6 +684,7 @@ pub fn to_string(p: &Semantic) -> Result<String> {
 }
 
 /// Import policy: retain foreign graphics of unchanged surviving items and report removals.
+#[cfg(feature = "json-import")]
 pub fn write_preserving(
     doc: &Document,
     parts: &[PartDefinition],

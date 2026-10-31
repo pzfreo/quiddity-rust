@@ -1,6 +1,6 @@
 //! Local SFA handoff samples. This is deliberately separate from strict closure:
 //! source requirements the existing writer refuses are recorded beside each sample.
-#![cfg(feature = "json")]
+#![cfg(feature = "json-import")]
 use haecceity::{
     json::{self, Anchors},
     p21::Document,

@@ -1,5 +1,5 @@
 //! Optional editor layout metadata, from the source graph rather than regenerated notation.
-#![cfg(feature = "json")]
+#![cfg(feature = "json-import")]
 use haecceity::{
     json::{
         self,

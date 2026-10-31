@@ -24,7 +24,7 @@ pub mod write;
 
 pub use model::*;
 pub use read::read;
-#[cfg(feature = "json")]
+#[cfg(feature = "json-import")]
 pub use read::read_native;
 pub use verify::{Problem, Snapshot, Verification, verify};
 pub use without::without;

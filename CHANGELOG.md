@@ -23,6 +23,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
+- For #142, encode integer/exponent Decimal spellings as valid STEP REALs while
+  restoring their stated JSON text, including density exponents. Invalid density
+  dimensions produce a finding. Both writers define gram/milligram as conversion-based
+  units of SI kilogram per CAx-IF UDA Annex C.1/C.4.2; only affected mass-unit goldens change.
+  Compact producer ordering metadata omits native defaults and uses ordinal references.
+  Haecceity `json` now serializes without schemas/import; `json-import` adds those APIs,
+  and the CLI uses `json-import` (`json` remains its compatibility alias).
+
 - For #142, presentation JSON adds optional text placements, annotation planes,
   graphic ids and saved-view memberships while retaining schema `/1`. Datum-feature
   graphics also link to their owning datum, preserving feature aliases. Native

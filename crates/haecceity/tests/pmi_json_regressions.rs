@@ -1,5 +1,5 @@
 //! Minimal xcaf-pmi producer regressions for #142.
-#![cfg(feature = "json")]
+#![cfg(feature = "json-import")]
 use haecceity::{
     json::{self, Anchors},
     p21::Document,
@@ -95,12 +95,7 @@ fn producer_datum_target_decimals_are_stated_verbatim() {
     identity(&value);
     value["pmi"]["geometry"][0]["value"]["item"]["leaves"][0][1][1]["list"][0]["real"] =
         json!("0e0");
-    assert!(
-        json::validate(&value)
-            .unwrap_err()
-            .to_string()
-            .contains("Part 21 REAL")
-    );
+    identity(&value);
 }
 
 #[test]
@@ -199,16 +194,6 @@ fn validate_refuses_geometry_independent_import_failures() {
             "without a nominal",
         ),
         (
-            "/pmi/dimensions/0/value/nominal/quantity/length/value",
-            json!("10"),
-            "Part 21 REAL",
-        ),
-        (
-            "/pmi/dimensions/0/value/nominal/quantity/length/value",
-            json!("1.0e1"),
-            "Part 21 REAL",
-        ),
-        (
             "/pmi/notes/0/value/on",
             json!({"tolerance":"missing"}),
             "unknown tolerances id",
@@ -253,4 +238,184 @@ fn validate_refuses_geometry_independent_import_failures() {
             .to_string()
             .contains("explicit area/curve target requires stated face/curve geometry")
     );
+}
+
+#[test]
+fn integer_density_exponents_and_values_preserve_identity_and_use_annex_c_units() {
+    let original = fixture("density-integer-exponents.json");
+    for (mass, length) in [
+        ("gram", "centimetre"),
+        ("kilogram", "metre"),
+        ("milligram", "millimetre"),
+    ] {
+        for (one, minus_three, value) in [
+            ("1", "-3", "7"),
+            ("1e0", "-3E0", "27e-1"),
+            ("1.", "-3.", "2.700"),
+        ] {
+            let mut input = original.clone();
+            input["units"]["density"][0]["value"] = json!([[mass, one], [length, minus_three]]);
+            input["pmi"]["material"]["density"]["value"] = json!(value);
+            let (doc, _) = identity(&input);
+            let text = String::from_utf8_lossy(doc.bytes());
+            assert!(!text.contains("SI_UNIT($,.GRAM.)"));
+            assert!(!text.contains("SI_UNIT(.MILLI.,.GRAM.)"));
+            assert!(text.contains("SI_UNIT(.KILO.,.GRAM.)"));
+            if mass != "kilogram" {
+                assert!(text.contains(&format!("CONVERSION_BASED_UNIT('{mass}',")));
+            }
+        }
+    }
+    let mut invalid = original;
+    invalid["units"]["density"][0]["value"] = json!([["gram", "3"], ["centimetre", "2"]]);
+    assert!(
+        json::validate(&invalid)
+            .unwrap_err()
+            .to_string()
+            .contains("mass 1, length -3")
+    );
+}
+
+#[test]
+fn integer_and_exponent_mantissas_work_in_dimensions_and_all_target_geometry_reals() {
+    for name in ["requirement-note.json", "datum-target-decimals.json"] {
+        let mut value = fixture(name);
+        fn rewrite(value: &mut Value) {
+            match value {
+                Value::String(text) if pmi::Decimal::parse(text).is_ok() => {
+                    if let Some((whole, fraction)) = text.split_once('.')
+                        && !text.contains(['e', 'E'])
+                    {
+                        *text = format!("{whole}{fraction}e-{}", fraction.len());
+                    }
+                }
+                Value::Array(a) => a.iter_mut().for_each(rewrite),
+                Value::Object(o) => o.values_mut().for_each(rewrite),
+                _ => {}
+            }
+        }
+        rewrite(&mut value);
+        identity(&value);
+    }
+}
+
+#[test]
+fn compact_ordering_omits_native_singleton_anchors_empty_fields_and_collections() {
+    let mut value = fixture("requirement-note.json");
+    value["pmi"]["features"][0]["value"]["items"] = json!([{"face":0}]);
+    value["pmi"]["features"][1]["value"]["items"] = json!([{"face":1}]);
+    let (doc, _) = identity(&value);
+    let metadata = doc
+        .ids()
+        .find_map(|id| match doc.get(id) {
+            Some(haecceity::p21::RawEntity::Simple {
+                name, attributes, ..
+            }) if name.eq_ignore_ascii_case("descriptive_representation_item")
+                && attributes.first()
+                    == Some(&haecceity::p21::Attribute::String("ordering".into())) =>
+            {
+                if let Some(haecceity::p21::Attribute::String(s)) = attributes.get(1) {
+                    Some(s.clone())
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        })
+        .unwrap();
+    let compact: Value = serde_json::from_str(&metadata).unwrap();
+    assert!(compact["items"].get("threads").is_none());
+    assert!(compact.get("wire_anchors").is_none());
+    assert!(compact["items"]["features"][0].get("anchors").is_none());
+    assert!(compact["items"]["features"][0].get("references").is_none());
+    assert!(compact["items"]["notes"][0].get("callouts").is_none());
+    // The old format repeated defaults even on a simple plate. Reconstruct its size.
+    let mut verbose = compact.clone();
+    for c in [
+        "features",
+        "geometry",
+        "derived_geometry",
+        "datum_targets",
+        "datums",
+        "dimensions",
+        "tolerances",
+        "tolerance_relations",
+        "general",
+        "threads",
+        "knurls",
+        "notes",
+        "surface_textures",
+        "attributes",
+    ] {
+        if verbose["items"].get(c).is_none() {
+            verbose["items"][c] = json!([]);
+        }
+        for e in verbose["items"][c].as_array_mut().unwrap() {
+            for (key, default) in [
+                ("references", json!({})),
+                ("sequences", json!({})),
+                ("anchors", Value::Null),
+                ("callouts", Value::Null),
+            ] {
+                if e.get(key).is_none() {
+                    e[key] = default;
+                }
+            }
+        }
+    }
+    verbose["wire_anchors"] = json!([]);
+    assert!(metadata.len() * 4 < serde_json::to_string(&verbose).unwrap().len() * 3);
+    // Old producers' verbose form must still read.
+    let changed = String::from_utf8_lossy(doc.bytes()).replace(
+        &metadata.replace("'", "''"),
+        &serde_json::to_string(&verbose).unwrap().replace("'", "''"),
+    );
+    let old = Document::parse(changed.into_bytes()).unwrap();
+    let parts = read_part_definitions(old.bytes()).unwrap();
+    pmi::read(&old, &parts).unwrap();
+}
+
+#[test]
+fn decimal_spellings_cannot_replace_text_or_change_a_native_value() {
+    let mut input = fixture("density-integer-exponents.json");
+    input["pmi"]["material"]["id"] = json!("1");
+    let (doc, _) = identity(&input);
+    let text = String::from_utf8_lossy(doc.bytes());
+    let original = doc
+        .ids()
+        .find_map(|id| match doc.get(id) {
+            Some(haecceity::p21::RawEntity::Simple {
+                name, attributes, ..
+            }) if name.eq_ignore_ascii_case("descriptive_representation_item")
+                && attributes.first()
+                    == Some(&haecceity::p21::Attribute::String("ordering".into())) =>
+            {
+                if let Some(haecceity::p21::Attribute::String(s)) = attributes.get(1) {
+                    Some(s.clone())
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        })
+        .unwrap();
+    for (path, value, reason) in [
+        ("/material/id", "1.0", "not a decimal"),
+        ("/material/density/value", "3.7", "changes native value"),
+    ] {
+        let mut metadata: Value = serde_json::from_str(&original).unwrap();
+        metadata["spellings"][path] = json!(value);
+        let changed = text.replace(
+            &original.replace("'", "''"),
+            &serde_json::to_string(&metadata).unwrap().replace("'", "''"),
+        );
+        let doc = Document::parse(changed.into_bytes()).unwrap();
+        let parts = read_part_definitions(doc.bytes()).unwrap();
+        assert!(
+            pmi::read(&doc, &parts)
+                .unwrap_err()
+                .to_string()
+                .contains(reason)
+        );
+    }
 }

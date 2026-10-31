@@ -4,32 +4,39 @@ use super::*;
 /// Canonical UTF-8 JSON: sorted object keys, ordered arrays, no whitespace.
 /// Explicit sorting keeps ids portable even when a consumer enables preserve_order.
 pub(super) fn canonical(value: &Value) -> Result<String> {
-    match value {
-        Value::Object(object) => {
-            let mut keys: Vec<_> = object.keys().collect();
-            keys.sort();
-            let fields = keys
-                .into_iter()
-                .map(|key| {
-                    Ok(format!(
-                        "{}:{}",
-                        serde_json::to_string(key)?,
-                        canonical(&object[key])?
-                    ))
-                })
-                .collect::<Result<Vec<_>>>()?;
-            Ok(format!("{{{}}}", fields.join(",")))
+    fn append(value: &Value, out: &mut String) -> Result<()> {
+        match value {
+            Value::Object(object) => {
+                let mut keys: Vec<_> = object.keys().collect();
+                keys.sort();
+                out.push('{');
+                for (i, key) in keys.into_iter().enumerate() {
+                    if i != 0 {
+                        out.push(',');
+                    }
+                    out.push_str(&serde_json::to_string(key)?);
+                    out.push(':');
+                    append(&object[key], out)?;
+                }
+                out.push('}');
+            }
+            Value::Array(array) => {
+                out.push('[');
+                for (i, value) in array.iter().enumerate() {
+                    if i != 0 {
+                        out.push(',');
+                    }
+                    append(value, out)?;
+                }
+                out.push(']');
+            }
+            _ => out.push_str(&serde_json::to_string(value)?),
         }
-        Value::Array(array) => Ok(format!(
-            "[{}]",
-            array
-                .iter()
-                .map(canonical)
-                .collect::<Result<Vec<_>>>()?
-                .join(",")
-        )),
-        _ => Ok(serde_json::to_string(value)?),
+        Ok(())
     }
+    let mut out = String::new();
+    append(value, &mut out)?;
+    Ok(out)
 }
 
 pub(super) fn digest(text: &str) -> String {
@@ -38,7 +45,13 @@ pub(super) fn digest(text: &str) -> String {
         h ^= u128::from(byte);
         h = h.wrapping_mul(0x0000000001000000000000000000013b);
     }
-    format!("{h:032x}")
+    let mut out = String::with_capacity(32);
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    for byte in h.to_be_bytes() {
+        out.push(HEX[(byte >> 4) as usize] as char);
+        out.push(HEX[(byte & 15) as usize] as char);
+    }
+    out
 }
 
 pub(super) fn content(
@@ -59,34 +72,27 @@ pub(super) fn content(
     if collection == "notes" {
         value["callouts"] = json!([]);
     }
-    let schema = model_schema();
-    schema::walk(
-        &mut value,
-        &schema["properties"][collection]["items"],
-        pmi_schema(),
-        &mut |kind, value| {
-            if let Some(c) = reference_collection(kind) {
-                *value = content(
-                    raw,
-                    c,
-                    value
-                        .as_u64()
-                        .ok_or_else(|| Error(format!("invalid {kind}")))?
-                        as usize,
-                    anchors,
-                    stack,
-                )?;
-            } else if kind == "FaceIndex"
-                && let Some(key) = value
+    walk::item(&mut value, collection, &mut |kind, value| {
+        if let Some(c) = reference_collection(kind) {
+            *value = content(
+                raw,
+                c,
+                value
                     .as_u64()
-                    .and_then(|i| anchors.fingerprints.get(i as usize))
-                    .and_then(Option::as_ref)
-            {
-                *value = json!({"fingerprint":key});
-            }
-            Ok(())
-        },
-    )?;
+                    .ok_or_else(|| Error(format!("invalid {kind}")))? as usize,
+                anchors,
+                stack,
+            )?;
+        } else if kind == "FaceIndex"
+            && let Some(key) = value
+                .as_u64()
+                .and_then(|i| anchors.fingerprints.get(i as usize))
+                .and_then(Option::as_ref)
+        {
+            *value = json!({"fingerprint":key});
+        }
+        Ok(())
+    })?;
     stack.remove(&key);
     Ok(value)
 }
@@ -165,15 +171,21 @@ pub(super) fn identify(
         }
         ids.insert(c.to_string(), out);
     }
+    #[cfg(feature = "json-import")]
     let unit_table = identifiers
         .and_then(|i| i.json_units.as_ref())
         .map(|s| serde_json::from_str(s))
         .transpose()?;
+    #[cfg(not(feature = "json-import"))]
+    let unit_table = None;
+    #[cfg(feature = "json-import")]
     let anchor_bindings = identifiers
         .and_then(|i| i.json_anchors.as_ref())
         .map(|s| serde_json::from_str(s))
         .transpose()?
         .unwrap_or_default();
+    #[cfg(not(feature = "json-import"))]
+    let anchor_bindings = vec![];
     Ok(Semantic {
         pmi,
         ids,
@@ -182,6 +194,7 @@ pub(super) fn identify(
     })
 }
 
+#[cfg(feature = "json-import")]
 pub(super) fn expand_supports(value: &mut Value, anchors: &Anchors) -> Result<()> {
     match value {
         Value::Array(array) => {

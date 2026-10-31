@@ -1,4 +1,4 @@
-#![cfg(feature = "json")]
+#![cfg(feature = "json-import")]
 use quiddity::kernel::{
     json::{self, Anchors},
     p21::Document,

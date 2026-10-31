@@ -36,3 +36,7 @@ python3 crates/haecceity/tests/fixtures/presentation/build_fixture.py
 ```
 
 This directory is outside root snapshot inputs; no default goldens are changed.
+
+`spindle.semantic.json.gz` is the exact semantic companion exported by the pre-split
+CLI at f48c02b, with index anchors. The serializer-only regression compares JSON
+values (including content ids and units) against it in both feature configurations.

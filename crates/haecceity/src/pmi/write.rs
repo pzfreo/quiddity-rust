@@ -451,15 +451,15 @@ pub fn write(
         pmi,
         mode,
         policy,
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         None,
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         None,
     )
 }
 
 /// The JSON path supplies item ids; the ordinary writer always supplies None.
-#[cfg(feature = "json")]
+#[cfg(feature = "json-import")]
 pub(crate) fn write_identified(
     doc: &Document,
     parts: &[PartDefinition],
@@ -485,8 +485,10 @@ fn write_inner(
     pmi: &[(PartId, PartPmi)],
     mode: Mode,
     policy: PresentationPolicy,
-    #[cfg(feature = "json")] identifiers: Option<&BTreeMap<PartId, BTreeMap<String, Vec<String>>>>,
-    #[cfg(feature = "json")] protected: Option<&BTreeSet<u64>>,
+    #[cfg(feature = "json-import")] identifiers: Option<
+        &BTreeMap<PartId, BTreeMap<String, Vec<String>>>,
+    >,
+    #[cfg(feature = "json-import")] protected: Option<&BTreeSet<u64>>,
 ) -> Result<(Edit, WriteReport), WriteError> {
     // Validate the input before migration (in particular every note's owner).
     for (part, p) in pmi {
@@ -498,7 +500,7 @@ fn write_inner(
     let normalized: Vec<_> = pmi
         .iter()
         .map(|(id, p)| {
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             if identifiers.is_some() {
                 return (*id, p.clone());
             }
@@ -530,14 +532,14 @@ fn write_inner(
             .validate()
             .map_err(|errors| WriteError::Invalid { part: *p, errors })?;
     }
-    #[cfg(feature = "json")]
+    #[cfg(feature = "json-import")]
     let read = if identifiers.is_some() {
         super::read_native(doc, parts)
     } else {
         super::read(doc, parts)
     }
     .map_err(WriteError::Read)?;
-    #[cfg(not(feature = "json"))]
+    #[cfg(not(feature = "json-import"))]
     let read = super::read(doc, parts).map_err(WriteError::Read)?;
 
     // The file's edition and the table written instances are checked against.
@@ -550,7 +552,7 @@ fn write_inner(
     // Edition 1 excludes dimensional_size and geometric_tolerance from
     // characterized_definition. JSON keeps their exact owner by using edition 4's
     // characterized_item SELECT (CAx-IF PMI v4.1 §§7.4.2, 10.1.2.1–2).
-    #[cfg(feature = "json")]
+    #[cfg(feature = "json-import")]
     let json_upgrade = identifiers.is_some()
         && express::edition(&first).is_some_and(|e| std::ptr::eq(e, &express::AP242_ED1))
         && pmi.iter().any(|(_, p)| {
@@ -561,7 +563,7 @@ fn write_inner(
                     .chain(p.attributes.iter().filter_map(|a| a.on))
                     .any(|owner| matches!(owner, NoteOwner::Dimension(_) | NoteOwner::Tolerance(_)))
         });
-    #[cfg(not(feature = "json"))]
+    #[cfg(not(feature = "json-import"))]
     let json_upgrade = false;
     let edition: &'static Edition = if json_upgrade {
         express::TARGET
@@ -576,7 +578,7 @@ fn write_inner(
     let mut plans = Vec::new();
     for (p, part_pmi) in &order {
         let plan = PartPlan::new(doc, &parts[p.0], *p, part_pmi, &read, mode)?;
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         let plan = {
             let mut plan = PartPlan {
                 identifiers: identifiers.and_then(|ids| ids.get(p)),
@@ -691,7 +693,7 @@ fn write_inner(
             // again by what is written, matched by value), never removed.
             let geometry: BTreeSet<u64> = prov.geometry.iter().flatten().copied().collect();
             seeds.extend(prov.all().into_iter().filter(|id| {
-                #[cfg(feature = "json")]
+                #[cfg(feature = "json-import")]
                 if protected.is_some_and(|ids| ids.contains(id)) {
                     return false;
                 }
@@ -749,7 +751,7 @@ fn write_inner(
                     Err(r) => return Err(WriteError::Removal(Box::new(r))),
                 }
             };
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             let plan = if let Some(protected) = protected {
                 let mut plan = plan;
                 // Removal can reach kept ink through an annotation plane or another
@@ -769,7 +771,7 @@ fn write_inner(
             report.rewritten = plan.rewritten.keys().copied().collect();
             report.presentation_removed = plan.presentation_removed.clone();
             report.presentation_removed.extend(emptied);
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             if protected.is_some() {
                 report
                     .presentation_removed
@@ -1279,12 +1281,18 @@ fn refs(v: impl IntoIterator<Item = R>) -> A {
     A::List(v.into_iter().map(R::a).collect())
 }
 
-/// A stated decimal as a REAL attribute, refused unless it is a Part 21 REAL (it is written
-/// with its own text, never rewritten).
+/// Encode a decimal as a legal REAL without changing its exact value. JSON transport
+/// retains spellings that Part 21 cannot express (integer mantissas and lower-case e).
+pub(crate) fn real_text(d: &Decimal) -> Result<String, String> {
+    let mut text = d.as_str().to_ascii_uppercase();
+    if !text.contains('.') {
+        let at = text.find('E').unwrap_or(text.len());
+        text.insert(at, '.');
+    }
+    p21::encode_real_text(&text).map_err(|e| e.to_string())
+}
 fn real(d: &Decimal) -> Result<A, String> {
-    p21::encode_real_text(d.as_str()).map_err(|_| {
-        format!("value {d} is not a Part 21 REAL (a decimal point is required); not rewritten")
-    })?;
+    real_text(d)?;
     Ok(A::Real(d.to_f64()))
 }
 
@@ -1355,7 +1363,11 @@ impl<'a> Emitter<'a> {
         let mut rec = Record::new(e);
         if !stated.is_empty() {
             // All REALs in attribute order, including equal values with different text.
-            rec = rec.state_reals(&stated.iter().map(|d| d.as_str()).collect::<Vec<_>>())?;
+            let texts = stated
+                .iter()
+                .map(|d| real_text(d).map_err(WriteError::Internal))
+                .collect::<Result<Vec<_>, _>>()?;
+            rec = rec.state_reals(&texts.iter().map(String::as_str).collect::<Vec<_>>())?;
         }
         let id = self.edit.add(rec);
         if id.index() != self.count {
@@ -1515,11 +1527,12 @@ impl<'a> Emitter<'a> {
             return Ok(*r);
         }
         let length = if kind == "length" { 1.0 } else { 0.0 };
+        let mass = if kind == "mass" { 1.0 } else { 0.0 };
         let r = self.simple(
             "dimensional_exponents",
             &[
                 ("length_exponent", A::Real(length)),
-                ("mass_exponent", A::Real(0.0)),
+                ("mass_exponent", A::Real(mass)),
                 ("time_exponent", A::Real(0.0)),
                 ("electric_current_exponent", A::Real(0.0)),
                 ("thermodynamic_temperature_exponent", A::Real(0.0)),
@@ -1529,6 +1542,49 @@ impl<'a> Emitter<'a> {
         )?;
         self.exponents.insert(kind, r);
         Ok(r)
+    }
+
+    /// UDA v1.8 Annex C.1/C.4.2: only kilogram is an SI mass unit;
+    /// gram and milligram are conversion-based named units, preserving the density value.
+    fn mass_unit(&mut self, prefix: Option<&str>) -> Result<R, WriteError> {
+        let kilogram = self.instance(
+            &["mass_unit", "si_unit"],
+            &[
+                (("si_unit", "prefix"), en("kilo")),
+                (("si_unit", "name"), en("gram")),
+            ],
+            &[],
+        )?;
+        if prefix == Some("kilo") {
+            return Ok(kilogram);
+        }
+        let (name, factor) = if prefix == Some("milli") {
+            ("milligram", "0.000001")
+        } else {
+            ("gram", "0.001")
+        };
+        let factor = Decimal::parse(factor).map_err(|e| WriteError::Internal(e.0))?;
+        let measure = self.instance(
+            &["mass_measure_with_unit"],
+            &[
+                (
+                    ("", "value_component"),
+                    typed("mass_measure", real(&factor).map_err(WriteError::Internal)?),
+                ),
+                (("", "unit_component"), kilogram.a()),
+            ],
+            &[&factor],
+        )?;
+        let dimensions = self.dimensional_exponents("mass")?;
+        self.instance(
+            &["conversion_based_unit", "mass_unit"],
+            &[
+                (("conversion_based_unit", "name"), s(name)),
+                (("conversion_based_unit", "conversion_factor"), measure.a()),
+                (("named_unit", "dimensions"), dimensions.a()),
+            ],
+            &[],
+        )
     }
 
     /// A unit instance equal to `unit`: one of `context`'s units, else one added (SI with its
@@ -1945,7 +2001,7 @@ enum Role {
 }
 
 struct PartPlan<'a> {
-    #[cfg(feature = "json")]
+    #[cfg(feature = "json-import")]
     identifiers: Option<&'a BTreeMap<String, Vec<String>>>,
     doc: &'a Document,
     def: &'a PartDefinition,
@@ -1973,7 +2029,7 @@ struct PartPlan<'a> {
 }
 
 impl<'a> PartPlan<'a> {
-    #[cfg(feature = "json")]
+    #[cfg(feature = "json-import")]
     fn identify(
         &self,
         em: &mut Emitter<'_>,
@@ -2048,7 +2104,7 @@ impl<'a> PartPlan<'a> {
                 WriteError::Parts(format!("shape representation #{shape_rep} has no context"))
             })?;
         let mut plan = PartPlan {
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             identifiers: None,
             doc,
             def,
@@ -2565,7 +2621,7 @@ impl<'a> PartPlan<'a> {
         for g in &p.derived_geometry {
             used_geometry.extend(g.supplemental.iter().map(|g| g.0));
         }
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         if self.identifiers.is_some() {
             used_geometry.extend(0..p.geometry.len());
         }
@@ -2586,7 +2642,7 @@ impl<'a> PartPlan<'a> {
                     ("name", s("supplemental geometry")),
                     ("items", {
                         let items: Vec<_> = new_items.iter().map(|(_, r)| *r).collect();
-                        #[cfg(feature = "json")]
+                        #[cfg(feature = "json-import")]
                         let items = if self.identifiers.is_some() {
                             let mut seen = BTreeSet::new();
                             items.into_iter().filter(|r| seen.insert(*r)).collect()
@@ -2826,9 +2882,9 @@ impl<'a> PartPlan<'a> {
             st.tolerances.insert(i, r);
         }
         let tolerance_relations = p.tolerance_relations.iter();
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         let tolerance_relations = tolerance_relations.enumerate();
-        #[cfg(not(feature = "json"))]
+        #[cfg(not(feature = "json-import"))]
         let tolerance_relations = tolerance_relations.map(|item| ((), item));
         for (_i, r) in tolerance_relations {
             let name = match r.kind {
@@ -2851,21 +2907,21 @@ impl<'a> PartPlan<'a> {
                     ),
                 ],
             )?;
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             self.identify(em, "tolerance_relations", _i, _carrier)?;
         }
         let general = p.general.iter();
-        #[cfg(any(feature = "presentation", feature = "json"))]
+        #[cfg(any(feature = "presentation", feature = "json-import"))]
         let general = general.enumerate();
-        #[cfg(not(any(feature = "presentation", feature = "json")))]
+        #[cfg(not(any(feature = "presentation", feature = "json-import")))]
         let general = general.map(|item| ((), item));
         for (_i, g) in general {
             if let GeneralTolerance::Table { name, cells } = g {
-                #[cfg(feature = "json")]
+                #[cfg(feature = "json-import")]
                 let _table = self.tolerance_table(em, pds, name, cells)?;
-                #[cfg(not(feature = "json"))]
+                #[cfg(not(feature = "json-import"))]
                 self.tolerance_table(em, pds, name, cells)?;
-                #[cfg(feature = "json")]
+                #[cfg(feature = "json-import")]
                 self.identify(em, "general", _i, _table)?;
             }
             if let GeneralTolerance::Class { text, .. } = g {
@@ -2881,7 +2937,7 @@ impl<'a> PartPlan<'a> {
                     "default tolerances",
                     &[item],
                 )?;
-                #[cfg(feature = "json")]
+                #[cfg(feature = "json-import")]
                 self.identify(em, "general", _i, _property)?;
                 #[cfg(feature = "presentation")]
                 st.properties
@@ -2893,9 +2949,9 @@ impl<'a> PartPlan<'a> {
             self.tolerance_table(em, pds, "", &[ToleranceCell { items: vec![("number of decimal places".into(), CellValue::Count(Decimal::parse(&places.to_string()).map_err(|e| WriteError::Internal(e.0))?))] }])?;
         }
         let threads = p.threads.iter();
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         let threads = threads.enumerate();
-        #[cfg(not(feature = "json"))]
+        #[cfg(not(feature = "json-import"))]
         let threads = threads.map(|item| ((), item));
         for (_i, t) in threads {
             self.thread(
@@ -2903,14 +2959,14 @@ impl<'a> PartPlan<'a> {
                 &mut st,
                 pds,
                 t,
-                #[cfg(feature = "json")]
+                #[cfg(feature = "json-import")]
                 _i,
             )?;
         }
         let knurls = p.knurls.iter();
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         let knurls = knurls.enumerate();
-        #[cfg(not(feature = "json"))]
+        #[cfg(not(feature = "json-import"))]
         let knurls = knurls.map(|item| ((), item));
         for (_i, k) in knurls {
             self.knurl(
@@ -2918,7 +2974,7 @@ impl<'a> PartPlan<'a> {
                 &mut st,
                 pds,
                 k,
-                #[cfg(feature = "json")]
+                #[cfg(feature = "json-import")]
                 _i,
             )?;
         }
@@ -2949,14 +3005,7 @@ impl<'a> PartPlan<'a> {
                     .ok_or_else(|| WriteError::Internal(format!("{name} is not a density unit")))?
                 {
                     DensityUnit::Length(l) => em.length_unit(self.context, &l)?.0,
-                    DensityUnit::Mass(prefix) => em.instance(
-                        &["mass_unit", "si_unit"],
-                        &[
-                            (("si_unit", "prefix"), prefix.map_or(A::Unset, en)),
-                            (("si_unit", "name"), en("gram")),
-                        ],
-                        &[],
-                    )?,
+                    DensityUnit::Mass(prefix) => em.mass_unit(prefix)?,
                 };
                 let e = real(exponent).map_err(WriteError::Internal)?;
                 elements.push(em.instance(
@@ -2984,32 +3033,32 @@ impl<'a> PartPlan<'a> {
             self.property(em, pd, "material property", "density", "density", &[item])?;
         }
         let attributes = p.attributes.iter();
-        #[cfg(any(feature = "presentation", feature = "json"))]
+        #[cfg(any(feature = "presentation", feature = "json-import"))]
         let attributes = attributes.enumerate();
-        #[cfg(not(any(feature = "presentation", feature = "json")))]
+        #[cfg(not(any(feature = "presentation", feature = "json-import")))]
         let attributes = attributes.map(|item| ((), item));
         for (_i, a) in attributes {
             let _property = self.attribute_set(em, &mut st, pd, pds, a)?;
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             self.identify(em, "attributes", _i, _property)?;
             #[cfg(feature = "presentation")]
             st.properties
                 .insert(crate::presentation::notes::Source::Attribute(_i), _property);
         }
         let surface_textures = p.surface_textures.iter();
-        #[cfg(any(feature = "presentation", feature = "json"))]
+        #[cfg(any(feature = "presentation", feature = "json-import"))]
         let surface_textures = surface_textures.enumerate();
-        #[cfg(not(any(feature = "presentation", feature = "json")))]
+        #[cfg(not(any(feature = "presentation", feature = "json-import")))]
         let surface_textures = surface_textures.map(|item| ((), item));
         for (_i, t) in surface_textures {
             let _property = self.surface_texture(em, &mut st, pds, t)?;
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             self.identify(em, "surface_textures", _i, _property)?;
             #[cfg(feature = "presentation")]
             st.properties
                 .insert(crate::presentation::notes::Source::Texture(_i), _property);
         }
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         if let Some(ids) = self.identifiers {
             for (i, note) in p.notes.iter().enumerate() {
                 let owner = match note.on {
@@ -3296,11 +3345,11 @@ impl<'a> PartPlan<'a> {
                 ("rep_2", rep.a()),
             ],
         )?;
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         {
             Ok(table)
         }
-        #[cfg(not(feature = "json"))]
+        #[cfg(not(feature = "json-import"))]
         {
             Ok(())
         }
@@ -3870,13 +3919,13 @@ impl<'a> PartPlan<'a> {
                     &[
                         ("name", s("PMI representation to presentation link")),
                         ("description", {
-                            #[cfg(feature = "json")]
+                            #[cfg(feature = "json-import")]
                             if self.identifiers.is_some() {
                                 s("haecceity.generated/1")
                             } else {
                                 s("")
                             }
-                            #[cfg(not(feature = "json"))]
+                            #[cfg(not(feature = "json-import"))]
                             s("")
                         }),
                         ("definition", definition.a()),
@@ -3897,7 +3946,7 @@ impl<'a> PartPlan<'a> {
         vals: &[(&str, A)],
         _stated: &[&Decimal],
     ) -> Result<R, WriteError> {
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         if self.identifiers.is_some() {
             let vals: Vec<_> = vals
                 .iter()
@@ -5333,11 +5382,11 @@ impl<'a> PartPlan<'a> {
         st: &mut Emitted,
         pds: R,
         t: &Thread,
-        #[cfg(feature = "json")] index: usize,
+        #[cfg(feature = "json-import")] index: usize,
     ) -> Result<(), WriteError> {
         let def = em.simple("thread", &[("name", s("")), ("description", s(""))])?;
         let shape = self.applied(em, st, pds, def, t.feature)?;
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         self.identify(em, "threads", index, shape)?;
         let area = match t.partial_area {
             Some(f) => Some(self.role_instance(em, st, pds, f, Role::AppliedArea)?),
@@ -5440,7 +5489,7 @@ impl<'a> PartPlan<'a> {
         st: &mut Emitted,
         pds: R,
         k: &Knurl,
-        #[cfg(feature = "json")] index: usize,
+        #[cfg(feature = "json-import")] index: usize,
     ) -> Result<(), WriteError> {
         let pattern = match k.pattern {
             KnurlPattern::Diamond => "diamond",
@@ -5452,7 +5501,7 @@ impl<'a> PartPlan<'a> {
             &[("name", s("")), ("description", s(pattern))],
         )?;
         let shape = self.applied(em, st, pds, def, k.feature)?;
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         self.identify(em, "knurls", index, shape)?;
         let area = self.role_instance(em, st, pds, k.feature, Role::AppliedArea)?;
         // turned_knurl WR11 (as thread WR12): exactly one 'partial area occurrence' with one
@@ -5612,7 +5661,7 @@ impl<'a> PartPlan<'a> {
                 }
             });
         }
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         if self.identifiers.is_some() {
             let pdef = self.property_optional(
                 em,
@@ -5895,9 +5944,9 @@ fn needs_callouts(p: &PartPmi) -> bool {
 }
 
 // Preserve the ordinary writer's return type when JSON identity emission is disabled.
-#[cfg(feature = "json")]
+#[cfg(feature = "json-import")]
 type TableIdentity = R;
-#[cfg(not(feature = "json"))]
+#[cfg(not(feature = "json-import"))]
 type TableIdentity = ();
 
 /// What a part's emission has made so far.
@@ -6887,9 +6936,12 @@ mod tests {
     }
 
     #[test]
-    fn a_value_that_is_not_a_part21_real_is_refused_not_rewritten() {
-        for t in ["35", "1.e-3", "2E1"] {
-            assert!(real(&Decimal::parse(t).unwrap()).is_err(), "{t}");
+    fn decimal_mantissas_and_exponents_are_encoded_as_part21_reals() {
+        for (stated, encoded) in [("35", "35."), ("1.e-3", "1.E-3"), ("2E1", "2.E1")] {
+            assert_eq!(
+                real_text(&Decimal::parse(stated).unwrap()).unwrap(),
+                encoded
+            );
         }
         for t in ["35.", "0.0030", "-2.54E1", "1.E-07"] {
             assert!(real(&Decimal::parse(t).unwrap()).is_ok(), "{t}");

@@ -6,7 +6,8 @@ use super::model::Decimal;
 
 /// ISO 2768-1 tolerance class for linear and angular dimensions (Table 1).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 pub enum LinearClass {
     /// f, fine.
     #[cfg_attr(feature = "json", serde(rename = "f"))]
@@ -24,7 +25,8 @@ pub enum LinearClass {
 
 /// ISO 2768-2 tolerance class for geometrical tolerances (H, K, L).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 pub enum GeometricClass {
     H,
     K,
@@ -33,7 +35,8 @@ pub enum GeometricClass {
 
 /// The ISO 2768 classes a general tolerance states, as in `ISO 2768-m` or `ISO 2768-mK`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "json", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "json", derive(serde::Serialize))]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[cfg_attr(feature = "json", serde(deny_unknown_fields))]
 pub struct Iso2768 {
     pub linear: LinearClass,

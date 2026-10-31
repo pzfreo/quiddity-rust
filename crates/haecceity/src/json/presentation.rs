@@ -5,7 +5,8 @@ use crate::{
     p21::{Attribute as A, Document, RawEntity},
     pmi::{PartId, PmiRead},
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+#[cfg(feature = "json-import")]
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -13,7 +14,8 @@ use std::collections::{BTreeMap, BTreeSet};
 mod layout;
 pub use layout::{Plane, TextPlacement, View};
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, PartialEq)]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[serde(deny_unknown_fields)]
 pub struct Graphic {
     /// Document-local identity, shared by copies under multiple semantic keys.
@@ -31,13 +33,15 @@ pub struct Graphic {
     pub step_ids: Vec<u64>,
     pub unsupported: Vec<String>,
 }
-#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq)]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[serde(rename_all = "snake_case")]
 pub enum Source {
     Generated,
     File,
 }
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, PartialEq)]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[serde(deny_unknown_fields)]
 pub struct Presentation {
     pub schema: String,
@@ -652,6 +656,7 @@ pub fn read(
         }
     }
     out.views = layout::views(doc, &out);
+    #[cfg(feature = "json-import")]
     validate(&serde_json::to_value(&out)?)?;
     Ok(out)
 }
@@ -716,6 +721,7 @@ fn unit_scale(doc: &Document, id: u64, depth: usize) -> Option<f64> {
 }
 
 /// Validate the companion with the shipped schema.
+#[cfg(feature = "json-import")]
 pub fn validate(v: &Value) -> Result<()> {
     let schema: Value = serde_json::from_str(super::PRESENTATION_SCHEMA)?;
     super::schema::check(v, &schema, &schema, "")?;
@@ -832,6 +838,7 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
         g.text = c.cells;
         out.unlinked.push(g);
     }
+    #[cfg(feature = "json-import")]
     validate(&serde_json::to_value(&out)?)?;
     Ok(out)
 }

@@ -9,9 +9,13 @@ use serde::{Deserialize, Serialize};
 struct Entry {
     id: String,
     key: String,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     references: BTreeMap<String, Value>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     sequences: BTreeMap<String, Value>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     anchors: Option<Value>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     callouts: Option<Value>,
 }
 type Entries = BTreeMap<String, Vec<Entry>>;
@@ -19,8 +23,11 @@ type Entries = BTreeMap<String, Vec<Entry>>;
 #[serde(deny_unknown_fields)]
 struct Layout {
     items: Entries,
+    #[serde(default = "units::empty", skip_serializing_if = "empty_units")]
     units: Value,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    spellings: BTreeMap<String, String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     wire_anchors: Vec<AnchorBinding>,
 }
 impl std::ops::Deref for Layout {
@@ -28,6 +35,78 @@ impl std::ops::Deref for Layout {
     fn deref(&self) -> &Entries {
         &self.items
     }
+}
+
+fn empty_units(value: &Value) -> bool {
+    ["length", "angle", "density", "other"]
+        .iter()
+        .all(|k| value[*k].as_array().is_some_and(Vec::is_empty))
+}
+impl Layout {
+    fn entries(&self, collection: &str) -> &[Entry] {
+        self.items
+            .get(collection)
+            .map(Vec::as_slice)
+            .unwrap_or_default()
+    }
+}
+/// Preserve tokens lost by REAL encoding or exact unit-factor arithmetic.
+pub(super) fn walk_reals(
+    raw: &mut Value,
+    f: &mut impl FnMut(&str, &mut Value, bool) -> Result<()>,
+) -> Result<()> {
+    schema::walk_path(
+        raw,
+        &model_schema(),
+        pmi_schema(),
+        "",
+        &mut |kind, value, path| {
+            if kind == "Decimal" {
+                f(path, value, false)?;
+            }
+            if kind == "DensityUnit" {
+                for (i, pair) in value.as_array_mut().into_iter().flatten().enumerate() {
+                    f(&format!("{path}/{i}/1"), &mut pair[1], false)?;
+                }
+            }
+            for (unit_kind, factor) in [("LengthUnit", "metres"), ("AngleUnit", "radians")] {
+                if kind == unit_kind
+                    && let Some(scale) = value.pointer_mut(&format!("/other/{factor}"))
+                {
+                    f(&format!("{path}/other/{factor}"), scale, true)?;
+                }
+            }
+            Ok(())
+        },
+    )
+}
+fn normalize_reals(raw: &mut Value, normalize_units: bool) -> Result<BTreeMap<String, String>> {
+    let mut spellings = BTreeMap::new();
+    walk_reals(raw, &mut |path, value, unit_scale| {
+        if unit_scale && !normalize_units {
+            return Ok(());
+        }
+        let stated = value
+            .as_str()
+            .ok_or_else(|| Error("invalid decimal".into()))?;
+        if path.ends_with("/count") && stated.parse::<i64>().is_ok_and(|n| n.to_string() == stated)
+        {
+            return Ok(());
+        }
+        let decimal = pmi::Decimal::parse(stated).map_err(|e| Error(e.0))?;
+        let encoded = pmi::write::real_text(&if unit_scale {
+            decimal.scaled(0)
+        } else {
+            decimal
+        })
+        .map_err(Error)?;
+        if encoded != stated {
+            spellings.insert(path.to_string(), stated.to_string());
+            *value = json!(encoded);
+        }
+        Ok(())
+    })?;
+    Ok(spellings)
 }
 
 fn key(raw: &Value, collection: &str, index: usize) -> Result<String> {
@@ -125,7 +204,8 @@ fn collect(
     }
 }
 pub(crate) fn layout(pmi: &PartPmi, ids: &BTreeMap<String, Vec<String>>) -> Result<String> {
-    let raw = serde_json::to_value(pmi)?;
+    let mut raw = serde_json::to_value(pmi)?;
+    let spellings = normalize_reals(&mut raw, true)?;
     let mut linked = raw.clone();
     schema::walk(
         &mut linked,
@@ -137,7 +217,7 @@ pub(crate) fn layout(pmi: &PartPmi, ids: &BTreeMap<String, Vec<String>>) -> Resu
                     .as_u64()
                     .ok_or_else(|| Error(format!("invalid {kind}")))?
                     as usize;
-                *value = json!({"$reference":{"collection":c,"id":ids[c][i]}});
+                *value = json!({"$reference":[COLLECTIONS.iter().position(|&name| name == c),i]});
             }
             Ok(())
         },
@@ -154,19 +234,34 @@ pub(crate) fn layout(pmi: &PartPmi, ids: &BTreeMap<String, Vec<String>>) -> Resu
                 key: key(&raw, c, i)?,
                 references,
                 sequences,
-                callouts: if c == "notes" {
+                callouts: if c == "notes"
+                    && linked[c][i]["callouts"]
+                        .as_array()
+                        .is_some_and(|a| !a.is_empty())
+                {
                     Some(linked[c][i]["callouts"].clone())
                 } else {
                     None
                 },
                 anchors: if c == "features" {
-                    linked[c][i].get("items").cloned()
+                    linked[c][i]
+                        .get("items")
+                        .filter(|a| {
+                            // A singleton native face/edge resolves its entire wire support.
+                            !a.as_array().is_some_and(|a| {
+                                a.len() == 1
+                                    && (a[0]["face"].is_number() || a[0]["edge"].is_number())
+                            })
+                        })
+                        .cloned()
                 } else {
                     None
                 },
             });
         }
-        layout.insert(c.into(), entries);
+        if !entries.is_empty() {
+            layout.insert(c.into(), entries);
+        }
     }
     let units = ids
         .get("__units")
@@ -177,6 +272,7 @@ pub(crate) fn layout(pmi: &PartPmi, ids: &BTreeMap<String, Vec<String>>) -> Resu
     Ok(serde_json::to_string(&Layout {
         items: layout,
         units,
+        spellings,
         wire_anchors: ids
             .get("__anchors")
             .and_then(|v| v.first())
@@ -221,19 +317,50 @@ fn provenance_mut<'a>(p: &'a mut pmi::PartProvenance, c: &str) -> Option<&'a mut
         _ => return None,
     })
 }
-fn binding(value: &Value, layout: &Layout) -> Result<Value> {
-    let c = value["collection"]
-        .as_str()
-        .ok_or_else(|| Error("ordering binding missing collection".into()))?;
-    let id = value["id"]
-        .as_str()
-        .ok_or_else(|| Error("ordering binding missing id".into()))?;
-    let i = layout
-        .get(c)
-        .and_then(|entries| entries.iter().position(|e| e.id == id))
-        .ok_or_else(|| Error(format!("unknown ordering {c} id {id:?}")))?;
-    Ok(json!(i))
+fn reference_binding<'a>(
+    value: &'a Value,
+    layout: &'a Layout,
+) -> Result<(&'a str, usize, &'a str)> {
+    let (collection, index) = if let Some(pair) = value.as_array() {
+        let c = pair
+            .first()
+            .and_then(Value::as_u64)
+            .and_then(|i| COLLECTIONS.get(i as usize))
+            .ok_or_else(|| Error("invalid ordering reference collection".into()))?;
+        let i = pair
+            .get(1)
+            .and_then(Value::as_u64)
+            .ok_or_else(|| Error("invalid ordering reference index".into()))?
+            as usize;
+        if pair.len() != 2 {
+            return Err(Error("invalid ordering reference pair".into()));
+        }
+        (*c, i)
+    } else {
+        // Read the verbose producer convention emitted before #142 round 3.
+        let c = value["collection"]
+            .as_str()
+            .ok_or_else(|| Error("ordering binding missing collection".into()))?;
+        let id = value["id"]
+            .as_str()
+            .ok_or_else(|| Error("ordering binding missing id".into()))?;
+        let i = layout
+            .entries(c)
+            .iter()
+            .position(|e| e.id == id)
+            .ok_or_else(|| Error(format!("unknown ordering {c} id {id:?}")))?;
+        (c, i)
+    };
+    let id = layout
+        .entries(collection)
+        .get(index)
+        .ok_or_else(|| Error("ordering reference out of range".into()))?;
+    Ok((collection, index, &id.id))
 }
+fn binding(value: &Value, layout: &Layout) -> Result<Value> {
+    Ok(json!(reference_binding(value, layout)?.1))
+}
+
 fn unmark(value: &mut Value, layout: &Layout) -> Result<()> {
     if let Some(reference) = value.get("$reference") {
         *value = binding(reference, layout)?;
@@ -280,13 +407,13 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
             return Err(Error("multiple PMI ordering records on a part".into()));
         }
         let layout: Layout = serde_json::from_value(parse(items[0])?)?;
-        if layout.len() != COLLECTIONS.len() || COLLECTIONS.iter().any(|c| !layout.contains_key(*c))
-        {
-            return Err(Error("incomplete PMI ordering record".into()));
+        if layout.keys().any(|c| !COLLECTIONS.contains(&c.as_str())) {
+            return Err(Error("unknown PMI ordering collection".into()));
         }
         let mut seen = BTreeSet::new();
         super::units::validate(&layout.units, &mut seen)?;
-        let raw = serde_json::to_value(&read.parts[part])?;
+        let mut raw = serde_json::to_value(&read.parts[part])?;
+        normalize_reals(&mut raw, !layout.spellings.is_empty())?;
         let mut restored = raw.clone();
         let mut maps = BTreeMap::<String, Vec<usize>>::new();
         for &c in COLLECTIONS {
@@ -295,7 +422,7 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
                 .ok_or_else(|| Error(format!("missing {c}")))?;
             let mut values = vec![];
             let mut order = vec![];
-            for e in &layout[c] {
+            for e in layout.entries(c) {
                 if e.id.is_empty() || !seen.insert(e.id.clone()) {
                     return Err(Error(format!("duplicate ordering id {:?}", e.id)));
                 }
@@ -318,9 +445,7 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
                 // Verify independently identified reference targets before restoring any
                 // projection/order bindings. Equal-valued twins still have distinct ids.
                 for (path, reference) in &e.references {
-                    let target = reference["collection"]
-                        .as_str()
-                        .ok_or_else(|| Error("invalid native reference collection".into()))?;
+                    let (target, _, expected) = reference_binding(reference, &layout)?;
                     if ["features", "geometry", "derived_geometry"].contains(&target) {
                         continue;
                     }
@@ -336,10 +461,10 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
                     let actual = file_ids(Some(&read.identifiers.parts[part]), target)
                         .get(index)
                         .and_then(Option::as_deref);
-                    if actual != reference["id"].as_str() {
+                    if actual != Some(expected) {
                         return Err(Error(format!(
                             "ordering id {:?}: native reference {path} selects {target} id {actual:?}, expected {}",
-                            e.id, reference["id"]
+                            e.id, expected
                         )));
                     }
                 }
@@ -348,8 +473,8 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
                     value["items"] = anchors.clone();
                     unmark(&mut value["items"], &layout)?;
                 }
-                if let Some(callouts) = &e.callouts {
-                    value["callouts"] = callouts.clone();
+                if c == "notes" {
+                    value["callouts"] = e.callouts.clone().unwrap_or_else(|| json!([]));
                     unmark(&mut value["callouts"], &layout)?;
                 }
                 for (path, sequence) in &e.sequences {
@@ -393,7 +518,7 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
         }
         // Reference reindexing/aliases are checked against native, resolved semantic content.
         for &c in COLLECTIONS {
-            for (i, e) in layout[c].iter().enumerate() {
+            for (i, e) in layout.entries(c).iter().enumerate() {
                 if key(&restored, c, i)? != e.key {
                     return Err(Error(format!(
                         "ordering id {:?} native content changed in {c}",
@@ -401,6 +526,30 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
                     )));
                 }
             }
+        }
+        let mut decimal_paths = BTreeSet::new();
+        walk_reals(&mut restored, &mut |path, _, _| {
+            decimal_paths.insert(path.to_string());
+            Ok(())
+        })?;
+        for (path, stated) in &layout.spellings {
+            if !decimal_paths.contains(path) {
+                return Err(Error(format!("spelling {path} is not a decimal")));
+            }
+            let target = restored
+                .pointer_mut(path)
+                .ok_or_else(|| Error(format!("stale decimal spelling {path}")))?;
+            let stated_decimal = pmi::Decimal::parse(stated).map_err(|e| Error(e.0))?;
+            let native_decimal = target
+                .as_str()
+                .and_then(|s| pmi::Decimal::parse(s).ok())
+                .ok_or_else(|| Error("native decimal spelling is absent".into()))?;
+            if stated_decimal.cmp_value(&native_decimal) != std::cmp::Ordering::Equal {
+                return Err(Error(format!(
+                    "decimal spelling {path} changes native value"
+                )));
+            }
+            *target = json!(stated);
         }
         let pmi: PartPmi = serde_json::from_value(restored)?;
         pmi.validate()
@@ -422,8 +571,11 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
                     .map(|&i| old.get(i).cloned().unwrap_or_default())
                     .collect();
             }
-            *ids_mut(&mut read.identifiers.parts[part], c) =
-                layout[c].iter().map(|e| Some(e.id.clone())).collect();
+            *ids_mut(&mut read.identifiers.parts[part], c) = layout
+                .entries(c)
+                .iter()
+                .map(|e| Some(e.id.clone()))
+                .collect();
             read.json_carriers
                 .retain(|(p, collection, _), _| *p != PartId(part) || collection != c);
             for (i, &old) in order.iter().enumerate() {

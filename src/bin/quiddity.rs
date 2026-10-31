@@ -65,12 +65,12 @@ use quiddity::part_input;
 use quiddity::pmi_json::{self, Binding};
 use quiddity::serve::{self, Failure};
 
-#[cfg(feature = "json")]
+#[cfg(feature = "json-import")]
 #[path = "quiddity/pmi_interchange.rs"]
 mod pmi_interchange;
 
-#[cfg(feature = "json")]
-const JSON_USAGE: &str = "PMI interchange (--features json):
+#[cfg(feature = "json-import")]
+const JSON_USAGE: &str = "PMI interchange (--features json-import):
        quiddity pmi json export <file.step> [--part N]
        quiddity pmi json import <geometry.step> <pmi.json> -o <out.step> [--part N]
                          [--anchors <verified-face-namespace.json>]
@@ -100,7 +100,7 @@ fn main() -> ExitCode {
     let result = match args.as_slice() {
         [flag] if flag == "-h" || flag == "--help" => {
             println!("{USAGE}");
-            #[cfg(feature = "json")]
+            #[cfg(feature = "json-import")]
             println!("\n{JSON_USAGE}");
             return ExitCode::SUCCESS;
         }
@@ -124,7 +124,7 @@ fn main() -> ExitCode {
                 return ExitCode::from(2);
             }
         },
-        #[cfg(feature = "json")]
+        #[cfg(feature = "json-import")]
         [command, format, rest @ ..] if command == "pmi" && format == "json" => {
             pmi_interchange::run(rest)
         }

@@ -1,4 +1,4 @@
-#![cfg(feature = "json")]
+#![cfg(feature = "json-import")]
 use haecceity::{
     json::{self, Anchors},
     p21::Document,
@@ -1050,4 +1050,84 @@ fn wire_fingerprint_forms_and_multiple_support_faces_are_json_step_identity() {
             json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
         assert_eq!(json::to_value(&semantic).unwrap(), input);
     }
+}
+
+#[test]
+fn integer_mantissas_are_identity_in_every_writer_kind_including_real_attributes() {
+    let doc = Document::parse(cube()).unwrap();
+    let parts = read_part_definitions(doc.bytes()).unwrap();
+    let mut raw = serde_json::to_value(gaps::every_kind()).unwrap();
+    fn mantissas(value: &mut serde_json::Value) {
+        match value {
+            serde_json::Value::String(text)
+                if Decimal::parse(text).is_ok() && text.contains('.') =>
+            {
+                let (mantissa, exp) = text
+                    .split_once(['e', 'E'])
+                    .map_or((text.as_str(), 0), |(m, e)| (m, e.parse::<i64>().unwrap()));
+                let fraction = mantissa.split_once('.').unwrap().1.len();
+                *text = format!("{}e{}", mantissa.replace('.', ""), exp - fraction as i64);
+            }
+            serde_json::Value::Array(array) => array.iter_mut().for_each(mantissas),
+            serde_json::Value::Object(object) => object.values_mut().for_each(mantissas),
+            _ => {}
+        }
+    }
+    mantissas(&mut raw);
+    let mut pmi: PartPmi = serde_json::from_value(raw).unwrap();
+    pmi.attributes.push(AttributeSet {
+        name: "REAL path coverage".into(),
+        on: None,
+        description: None,
+        general_property: None,
+        items: vec![
+            (
+                "integer REAL".into(),
+                AttributeValue::Real(Decimal::parse("42").unwrap()),
+            ),
+            (
+                "typed REAL".into(),
+                AttributeValue::OtherMeasure {
+                    measure: "solid_angle_measure".into(),
+                    value: Decimal::parse("2e0").unwrap(),
+                    unit: "steradian".into(),
+                },
+            ),
+            (
+                "length scale".into(),
+                AttributeValue::Measure(Value::length(
+                    Decimal::parse("3").unwrap(),
+                    LengthUnit::Other {
+                        name: "double metre".into(),
+                        metres: Decimal::parse("2e0").unwrap(),
+                    },
+                )),
+            ),
+            (
+                "angle scale".into(),
+                AttributeValue::Measure(Value::angle(
+                    Decimal::parse("4").unwrap(),
+                    AngleUnit::Other {
+                        name: "double radian".into(),
+                        radians: Decimal::parse("2").unwrap(),
+                    },
+                )),
+            ),
+        ],
+    });
+    let input = json::identify(pmi, None).unwrap();
+    let expected = json::to_value(&input).unwrap();
+    json::validate(&expected).unwrap();
+    let (written, _) = json::write(
+        &doc,
+        &parts,
+        &[(PartId(0), input)],
+        pmi::write::PresentationPolicy::RemovePresentation,
+    )
+    .unwrap();
+    let doc = Document::parse(written).unwrap();
+    let parts = read_part_definitions(doc.bytes()).unwrap();
+    let read = pmi::read(&doc, &parts).unwrap();
+    let actual = json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap();
+    assert_eq!(json::to_value(&actual).unwrap(), expected);
 }

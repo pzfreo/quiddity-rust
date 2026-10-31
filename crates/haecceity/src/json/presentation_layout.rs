@@ -2,7 +2,8 @@
 use super::*;
 
 /// A model-space frame in millimetres, keyed by a document-local annotation plane id.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, PartialEq)]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[serde(deny_unknown_fields)]
 pub struct Plane {
     pub id: String,
@@ -14,7 +15,8 @@ pub struct Plane {
 
 /// The alignment point and axes of one text entry. A placeholder has no text index:
 /// its line spacing is retained separately, never passed off as a character height.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, PartialEq)]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[serde(deny_unknown_fields)]
 pub struct TextPlacement {
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -32,7 +34,8 @@ pub struct TextPlacement {
 
 /// One draughting-model group, or one of its saved camera views. Direction points
 /// into the scene (-camera Z); up is camera Y. Unoriented groups omit both axes.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, PartialEq)]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[serde(deny_unknown_fields)]
 pub struct View {
     pub id: String,
@@ -507,6 +510,7 @@ pub(super) fn generated(
     }
 }
 
+#[cfg(feature = "json-import")]
 pub(super) fn validate(value: &Value) -> Result<()> {
     let mut planes = BTreeSet::new();
     for plane in value["planes"].as_array().into_iter().flatten() {

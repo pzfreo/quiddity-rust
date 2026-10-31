@@ -1361,17 +1361,9 @@ fn notes_and_surface_textures_are_standard_forms() {
             format!("#{id}={t}")
         })
     );
-    // A value that is not a Part 21 REAL is refused, naming the texture.
+    // Integer-spelled decimals also have a valid REAL encoding.
     p.surface_textures[1].parameters[0].value = length("35", LengthUnit::Micrometre);
-    match write(&f, &[(PartId(0), p)], Mode::Replace) {
-        Err(WriteError::Refused(r)) => {
-            assert!(
-                r.iter().any(|x| x.item == ItemRef::SurfaceTexture(1)),
-                "{r:?}"
-            )
-        }
-        other => panic!("not refused: {:?}", other.err()),
-    }
+    write(&f, &[(PartId(0), p)], Mode::Replace).unwrap();
 }
 
 /// One datum per name per document (assemblies): datum A on each part of the two-part
@@ -2158,7 +2150,6 @@ fn refusals_name_every_item() {
                 ItemRef::DatumTarget(0),
                 ItemRef::Material,
                 ItemRef::DecimalPlaces,
-                ItemRef::Dimension(0),
             ] {
                 assert!(items.contains(&i), "{i:?} not refused: {r:#?}");
             }
@@ -7236,7 +7227,7 @@ fn differences_accept_native_feature_aliases_and_attribute_canonicalization() {
     canonicalized.attributes[1].on = Some(NoteOwner::Feature(FeatureId(2)));
     assert!(differences(&p, &canonicalized).is_empty());
     assert!(differences_as_stated(&p, &canonicalized).is_empty());
-    #[cfg(feature = "json")]
+    #[cfg(feature = "json-import")]
     assert!(!haecceity::json::identity_differences(&p, &canonicalized).is_empty());
 }
 
@@ -7392,4 +7383,46 @@ fn assert_frames_and_diameters_clear(doc: &Document) {
         "frame/diameter clearance {:.9} mm, #{} / #{}, view {:?}",
         worst.0, worst.1, worst.2, worst.3
     );
+}
+
+#[test]
+fn invalid_occt_density_units_report_the_dimensional_reason_and_old_grams_still_read() {
+    let raw = include_bytes!("fixtures/q142/invalid-density.step.gz");
+    let mut bytes = vec![];
+    flate2::read::GzDecoder::new(&raw[..])
+        .read_to_end(&mut bytes)
+        .unwrap();
+    let f = open_bytes(bytes.clone());
+    let read = pmi::read(&f.doc, &f.parts).unwrap();
+    assert!(read.parts[0].material.as_ref().unwrap().density.is_none());
+    assert!(
+        read.findings
+            .iter()
+            .any(|f| f.detail.contains("not mass / length cubed"))
+    );
+    let text = String::from_utf8(bytes)
+        .unwrap()
+        .replace("(#505,3.)", "(#505,1.)")
+        .replace("(#506,2.)", "(#506,-3.)");
+    let f = open_bytes(text.into_bytes());
+    let read = pmi::read(&f.doc, &f.parts).unwrap();
+    let density = read.parts[0]
+        .material
+        .as_ref()
+        .unwrap()
+        .density
+        .as_ref()
+        .unwrap();
+    assert_eq!(
+        density.unit,
+        vec![
+            ("gram".into(), dec("1.")),
+            ("centimetre".into(), dec("-3."))
+        ]
+    );
+    let written = write(&f, &[(PartId(0), read.parts[0].clone())], Mode::Replace).unwrap();
+    let text = String::from_utf8_lossy(written.doc.bytes());
+    assert!(text.contains("CONVERSION_BASED_UNIT('gram',"));
+    assert!(text.contains("SI_UNIT(.KILO.,.GRAM.)"));
+    assert_eq!(written.read.parts[0].material, read.parts[0].material);
 }

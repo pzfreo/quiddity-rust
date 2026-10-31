@@ -1,8 +1,9 @@
 //! Original wire anchor forms, verified against their resolved native support.
 use super::*;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[serde(deny_unknown_fields)]
 pub struct AnchorBinding {
     path: String,
@@ -10,6 +11,7 @@ pub struct AnchorBinding {
     resolved: Value,
 }
 
+#[cfg(feature = "json-import")]
 fn differences(wire: &Value, resolved: &Value, path: &str, out: &mut Vec<AnchorBinding>) {
     if wire == resolved
         || (wire.is_number() && resolved.is_number() && wire.as_f64() == resolved.as_f64())
@@ -40,6 +42,7 @@ fn differences(wire: &Value, resolved: &Value, path: &str, out: &mut Vec<AnchorB
     }
 }
 
+#[cfg(feature = "json-import")]
 pub(super) fn capture(wire: &Value, anchors: &Anchors) -> Result<Vec<AnchorBinding>> {
     let mut resolved = wire.clone();
     identity::expand_supports(&mut resolved, anchors)?;
@@ -61,6 +64,7 @@ pub(super) fn capture(wire: &Value, anchors: &Anchors) -> Result<Vec<AnchorBindi
     Ok(out)
 }
 
+#[cfg(feature = "json-import")]
 pub(super) fn apply(raw: &mut Value, bindings: &[AnchorBinding]) -> Result<()> {
     if bindings.is_empty() {
         return Ok(());
