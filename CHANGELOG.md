@@ -11,7 +11,15 @@ in [docs/alpha1.md](docs/alpha1.md).
 Upgrading from 0.4.0: recognition schema `/6` and fingerprints `/3` are unchanged, and successful recognition output is byte-identical.
 - **Panic isolation (#161):** a panicking family no longer aborts the run. Incomplete documents add optional `failures` and `complete: false`.
 - **Presentation:** text placements carry optional `stroked`; generated general notes are one numbered GENERAL NOTES block beside the part; regenerated ladders and datum flags sit by their features again; generated presentations gain one view per annotation plane. Feature-on (written PMI) graphics change accordingly.
+- **Callout reading (#166):** `PmiRead.callouts` lists decoded graphical PMI annotations and their semantic links.
 - **AP214:** files with FreeCAD's `PRODUCT_TYPE` now take PMI (pzfreo/specify-core#89), with each keyword rewrite reported in `edition_rewrites`.
+
+### Added
+
+- Haecceity `PmiRead.callouts` lists decoded graphical PMI annotations and every
+  DMIA semantic link, including unresolved definitions, independently of the existing
+  presentation accounting count. Links use part-qualified model ids and follow JSON
+  transport ordering; note callout reading remains compatible.
 
 ### Fixed
 
