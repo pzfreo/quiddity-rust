@@ -1466,7 +1466,11 @@ impl<'a> Reader<'a> {
                 parents.insert(parent);
             }
         }
-        (parents.len() == 1).then(|| *parents.first().unwrap())
+        if parents.len() == 1 {
+            parents.into_iter().next()
+        } else {
+            None
+        }
     }
 
     /// Shared GISU carriers can also be members of per-element groups. Preserve their
