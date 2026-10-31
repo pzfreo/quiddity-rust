@@ -76,7 +76,7 @@ pub(super) fn run(args: &[String]) -> Result<String, String> {
             let after = p21::Document::parse(output.clone()).map_err(|e| e.to_string())?;
             let after_defs = read_part_definitions(&output).map_err(|e| e.to_string())?;
             let after_read = pmi::read(&after, &after_defs).map_err(|e| e.to_string())?;
-            let differences = json::identity_differences(&expected, &after_read.parts[part]);
+            let differences = interchange::identity_differences(&expected, &after_read.parts[part]);
             if !differences.is_empty() {
                 return Err(format!("output does not verify: {differences:?}"));
             }
