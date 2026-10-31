@@ -924,7 +924,6 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
                 .get(collection)
                 .and_then(|ids| ids.get(index))
                 .ok_or_else(|| Error(format!("missing id {collection}/{index}")))?;
-            let mut g = Graphic::new(Source::Generated, callout.notation());
             let placed = if let Some((_, p)) = placed.remove(&(collection, index)) {
                 p
             } else if collection == "surface_textures" {
@@ -944,13 +943,13 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
             } else {
                 layout.notes(&callout)
             };
-            g.id = Some(format!("generated:{collection}:{key}"));
-            layout::generated(&mut g, &callout, &placed);
-            let plane = Plane::generated(&g, &placed);
-            g.plane_id = Some(plane.id.clone());
+            let (g, plane) = generated_graphic(
+                format!("generated:{collection}:{key}"),
+                callout.notation(),
+                callout,
+                placed,
+            );
             out.planes.push(plane);
-            g.polylines = placed.lines;
-            g.text = callout.cells;
             out.items.entry(key.clone()).or_default().push(g);
             Ok(())
         };
@@ -976,27 +975,17 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
             presentation::notes::surface_texture(t),
         )?;
     }
-    for (i, n) in semantic
-        .pmi
-        .notes
-        .iter()
-        .enumerate()
-        .filter(|(_, n)| n.on.is_some())
-    {
-        add("notes", i, presentation::label(&n.text))?;
-    }
     let rows = presentation::notes::general_notes(&semantic.pmi);
     if !rows.is_empty() {
         let c = presentation::notes::notes_block(&rows);
-        let mut g = Graphic::new(self::Source::Generated, "General notes".into());
         let placed = layout.notes(&c);
-        g.id = Some("generated:general-notes".into());
-        layout::generated(&mut g, &c, &placed);
-        let plane = Plane::generated(&g, &placed);
-        g.plane_id = Some(plane.id.clone());
+        let (g, plane) = generated_graphic(
+            "generated:general-notes".into(),
+            "General notes".into(),
+            c,
+            placed,
+        );
         out.planes.push(plane);
-        g.polylines = placed.lines;
-        g.text = c.cells;
         // As for a read STEP callout with several linked occurrences, each
         // requirement keeps its key and aliases the same render-once graphic.
         let mut keys = BTreeSet::new();
@@ -1025,6 +1014,23 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
             }
         }
     }
+    // Feature-owned fallback labels must not consume the part block's first
+    // notes station. File-owned note graphics are handled by read, unchanged.
+    for (i, n) in semantic
+        .pmi
+        .notes
+        .iter()
+        .enumerate()
+        .filter(|(_, n)| n.on.is_some())
+    {
+        let key = &semantic.ids["notes"][i];
+        let c = presentation::label(&n.text);
+        let placed = layout.notes(&c);
+        let (g, plane) =
+            generated_graphic(format!("generated:notes:{key}"), c.notation(), c, placed);
+        out.planes.push(plane);
+        out.items.entry(key.clone()).or_default().push(g);
+    }
     // The existing view model stores orientation and membership, not a camera
     // position or scale. Clients fit the part and these graphics themselves.
     for plane in &out.planes {
@@ -1049,6 +1055,23 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
     #[cfg(feature = "json-import")]
     validate(&serde_json::to_value(&out)?)?;
     Ok(out)
+}
+
+#[cfg(feature = "presentation")]
+fn generated_graphic(
+    id: String,
+    name: String,
+    callout: crate::presentation::Callout,
+    placed: crate::presentation::placement::Placed,
+) -> (Graphic, Plane) {
+    let mut g = Graphic::new(Source::Generated, name);
+    g.id = Some(id);
+    layout::generated(&mut g, &callout, &placed);
+    let plane = Plane::generated(&g, &placed);
+    g.plane_id = Some(plane.id.clone());
+    g.polylines = placed.lines;
+    g.text = callout.cells;
+    (g, plane)
 }
 
 fn id_set(semantic: &Semantic) -> Result<Vec<String>> {

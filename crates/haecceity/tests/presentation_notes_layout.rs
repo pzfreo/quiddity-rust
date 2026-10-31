@@ -392,7 +392,12 @@ fn unstructured_part_notes_keep_native_ids_and_join_the_same_block() {
     .unwrap();
     let defs = step::read_part_definitions(doc.bytes()).unwrap();
     let part = step::read_part(doc.bytes(), &defs[0]).unwrap();
-    for finish_text in [None, Some("Ra 3.2"), Some("Ra 3.20 µm")] {
+    for (finish_text, feature_note) in [
+        (None, false),
+        (Some("Ra 3.2"), false),
+        (Some("Ra 3.20 µm"), false),
+        (None, true),
+    ] {
         let mut model = pmi::PartPmi {
             notes: vec![pmi::Note {
                 kind: "general tolerances".into(),
@@ -429,7 +434,27 @@ fn unstructured_part_notes_keep_native_ids_and_join_the_same_block() {
                 callouts: vec![],
             });
         }
+        if feature_note {
+            model
+                .features
+                .push(pmi::Feature::Items(vec![pmi::Anchor::Face(
+                    pmi::FaceIndex(0),
+                )]));
+            model.notes.push(pmi::Note {
+                kind: "semantic text".into(),
+                text: "Face instruction".into(),
+                on: Some(pmi::NoteOwner::Feature(pmi::FeatureId(0))),
+                callouts: vec![],
+            });
+        }
         let semantic = json::identify(model.clone(), None).unwrap();
+        let part_ids: Vec<_> = model
+            .notes
+            .iter()
+            .enumerate()
+            .filter(|(_, n)| n.on.is_none())
+            .map(|(i, _)| semantic.ids["notes"][i].clone())
+            .collect();
         let generated = json::presentation::generated(&semantic, &part).unwrap();
         let blocks = unique_notes(&generated);
         assert_eq!(blocks.len(), 1);
@@ -446,7 +471,7 @@ fn unstructured_part_notes_keep_native_ids_and_join_the_same_block() {
                 "3  Break sharp edges 0.2 max"
             ]
         );
-        for id in &semantic.ids["notes"] {
+        for id in &part_ids {
             assert_eq!(generated.items[id][0].id, blocks[0].id);
         }
         // Native JSON rewriting, as Specify uses, must preserve the note's id
@@ -465,7 +490,7 @@ fn unstructured_part_notes_keep_native_ids_and_join_the_same_block() {
             strokes(&unique_notes(&drawn)[0].polylines),
             strokes(&blocks[0].polylines)
         );
-        for id in &semantic.ids["notes"] {
+        for id in &part_ids {
             assert_eq!(drawn.items[id][0].id, unique_notes(&drawn)[0].id);
         }
         // The legacy writer normalizes notes to attributes/textures. Its block
