@@ -1,7 +1,7 @@
 # Family isolation instruction counts (For #161)
 
 Baseline: local `origin/main`, `ea72ab24a6c8b43b80bf5ad021747caac04bdb18`.
-Change: implementation in `1af9a7dc` (later additions only strengthen tests/reporting).
+Change: final implementation in `8c98a125` (including immediate post-pass recovery).
 Both executables were built with `cargo build --release --bin quiddity`, default features,
 the pinned Rust 1.99 toolchain, on the same Apple Silicon machine.
 
@@ -15,33 +15,34 @@ compared byte-for-byte for all three parts before counting.
 
 | Corpus part | origin/main median instructions | Change median instructions | Delta |
 | --- | ---: | ---: | ---: |
-| `mfcadpp/1004.step` | 566,675,135 | 566,845,691 | +0.0301% |
-| `cadgenbench/threaded_connector_109.step` | 58,307,979,393 | 58,309,186,067 | +0.0021% |
-| `cadgenbench/flanged_spool_132.step` | 12,029,794,266 | 12,032,538,135 | +0.0228% |
+| `mfcadpp/1004.step` | 566,854,390 | 565,551,266 | -0.2299% |
+| `cadgenbench/threaded_connector_109.step` | 58,291,764,400 | 58,289,463,892 | -0.0039% |
+| `cadgenbench/flanged_spool_132.step` | 12,023,200,531 | 12,026,389,044 | +0.0265% |
 
-All median increases are below 0.031% of the full CLI instruction count. This
-bounds observed end-to-end overhead on these inputs; it does not establish zero
-instruction cost for `catch_unwind` or replace a family microbenchmark.
+The largest observed median increase is below 0.027% of the full CLI instruction
+count. The small negative changes are not evidence of a speedup. These
+measurements bound observed end-to-end overhead on these inputs; they do not establish
+zero instruction cost for `catch_unwind` or replace a family microbenchmark.
 
 Raw paired instruction counts (columns remain base/head regardless of execution order):
 
 | Part | Pair | Base | Change |
 | --- | ---: | ---: | ---: |
-| `mfcadpp/1004.step` | 1 | 566,675,135 | 567,020,877 |
-| `mfcadpp/1004.step` | 2 | 566,534,502 | 567,435,447 |
-| `mfcadpp/1004.step` | 3 | 566,742,820 | 565,513,540 |
-| `mfcadpp/1004.step` | 4 | 566,653,396 | 566,845,691 |
-| `mfcadpp/1004.step` | 5 | 566,678,900 | 566,271,061 |
-| `cadgenbench/threaded_connector_109.step` | 1 | 58,318,433,174 | 58,313,890,616 |
-| `cadgenbench/threaded_connector_109.step` | 2 | 58,312,025,547 | 58,313,736,385 |
-| `cadgenbench/threaded_connector_109.step` | 3 | 58,307,979,393 | 58,309,186,067 |
-| `cadgenbench/threaded_connector_109.step` | 4 | 58,292,229,532 | 58,294,521,883 |
-| `cadgenbench/threaded_connector_109.step` | 5 | 58,286,573,637 | 58,296,226,580 |
-| `cadgenbench/flanged_spool_132.step` | 1 | 12,031,255,183 | 12,032,538,135 |
-| `cadgenbench/flanged_spool_132.step` | 2 | 12,030,688,306 | 12,031,931,703 |
-| `cadgenbench/flanged_spool_132.step` | 3 | 12,029,794,266 | 12,034,004,832 |
-| `cadgenbench/flanged_spool_132.step` | 4 | 12,027,732,485 | 12,035,003,596 |
-| `cadgenbench/flanged_spool_132.step` | 5 | 12,027,655,595 | 12,031,487,287 |
+| `mfcadpp/1004.step` | 1 | 566,854,390 | 565,228,701 |
+| `mfcadpp/1004.step` | 2 | 566,649,783 | 565,388,808 |
+| `mfcadpp/1004.step` | 3 | 566,797,802 | 566,005,789 |
+| `mfcadpp/1004.step` | 4 | 566,969,478 | 566,083,360 |
+| `mfcadpp/1004.step` | 5 | 566,950,868 | 565,551,266 |
+| `cadgenbench/threaded_connector_109.step` | 1 | 58,292,764,353 | 58,290,036,019 |
+| `cadgenbench/threaded_connector_109.step` | 2 | 58,293,891,299 | 58,290,676,409 |
+| `cadgenbench/threaded_connector_109.step` | 3 | 58,291,764,400 | 58,289,463,892 |
+| `cadgenbench/threaded_connector_109.step` | 4 | 58,289,148,112 | 58,288,974,629 |
+| `cadgenbench/threaded_connector_109.step` | 5 | 58,291,222,464 | 58,283,874,791 |
+| `cadgenbench/flanged_spool_132.step` | 1 | 12,022,995,224 | 12,025,189,688 |
+| `cadgenbench/flanged_spool_132.step` | 2 | 12,021,332,569 | 12,026,779,714 |
+| `cadgenbench/flanged_spool_132.step` | 3 | 12,023,200,531 | 12,026,389,044 |
+| `cadgenbench/flanged_spool_132.step` | 4 | 12,026,553,864 | 12,028,330,362 |
+| `cadgenbench/flanged_spool_132.step` | 5 | 12,023,870,630 | 12,025,970,822 |
 
 The corpus root was the pinned `scratchpad/corpus-pin/tests/corpus` specified in the task.
 Test binaries were run sequentially throughout validation, including when load exceeded 19.
