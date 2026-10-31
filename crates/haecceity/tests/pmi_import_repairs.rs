@@ -182,6 +182,28 @@ fn a_conflicting_tolerance_form_is_refused_without_claiming_a_successful_repair(
 }
 
 #[test]
+fn a_reversal_without_a_nominal_keeps_the_existing_refusal() {
+    for deviations in [false, true] {
+        let (_, doc, _) = dimension("35.", "34.8", "35.2", deviations);
+        let text = String::from_utf8(doc.bytes().to_vec()).unwrap().replace(
+            if deviations {
+                "#1008=SHAPE_DIMENSION_REPRESENTATION('',(#1004),#399);"
+            } else {
+                "#1008=SHAPE_DIMENSION_REPRESENTATION('',(#1004,#1005,#1006),#399);"
+            },
+            if deviations {
+                "#1008=SHAPE_DIMENSION_REPRESENTATION('',(),#399);"
+            } else {
+                "#1008=SHAPE_DIMENSION_REPRESENTATION('',(#1005,#1006),#399);"
+            },
+        );
+        let (r, _, _) = read(text.into_bytes());
+        assert!(own_dimension(&r).is_none());
+        assert!(repaired(&r).is_empty());
+    }
+}
+
+#[test]
 fn reversed_deviations_are_signed_offsets_including_same_sign_intervals() {
     for (u, l, expected) in [
         ("-0.2", "0.2", ("-0.2", "0.2")),
@@ -280,6 +302,45 @@ fn datum_feature_constituent_is_the_same_feature_when_named_by_a_tolerance() {
         assert_ne!(feature, FeatureId(all));
     }
 }
+#[test]
+fn stc10_named_datum_constituents_do_not_become_seven_duplicate_features() {
+    let path = common::fixtures().join("ap242/nist/nist_stc_10_asme1_ap242-e2.stp.gz");
+    let (r, _, parts) = read(load(&path));
+    // Each SAR goes from a datum feature to one plain face aspect. Sizes and tolerances
+    // refer to those aspects; they must retain the existing datum feature identity.
+    for (parent, child, label, face) in [
+        (588, 1350, "A", 6993),
+        (600, 1351, "B", 7230),
+        (598, 1349, "C", 7009),
+        (707, 1398, "E", 7071),
+        (691, 1396, "F", 7070),
+        (709, 1408, "G", 7048),
+        (759, 1416, "H", 7022),
+    ] {
+        let matches: Vec<_> = r.provenance.parts[0]
+            .features
+            .iter()
+            .enumerate()
+            .filter(|(_, ids)| ids.contains(&child))
+            .collect();
+        assert_eq!(matches.len(), 1, "child #{child}");
+        let (i, ids) = matches[0];
+        assert!(ids.contains(&parent));
+        let datum = r.parts[0]
+            .datums
+            .iter()
+            .find(|d| d.label().as_str() == label)
+            .unwrap();
+        assert_eq!(datum.feature(), Some(FeatureId(i)));
+        assert_eq!(
+            r.parts[0].features[i],
+            Feature::Items(vec![Anchor::Face(pmi::FaceIndex(
+                parts[0].face_index(face).unwrap()
+            ))])
+        );
+    }
+}
+
 #[test]
 #[ignore = "requires the maintainer's git-excluded samples"]
 fn se_and_control_samples() {

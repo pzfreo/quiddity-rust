@@ -3276,7 +3276,14 @@ impl<'a> Reader<'a> {
         }
         let limits = match (upper, lower) {
             (Some(u), Some(l)) => {
-                match dimension_bounds(u, l, nominal.as_ref()) {
+                // Without a nominal, a reversed absolute interval cannot be checked for a
+                // clean reversal. Keep the existing strict refusal in that malformed case.
+                let bounds = if let Some(nominal) = nominal.as_ref() {
+                    dimension_bounds(u, l, Some(nominal))
+                } else {
+                    Bounds::new(u, l).map(|bounds| (bounds, false))
+                };
+                match bounds {
                     Ok((b, swapped)) => {
                         if swapped {
                             let mut evidence: Vec<_> = sdr.into_iter().collect();
