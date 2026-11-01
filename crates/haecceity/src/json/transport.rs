@@ -25,6 +25,9 @@ struct Layout {
     #[serde(rename = "v", default = "legacy_version")]
     version: u8,
     items: Entries,
+    /// Source identifier observations, distinct from native unique wire aliases.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    identifiers: BTreeMap<String, Vec<Option<String>>>,
     #[serde(default = "units::empty", skip_serializing_if = "empty_units")]
     units: Value,
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
@@ -277,6 +280,12 @@ pub(crate) fn layout(pmi: &PartPmi, ids: &BTreeMap<String, Vec<String>>) -> Resu
     Ok(serde_json::to_string(&Layout {
         version: 2,
         items: layout,
+        identifiers: ids
+            .get("__identifiers")
+            .and_then(|v| v.first())
+            .map(|s| serde_json::from_str(s))
+            .transpose()?
+            .unwrap_or_default(),
         units,
         spellings,
         wire_anchors: ids
@@ -414,6 +423,13 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
         }
         if ![1, 2].contains(&layout.version) {
             return Err(Error("unknown ordering convention version".into()));
+        }
+        for (c, identifiers) in &layout.identifiers {
+            if !COLLECTIONS.contains(&c.as_str()) || identifiers.len() != layout.entries(c).len() {
+                return Err(Error(format!(
+                    "invalid source identifier observations for {c}"
+                )));
+            }
         }
         let mut seen = BTreeSet::new();
         super::units::validate(&layout.units, &mut seen)?;
@@ -620,6 +636,8 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
                 link.targets.dedup();
             }
         }
+        read.identifiers.parts[part].json_identifiers =
+            Some(serde_json::to_string(&layout.identifiers)?);
         read.identifiers.parts[part].json_units = Some(serde_json::to_string(&layout.units)?);
         read.identifiers.parts[part].json_anchors =
             Some(serde_json::to_string(&layout.wire_anchors)?);

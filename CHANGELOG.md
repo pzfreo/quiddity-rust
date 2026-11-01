@@ -23,6 +23,18 @@ in [docs/alpha1.md](docs/alpha1.md).
   descriptive metadata at its original ids, preserving links and decoded values.
   **API note:** both Rust write reports gain `long_strings`; optional report JSON
   adds that field only when warnings exist. Existing semantic JSON is unchanged.
+- PMI JSON reads no longer abort on duplicate or empty source identifiers. Unique wire
+  ids fall back to content identities, and non-fatal findings retain the affected STEP
+  instances and identifier values. Optional per-item `identifier` fields carry source
+  characteristic numbers, including duplicates, independently of reference `id` fields.
+  **Consumers:** update closed-object schemas for this additive `haecceity.pmi/1` field;
+  resolve references by `id`. The Python schema mirror includes the addition.
+  Rust `json::Semantic` gains `identifiers`; JSON-enabled `PartIdentifiers` gains
+  `json_identifiers` for round-trip source metadata, so struct literals need those fields.
+- Recover an explicitly stated diameter/plain zone on a non-runout tolerance when an
+  exporter supplies a runout-zone definition without its required orientation. Report
+  the nonconformance; refuse when the missing orientation determines the zone's meaning.
+  Legacy PMI read binding `/13` identifies the additional source-identifier findings.
 
 - For #157, #159, #160, retain turned steps on stock with proved spanner flats,
   group interrupted coaxial torus fillets with exact defining faces, and omit

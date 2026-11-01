@@ -85,6 +85,9 @@ fn pmi_schema() -> &'static Value {
 pub struct Semantic {
     pub pmi: PartPmi,
     pub ids: BTreeMap<String, Vec<String>>,
+    /// Original file identifiers/characteristic numbers, including duplicates and empty
+    /// strings. These observations are independent of unique wire reference ids.
+    pub identifiers: BTreeMap<String, Vec<Option<String>>>,
     /// Optional caller unit table; native quantities remain authoritative.
     pub unit_table: Option<Value>,
     /// Verified original face-name/fingerprint forms; empty for model-only inputs.
@@ -253,6 +256,17 @@ pub fn to_value(p: &Semantic) -> Result<Value> {
             )));
         }
     }
+    for (collection, identifiers) in &p.identifiers {
+        if !COLLECTIONS.contains(&collection.as_str())
+            || p.ids
+                .get(collection)
+                .is_none_or(|ids| ids.len() != identifiers.len())
+        {
+            return Err(Error(format!(
+                "invalid source identifier observations for {collection}"
+            )));
+        }
+    }
     let mut raw = serde_json::to_value(&p.pmi)?;
     walk::model(&mut raw, &mut |kind, value| {
         if let Some(collection) = reference_collection(kind) {
@@ -284,11 +298,14 @@ pub fn to_value(p: &Semantic) -> Result<Value> {
                 ids.len()
             )));
         }
-        for (v, id) in values.iter_mut().zip(ids) {
+        for (index, (v, id)) in values.iter_mut().zip(ids).enumerate() {
             if id.is_empty() || !used.insert(id.clone()) {
                 return Err(Error(format!("duplicate or empty item id {id:?}")));
             }
             *v = json!({"id":id,"value":v.take()});
+            if let Some(Some(identifier)) = p.identifiers.get(c).and_then(|v| v.get(index)) {
+                v["identifier"] = json!(identifier);
+            }
         }
     }
     let mut units = p.unit_table.clone().unwrap_or_else(units::empty);
@@ -474,11 +491,13 @@ pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
         },
     )?;
     let mut ids = BTreeMap::new();
+    let mut identifiers = BTreeMap::new();
     for &c in COLLECTIONS {
         let values = raw[c]
             .as_array_mut()
             .ok_or_else(|| Error(format!("missing collection {c}")))?;
         let mut list = Vec::new();
+        let mut original = Vec::new();
         for item in values {
             let id = item["id"]
                 .as_str()
@@ -488,9 +507,17 @@ pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
                 return Err(Error(format!("duplicate item id {id:?}")));
             }
             list.push(id);
+            original.push(
+                item.get("identifier")
+                    .and_then(Value::as_str)
+                    .map(str::to_owned),
+            );
             *item = item["value"].take();
         }
         ids.insert(c.to_string(), list);
+        if original.iter().any(Option::is_some) {
+            identifiers.insert(c.to_string(), original);
+        }
     }
     let pmi: PartPmi = serde_json::from_value(raw)?;
     pmi.validate().map_err(|errors| {
@@ -506,6 +533,7 @@ pub fn from_value(v: &Value, anchors: &Anchors) -> Result<Semantic> {
     Ok(Semantic {
         pmi,
         ids,
+        identifiers,
         unit_table: Some(v["units"].clone()),
         anchor_bindings,
     })
@@ -593,6 +621,10 @@ pub fn write(
         let encoded = to_value(input)?;
         values.push((*part, input.pmi.clone()));
         let mut item_ids = input.ids.clone();
+        item_ids.insert(
+            "__identifiers".into(),
+            vec![serde_json::to_string(&input.identifiers)?],
+        );
         item_ids.insert(
             "__units".into(),
             vec![serde_json::to_string(&encoded["units"])?],

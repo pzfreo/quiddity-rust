@@ -91,6 +91,19 @@ A document is `{ "schema": "haecceity.pmi/1", "units": { "length": [...],
 Schema 2020-12. Every model field is explicit, including null optionals and empty
 arrays. Unknown properties are errors. Every item in `features`, `geometry`, `derived_geometry`, and the semantic
 requirement collections has `{ "id": "caller string", "value": <typed value> }`.
+An optional sibling `"identifier"` carries the decoded source file identifier /
+characteristic number (`ID_ATTRIBUTE.attribute_value`). It is present whenever the
+reader has an unambiguous source identifier, including a duplicated or empty string.
+It is an observation, not a reference key: consumers must continue to resolve links
+using the unique, nonempty `id`. The value retains its original spelling and is not
+restricted to numeric characteristic numbers. Ambiguous multiple identifiers remain
+unavailable and are reported by the native reader.
+
+`identifier` is an additive field in `haecceity.pmi/1`; closed-object consumers must
+update their schema before accepting new exports. Documents without it remain valid.
+`Semantic.identifiers` keeps these observations separately from `Semantic.ids` and
+from model values. JSON decoding and transport preserve both the observations and
+their absence: transport-managed wire aliases are not invented characteristic numbers.
 All references between items are nonempty **id strings**, never array indices:
 `FeatureId`, `DatumId`, `DatumTargetId`, `DimensionId`, `ToleranceId`,
 `GeometryId` and `DerivedGeometryId` resolve within their named collection.
@@ -101,7 +114,19 @@ all unit references are id strings. A face fingerprint anchor can name several s
 faces; every support face must resolve, and the anchor expands into those faces.
 One dimension or tolerance is one semantic object, with its content together.
 
-Source requirement IDs come from `ID_ATTRIBUTE`. Structural support projections
+Source requirement IDs come from `ID_ATTRIBUTE`. Empty or repeated file identifiers
+never abort native JSON export: the first nonempty requirement identifier in the fixed
+collection order (`geometry`, `derived_geometry`, `datum_targets`, `datums`, `dimensions`,
+`tolerances`, `tolerance_relations`, `general`, `threads`, `knurls`, `notes`,
+`surface_textures`, `attributes`), then model order, retains the wire id. Later items
+use their content-derived ids. Native model order is deterministic; source observations
+are retained for every item. The native `PmiRead.findings` reports empty or duplicated
+source identifiers with their carrier and identifier-attribute STEP instances and value.
+Features have a separate support namespace; repeated or empty feature identifiers also
+fall back to content ids. Duplicate wire ids in caller-authored JSON still refuse import,
+because their references cannot be resolved unambiguously.
+
+Structural support projections
 of a shared STEP carrier have their own `features:` namespace. Missing IDs are
 content-derived: canonical model content recursively substitutes referenced
 item content and verified fingerprint keys (when supplied) for indices; a
@@ -373,9 +398,11 @@ The JSON mapping is lossless over `PartPmi`; it cannot recover facts the model
 never held. STEP writing keeps the existing writer's refusals: for example a
 missing nominal value (PMI §5.2.1), a projected zone without its end geometry,
 an ambiguous named unit, an unstated group kind, and read-only hole definitions.
-Duplicate identifiers on independent source requirements are also an explicit JSON export refusal rather
-than silently renumbered. `json::write` verifies the emitted semantic model by
-reading it back before returning bytes. It never removes refused requirements.
+Repeated or empty source identifiers are retained in `identifier` metadata; affected
+items receive unique content-derived reference ids, with native read findings describing
+the nonconformance. Caller-authored JSON must still use unique, nonempty reference ids.
+`json::write` verifies the emitted semantic model and source metadata by reading it back
+before returning bytes. It never removes refused requirements.
 
 `json::validate` and `pmi json validate` also check constructors, reference closure,
 and the writer's geometry-independent authoring refusals. `json::validate_schema`
@@ -547,3 +574,34 @@ a binding if the current native support no longer matches. The identity test
 compares the xcaf producer's original whole JSON, without first replacing its
 name anchors with indices. Callers editing a decoded `Semantic` model's topology
 must clear or rebuild its `anchor_bindings` rather than reuse stale bindings.
+
+## Source audit: xcaf-pmi (2026-11-01)
+
+The native maximum-value form (§6.9.5) is one geometric tolerance with
+`maximum_upper_tolerance`, exposed as `GeometricTolerance.maximum`. FTC-07's NIST
+expected rows 24/25 draw MAX, but its STEP contains independent position controls
+#14544/#14579 and #14781/#14816, with separate presentation associations and no maximum
+subtype or relationship. They remain separate: their visual resemblance is insufficient
+to replace the file's independent requirements. The existing NIST verdicts document this
+source discrepancy and are unchanged. A synthetic native MAX regression checks one item
+with both its magnitude and maximum.
+
+`geometric_tolerance_auxiliary_classification(.ALL_OVER., ...)` leaves the tolerance's
+own target intact. There is no `all_over_shape_aspect` in the AP242 schemas used here
+(`all_around_shape_aspect` is a different construct). A literal
+`product_definition_shape` target remains `WholePart`: PMI practice §6.3 explicitly
+requires it for “applies to all surfaces”. NIST FTC-07/FTC-10 use that part target for
+their all-over frames. The reader does not replace it with a guessed subset of faces.
+An explicit all-over classification on a feature is tested separately and stays scoped
+to that feature.
+
+OCCT's fresh export of `cadgen_pmi_plate.xbf` has position tolerance #642, a cylindrical
+zone form #643, and a two-attribute `runout_zone_definition` #645. Its orientation #646
+is orphaned; the reader does not attach it by proximity. A missing orientation on a
+non-runout tolerance is recovered only when the file states an orientation-independent
+zone form and no runout boundaries. The model keeps that form and no runout angle, with
+a `Nonconformance` finding naming the tolerance and definition. Real runout tolerances,
+conical/unknown forms and boundaries requiring the missing orientation remain refused
+with a specific reason. The downloaded `30-cadgen_pmi_plate.step` and
+`31-xcaf_pmi_plate.step` already contain plain cylindrical zones and read all five
+tolerances before this change.
