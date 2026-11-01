@@ -199,7 +199,8 @@ fn regenerated_spindle_keeps_its_saved_callouts_near_their_features() {
 }
 
 #[test]
-fn session_measurements_preserve_step_edge_identity_on_all_four_parts() {
+fn session_measurements_and_callout_clearance_on_all_four_parts() {
+    let mut overlaps = vec![];
     for (path, producer) in [
         ("tests/fixtures/presentation/spindle-q137.step.gz", false),
         (
@@ -247,7 +248,167 @@ fn session_measurements_preserve_step_edge_identity_on_all_four_parts() {
                 "{path}: semantic edge identity"
             );
         }
-        let generated = presentation::generated(&json::identify(p, None).unwrap(), &part).unwrap();
+        let semantic = json::identify(p, None).unwrap();
+        let generated = presentation::generated(&semantic, &part).unwrap();
+        overlaps.extend(callout_gaps(path, &generated, &semantic, &in_session));
         presentation::validate(&serde_json::to_value(&generated).unwrap()).unwrap();
     }
+    assert!(overlaps.is_empty(), "{}", overlaps.join("\n"));
+}
+
+// Actual stroke boxes, without leaders or measured witness/arrow lines. Compare
+// parallel planes in projection even at different depths. Also compare related
+// callouts: choosing a different plane must not hide a same-feature collision.
+fn callout_gaps(
+    path: &str,
+    generated: &presentation::Presentation,
+    semantic: &json::Semantic,
+    measured: &[Option<notation::linear::Measurement>],
+) -> Vec<String> {
+    struct Ink<'a> {
+        graphic: &'a Graphic,
+        normal: V3,
+        along: V3,
+        points: Vec<V3>,
+        feature: Option<pmi::FeatureId>,
+        size: bool,
+        control: bool,
+    }
+    let mut boxes: Vec<Ink<'_>> = vec![];
+    for (collection, ids) in &semantic.ids {
+        for (i, id) in ids.iter().enumerate() {
+            for g in generated.items.get(id).into_iter().flatten() {
+                if boxes.iter().any(|old| old.graphic.id == g.id) {
+                    continue;
+                }
+                let plane = generated
+                    .planes
+                    .iter()
+                    .find(|p| Some(&p.id) == g.plane_id.as_ref())
+                    .unwrap();
+                let start = if collection == "dimensions" && measured[i].is_some() {
+                    10
+                } else {
+                    0
+                };
+                let end = if start == 0
+                    && matches!(collection.as_str(), "dimensions" | "tolerances" | "datums")
+                {
+                    g.polylines.len() - 1
+                } else {
+                    g.polylines.len()
+                };
+                let dimension_feature = |i: usize| match semantic.pmi.dimensions[i].kind {
+                    pmi::DimensionKind::Size { feature, .. } => Some(feature),
+                    _ => None,
+                };
+                let feature = match collection.as_str() {
+                    "dimensions" if start == 0 => dimension_feature(i),
+                    "tolerances" => match semantic.pmi.tolerances[i].target {
+                        pmi::ToleranceTarget::Feature(f)
+                        | pmi::ToleranceTarget::Relation { relating: f, .. } => Some(f),
+                        pmi::ToleranceTarget::Dimension(d) => dimension_feature(d.0),
+                        _ => None,
+                    },
+                    _ => None,
+                };
+                let points = g.polylines[start..end]
+                    .iter()
+                    .flatten()
+                    .copied()
+                    .collect::<Vec<_>>();
+                if points.is_empty() {
+                    assert!(g.name.is_empty(), "{path}: missing ink for {}", g.name);
+                    continue; // CTC-01's unstated nominal values draw no lettering.
+                }
+                if path.contains("spindle") && (g.name == "⌀3.3 H11" || g.name == "⌖ ⌀0.3Ⓜ A")
+                {
+                    let mut b = Bounds::empty();
+                    for &p in &points {
+                        b.add(p);
+                    }
+                    println!("{path}: {} model ink {b:?}", g.name);
+                }
+                boxes.push(Ink {
+                    graphic: g,
+                    normal: plane.normal,
+                    along: plane.x_axis,
+                    points,
+                    feature,
+                    size: collection == "dimensions" && start == 0,
+                    control: collection == "tolerances",
+                });
+            }
+        }
+    }
+    for g in &generated.unlinked {
+        let plane = generated
+            .planes
+            .iter()
+            .find(|p| Some(&p.id) == g.plane_id.as_ref())
+            .unwrap();
+        boxes.push(Ink {
+            graphic: g,
+            normal: plane.normal,
+            along: plane.x_axis,
+            points: g.polylines.iter().flatten().copied().collect(),
+            feature: None,
+            size: false,
+            control: false,
+        });
+    }
+    let mut minimum = f64::INFINITY;
+    let mut problems = vec![];
+    let mut pairs = 0;
+    for (i, a) in boxes.iter().enumerate() {
+        for b in &boxes[i + 1..] {
+            let related = a.feature.is_some() && a.feature == b.feature;
+            let parallel = geom::dot(a.normal, b.normal).abs() > 1. - 1e-8;
+            if !parallel && !related {
+                continue;
+            }
+            if related && !parallel {
+                problems.push(format!(
+                    "{path}: related callouts must share a plane: {} / {}",
+                    a.graphic.name, b.graphic.name
+                ));
+            }
+            pairs += 1;
+            let up = geom::cross(a.normal, a.along);
+            let bounds = |points: &[V3]| {
+                let mut b = Bounds::empty();
+                for &p in points {
+                    b.add([geom::dot(p, a.along), geom::dot(p, up), 0.]);
+                }
+                b
+            };
+            let x = bounds(&a.points);
+            let y = bounds(&b.points);
+            let gap = (0..2)
+                .map(|k| (x.min[k] - y.max[k]).max(y.min[k] - x.max[k]))
+                .fold(f64::NEG_INFINITY, f64::max);
+            minimum = minimum.min(gap);
+            if related
+                && ((a.size && b.control && x.min[1] < y.max[1] - 2e-6)
+                    || (b.size && a.control && y.min[1] < x.max[1] - 2e-6))
+            {
+                problems.push(format!(
+                    "{path}: size must stack above its frame: {} / {}",
+                    a.graphic.name, b.graphic.name
+                ));
+            }
+            if gap < -2e-6 {
+                problems.push(format!(
+                    "{path}: {} {x:?} overlaps {} {y:?}: gap={gap:.6}",
+                    a.graphic.name, b.graphic.name
+                ));
+            }
+            if related && a.graphic.name == "⌀3.3 H11" && b.graphic.name == "⌖ ⌀0.3Ⓜ A" {
+                println!("{path}: bore stack gap={gap:.6} mm");
+            }
+        }
+    }
+    assert!(pairs > 0, "{path}: no callout pairs checked");
+    println!("{path}: {pairs} callout pairs, minimum gap={minimum:.6} mm");
+    problems
 }

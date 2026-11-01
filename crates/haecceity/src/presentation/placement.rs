@@ -20,6 +20,8 @@ struct Packing<'a> {
     columns: Option<&'a [f64]>,
     align_start: bool,
     ink_bounds: bool,
+    feature_origin: bool,
+    scale: Option<f64>,
 }
 
 #[derive(Clone)]
@@ -299,6 +301,104 @@ impl Layout {
             },
         )
     }
+    /// Pack related ink together in one plane, with the size above its control
+    /// frames. The feature lies in the first inter-callout gap, so neither row
+    /// has to drift a full stack height away from a small bore.
+    pub(crate) fn stack(
+        &mut self,
+        anchor: V3,
+        outward: V3,
+        callouts: &[&Callout],
+        extent: f64,
+    ) -> Vec<Placed> {
+        let gap = 0.2 * self.height;
+        let mut combined = Callout::default();
+        let mut transforms = vec![];
+        let mut top = -gap / 2.;
+        for (i, c) in callouts.iter().enumerate() {
+            let mut ink = Bounds::empty();
+            for p in c.polylines().iter().flatten() {
+                ink.add([p[0], p[1], 0.]);
+            }
+            let scale = (self.height / 3.)
+                .min(0.32 * self.bounds.max_extent().max(self.height) / c.size[0].max(1.));
+            let y = if i == 0 {
+                gap / 2. - ink.min[1] * scale
+            } else {
+                top - ink.max[1] * scale
+            };
+            let offset = [-c.runs[0].at[0] * scale, y];
+            transforms.push((offset, scale, ink));
+            for line in c.polylines() {
+                combined
+                    .strokes
+                    .extend(
+                        line.windows(2)
+                            .map(|w| [w[0], w[1]])
+                            .map(|edge: [[f64; 2]; 2]| {
+                                edge.map(|p| [p[0] * scale + offset[0], p[1] * scale + offset[1]])
+                            }),
+                    );
+            }
+            if i > 0 {
+                top = y + ink.min[1] * scale - gap;
+            }
+        }
+        combined.runs.push(super::Text {
+            text: String::new(),
+            at: [0., 0.],
+            size: 3.,
+        });
+        combined.cells.push(String::new());
+        let p = self.feature_callout(
+            anchor,
+            outward,
+            &combined,
+            extent,
+            Packing {
+                ink_bounds: true,
+                align_start: true,
+                feature_origin: true,
+                scale: Some(1.),
+                ..Packing::default()
+            },
+        );
+        let up = geom::cross(p.normal, p.along);
+        callouts
+            .iter()
+            .zip(transforms)
+            .map(|(c, (offset, scale, ink))| {
+                let centre = geom::add(
+                    p.text_origin,
+                    geom::add(
+                        geom::scale(p.along, offset[0] + ink.centre()[0] * scale),
+                        geom::scale(up, offset[1] + ink.centre()[1] * scale),
+                    ),
+                );
+                let size = [ink.max[0] - ink.min[0], ink.max[1] - ink.min[1]].map(|v| v * scale);
+                stroke(
+                    anchor,
+                    [
+                        p.along,
+                        geom::scale(
+                            up,
+                            if geom::dot(geom::sub(centre, anchor), up) < 0. {
+                                -1.
+                            } else {
+                                1.
+                            },
+                        ),
+                        p.normal,
+                    ],
+                    c,
+                    (scale, self.height),
+                    centre,
+                    size,
+                    true,
+                )
+            })
+            .collect()
+    }
     fn feature_callout(
         &mut self,
         anchor: V3,
@@ -439,7 +539,9 @@ impl Layout {
         let (face, feature_extent) = placement;
         let [along, outward, normal] = basis;
         let h = self.height;
-        let scale = (h / 3.).min(0.32 * self.bounds.max_extent().max(h) / c.size[0].max(1.));
+        let scale = packing.scale.unwrap_or_else(|| {
+            (h / 3.).min(0.32 * self.bounds.max_extent().max(h) / c.size[0].max(1.))
+        });
         let local = c.polylines();
         let mut ink = Bounds::empty();
         for p in local.iter().flatten() {
@@ -460,7 +562,9 @@ impl Layout {
         let up = geom::cross(normal, along);
         let mut chosen = anchor;
         let mut chosen_box = Bounds::empty();
-        let projected = !face || c.cells.len() > 1;
+        // Bare labels must participate too: their parallel planes may have
+        // different model depths while sharing the same readable projection.
+        let projected = self.view_local || !face || c.cells.len() > 1;
         let rectangle = |centre| {
             [(-1., -1.), (1., -1.), (1., 1.), (-1., 1.)]
                 .map(|(x, y)| {
@@ -491,11 +595,25 @@ impl Layout {
             })
             .collect();
         candidates.sort_by(|a, b| a.2.total_cmp(&b.2));
-        for (row, column, _) in candidates {
+        // Saved-plane packing can keep growing outward: every row advances in
+        // its readable projection. Preserve the bounded seven-view search,
+        // where an outward step can be invisible in another camera.
+        let extra_rows = if self.view_local { 8..usize::MAX } else { 8..8 };
+        for (row, column, _) in candidates
+            .into_iter()
+            .chain(extra_rows.flat_map(|row| columns.iter().map(move |&column| (row, column, 0.))))
+        {
             let centre = geom::add(
                 anchor,
                 geom::add(
-                    geom::scale(outward, gap + height / 2. + row as f64 * (height + h)),
+                    if packing.feature_origin {
+                        geom::add(
+                            geom::scale(up, ink.centre()[1] * scale),
+                            geom::scale(outward, row as f64 * (height + h)),
+                        )
+                    } else {
+                        geom::scale(outward, gap + height / 2. + row as f64 * (height + h))
+                    },
                     geom::scale(
                         along,
                         alignment + column * (width / 2. + feature_extent.map_or(2. * h, |_| gap)),
@@ -548,72 +666,101 @@ impl Layout {
         if projected {
             self.callouts.push(rectangle(chosen));
         }
-        let mid = if ink.max_extent().is_finite() {
-            ink.centre()
-        } else {
-            [0.; 3]
-        };
-        let round = |p: V3| p.map(|x| (x * 1e6).round() / 1e6 + 0.);
-        let at = |p: [f64; 2]| {
-            round(geom::add(
-                chosen,
-                geom::add(
-                    geom::scale(along, (p[0] - mid[0]) * scale),
-                    geom::scale(up, (p[1] - mid[1]) * scale),
-                ),
-            ))
-        };
-        let mut lines: Vec<_> = local
-            .iter()
-            .map(|l| l.iter().map(|&p| at(p)).collect())
-            .collect();
-        let mut end = geom::sub(chosen, geom::scale(outward, height / 2.));
-        if feature_extent.is_some() {
-            // Attach to the nearest point on the frame edge, not its midpoint.
-            let a = geom::dot(geom::sub(anchor, end), along).clamp(-width / 2., width / 2.);
-            end = geom::add(end, geom::scale(along, a));
-        }
-        let elbow = geom::add(
+        stroke(
             anchor,
-            geom::scale(outward, geom::dot(geom::sub(end, anchor), outward)),
-        );
-        for ring in 0..c.leader_rings {
-            let r = 0.7 * 2.7 * scale * if ring == 0 { 1. } else { 1.7 };
-            let centre = geom::sub(elbow, geom::scale(outward, 2.4 * h));
-            lines.push(
-                (0..=32)
-                    .map(|i| {
-                        let t = (i as f64 * 360. / 32.).to_radians();
-                        round(geom::add(
-                            centre,
-                            geom::add(
-                                geom::scale(along, r * t.cos()),
-                                geom::scale(up, r * t.sin()),
-                            ),
-                        ))
-                    })
-                    .collect(),
-            );
-        }
-        if c.leader_rings > 0 {
-            let ring_centre = geom::sub(elbow, geom::scale(outward, 2.4 * h));
-            lines.push(vec![round(anchor), round(ring_centre), round(end)]);
-        } else if geom::dist(elbow, end) > 1e-8 {
-            lines.push(vec![round(anchor), round(elbow), round(end)]);
-        } else {
-            lines.push(vec![round(anchor), round(end)]);
-        }
-        Placed {
-            anchor: round(anchor),
-            origin: at([ink.min[0], ink.min[1]]),
-            text_origin: at([0., 0.]),
-            text_scale: scale,
-            normal,
-            along,
-            lines,
-        }
+            basis,
+            c,
+            (scale, h),
+            chosen,
+            [width, height],
+            feature_extent.is_some(),
+        )
     }
 }
+
+/// Stroke a packed rectangle without changing the allocation. Shared by single
+/// callouts and feature stacks, including scope rings and leader attachments.
+fn stroke(
+    anchor: V3,
+    [along, outward, normal]: [V3; 3],
+    c: &Callout,
+    (scale, h): (f64, f64),
+    chosen: V3,
+    [width, height]: [f64; 2],
+    feature: bool,
+) -> Placed {
+    let up = geom::cross(normal, along);
+    let local = c.polylines();
+    let mut ink = Bounds::empty();
+    for q in local.iter().flatten() {
+        ink.add([q[0], q[1], 0.]);
+    }
+    let mid = if ink.max_extent().is_finite() {
+        ink.centre()
+    } else {
+        [0.; 3]
+    };
+    let round = |p: V3| p.map(|x| (x * 1e6).round() / 1e6 + 0.);
+    let at = |p: [f64; 2]| {
+        round(geom::add(
+            chosen,
+            geom::add(
+                geom::scale(along, (p[0] - mid[0]) * scale),
+                geom::scale(up, (p[1] - mid[1]) * scale),
+            ),
+        ))
+    };
+    let mut lines: Vec<_> = local
+        .iter()
+        .map(|l| l.iter().map(|&p| at(p)).collect())
+        .collect();
+    let mut end = geom::sub(chosen, geom::scale(outward, height / 2.));
+    if feature {
+        // Attach to the nearest point on the frame edge, not its midpoint.
+        let a = geom::dot(geom::sub(anchor, end), along).clamp(-width / 2., width / 2.);
+        end = geom::add(end, geom::scale(along, a));
+    }
+    let elbow = geom::add(
+        anchor,
+        geom::scale(outward, geom::dot(geom::sub(end, anchor), outward)),
+    );
+    for ring in 0..c.leader_rings {
+        let r = 0.7 * 2.7 * scale * if ring == 0 { 1. } else { 1.7 };
+        let centre = geom::sub(elbow, geom::scale(outward, 2.4 * h));
+        lines.push(
+            (0..=32)
+                .map(|i| {
+                    let t = (i as f64 * 360. / 32.).to_radians();
+                    round(geom::add(
+                        centre,
+                        geom::add(
+                            geom::scale(along, r * t.cos()),
+                            geom::scale(up, r * t.sin()),
+                        ),
+                    ))
+                })
+                .collect(),
+        );
+    }
+    if c.leader_rings > 0 {
+        let ring_centre = geom::sub(elbow, geom::scale(outward, 2.4 * h));
+        lines.push(vec![round(anchor), round(ring_centre), round(end)]);
+    } else if geom::dist(elbow, end) > 1e-8 {
+        lines.push(vec![round(anchor), round(elbow), round(end)]);
+    } else {
+        lines.push(vec![round(anchor), round(end)]);
+    }
+    Placed {
+        anchor: round(anchor),
+        origin: at([ink.min[0], ink.min[1]]),
+        text_origin: at([0., 0.]),
+        text_scale: scale,
+        normal,
+        along,
+        lines,
+    }
+}
+
 /// Include coordinate axes for edge-on projections as well as polygon edge normals.
 fn polygon_clearance(a: &[V3], b: &[V3], view: V3) -> f64 {
     let n = geom::unit(view).unwrap_or(view);
@@ -645,6 +792,30 @@ pub(crate) fn boxes_overlap(a: Bounds, b: Bounds, padding: f64) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn bare_label_ink_clears_parallel_depths_and_more_than_eight_slots() {
+        let mut layout = Layout::for_views(Bounds {
+            min: [0., 0., 0.],
+            max: [40., 4., 4.],
+        });
+        let c = super::super::label("SIZE");
+        let mut prior = vec![];
+        for depth in 0..10 {
+            let p = layout.on_face([20., f64::from(depth) * 10., 0.], [0., 0., 1.], &c);
+            let mut ink = Bounds::empty();
+            for &q in p.lines[..p.lines.len() - 1].iter().flatten() {
+                ink.add([q[0], 0., q[2]]);
+            }
+            for &other in &prior {
+                assert!(
+                    !boxes_overlap(ink, other, -2e-6),
+                    "{ink:?} overlaps {other:?}"
+                );
+            }
+            prior.push(ink);
+        }
+    }
+
     #[test]
     fn notes_column_stays_at_part_bounds_despite_remote_ink_and_stacks_without_overlap() {
         for mm_per_unit in [1., 25.4] {
