@@ -105,60 +105,55 @@ pub(super) fn identify(
     let raw = serde_json::to_value(&pmi)?;
     let mut used = BTreeSet::new();
     let mut ids = BTreeMap::new();
-    // Requirement source ids reserve the global namespace before fallback/support ids.
+    let mut accepted = BTreeMap::new();
+    // Stable priority is collection order, then native model order. Reserve all unique
+    // requirement ids before supports and generated identities, as before. A repeated or
+    // empty file identifier remains an observation, never an ambiguous wire reference.
     for &c in COLLECTIONS.iter().filter(|&&c| c != "features") {
-        for id in file_ids(identifiers, c).iter().flatten() {
-            if id.is_empty() || !used.insert(id.clone()) {
-                return Err(Error(format!("duplicate or empty item id {id:?}")));
+        let mut list = vec![None; raw[c].as_array().map_or(0, Vec::len)];
+        for (i, slot) in list.iter_mut().enumerate() {
+            if let Some(Some(id)) = file_ids(identifiers, c).get(i)
+                && !id.is_empty()
+                && used.insert(id.clone())
+            {
+                *slot = Some(id.clone());
             }
         }
+        accepted.insert(c, list);
     }
-    let mut contents = BTreeMap::<String, String>::new();
-    for &c in COLLECTIONS.iter().filter(|&&c| c != "features") {
-        for (i, id) in file_ids(identifiers, c)
-            .iter()
-            .enumerate()
-            .take(raw[c].as_array().map_or(0, Vec::len))
+    let mut supports = BTreeSet::new();
+    let mut feature_ids = vec![None; pmi.features.len()];
+    for (i, slot) in feature_ids.iter_mut().enumerate() {
+        if let Some(Some(id)) = file_ids(identifiers, "features").get(i)
+            && !id.is_empty()
+            && supports.insert(id.clone())
         {
-            if let Some(id) = id {
-                contents.insert(
-                    id.clone(),
-                    canonical(&content(&raw, c, i, anchors, &mut BTreeSet::new())?)?,
-                );
+            let id = if used.contains(id) {
+                format!("features:{id}")
+            } else {
+                id.clone()
+            };
+            if used.insert(id.clone()) {
+                *slot = Some(id);
             }
         }
     }
+    accepted.insert("features", feature_ids);
+    let mut contents = BTreeMap::<String, String>::new();
     for &c in COLLECTIONS {
         let mut out = vec![];
         for i in 0..raw[c].as_array().map_or(0, Vec::len) {
-            if c != "features"
-                && let Some(Some(id)) = file_ids(identifiers, c).get(i)
-            {
+            if let Some(id) = &accepted[c][i] {
                 out.push(id.clone());
                 continue;
             }
             let text = canonical(&content(&raw, c, i, anchors, &mut BTreeSet::new())?)?;
-            let base = if c == "features"
-                && let Some(Some(id)) = file_ids(identifiers, c).get(i)
-            {
-                if used.contains(id) {
-                    format!("features:{id}")
-                } else {
-                    id.clone()
-                }
-            } else {
-                format!("{c}:{}", digest(&text))
-            };
+            let base = format!("{c}:{}", digest(&text));
             if contents
                 .get(&base)
                 .is_some_and(|previous| previous != &text)
             {
                 return Err(Error(format!("content id collision {base:?}")));
-            }
-            if used.contains(&base) && !contents.contains_key(&base) {
-                return Err(Error(format!(
-                    "content id conflicts with source id {base:?}"
-                )));
             }
             contents.insert(base.clone(), text);
             let mut id = base.clone();
@@ -171,6 +166,23 @@ pub(super) fn identify(
         }
         ids.insert(c.to_string(), out);
     }
+    let source_identifiers = identifiers
+        .and_then(|i| i.json_identifiers.as_ref())
+        .map(|s| serde_json::from_str(s))
+        .transpose()?
+        .unwrap_or_else(|| {
+            COLLECTIONS
+                .iter()
+                .filter_map(|&c| {
+                    let list: Vec<_> = (0..raw[c].as_array().map_or(0, Vec::len))
+                        .map(|i| file_ids(identifiers, c).get(i).cloned().flatten())
+                        .collect();
+                    list.iter()
+                        .any(Option::is_some)
+                        .then(|| (c.to_string(), list))
+                })
+                .collect()
+        });
     #[cfg(feature = "json-import")]
     let unit_table = identifiers
         .and_then(|i| i.json_units.as_ref())
@@ -189,6 +201,7 @@ pub(super) fn identify(
     Ok(Semantic {
         pmi,
         ids,
+        identifiers: source_identifiers,
         unit_table,
         anchor_bindings,
     })
