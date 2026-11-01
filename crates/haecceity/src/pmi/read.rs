@@ -1464,6 +1464,70 @@ impl<'a> Reader<'a> {
         out
     }
 
+    /// A plain constituent of one indivisible datum feature (§6.5.1–6.5.2).
+    /// The datum feature is SAR.relating_shape_aspect, its constituent is related.
+    /// SAR names/descriptions are not discriminators ("datum feature" is one exporter label).
+    /// A group datum applies to each member separately and is not a union alias.
+    /// Shared carriers are checked against the datum's content before aliasing.
+    fn datum_feature_parent(&mut self, id: u64) -> Option<u64> {
+        if self.names(id) != ["shape_aspect"] {
+            return None;
+        }
+        let mut parents = BTreeSet::new();
+        for r in self.referrers_by(
+            id,
+            "shape_aspect_relationship",
+            "shape_aspect_relationship",
+            "related_shape_aspect",
+        ) {
+            if let Some(parent) =
+                self.get_ref(r, "shape_aspect_relationship", "relating_shape_aspect")
+                && self.is(parent, "datum_feature")
+                && !self.is(parent, "composite_group_shape_aspect")
+                && !self.is(parent, "all_around_shape_aspect")
+                && !self.is(parent, "between_shape_aspect")
+                && self.members(parent).contains(&(r, id))
+            {
+                parents.insert(parent);
+            }
+        }
+        if parents.len() == 1 {
+            parents.into_iter().next()
+        } else {
+            None
+        }
+    }
+
+    /// Shared GISU carriers can also be members of per-element groups. Preserve their
+    /// own content unless it is identical to the datum's whole indivisible feature.
+    fn datum_constituent_alias(
+        &mut self,
+        st: &mut PartState,
+        id: u64,
+        parent: u64,
+        feature: FeatureId,
+    ) -> bool {
+        if !matches!(st.pmi.features[feature.0], Feature::Items(_)) {
+            return false;
+        }
+        let shared = self
+            .referrers_by(
+                id,
+                "shape_aspect_relationship",
+                "shape_aspect_relationship",
+                "related_shape_aspect",
+            )
+            .into_iter()
+            .any(|r| {
+                self.get_ref(r, "shape_aspect_relationship", "relating_shape_aspect")
+                    .is_some_and(|p| p != parent && self.members(p).contains(&(r, id)))
+            });
+        !shared
+            || self
+                .content(st, id)
+                .is_some_and(|(content, _)| content == st.pmi.features[feature.0])
+    }
+
     /// Whether shape aspect `id` may be read one level deeper; a finding when not.
     fn nest(&mut self, st: &mut PartState, id: u64) -> bool {
         if st.nesting >= FEATURE_NESTING {
@@ -1495,6 +1559,16 @@ impl<'a> Reader<'a> {
     fn feature_at(&mut self, st: &mut PartState, id: u64) -> Option<FeatureId> {
         if let Some(r) = st.features.get(&id) {
             return *r;
+        }
+        // Resolve a named constituent through its datum feature even when the child is
+        // requested first (e.g. by another datum, a tolerance, or a property).
+        if let Some(parent) = self.datum_feature_parent(id)
+            && let Some(feature) = self.feature(st, parent)
+            && self.datum_constituent_alias(st, id, parent, feature)
+        {
+            st.features.insert(id, Some(feature));
+            st.absorbed.insert(id);
+            return Some(feature);
         }
         st.features.insert(id, None);
         let r = match self.build_feature(st, id) {
@@ -1541,6 +1615,22 @@ impl<'a> Reader<'a> {
         // A hole whose feature failed is reported by that failure.
         st.holes.remove(&id);
         st.features.insert(id, r);
+        if let Some(feature) = r
+            && self.is(id, "datum_feature")
+            && matches!(st.pmi.features[feature.0], Feature::Items(_))
+        {
+            // Composition already gathered these faces. Keep each constituent's identity
+            // as an alias as well, including presentation-only aspects otherwise absorbed.
+            let constituents = st.prov.features[feature.0].clone();
+            for aspect in constituents {
+                if self.datum_feature_parent(aspect) == Some(id)
+                    && self.datum_constituent_alias(st, aspect, id, feature)
+                {
+                    st.features.insert(aspect, Some(feature));
+                    st.absorbed.insert(aspect);
+                }
+            }
+        }
         r
     }
 
@@ -3025,6 +3115,8 @@ impl<'a> Reader<'a> {
         let mut nominal = None;
         let mut upper = None;
         let mut lower = None;
+        let mut limit_items = Vec::new();
+        let mut reversed = Vec::new();
         let mut qualifier = None;
         let mut basic = false;
         let mut modifiers = Vec::new();
@@ -3038,6 +3130,9 @@ impl<'a> Reader<'a> {
                 let v = self.value(st, item, want, &mut c)?;
                 prov.extend(c);
                 prov.extend(self.id_attributes(item));
+                if matches!(name.as_str(), "upper limit" | "lower limit") {
+                    limit_items.push(item);
+                }
                 let slot = match name.as_str() {
                     "nominal value" => &mut nominal,
                     "upper limit" => &mut upper,
@@ -3207,8 +3302,14 @@ impl<'a> Reader<'a> {
                 let lo_v = self.value(st, lo, want, &mut c)?;
                 let hi_v = self.value(st, hi, want, &mut c)?;
                 prov.extend(c);
-                match Bounds::new(hi_v, lo_v) {
-                    Ok(b) => deviations = Some(b),
+                match dimension_bounds(hi_v, lo_v, None) {
+                    Ok((b, swapped)) => {
+                        if swapped {
+                            reversed.push((range, vec![id, pmt, hi, lo],
+                                "plus/minus deviations were stated reversed; upper and lower bounds swapped (tolerance_value WR1)"));
+                        }
+                        deviations = Some(b);
+                    }
                     Err(e) => {
                         self.find(
                             FindingKind::Nonconformance,
@@ -3234,19 +3335,36 @@ impl<'a> Reader<'a> {
             }
         }
         let limits = match (upper, lower) {
-            (Some(u), Some(l)) => match Bounds::new(u, l) {
-                Ok(b) => Some(b),
-                Err(e) => {
-                    self.find(
-                        FindingKind::Nonconformance,
-                        part,
-                        id,
-                        &sdr.into_iter().collect::<Vec<_>>(),
-                        format!("{}; dimension not read", e.0),
-                    );
-                    return None;
+            (Some(u), Some(l)) => {
+                // Without a nominal, a reversed absolute interval cannot be checked for a
+                // clean reversal. Keep the existing strict refusal in that malformed case.
+                let bounds = if let Some(nominal) = nominal.as_ref() {
+                    dimension_bounds(u, l, Some(nominal))
+                } else {
+                    Bounds::new(u, l).map(|bounds| (bounds, false))
+                };
+                match bounds {
+                    Ok((b, swapped)) => {
+                        if swapped {
+                            let mut evidence: Vec<_> = sdr.into_iter().collect();
+                            evidence.extend(limit_items);
+                            reversed.push((id, evidence,
+                            "dimension limits were stated reversed; upper and lower limits swapped"));
+                        }
+                        Some(b)
+                    }
+                    Err(e) => {
+                        self.find(
+                            FindingKind::Nonconformance,
+                            part,
+                            id,
+                            &sdr.into_iter().collect::<Vec<_>>(),
+                            format!("{}; dimension not read", e.0),
+                        );
+                        return None;
+                    }
                 }
-            },
+            }
             (None, None) => None,
             _ => {
                 self.find(
@@ -3290,6 +3408,15 @@ impl<'a> Reader<'a> {
                 "deviations or a tolerance class without a nominal value to apply them to; dimension not read",
             );
             return None;
+        }
+        for (subject, evidence, detail) in reversed {
+            self.find(
+                FindingKind::Nonconformance,
+                part,
+                subject,
+                &evidence,
+                detail,
+            );
         }
         let did = DimensionId(st.pmi.dimensions.len());
         st.pmi.dimensions.push(Dimension {
@@ -6331,6 +6458,37 @@ fn whole<T: TryFrom<u64>>(d: &Decimal) -> Option<T> {
     } else {
         None
     }
+}
+
+/// Import repair only: the model's Bounds constructor remains strict. Deviations are
+/// signed offsets (§5.2.3), so a nominal is checked only for absolute limits (§5.2.4).
+fn dimension_bounds(
+    upper: Value,
+    lower: Value,
+    nominal: Option<&Value>,
+) -> Result<(Bounds, bool), ModelError> {
+    let compare = |a: &Quantity, b: &Quantity| {
+        a.cmp_same_unit(b)
+            .unwrap_or_else(|| a.si().total_cmp(&b.si()))
+    };
+    let swapped = upper.quantity.same_kind(&lower.quantity)
+        && compare(&upper.quantity, &lower.quantity).is_lt();
+    if !swapped {
+        return Bounds::new(upper, lower).map(|bounds| (bounds, false));
+    }
+    if let Some(nominal) = nominal
+        && (!nominal.quantity.same_kind(&upper.quantity)
+            || compare(&nominal.quantity, &upper.quantity).is_lt()
+            || compare(&nominal.quantity, &lower.quantity).is_gt())
+    {
+        return Err(ModelError(format!(
+            "nominal {} is outside the reversed limits {}..{}; limits not swapped",
+            nominal.decimal(),
+            upper.decimal(),
+            lower.decimal()
+        )));
+    }
+    Bounds::new(lower, upper).map(|bounds| (bounds, true))
 }
 
 fn dedup_anchors(mut a: Vec<Anchor>) -> Vec<Anchor> {

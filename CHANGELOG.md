@@ -34,6 +34,14 @@ Upgrading from 0.4.0: recognition schema `/6` and fingerprints `/3` are unchange
 
 ### Fixed
 
+- PMI import repairs strictly reversed dimension limits and signed deviations with
+  a non-fatal nonconformance finding identifying the source instances. Equal bounds
+  and reversals whose nominal lies outside the corrected absolute limits remain refused.
+- Plain face aspects composing an indivisible datum feature retain the owning feature
+  identity when referenced by tolerances, properties or presentation; their faces are
+  collected once. All-around groups and per-member datum groups keep their semantics.
+  Legacy PMI reader binding `/12` identifies the corrected output.
+
 - Generated part notes share one numbered GENERAL NOTES block in JSON and STEP,
   retaining each requirement's semantic link and the bounds-relative placement.
 - Regenerated PMI uses measured, compact dimension ladders and reserves datum
