@@ -412,6 +412,13 @@ fn blind_internal_and_external_threads_are_drawn_and_written_without_a_size_dime
             ..PartPmi::default()
         };
         assert_eq!(notation::thread(&p.threads[0], &p).notation(), expected);
+        let mut paired = p.clone();
+        paired.threads[0].fit_class_2 = Some("5H".into());
+        assert!(
+            notation::thread(&paired.threads[0], &paired)
+                .notation()
+                .contains("/5H")
+        );
         let part = step::read_part(doc.bytes(), &defs[0]).unwrap();
         let generated =
             presentation::generated(&json::identify(p.clone(), None).unwrap(), &part).unwrap();

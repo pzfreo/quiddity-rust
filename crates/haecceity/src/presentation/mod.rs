@@ -432,13 +432,18 @@ pub fn thread(t: &Thread, p: &PartPmi) -> Callout {
     if !t.fit_class.is_empty() {
         value.push_str(&format!("-{}", t.fit_class));
     }
+    if let Some(second) = t.fit_class_2.as_deref().filter(|s| !s.is_empty()) {
+        value.push_str(if t.fit_class.is_empty() { "-" } else { "/" });
+        value.push_str(second);
+    }
     if t.hand == Hand::Left {
         value.push_str(" LH");
     }
-    if attributes
-        .iter()
-        .any(|(key, v)| key == "through" && matches!(v, AttributeValue::Text(s) if s == "true"))
-    {
+    if attributes.iter().any(|(key, v)| {
+        key == "through"
+            && (matches!(v, AttributeValue::Text(s) if s == "true")
+                || matches!(v, AttributeValue::Boolean(true)))
+    }) {
         value.push_str(" THRU");
     } else if let Some(depth) = measure("minimum full thread").or_else(|| measure("thread length"))
     {
