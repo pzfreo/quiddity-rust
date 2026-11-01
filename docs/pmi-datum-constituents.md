@@ -76,9 +76,18 @@ datum C's feature (FeatureId(1), incorporating child #222 and face #2502).
 Complete `pmi read` JSON matches the baseline apart from the reader binding.
 The control CTC01 fixture retains 12 dimensions, 6 tolerances, 3 datums.
 
-`cargo fmt --all -- --check` and
-`cargo clippy --workspace --all-targets -- -D warnings` pass. Full release tests
-with the required corpus environment are recorded after completion.
+All requested local checks pass:
+
+```sh
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+QUIDDITY_CORPUS=/Users/paul/repos/quiddity/tests/corpus QUIDDITY_CORPUS_REQUIRED=1 cargo test -p haecceity -p quiddity --release
+```
+
+The full release command completed with 970 passing tests, 9 normally
+ignored tests, and zero failures. The SE/control sample test was also explicitly
+run with `--ignored` and passed. Existing writer and round-trip tests remain
+unchanged. No changes touch `pmi/write.rs`, `pmi/text.rs` or `presentation/*`.
 
 ## Retired instructions
 
