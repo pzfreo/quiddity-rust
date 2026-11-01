@@ -161,7 +161,7 @@
     "tests/fixtures/ap242/presentation-placement/corners-flatness.step.gz": "ca8cbe6e63210ac4a705f5d29c0065381472de827fb6918822803e9613c78407",
     "tests/fixtures/ap242/presentation-placement/plate.step.gz": "7334abcbf5128a26768fb896d386a9b282d7d99fd221755598c142d4df5b2188",
     "tests/fixtures/ap242/presentation-placement/spindle.step.gz": "4ef62b408cb99a1addb9ab17bf43ac50d8d7a0f9b46db9121ba7677b48d47395",
-    "tests/fixtures/ap242/read/findings.json": "96c3cf1b6f8c06b070125a93506727557afd08bd20b1be43f8ce39dc558764bb",
+    "tests/fixtures/ap242/read/findings.json": "a50fad98fed236f443b9b472dc8d5b5a8fc8eec60283edf42c228b6c3c27b046",
     "tests/fixtures/ap242/removal/handmade.stp": "c1050f2d9ef07e4ad9e0d832c5263aeb5e4426486c7c931b49eb72c4b5c5e689",
     "tests/fixtures/ap242/removal/nist_refuse.json": "4bf76b1e19117f1fc585ddee95997fd823d4bac6e4d63d1a5c56492fc58ee402",
     "tests/fixtures/ap242/removal/nist_remove.json": "9e726f9f97893eeafc250ab01df249c55a4977b59dbe6af369b0299aee05f374",
@@ -5875,5 +5875,5 @@
     "sections/test/parts/fc9cb0ef3d518aa4.step.gz.json.gz": "ad246bd3ca231dda3e7fe1fc54cd798984e7dcd9da376dcb609c3c42001086f8",
     "step_levels.json.gz": "b1d837579387b475bfb90cc5670098890fdfe83fddcbf0e2236a24207c2de1ff"
   },
-  "source_commit": "428f551896cd38f92bd095b33af32f20bc2d14ad"
+  "source_commit": "c816c0d1194b5fa230c11b285e70b7a13a3c9f00"
 }
