@@ -398,9 +398,11 @@ The JSON mapping is lossless over `PartPmi`; it cannot recover facts the model
 never held. STEP writing keeps the existing writer's refusals: for example a
 missing nominal value (PMI §5.2.1), a projected zone without its end geometry,
 an ambiguous named unit, an unstated group kind, and read-only hole definitions.
-Duplicate identifiers on independent source requirements are also an explicit JSON export refusal rather
-than silently renumbered. `json::write` verifies the emitted semantic model by
-reading it back before returning bytes. It never removes refused requirements.
+Repeated or empty source identifiers are retained in `identifier` metadata; affected
+items receive unique content-derived reference ids, with native read findings describing
+the nonconformance. Caller-authored JSON must still use unique, nonempty reference ids.
+`json::write` verifies the emitted semantic model and source metadata by reading it back
+before returning bytes. It never removes refused requirements.
 
 `json::validate` and `pmi json validate` also check constructors, reference closure,
 and the writer's geometry-independent authoring refusals. `json::validate_schema`
