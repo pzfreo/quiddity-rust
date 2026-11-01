@@ -6,6 +6,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.4.3 (2026-11-01)
+
+Upgrading from 0.4.2: recognition schema `/6`, fingerprints `/3` and the `haecceity.pmi/1` schema are unchanged; only files whose datum features have several constituents read differently.
+- **Datum constituents (#173):** a face aspect composing a datum feature maps to the whole datum only when it is the datum's whole face set. Constituents of a multi-face datum (e.g. three separately sized lands) keep their own features and dimensions; the datum still holds all faces. Single-constituent datums (NIST STC10's seven folds, the Solid Edge CTC-01 re-export) read as in 0.4.2. Specify can drop its temporary LM10UU writer adjustment.
+- **Bounded STEP strings (#172):** strings the writer generates are at most 8192 encoded bytes, so OpenCascade can read written files (NIST STC-10 failed before). Long descriptive values, including haecceity's JSON item-id map, are written as ordered lists of text chunks; legacy single strings still read. Readers of haecceity's ordering property or descriptive text outside haecceity must join the chunks in list order. Strings carried unchanged from the input are written as they are, with a non-fatal `long_strings` warning. Generated names, identifiers and fallback product/header names longer than the bound are now explicit errors (never truncated), and a generated note graphic whose wording exceeds it is named `General notes` (the full text stays in the chunked descriptive items). **API note:** both Rust `WriteReport`s (`#[non_exhaustive]`) gain `long_strings: Vec<LongStringWarning>` (`record`, `encoded_bytes`, `byte_offset`); the new public const `pmi::write::MAX_STRING_LITERAL_BYTES` is 8192; report JSON carries `long_strings` only when there are warnings.
+- **Presentation (#171):** generated size callouts sit above their feature control frames in one annotation plane, and saved-view packing reserves label ink, so callouts no longer overlap. Written PMI graphics change accordingly.
+- **PMI reader string:** changes from `haecceity-pmi-read/13` to `haecceity-pmi-read/14`.
+
 ### Fixed
 
 - A plain face aspect composing a datum feature aliases the datum only when its face
@@ -21,14 +29,15 @@ in [docs/alpha1.md](docs/alpha1.md).
   representation items of text chunks; legacy single-string values still read.
   **Consumer note:** readers of haecceity's ordering property or descriptive text
   must concatenate marked chunks in list order. Semantic JSON is unchanged.
-  Generated indivisible oversized names/identifiers remain explicit errors.
+  Generated indivisible oversized names/identifiers are now explicit errors.
   Retained source/header/presentation text is preserved with non-fatal
   `long_strings` warnings naming the record and encoded length; both PMI and
   B-rep write reports expose the warnings (CLI and Python reports include them).
   Source product labels are preserved by B-rep writes; newly generated fallback
   product/header names remain bounded. Add also rechunks producer-owned legacy
   descriptive metadata at its original ids, preserving links and decoded values.
-  **API note:** both Rust write reports gain `long_strings`; optional report JSON
+  **API note:** both Rust write reports gain `long_strings` (`LongStringWarning`), and
+  `pmi::write::MAX_STRING_LITERAL_BYTES` is public; optional report JSON
   adds that field only when warnings exist. Existing semantic JSON is unchanged.
 - Keep generated size callouts above their feature control frames in one annotation
   plane, and reserve plain label ink in saved-view packing to prevent overlapping
