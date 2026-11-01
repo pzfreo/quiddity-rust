@@ -21,6 +21,9 @@ pub struct Plane {
 pub struct TextPlacement {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text_index: Option<usize>,
+    /// Lower-left / upper-right in placement coordinates relative to origin (mm).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cell_box: Option<[[f64; 2]; 2]>,
     /// True when this run is already drawn by the graphic's polylines.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub stroked: Option<bool>,
@@ -54,6 +57,7 @@ impl TextPlacement {
     fn at(frame: Transform, scale: f64) -> Option<Self> {
         Some(Self {
             text_index: None,
+            cell_box: None,
             stroked: None,
             origin: geom::scale(frame.origin, scale),
             x_axis: geom::unit(frame.axes[0])?,
@@ -159,6 +163,40 @@ pub(super) fn literal(
         extent.and_then(|extent| positive(attr(doc, extent, "planar_extent", "size_in_y")))
     });
     placed.height = height.map(|height| height * geom::norm(frame.axes[1]) * scale);
+    if let Some(extent) = extent
+        && let (Some(width), Some(height)) = (
+            positive(attr(doc, extent, "planar_extent", "size_in_x")),
+            positive(attr(doc, extent, "planar_extent", "size_in_y")),
+        )
+    {
+        // A literal's extent is a box, distinct from its font/style height.
+        // Unknown alignment cannot locate that box relative to its anchor.
+        let alignment = placed
+            .alignment
+            .as_deref()
+            .unwrap_or("")
+            .replace('_', " ")
+            .to_ascii_lowercase();
+        let lower = match alignment.as_str() {
+            "baseline left" | "bottom left" => Some([0., 0.]),
+            "baseline centre" | "baseline center" | "bottom centre" | "bottom center" => {
+                Some([-0.5, 0.])
+            }
+            "baseline right" | "bottom right" => Some([-1., 0.]),
+            "centre" | "center" | "middle centre" | "middle center" => Some([-0.5, -0.5]),
+            "middle left" => Some([0., -0.5]),
+            "middle right" => Some([-1., -0.5]),
+            "top left" => Some([0., -1.]),
+            "top centre" | "top center" => Some([-0.5, -1.]),
+            "top right" => Some([-1., -1.]),
+            _ => None,
+        };
+        if let Some([x, y]) = lower {
+            let w = width * geom::norm(frame.axes[0]) * scale;
+            let h = height * geom::norm(frame.axes[1]) * scale;
+            placed.cell_box = Some([[x * w, y * h], [(x + 1.) * w, (y + 1.) * h]]);
+        }
+    }
     if placed.height.is_none() {
         graphic
             .unsupported
@@ -475,6 +513,16 @@ pub(super) fn generated(
             used.insert(index);
             graphic.text_placements.push(TextPlacement {
                 text_index: Some(index),
+                cell_box: Some({
+                    let b = callout.cell_boxes.get(index).copied().unwrap_or_else(|| {
+                        let ink = crate::presentation::font().text(&run.text, run.size);
+                        [
+                            [run.at[0] + ink.min[0] - 0.6, run.at[1] + ink.min[1] - 0.6],
+                            [run.at[0] + ink.max[0] + 0.6, run.at[1] + ink.max[1] + 0.6],
+                        ]
+                    });
+                    b.map(|p| [(p[0] - run.at[0]) * scale, (p[1] - run.at[1]) * scale])
+                }),
                 // `placed.lines` contains Callout::polylines(): font letters
                 // and explicit geometric symbols represented by these runs.
                 // This records the rendering operation, not Graphic::source.
@@ -525,11 +573,23 @@ pub(super) fn validate(value: &Value) -> Result<()> {
         {
             return Err(Error(format!("unknown presentation plane {plane:?}")));
         }
+        if let Some(roles) = graphic["polyline_roles"].as_array()
+            && roles.len() != graphic["polylines"].as_array().map_or(0, Vec::len)
+        {
+            return Err(Error("polyline_roles must be parallel to polylines".into()));
+        }
         for placed in graphic["text_placements"].as_array().into_iter().flatten() {
             if let Some(index) = super::super::schema::unsigned(&placed["text_index"])
                 && index >= graphic["text"].as_array().map_or(0, Vec::len) as u64
             {
                 return Err(Error("text placement index out of range".into()));
+            }
+            if let Some(b) = placed["cell_box"].as_array()
+                && (0..2).any(|k| {
+                    b[0][k].as_f64().unwrap_or(f64::NAN) > b[1][k].as_f64().unwrap_or(f64::NAN)
+                })
+            {
+                return Err(Error("inverted text cell_box".into()));
             }
             for field in ["height", "line_spacing"] {
                 if placed[field]

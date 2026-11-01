@@ -6,6 +6,10 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Added
+
+- Generate internal/external thread callouts with stated pitch, class and depth (or THRU), in feature-local stacks. Presentation JSON adds optional polyline roles and text cell boxes for host-font rendering; older documents remain readable. Five feature-on STEP goldens gain thread graphics: `thread_replaced`, `assembly_plate_pin_intent`, `editor_assembly_pin_alone`, `string_post_tapped_intent`, and `thumbwheel_thread_knurl_intent`; their XCAF captures are refreshed. Thread-free writes and feature-off goldens are unchanged.
+
 ## 0.4.3 (2026-11-01)
 
 Upgrading from 0.4.2: recognition schema `/6`, fingerprints `/3` and the `haecceity.pmi/1` schema are unchanged; only files whose datum features have several constituents read differently.

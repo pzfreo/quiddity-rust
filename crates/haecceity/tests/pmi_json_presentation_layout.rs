@@ -99,6 +99,7 @@ fn shared_ctc01_derived_fixture_pins_text_and_filled_triangles() {
     near(placed.normal, [0., -1., 0.]);
     assert_eq!(placed.height, Some(3.));
     assert_eq!(placed.alignment.as_deref(), Some("baseline left"));
+    assert_eq!(placed.cell_box, Some([[0., 0.], [60., 3.]]));
     assert_eq!(literal.plane_id.as_deref(), Some("step:4391"));
     assert_eq!(drawn.planes.len(), 24);
     let saved = drawn.views.iter().find(|v| v.name == "MBD_0").unwrap();

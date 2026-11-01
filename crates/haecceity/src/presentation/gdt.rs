@@ -164,6 +164,9 @@ pub fn control_frame(
     for x in &xs[1..xs.len() - 1] {
         laid.strokes.push([[*x, 0.0], [*x, H]]);
     }
+    laid.frame_strokes = laid.strokes.len();
+    laid.text_symbols = true;
+    laid.cell_boxes = xs.windows(2).map(|x| [[x[0], 0.], [x[1], H]]).collect();
     characteristic(name, [H / 2.0, cy], &mut laid);
     let mut cells = vec![symbol(name).to_string()];
     laid.runs.push(text(symbol(name), [H / 2.0, cy], TEXT));
@@ -218,6 +221,8 @@ pub fn datum_frame(letter: &str) -> Laid {
     for i in 0..4 {
         laid.strokes.push([corners[i], corners[(i + 1) % 4]]);
     }
+    laid.frame_strokes = 4;
+    laid.cell_boxes = vec![[[-h, -h], [h, h]]];
     laid.letters.push(text(letter, [0.0, 0.0], h));
     laid.runs.push(text(letter, [0.0, 0.0], h));
     laid.cells = vec![letter.to_string()];

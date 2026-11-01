@@ -14,6 +14,19 @@ use std::collections::{BTreeMap, BTreeSet};
 mod layout;
 pub use layout::{Plane, TextPlacement, View};
 
+/// Geometry purpose; dimension includes arrowheads, extension includes witnesses.
+#[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq)]
+#[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
+#[serde(rename_all = "snake_case")]
+pub enum PolylineRole {
+    Text,
+    Frame,
+    Leader,
+    Extension,
+    Symbol,
+    Dimension,
+}
+
 #[derive(Clone, Debug, Serialize, PartialEq)]
 #[cfg_attr(feature = "json-import", derive(serde::Deserialize))]
 #[serde(deny_unknown_fields)]
@@ -28,6 +41,8 @@ pub struct Graphic {
     pub source: Source,
     pub name: String,
     pub polylines: Vec<Vec<[f64; 3]>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub polyline_roles: Option<Vec<PolylineRole>>,
     pub triangles: Vec<[[f64; 3]; 3]>,
     pub text: Vec<String>,
     pub step_ids: Vec<u64>,
@@ -76,6 +91,7 @@ impl Graphic {
             source,
             name,
             polylines: vec![],
+            polyline_roles: None,
             triangles: vec![],
             text: vec![],
             step_ids: vec![],
@@ -768,6 +784,13 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
             ));
         }
     }
+    for (i, t) in semantic.pmi.threads.iter().enumerate() {
+        stacks.entry(t.feature.0).or_default().push((
+            "threads",
+            i,
+            presentation::thread(t, &semantic.pmi),
+        ));
+    }
     for (i, t) in semantic.pmi.tolerances.iter().enumerate() {
         let feature = match t.target {
             crate::pmi::ToleranceTarget::Feature(f)
@@ -890,6 +913,20 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
         };
         placed.insert(("tolerances", i), (c, p));
     }
+    for (i, t) in semantic.pmi.threads.iter().enumerate() {
+        if placed.contains_key(&("threads", i)) {
+            continue;
+        }
+        let c = presentation::thread(t, &semantic.pmi);
+        let p = if let Some((point, normal, face)) =
+            presentation::placement::feature_site(part, &semantic.pmi, t.feature)
+        {
+            layout.on_label(point, normal, &c, part.face_bounds(face).max_extent())
+        } else {
+            layout.notes(&c)
+        };
+        placed.insert(("threads", i), (c, p));
+    }
     let mut ladder = presentation::linear::Ladder::for_views(part.bounds());
     for (_, p) in placed.values() {
         let mut b = geom::Bounds::empty();
@@ -1010,6 +1047,9 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
             out.items.entry(key.clone()).or_default().push(g);
             Ok(())
         };
+    for (i, t) in semantic.pmi.threads.iter().enumerate() {
+        add("threads", i, presentation::thread(t, &semantic.pmi))?;
+    }
     for (i, d) in semantic.pmi.dimensions.iter().enumerate() {
         add("dimensions", i, presentation::dimension(d))?;
     }
@@ -1126,6 +1166,46 @@ fn generated_graphic(
     layout::generated(&mut g, &callout, &placed);
     let plane = Plane::generated(&g, &placed);
     g.plane_id = Some(plane.id.clone());
+    let local = callout.polylines();
+    // Linear placement prefixes two witness and eight dimension/arrow lines;
+    // feature placement appends scope rings and its leader instead.
+    let prefix = placed.lines.len() == local.len() + 10;
+    let mut roles = Vec::new();
+    if prefix {
+        roles.extend([PolylineRole::Extension; 2]);
+        roles.extend([PolylineRole::Dimension; 8]);
+    }
+    roles.extend((0..callout.strokes.len()).map(|i| {
+        if i < callout.frame_strokes {
+            PolylineRole::Frame
+        } else if callout.text_symbols {
+            PolylineRole::Text
+        } else {
+            PolylineRole::Symbol
+        }
+    }));
+    roles.extend(vec![
+        if callout.text_symbols {
+            PolylineRole::Text
+        } else {
+            PolylineRole::Symbol
+        };
+        callout.arcs.len()
+    ]);
+    roles.extend(vec![
+        PolylineRole::Text;
+        local.len() - callout.strokes.len() - callout.arcs.len()
+    ]);
+    if !prefix {
+        roles.extend(vec![
+            PolylineRole::Symbol;
+            placed.lines.len().saturating_sub(local.len() + 1)
+        ]);
+        if placed.lines.len() > local.len() {
+            roles.push(PolylineRole::Leader);
+        }
+    }
+    g.polyline_roles = Some(roles);
     g.polylines = placed.lines;
     g.text = callout.cells;
     (g, plane)

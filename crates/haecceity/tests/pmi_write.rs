@@ -1772,9 +1772,37 @@ fn removal_takes_a_feature_definitions_shape_only_with_its_feature() {
         "the reader consumes it with its thread"
     );
     for policy in [Policy::Refuse, Policy::RemovePresentation] {
-        let plan =
-            removal::plan(&g.doc, &thread, policy).unwrap_or_else(|e| panic!("{policy:?}: {e}"));
-        assert!(plan.removed.contains(&shape), "{policy:?}");
+        let result = removal::plan(&g.doc, &thread, policy);
+        if cfg!(feature = "presentation") && policy == Policy::Refuse {
+            // Threads now own presentation too: Refuse must protect their callout.
+            assert!(
+                result.is_err(),
+                "thread callout requires RemovePresentation"
+            );
+        } else {
+            let plan = if cfg!(feature = "presentation") {
+                // Generic removal preserves independently named models. With the
+                // last thread annotation gone, the caller explicitly removes its
+                // now-empty generated model too (the existing container contract).
+                let refusal = result.unwrap_err();
+                assert!(
+                    refusal
+                        .emptied
+                        .iter()
+                        .any(|e| e.attribute == "representation.items")
+                );
+                let mut seeds = thread.clone();
+                seeds.extend(
+                    w.added()
+                        .into_iter()
+                        .filter(|&id| w.names(id) == ["draughting_model"]),
+                );
+                removal::plan(&g.doc, &seeds, policy).unwrap()
+            } else {
+                result.unwrap_or_else(|e| panic!("{policy:?}: {e}"))
+            };
+            assert!(plan.removed.contains(&shape), "{policy:?}");
+        }
 
         // Alone, the thread's aspects (kept) still reference it.
         let alone = removal::plan(&g.doc, &BTreeSet::from([shape]), policy).unwrap_err();
@@ -3980,7 +4008,7 @@ fn opencascade_reads_the_written_files() {
 /// item it reads is on the pin's own prototype label (a direct child of the shape tool's
 /// label, not a component of the assembly, so both placements show it), on the pin's faces as
 /// haecceity numbers them; the plate's label has nothing. Feature-on output additionally
-/// carries one unattached symbolic notes CommonLabel (no semantic dimension is unattached).
+/// carries symbolic notes/thread CommonLabels (no semantic dimension is unattached).
 #[test]
 fn opencascade_puts_a_parts_pmi_on_its_prototype() {
     let name = "editor_assembly_pin_alone";
@@ -3989,7 +4017,14 @@ fn opencascade_puts_a_parts_pmi_on_its_prototype() {
     ))
     .unwrap();
     let f = open(&write_dir().join(format!("{name}.step.gz")));
-    assert_eq!(capture["loads"], true);
+    let pins = load_pins();
+    let unavailable = &pins["loader_unavailable"][name];
+    assert!(
+        capture["loads"] == true
+            || (unavailable["status"] == capture["loads"]
+                && unavailable["verdict"] == "not-applicable"
+                && unavailable["reason"].is_string())
+    );
     assert_eq!(capture["reads"], true);
     let parts = capture["parts"].as_array().unwrap();
     let names: Vec<&str> = parts.iter().map(|p| p["name"].as_str().unwrap()).collect();
@@ -4009,20 +4044,22 @@ fn opencascade_puts_a_parts_pmi_on_its_prototype() {
     assert!(graphic_notes.is_empty());
     #[cfg(feature = "presentation")]
     {
-        // OCCT exposes the new general-notes block as one symbolic CommonLabel.
-        // Keep the exact semantic counts/face/prototype assertions below unchanged.
-        assert_eq!(graphic_notes.len(), 1);
-        let note = &graphic_notes[0];
-        assert_eq!(note["type"], "CommonLabel");
-        assert_eq!(note["semantic_name"], "DGT:Common_label");
-        assert_eq!(note["value"], 0.0);
-        for key in ["faces", "faces2", "parts", "values", "modifiers"] {
-            assert!(
-                note[key].as_array().unwrap().is_empty(),
-                "symbolic note {key}"
-            );
+        // XCAF exposes the notes block and the new thread callout as symbolic
+        // CommonLabels. The semantic counts/face/prototype assertions stay exact.
+        assert_eq!(graphic_notes.len(), 2);
+        for note in graphic_notes {
+            assert_eq!(note["type"], "CommonLabel");
+            assert_eq!(note["semantic_name"], "DGT:Common_label");
+            assert_eq!(note["value"], 0.0);
+            for key in ["faces", "faces2", "parts", "values", "modifiers"] {
+                assert!(
+                    note[key].as_array().unwrap().is_empty(),
+                    "symbolic label {key}"
+                );
+            }
         }
         let reading = pmi::read(&f.doc, &f.parts).unwrap();
+        assert_eq!(reading.parts[1].threads.len(), 1);
         assert!(reading.parts[0].material.is_none());
         assert!(reading.parts[0].general.is_empty());
         assert_eq!(reading.parts[1].material.as_ref().unwrap().id, "Steel C45");
@@ -5443,7 +5480,7 @@ fn all_three_specify_samples_have_real_linear_dimensions_and_local_callouts() {
         let w = written(&f, p);
         assert_verified(&f, &w, p);
         assert!(new_violations(&f.doc, &w.doc).is_empty());
-        sample_placement(&w.doc, bounds, with_settings);
+        sample_placement(&w.doc, bounds, with_settings + p.threads.len());
         assert_notes_clear(&w.doc);
         sample_linear_dimensions(&w.doc, &w.read, &f.parts[0]);
         sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
@@ -5708,6 +5745,7 @@ fn sample_datums_and_frames(doc: &Document, read: &PmiRead, def: &PartDefinition
             || kind == &Attribute::String("diameter dimension".into())
             || kind == &Attribute::String("note".into())
             || kind == &Attribute::String("surface roughness".into())
+            || kind == &Attribute::String("thread".into())
         {
             continue;
         }

@@ -3141,20 +3141,9 @@ impl<'a> PartPlan<'a> {
             && !p.general.iter().any(|g| matches!(g, GeneralTolerance::Table { cells, .. } if cells.iter().any(|c| c.items.iter().any(|(n,_)| n == "number of decimal places")))) {
             self.tolerance_table(em, pds, "", &[ToleranceCell { items: vec![("number of decimal places".into(), CellValue::Count(Decimal::parse(&places.to_string()).map_err(|e| WriteError::Internal(e.0))?))] }])?;
         }
-        let threads = p.threads.iter();
-        #[cfg(feature = "json-import")]
-        let threads = threads.enumerate();
-        #[cfg(not(feature = "json-import"))]
-        let threads = threads.map(|item| ((), item));
+        let threads = p.threads.iter().enumerate();
         for (_i, t) in threads {
-            self.thread(
-                em,
-                &mut st,
-                pds,
-                t,
-                #[cfg(feature = "json-import")]
-                _i,
-            )?;
+            self.thread(em, &mut st, pds, t, _i)?;
         }
         let knurls = p.knurls.iter();
         #[cfg(feature = "json-import")]
@@ -3795,6 +3784,137 @@ impl<'a> PartPlan<'a> {
                     lines,
                 ));
             }
+        }
+        #[cfg(feature = "presentation")]
+        if !self.pmi.threads.is_empty() {
+            use crate::{geom, presentation};
+            // Repack only thread-bearing features. Keep thread-free serialization
+            // identical; an old independent frame must not choose another plane.
+            let mut features = Vec::<FeatureId>::new();
+            for t in &self.pmi.threads {
+                if !features.iter().any(|&f| {
+                    self.pmi.same_target(
+                        &ToleranceTarget::Feature(f),
+                        &ToleranceTarget::Feature(t.feature),
+                    )
+                }) {
+                    features.push(t.feature);
+                }
+            }
+            let key = |f| {
+                features.iter().copied().find(|&other| {
+                    self.pmi.same_target(
+                        &ToleranceTarget::Feature(f),
+                        &ToleranceTarget::Feature(other),
+                    )
+                })
+            };
+            let mut stacks = BTreeMap::<usize, Vec<(usize, presentation::Callout)>>::new();
+            for (i, d) in self.pmi.dimensions.iter().enumerate() {
+                if measurements.as_ref().is_some_and(|m| m[i].is_some()) {
+                    continue;
+                }
+                if let DimensionKind::Size { feature, .. } = d.kind
+                    && let Some(f) = key(feature)
+                {
+                    stacks
+                        .entry(f.0)
+                        .or_default()
+                        .push((symbols.len() + i, presentation::dimension(d)));
+                }
+            }
+            for (i, t) in self.pmi.threads.iter().enumerate() {
+                let c = presentation::thread(t, self.pmi);
+                let index = graphics.len();
+                graphics.push((
+                    vec![_st.threads[&i]],
+                    "thread",
+                    c.notation(),
+                    [[0.; 3]; 3],
+                    Vec::new(),
+                ));
+                let f = key(t.feature)
+                    .ok_or_else(|| WriteError::Internal("thread stack feature missing".into()))?;
+                stacks.entry(f.0).or_default().push((index, c));
+            }
+            for (i, t) in self.pmi.tolerances.iter().enumerate() {
+                let feature = match t.target {
+                    ToleranceTarget::Feature(f) | ToleranceTarget::Relation { relating: f, .. } => {
+                        Some(f)
+                    }
+                    ToleranceTarget::Dimension(d) => match self.pmi.dimensions[d.0].kind {
+                        DimensionKind::Size { feature, .. } => Some(feature),
+                        _ => None,
+                    },
+                    ToleranceTarget::WholePart => None,
+                };
+                if let Some(f) = feature.and_then(key) {
+                    stacks.entry(f.0).or_default().push((
+                        symbols.len() + self.pmi.dimensions.len() + i,
+                        presentation::tolerance(t, self.pmi),
+                    ));
+                }
+            }
+            let stacked: BTreeSet<_> = stacks.values().flatten().map(|(i, _)| *i).collect();
+            let mut bounds = geom::Bounds::empty();
+            if let Some(part) = &presentation_part {
+                let b = part.bounds();
+                bounds.add(b.min.map(|x| x / factor));
+                bounds.add(b.max.map(|x| x / factor));
+            } else {
+                for &p in &points {
+                    bounds.add(p);
+                }
+            }
+            let mut packed = presentation::placement::Layout::with_unit(bounds, factor);
+            for (i, (_, _, _, plane, lines)) in graphics.iter().enumerate() {
+                if !stacked.contains(&i) {
+                    packed.reserve_ink(&lines[..lines.len().saturating_sub(1)], plane[1], plane[2]);
+                }
+            }
+            for (feature, stack) in stacks {
+                let site = presentation_part.as_ref().and_then(|part| {
+                    presentation::placement::feature_site(part, self.pmi, FeatureId(feature)).map(
+                        |(point, normal, face)| {
+                            (point, normal, part.face_bounds(face).max_extent())
+                        },
+                    )
+                });
+                let positions = if let Some((point, normal, extent)) = site {
+                    let callouts: Vec<_> = stack.iter().map(|(_, c)| c).collect();
+                    if stack.len() == 1 {
+                        vec![packed.on_label(
+                            point.map(|x| x / factor),
+                            normal,
+                            callouts[0],
+                            extent / factor,
+                        )]
+                    } else {
+                        packed.stack(
+                            point.map(|x| x / factor),
+                            normal,
+                            &callouts,
+                            extent / factor,
+                        )
+                    }
+                } else {
+                    stack
+                        .iter()
+                        .map(|(_, c)| {
+                            packed.place(
+                                self.feature_point(feature).unwrap_or([0.; 3]),
+                                self.feature_axis(feature),
+                                c,
+                            )
+                        })
+                        .collect()
+                };
+                for ((i, _), p) in stack.into_iter().zip(positions) {
+                    graphics[i].3 = [p.origin, p.normal, p.along];
+                    graphics[i].4 = p.lines;
+                }
+            }
+            local_layout = packed;
         }
         #[cfg(feature = "presentation")]
         if let Some(part) = &presentation_part {
@@ -5589,10 +5709,14 @@ impl<'a> PartPlan<'a> {
         st: &mut Emitted,
         pds: R,
         t: &Thread,
-        #[cfg(feature = "json-import")] index: usize,
+        index: usize,
     ) -> Result<(), WriteError> {
         let def = em.simple("thread", &[("name", s("")), ("description", s(""))])?;
         let shape = self.applied(em, st, pds, def, t.feature)?;
+        #[cfg(feature = "presentation")]
+        st.threads.insert(index, shape);
+        #[cfg(not(any(feature = "presentation", feature = "json-import")))]
+        let _ = index;
         #[cfg(feature = "json-import")]
         self.identify(em, "threads", index, shape)?;
         let area = match t.partial_area {
@@ -6141,6 +6265,7 @@ fn needs_callouts(p: &PartPmi) -> bool {
     #[cfg(feature = "presentation")]
     {
         !p.dimensions.is_empty()
+            || !p.threads.is_empty()
             || !p.tolerances.is_empty()
             || p.surface_textures.iter().any(|t| t.on.is_some())
             || !crate::presentation::notes::general_notes(p).is_empty()
@@ -6172,6 +6297,8 @@ struct Emitted {
     dimensions: BTreeMap<usize, R>,
     dimension_values: BTreeSet<usize>,
     tolerances: BTreeMap<usize, R>,
+    #[cfg(feature = "presentation")]
+    threads: BTreeMap<usize, R>,
     tolerance_targets: BTreeMap<usize, R>,
     systems: BTreeMap<String, R>,
     /// Usage keys (representation, items) several features need: each one shape aspect.
