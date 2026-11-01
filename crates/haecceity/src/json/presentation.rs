@@ -753,8 +753,62 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
         };
         placed.insert(("datums", i), (c, p));
     }
+    // A feature's size and controls are one drawing stack. Independently
+    // minimizing each leader can choose different planes and superimpose ink.
+    let mut stacks = BTreeMap::<_, Vec<_>>::new();
     for (i, d) in semantic.pmi.dimensions.iter().enumerate() {
-        if measurements[i].is_some() {
+        if measurements[i].is_none()
+            && d.nominal.is_some()
+            && let crate::pmi::DimensionKind::Size { feature, .. } = d.kind
+        {
+            stacks.entry(feature.0).or_default().push((
+                "dimensions",
+                i,
+                presentation::dimension(d),
+            ));
+        }
+    }
+    for (i, t) in semantic.pmi.tolerances.iter().enumerate() {
+        let feature = match t.target {
+            crate::pmi::ToleranceTarget::Feature(f)
+            | crate::pmi::ToleranceTarget::Relation { relating: f, .. } => Some(f),
+            crate::pmi::ToleranceTarget::Dimension(d) => match semantic.pmi.dimensions[d.0].kind {
+                crate::pmi::DimensionKind::Size { feature, .. } => Some(feature),
+                _ => None,
+            },
+            _ => None,
+        };
+        if let Some(f) = feature {
+            stacks.entry(f.0).or_default().push((
+                "tolerances",
+                i,
+                presentation::tolerance(t, &semantic.pmi),
+            ));
+        }
+    }
+    for (feature, stack) in stacks {
+        if stack.len() < 2 {
+            continue;
+        }
+        if let Some((point, normal, face)) = presentation::placement::feature_site(
+            part,
+            &semantic.pmi,
+            crate::pmi::FeatureId(feature),
+        ) {
+            let callouts: Vec<_> = stack.iter().map(|(_, _, c)| c).collect();
+            let positions = layout.stack(
+                point,
+                normal,
+                &callouts,
+                part.face_bounds(face).max_extent(),
+            );
+            for ((collection, i, c), p) in stack.into_iter().zip(positions) {
+                placed.insert((collection, i), (c, p));
+            }
+        }
+    }
+    for (i, d) in semantic.pmi.dimensions.iter().enumerate() {
+        if measurements[i].is_some() || placed.contains_key(&("dimensions", i)) {
             continue;
         }
         let c = presentation::dimension(d);
@@ -772,6 +826,9 @@ pub fn generated(semantic: &Semantic, part: &crate::brep::Part) -> Result<Presen
         placed.insert(("dimensions", i), (c, p));
     }
     for (i, t) in semantic.pmi.tolerances.iter().enumerate() {
+        if placed.contains_key(&("tolerances", i)) {
+            continue;
+        }
         use crate::pmi::{DimensionKind, ToleranceTarget};
         let f = match t.target {
             ToleranceTarget::Feature(f) | ToleranceTarget::Relation { relating: f, .. } => Some(f),
