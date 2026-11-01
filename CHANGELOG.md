@@ -8,14 +8,21 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
-- STEP PMI writes bound encoded string literals to 8192 bytes, preventing
+- STEP PMI writes bound generated encoded string literals to 8192 bytes, preventing
   OpenCascade's scanner overflow on NIST STC-10. Long descriptive values,
   including JSON item-id maps, UDA payloads and notes, use ordered compound/list
   representation items of text chunks; legacy single-string values still read.
   **Consumer note:** readers of haecceity's ordering property or descriptive text
   must concatenate marked chunks in list order. Semantic JSON is unchanged.
-  Indivisible oversized names/identifiers and retained source strings are refused
-  explicitly; the B-rep writer also checks its final product/header strings.
+  Generated indivisible oversized names/identifiers remain explicit errors.
+  Retained source/header/presentation text is preserved with non-fatal
+  `long_strings` warnings naming the record and encoded length; both PMI and
+  B-rep write reports expose the warnings (CLI and Python reports include them).
+  Source product labels are preserved by B-rep writes; newly generated fallback
+  product/header names remain bounded. Add also rechunks producer-owned legacy
+  descriptive metadata at its original ids, preserving links and decoded values.
+  **API note:** both Rust write reports gain `long_strings`; optional report JSON
+  adds that field only when warnings exist. Existing semantic JSON is unchanged.
 
 - For #157, #159, #160, retain turned steps on stock with proved spanner flats,
   group interrupted coaxial torus fillets with exact defining faces, and omit

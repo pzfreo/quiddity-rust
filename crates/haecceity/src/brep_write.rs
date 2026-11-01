@@ -63,6 +63,8 @@ pub const UNCERTAINTY_MM: f64 = 1e-7;
 pub struct WriteOptions<'a> {
     /// The product's name and id when the part holds none (a part not read from a file, or
     /// read through no product); the source products' names are kept where the part holds them.
+    /// Generated fallback product/header names are bounded by
+    /// [`pmi::write::MAX_STRING_LITERAL_BYTES`]; copied source labels warn instead.
     pub name: &'a str,
     /// The part's semantic PMI, anchored to its faces and edges by index; `None` writes none.
     pub pmi: Option<&'a PartPmi>,
@@ -73,6 +75,8 @@ pub struct WriteOptions<'a> {
 #[non_exhaustive]
 pub struct WriteReport {
     pub solids: usize,
+    /// Copied source labels exceeding the interoperability bound; non-fatal.
+    pub long_strings: Vec<pmi::write::LongStringWarning>,
     /// Void shells written (`BREP_WITH_VOIDS`).
     pub void_shells: usize,
     pub faces: usize,
@@ -182,7 +186,7 @@ pub fn write_step(
         }
         None => bytes,
     };
-    crate::pmi::text::check_literals(&bytes).map_err(|e| WriteError::Author(e.to_string()))?;
+    report.long_strings = crate::pmi::text::long_strings(&bytes);
     Ok((bytes, report))
 }
 
@@ -1314,6 +1318,16 @@ impl<'p> Writer<'p> {
             }
             roots
         };
+        let generated_name = |name: &str| -> Result<(), WriteError> {
+            let size = crate::pmi::text::literal_len(name);
+            if size > pmi::write::MAX_STRING_LITERAL_BYTES {
+                return Err(WriteError::Author(format!(
+                    "generated product/header name is an indivisible string of {size} encoded bytes (limit {}); cannot split losslessly",
+                    pmi::write::MAX_STRING_LITERAL_BYTES
+                )));
+            }
+            Ok(())
+        };
         let root = match roots.first() {
             Some(r) => {
                 for other in &roots[1..] {
@@ -1325,6 +1339,7 @@ impl<'p> Writer<'p> {
                 label(&mut self.b, r)
             }
             None => {
+                generated_name(&self.name)?;
                 report.products_renamed.push(format!(
                     "the part holds no product name: written as {:?}",
                     self.name
@@ -1350,6 +1365,7 @@ impl<'p> Writer<'p> {
                                         "{} component {}",
                                         self.name, report.placed_components
                                     );
+                                    generated_name(&name)?;
                                     report.products_renamed.push(format!(
                                         "a component the part holds no name for: written as \
                                          {name:?}"

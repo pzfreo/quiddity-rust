@@ -443,7 +443,7 @@ its decoded descriptions in **list order**, without separators. This also applie
 to long native descriptive values (notes, attribute text, material descriptions,
 and parameter text). The list, rather than STEP instance order or a SET, defines
 the order. The complete encoded literal, including quotes, doubled apostrophes
-and Unicode escapes, is at most 8192 bytes. Splits occur between Unicode scalars;
+and Unicode escapes, is at most 8192 bytes for generated values. Splits occur between Unicode scalars;
 chunks contain independently valid escapes. Legacy single items remain readable,
 regardless of length. JSON's schema and semantic values do not change.
 
@@ -453,8 +453,10 @@ allows multiple representation items when their interpretation is clear, and
 §7.1 specifies descriptive strings; it gives **no** string length limit. The
 8192-byte limit is an interoperability choice for Part 21 scanners, including
 OpenCascade's. It leaves room below OCCT's default 16 KiB scanner buffer while
-preserving existing byte-identical Add operations on the 5004-byte carried
-face-id map in the identifier fixture. Consumers of this producer property must support both forms.
+preserving ordinary existing source strings. Oversized foreign source literals
+are retained with non-fatal `WriteReport.long_strings` warnings, rather than
+blocking a write. Producer-owned legacy descriptive metadata is rechunked in
+place even in Add mode; the parent ids and decoded values stay the same. Consumers of this producer property must support both forms.
 SFA may display this ordinary property in its property worksheet; it contains no second copy of
 the semantic values.
 

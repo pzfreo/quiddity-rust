@@ -137,7 +137,7 @@ fn generated_long_note_label_keeps_its_full_semantic_wording() {
 }
 
 #[test]
-fn indivisible_names_and_unchanged_source_strings_are_refused_explicitly() {
+fn generated_names_are_refused_but_retained_long_source_text_is_reported() {
     let doc = fixture("ap242/specify/spool_fits.step.gz");
     let mut model = PartPmi {
         attributes: vec![AttributeSet {
@@ -162,22 +162,38 @@ fn indivisible_names_and_unchanged_source_strings_are_refused_explicitly() {
     assert!(error.contains("indivisible string"), "{error}");
     model.attributes.clear();
     let mut edit = Edit::new();
-    edit.add(p21::Record::new(p21::simple(
+    let foreign = edit.add(p21::Record::new(p21::simple(
         "DESCRIPTIVE_REPRESENTATION_ITEM",
         vec![A::String("unattached".into()), A::String("y".repeat(10000))],
     )));
-    let doc = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
+    let written = doc.apply(&edit).unwrap();
+    let foreign = written.ids[&foreign];
+    let doc = Document::parse(written.bytes).unwrap();
     let parts = read_part_definitions(doc.bytes()).unwrap();
-    let error = pmi::write(
-        &doc,
-        &parts,
-        &[(PartId(0), model)],
-        Mode::Replace,
-        pmi::write::PresentationPolicy::RemovePresentation,
-    )
-    .unwrap_err()
-    .to_string();
-    assert!(error.contains("unchanged source string"), "{error}");
+    for mode in [Mode::Add, Mode::Replace] {
+        let (edit, report) = pmi::write(
+            &doc,
+            &parts,
+            &[(PartId(0), model.clone())],
+            mode,
+            pmi::write::PresentationPolicy::RemovePresentation,
+        )
+        .unwrap();
+        let written = doc.apply(&edit).unwrap();
+        let after = Document::parse(written.bytes).unwrap();
+        assert_eq!(
+            &after.bytes()[after.span(foreign).unwrap()],
+            &doc.bytes()[doc.span(foreign).unwrap()]
+        );
+        let warning = report
+            .long_strings
+            .iter()
+            .find(|w| w.record == format!("#{foreign}"))
+            .unwrap();
+        assert_eq!(warning.encoded_bytes, 10002);
+        assert!(warning.to_string().contains("OpenCascade"));
+        assert!(warning.to_string().contains("carried unchanged"));
+    }
 }
 
 #[cfg(feature = "json-import")]
@@ -281,6 +297,27 @@ fn stc10_ordering_map_is_split_and_legacy_long_map_still_reads() {
     );
     let legacy = Document::parse(after.apply(&edit).unwrap().bytes).unwrap();
     assert!(longest_literal(legacy.bytes()) > 40000);
+    let definitions = read_part_definitions(legacy.bytes()).unwrap();
+    let (edit, report) = pmi::write(
+        &legacy,
+        &definitions,
+        &[(PartId(0), PartPmi::default())],
+        Mode::Add,
+        pmi::write::PresentationPolicy::Refuse,
+    )
+    .unwrap();
+    assert!(report.rewritten.contains(&ordering));
+    let repaired = Document::parse(legacy.apply(&edit).unwrap().bytes).unwrap();
+    assert!(longest_literal(repaired.bytes()) <= pmi::write::MAX_STRING_LITERAL_BYTES);
+    assert!(report.long_strings.is_empty());
+    let read = pmi::read(&repaired, &read_part_definitions(repaired.bytes()).unwrap()).unwrap();
+    assert_eq!(
+        json::to_value(
+            &json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap()
+        )
+        .unwrap(),
+        expected[0]
+    );
     for (name, candidate) in [("split", &after), ("legacy", &legacy)] {
         let definitions = read_part_definitions(candidate.bytes()).unwrap();
         let read = pmi::read(candidate, &definitions).unwrap();
@@ -307,7 +344,7 @@ fn stc10_ordering_map_is_split_and_legacy_long_map_still_reads() {
 }
 
 #[test]
-fn geometry_writer_refuses_an_oversized_source_product_name() {
+fn geometry_writer_preserves_oversized_source_labels_and_reports_them() {
     let doc = fixture("ap242/specify/spool_fits.step.gz");
     let (id, mut entity) = doc
         .ids()
@@ -324,20 +361,126 @@ fn geometry_writer_refuses_an_oversized_source_product_name() {
     let doc = Document::parse(doc.apply(&edit).unwrap().bytes).unwrap();
     let parts = read_part_definitions(doc.bytes()).unwrap();
     let part = haecceity::step::read_part(doc.bytes(), &parts[0]).unwrap();
-    let error = haecceity::brep_write::write_step(
+    let (bytes, report) = haecceity::brep_write::write_step(
         &part,
         &haecceity::brep_write::WriteOptions {
             name: "fallback",
             pmi: None,
         },
     )
+    .unwrap();
+    assert!(report.long_strings.iter().any(|w| w.record == "FILE_NAME"));
+    assert!(
+        report
+            .long_strings
+            .iter()
+            .any(|w| w.record.starts_with('#'))
+    );
+    let after = read_part_definitions(&bytes).unwrap();
+    assert_eq!(after[0].name, parts[0].name);
+    // This option creates new product/header fields when the part has no source label.
+    let anonymous = haecceity::brep::Part::new(vec![], vec![], vec![]);
+    let error = haecceity::brep_write::write_step(
+        &anonymous,
+        &haecceity::brep_write::WriteOptions {
+            name: &"x".repeat(pmi::write::MAX_STRING_LITERAL_BYTES),
+            pmi: None,
+        },
+    )
     .unwrap_err()
     .to_string();
-    assert!(
-        error.contains(&format!(
-            "encoded bytes (limit {})",
-            pmi::write::MAX_STRING_LITERAL_BYTES
-        )),
-        "{error}"
+    assert!(error.contains("generated product/header name"), "{error}");
+}
+
+#[cfg(feature = "json-import")]
+#[test]
+fn add_rechunks_other_legacy_haecceity_descriptive_payloads() {
+    use haecceity::json;
+    let doc = fixture("ap242/specify/spool_fits.step.gz");
+    let model = PartPmi {
+        attributes: vec![AttributeSet {
+            name: "metadata".into(),
+            on: None,
+            items: vec![(
+                "payload".into(),
+                AttributeValue::Text("legacy JSON/provenance ".repeat(1000)),
+            )],
+            description: None,
+            general_property: None,
+        }],
+        ..PartPmi::default()
+    };
+    let expected = json::identify(model, None).unwrap();
+    let parts = read_part_definitions(doc.bytes()).unwrap();
+    let (bytes, _) = json::write(
+        &doc,
+        &parts,
+        &[(PartId(0), expected.clone())],
+        pmi::write::PresentationPolicy::RemovePresentation,
+    )
+    .unwrap();
+    let bounded = Document::parse(bytes).unwrap();
+    let mut edit = Edit::new();
+    let mut old = None;
+    for id in bounded.ids() {
+        let Some(RawEntity::Simple {
+            name, attributes, ..
+        }) = bounded.get(id)
+        else {
+            continue;
+        };
+        if name != "COMPOUND_REPRESENTATION_ITEM" || attributes[0] != A::String("payload".into()) {
+            continue;
+        }
+        let A::Typed { value, .. } = &attributes[1] else {
+            panic!("list")
+        };
+        let A::List(children) = value.as_ref() else {
+            panic!("list")
+        };
+        let mut text = String::new();
+        for child in children {
+            let A::EntityRef(child) = child else {
+                panic!("ref")
+            };
+            let RawEntity::Simple { attributes, .. } = bounded.get(*child).unwrap() else {
+                panic!("chunk")
+            };
+            let A::String(body) = &attributes[1] else {
+                panic!("text")
+            };
+            text.push_str(body);
+            edit.remove(*child);
+        }
+        edit.replace(
+            id,
+            p21::simple(
+                "DESCRIPTIVE_REPRESENTATION_ITEM",
+                vec![attributes[0].clone(), A::String(text)],
+            ),
+        );
+        old = Some(id);
+    }
+    let old = old.expect("long payload");
+    let legacy = Document::parse(bounded.apply(&edit).unwrap().bytes).unwrap();
+    let parts = read_part_definitions(legacy.bytes()).unwrap();
+    let (edit, report) = pmi::write(
+        &legacy,
+        &parts,
+        &[(PartId(0), PartPmi::default())],
+        Mode::Add,
+        pmi::write::PresentationPolicy::Refuse,
+    )
+    .unwrap();
+    assert!(report.rewritten.contains(&old));
+    let after = Document::parse(legacy.apply(&edit).unwrap().bytes).unwrap();
+    assert!(longest_literal(after.bytes()) <= pmi::write::MAX_STRING_LITERAL_BYTES);
+    let read = pmi::read(&after, &read_part_definitions(after.bytes()).unwrap()).unwrap();
+    assert_eq!(
+        json::to_value(
+            &json::identify(read.parts[0].clone(), Some(&read.identifiers.parts[0])).unwrap()
+        )
+        .unwrap(),
+        json::to_value(&expected).unwrap()
     );
 }

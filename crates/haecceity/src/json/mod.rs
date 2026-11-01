@@ -614,7 +614,7 @@ pub fn write(
     let after_read = pmi::read(&after, &definitions).map_err(|e| Error(e.to_string()))?;
     let prior_rules = crate::express_rules::check_all(&after);
     let (bytes, added) = preserve::attach(&after, &after_read, kept)?;
-    crate::pmi::text::check_literals(&bytes).map_err(|e| Error(e.to_string()))?;
+    report.long_strings = crate::pmi::text::long_strings(&bytes);
     report.added += added;
     let after = Document::parse(bytes.clone()).map_err(|e| Error(e.to_string()))?;
     let added_schema: Vec<_> = crate::express::validate_document(after.graph())

@@ -4,7 +4,7 @@
 //! is clear, but specifies no string size limit. 8192 encoded bytes is our
 //! interoperability limit, not an EXPRESS or CAx-IF restriction.
 use super::PartProvenance;
-use crate::p21::{self, Attribute as A, Document, P21Error, RawEntity};
+use crate::p21::{self, Attribute as A, Document, RawEntity};
 
 pub(crate) const MAX_LITERAL_BYTES: usize = 8192;
 pub(crate) const CHUNK_NAME: &str = "haecceity text chunk/1";
@@ -140,11 +140,12 @@ pub(crate) fn extend_provenance(doc: &Document, p: &mut PartProvenance) {
     extend(&mut p.transport);
 }
 
-/// Backstop for every output path, including unchanged input and header strings.
-/// An indivisible source name/identifier cannot be split without changing its
-/// schema meaning: refuse explicitly rather than return unreadable output.
-pub(crate) fn check_literals(bytes: &[u8]) -> Result<(), P21Error> {
+/// Non-fatal interoperability diagnostics for strings carried from the source.
+/// Generated values are bounded at emission; this scanner never rejects source text.
+pub(crate) fn long_strings(bytes: &[u8]) -> Vec<super::write::LongStringWarning> {
     let mut i = 0;
+    let mut out = Vec::new();
+    let mut record = String::new();
     while i < bytes.len() {
         match bytes[i] {
             b'/' if bytes.get(i + 1) == Some(&b'*') => {
@@ -178,15 +179,31 @@ pub(crate) fn check_literals(bytes: &[u8]) -> Result<(), P21Error> {
                 }
                 let size = i - start;
                 if size > MAX_LITERAL_BYTES {
-                    return Err(P21Error::Encode(format!(
-                        "string literal at byte {start} is {size} encoded bytes (limit {MAX_LITERAL_BYTES}); an unchanged source string cannot be split losslessly in its schema attribute"
-                    )));
+                    out.push(super::write::LongStringWarning {
+                        record: record.clone(),
+                        encoded_bytes: size,
+                        byte_offset: start,
+                    });
                 }
+            }
+            b';' => {
+                record.clear();
+                i += 1;
+            }
+            c if record.is_empty() && !c.is_ascii_whitespace() => {
+                let start = i;
+                i += 1;
+                while i < bytes.len()
+                    && (bytes[i].is_ascii_alphanumeric() || bytes[i] == b'-' || bytes[i] == b'_')
+                {
+                    i += 1;
+                }
+                record.push_str(&String::from_utf8_lossy(&bytes[start..i]));
             }
             _ => i += 1,
         }
     }
-    Ok(())
+    out
 }
 
 #[cfg(test)]
@@ -217,18 +234,23 @@ mod tests {
     fn literal_backstop_ignores_comments_and_binary_and_counts_doubled_quotes() {
         let long = "a".repeat(MAX_LITERAL_BYTES);
         assert!(
-            check_literals(
+            long_strings(
                 format!("/* '{long}' */ \"{long}\" <https://example.test/'{long}> 'ok''text'")
                     .as_bytes()
             )
-            .is_ok()
+            .is_empty()
         );
-        assert!(check_literals(format!("'{long}'").as_bytes()).is_err());
+        let warnings = long_strings(format!("FILE_NAME('{long}'); #27=X('{long}');").as_bytes());
+        assert_eq!(warnings.len(), 2);
+        assert_eq!(warnings[0].record, "FILE_NAME");
+        assert_eq!(warnings[1].record, "#27");
+        assert_eq!(warnings[1].encoded_bytes, MAX_LITERAL_BYTES + 2);
+        assert!(long_strings(format!("'{long}'").as_bytes()).len() == 1);
         assert!(
-            check_literals(format!("'{}'", "''".repeat(MAX_LITERAL_BYTES / 2)).as_bytes()).is_err()
+            long_strings(format!("'{}'", "''".repeat(MAX_LITERAL_BYTES / 2)).as_bytes()).len() == 1
         );
         assert!(
-            check_literals(format!("'{}'", "a".repeat(MAX_LITERAL_BYTES - 2)).as_bytes()).is_ok()
+            long_strings(format!("'{}'", "a".repeat(MAX_LITERAL_BYTES - 2)).as_bytes()).is_empty()
         );
     }
 }

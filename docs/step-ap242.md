@@ -1796,31 +1796,47 @@ Structural tests establish correctness independently.
 
 ## Bounded writer strings (2026-11-01)
 
-The PMI writer caps every encoded Part 21 string literal at 8192 bytes, including
-quotes and escape expansion (`pmi::write::MAX_STRING_LITERAL_BYTES`). Long
-descriptive representation items use an ordered compound/list of marked text
-chunks; see [the producer convention](../crates/haecceity/docs/pmi-json.md#v1-identity-and-presentation-policy).
-The same path handles JSON ordering/alias metadata, carried text or JSON UDA
-values, notes, material descriptions, thread parameters and tolerance-table text.
-Reading accepts both the split form and legacy long descriptive items. Chunk ids
+The PMI writer bounds **generated** Part 21 literals to 8192 encoded bytes,
+including quotes and escapes (`pmi::write::MAX_STRING_LITERAL_BYTES`). Long
+descriptive values use ordered compound/list items of marked text chunks; see
+[the producer convention](../crates/haecceity/docs/pmi-json.md#v1-identity-and-presentation-policy).
+This covers ordering/item-id JSON, UDA/provenance values, notes, material descriptions,
+parameters and tolerance-table text. Legacy single strings still read. Chunks
 belong to their owning item's provenance and are removed on replacement.
+Generated indivisible names, identifiers, unit names, property descriptions and
+supplemental-geometry string slots exceeding the bound remain explicit errors.
+Generated graphical labels that duplicate long note wording use `General notes`;
+full text remains in semantic chunks and drawn curves.
 
-Names, identifiers, unit names, property/general-property descriptions and raw
-supplemental-geometry string slots cannot generally be split within their schema
-meaning. Oversized values there are explicitly refused with an encoding error;
-they are never truncated. Generated graphical note labels that would duplicate
-oversized semantic wording use `General notes`; full text remains in descriptive
-chunks and drawn curves. The final file is scanned too, covering retained input,
-header/provenance strings, schema upgrades and preserved presentation. A retained
-oversized string blocks writing with its byte position and encoded length. The
-B-rep writer applies the same final bound to its product/header strings. The
-low-level lossless `p21::Document::apply` API remains unrestricted, so it can edit
-or reconstruct legacy input without imposing a schema-specific policy.
+**Retained source text is never refused just for length.** Unchanged input records,
+headers and preserved foreign presentation remain lossless. Both PMI and B-rep
+`WriteReport.long_strings` list non-fatal `LongStringWarning` entries: `record`
+(`#N` or a header name), `encoded_bytes`, and `byte_offset` in the final output.
+Their display/message explains that some readers, including OpenCascade's scanner,
+may not read the oversized literal. This is an interoperability warning, not an
+ISO string-length violation. CLI write reports expose optional `long_strings`;
+Python also exposes these entries in its warning-bearing findings list. Empty
+warning collections do not change existing report JSON.
 
-The 8 KiB cap also preserves the Add contract on the identifier plate fixture:
-its existing carried face-id JSON is a 5004-byte literal and its original records
-must remain byte-identical. An input audit found no other literal above 4 KiB
-in the committed STEP fixtures or the external corpus. 8 KiB is half the default
-16 KiB buffer in [OCCT 7.9.3's generated scanner](https://github.com/Open-Cascade-SAS/OCCT/blob/V7_9_3/src/StepFile/lex.step.cxx#L153-L163),
-and leaves ample room for the scanner's lookahead. No existing expectation or
-known-difference record changes to accommodate the bound.
+Haecceity's own legacy descriptive metadata is repaired, including in Add mode:
+the ordering property identifies a JSON-written part's consumed descriptive PMI
+(excluding supplemental source geometry), and `haecceity.pmi/1 attribute`
+representations identify producer-owned text directly. Oversized retained legacy
+descriptive items become ordered chunk containers **at their original ids**,
+keeping every incoming reference and logical value. Their ids appear in `rewritten`.
+Foreign unconsumed records and presentation are not classified as producer metadata.
+Replace writes new bounded metadata through the normal emitter.
+
+The B-rep writer preserves source product ids/names, including copies into rebuilt
+product/header records, and reports oversized copies. `WriteOptions.name` creates
+new product/header fields only where the part lacks source labels; those generated
+fallback names (and generated component names) remain bounded and error explicitly
+when indivisible. An unused oversized fallback option does not reject a labelled part.
+Caller-supplied PMI passed for authoring follows the generated-field rule.
+The low-level lossless `p21::Document::apply` API remains unrestricted.
+
+The cap is half the default 16 KiB buffer in
+[OCCT 7.9.3's generated scanner](https://github.com/Open-Cascade-SAS/OCCT/blob/V7_9_3/src/StepFile/lex.step.cxx#L153-L163).
+The retained-source and source-product tests now assert successful preservation
+and reporting instead of the previous blanket refusal; generated-name refusal
+checks remain. No snapshot expectation or known-difference record is weakened.

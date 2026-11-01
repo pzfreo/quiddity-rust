@@ -136,6 +136,7 @@ fn pmi_read(
 fn writer_findings(writer: &Value) -> Vec<Value> {
     let mut out = Vec::new();
     for category in [
+        "long_strings",
         "kept_unconsumed",
         "preexisting_violations",
         "preexisting_rule_violations",
