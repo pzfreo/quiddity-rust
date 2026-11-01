@@ -142,8 +142,8 @@ pub(super) fn identify(
     let mut contents = BTreeMap::<String, String>::new();
     for &c in COLLECTIONS {
         let mut out = vec![];
-        for i in 0..raw[c].as_array().map_or(0, Vec::len) {
-            if let Some(id) = &accepted[c][i] {
+        for (i, accepted_id) in accepted[c].iter().enumerate() {
+            if let Some(id) = accepted_id {
                 out.push(id.clone());
                 continue;
             }
