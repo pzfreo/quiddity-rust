@@ -435,8 +435,25 @@ convention**, not a CAx-IF-defined requirement:
 `PROPERTY_DEFINITION('haecceity.pmi/1 ordering',
 'Transport ordering and reference aliases; native PMI remains authoritative',
 <product_definition_shape>)` has a representation containing one
-`DESCRIPTIVE_REPRESENTATION_ITEM('ordering', <compact JSON>)`. SFA may display
-this ordinary property in its property worksheet; it contains no second copy of
+`DESCRIPTIVE_REPRESENTATION_ITEM('ordering', <compact JSON>)` when it fits.
+Long text instead uses `COMPOUND_REPRESENTATION_ITEM('ordering',
+LIST_REPRESENTATION_ITEM((#chunk1,#chunk2,...)))`. Each chunk is a
+`DESCRIPTIVE_REPRESENTATION_ITEM('haecceity text chunk/1', <text>)`; concatenate
+its decoded descriptions in **list order**, without separators. This also applies
+to long native descriptive values (notes, attribute text, material descriptions,
+and parameter text). The list, rather than STEP instance order or a SET, defines
+the order. The complete encoded literal, including quotes, doubled apostrophes
+and Unicode escapes, is at most 4096 bytes. Splits occur between Unicode scalars;
+chunks contain independently valid escapes. Legacy single items remain readable,
+regardless of length. JSON's schema and semantic values do not change.
+
+This is a haecceity concatenation convention over ISO 10303-43 compound/list
+representation items. [CAx-IF UDA 1.8 §7](https://www.mbx-if.org/home/wp-content/uploads/2024/05/rec_prac_user_def_attributes_v18.pdf)
+allows multiple representation items when their interpretation is clear, and
+§7.1 specifies descriptive strings; it gives **no** string length limit. The
+4096-byte limit is an interoperability choice for Part 21 scanners, including
+OpenCascade's. Consumers of this producer property must support both forms.
+SFA may display this ordinary property in its property worksheet; it contains no second copy of
 the semantic values.
 
 The compact producer convention has `v: 2` (omitted means the original version 1).

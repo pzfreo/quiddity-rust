@@ -1793,3 +1793,26 @@ only change their reader binding. The existing reader-version pin and the STC10 
 of the historical derived-geometry audit are refreshed for this documented semantic
 change; source hashes, requirement/refusal counts and other audit rows stay fixed.
 Structural tests establish correctness independently.
+
+## Bounded writer strings (2026-11-01)
+
+The PMI writer caps every encoded Part 21 string literal at 4096 bytes, including
+quotes and escape expansion (`pmi::write::MAX_STRING_LITERAL_BYTES`). Long
+descriptive representation items use an ordered compound/list of marked text
+chunks; see [the producer convention](../crates/haecceity/docs/pmi-json.md#v1-identity-and-presentation-policy).
+The same path handles JSON ordering/alias metadata, carried text or JSON UDA
+values, notes, material descriptions, thread parameters and tolerance-table text.
+Reading accepts both the split form and legacy long descriptive items. Chunk ids
+belong to their owning item's provenance and are removed on replacement.
+
+Names, identifiers, unit names, property/general-property descriptions and raw
+supplemental-geometry string slots cannot generally be split within their schema
+meaning. Oversized values there are explicitly refused with an encoding error;
+they are never truncated. Generated graphical note labels that would duplicate
+oversized semantic wording use `General notes`; full text remains in descriptive
+chunks and drawn curves. The final file is scanned too, covering retained input,
+header/provenance strings, schema upgrades and preserved presentation. A retained
+oversized string blocks writing with its byte position and encoded length. The
+B-rep writer applies the same final bound to its product/header strings. The
+low-level lossless `p21::Document::apply` API remains unrestricted, so it can edit
+or reconstruct legacy input without imposing a schema-specific policy.

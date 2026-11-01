@@ -95,6 +95,10 @@ pub(crate) use authoring::model_refusals;
 
 type A = Attribute;
 
+/// Maximum encoded Part 21 string literal size, including the quotes. Long
+/// descriptive values use ordered text chunks; indivisible strings are refused.
+pub const MAX_STRING_LITERAL_BYTES: usize = super::text::MAX_LITERAL_BYTES;
+
 /// What [`write`] does with each named part's existing PMI.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Mode {
@@ -893,6 +897,7 @@ fn write_inner(
 
     // The backstop: apply, validate what was made, compare the rules.
     let written = doc.apply(&edit)?;
+    super::text::check_literals(&written.bytes)?;
     let after = Document::parse(written.bytes)?;
     for (id, repair) in repaired {
         report.repairs.push(UpgradeRepair {
@@ -1379,6 +1384,22 @@ impl<'a> Emitter<'a> {
     }
 
     fn push(&mut self, e: RawEntity, stated: &[&Decimal]) -> Result<R, WriteError> {
+        // Supplemental geometry can supply raw records without going through instance.
+        let mut too_long = None;
+        p21::visit_attributes(&e, &mut |a| {
+            if let A::String(text) = a {
+                let size = super::text::literal_len(text);
+                if size > MAX_STRING_LITERAL_BYTES {
+                    too_long = Some(size);
+                }
+            }
+        });
+        if let Some(size) = too_long {
+            return Err(P21Error::Encode(format!(
+                "generated record {} has an indivisible string of {size} encoded bytes (limit {MAX_STRING_LITERAL_BYTES}); cannot split this schema attribute losslessly",
+                self.count,
+            )).into());
+        }
         let mut rec = Record::new(e);
         if !stated.is_empty() {
             // All REALs in attribute order, including equal values with different text.
@@ -1449,6 +1470,38 @@ impl<'a> Emitter<'a> {
         vals: &[((&str, &str), A)],
         stated: &[&Decimal],
     ) -> Result<R, WriteError> {
+        // Every descriptive payload (JSON ordering, notes, UDA, material and
+        // parameter text) passes here, including callers outside text_item.
+        if types == ["descriptive_representation_item"]
+            && let Some((_, A::String(text))) = vals.iter().find(|((_, n), _)| *n == "description")
+            && super::text::literal_len(text) > MAX_STRING_LITERAL_BYTES
+        {
+            let name = vals
+                .iter()
+                .find(|((_, n), _)| *n == "name")
+                .map(|(_, a)| a.clone())
+                .unwrap_or_else(|| s(""));
+            let mut items = Vec::new();
+            for chunk in super::text::split(text) {
+                items.push(self.simple(
+                    "descriptive_representation_item",
+                    &[
+                        ("name", s(super::text::CHUNK_NAME)),
+                        ("description", s(chunk)),
+                    ],
+                )?);
+            }
+            return self.simple(
+                "compound_representation_item",
+                &[
+                    ("name", name),
+                    (
+                        "item_element",
+                        typed("list_representation_item", refs(items)),
+                    ),
+                ],
+            );
+        }
         let ed = self.edition;
         let closure = |n: &str| -> BTreeSet<&'static str> {
             let mut out = BTreeSet::new();
@@ -3854,11 +3907,20 @@ impl<'a> PartPlan<'a> {
                     &[
                         (
                             "name",
-                            s(if annotation_type == "note" {
-                                &name
-                            } else {
-                                annotation_type
-                            }),
+                            s(
+                                if annotation_type == "note"
+                                    && super::text::literal_len(&name) <= MAX_STRING_LITERAL_BYTES
+                                {
+                                    &name
+                                } else if annotation_type == "note" {
+                                    // This generated label duplicates the semantic text. The
+                                    // full wording remains in bounded descriptive items and
+                                    // in the drawn curves; a schema label cannot be chunked.
+                                    "General notes"
+                                } else {
+                                    annotation_type
+                                },
+                            ),
                         ),
                         ("coordinates", list.a()),
                         ("line_strips", A::List(strips)),

@@ -8,6 +8,15 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
+- STEP PMI writes bound encoded string literals to 4096 bytes, preventing
+  OpenCascade's scanner overflow on NIST STC-10. Long descriptive values,
+  including JSON item-id maps, UDA payloads and notes, use ordered compound/list
+  representation items of text chunks; legacy single-string values still read.
+  **Consumer note:** readers of haecceity's ordering property or descriptive text
+  must concatenate marked chunks in list order. Semantic JSON is unchanged.
+  Indivisible oversized names/identifiers and retained source strings are refused
+  explicitly; the B-rep writer also checks its final product/header strings.
+
 - For #157, #159, #160, retain turned steps on stock with proved spanner flats,
   group interrupted coaxial torus fillets with exact defining faces, and omit
   chamfer/angled-step corners unless their wedge is consistent at published

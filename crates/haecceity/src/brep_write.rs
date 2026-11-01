@@ -182,6 +182,7 @@ pub fn write_step(
         }
         None => bytes,
     };
+    crate::pmi::text::check_literals(&bytes).map_err(|e| WriteError::Author(e.to_string()))?;
     Ok((bytes, report))
 }
 

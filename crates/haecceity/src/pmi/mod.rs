@@ -18,6 +18,7 @@ pub mod model;
 mod read;
 pub(crate) mod sites;
 pub mod standards;
+pub(crate) mod text;
 pub mod verify;
 mod without;
 pub mod write;
