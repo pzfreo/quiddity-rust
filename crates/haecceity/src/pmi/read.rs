@@ -1654,7 +1654,12 @@ impl<'a> Reader<'a> {
                     if self.datum_constituent_alias(st, aspect, feature) {
                         st.features.insert(aspect, Some(feature));
                         st.absorbed.insert(aspect);
-                    } else {
+                    } else if !self
+                        .presentation_associations(aspect, "definition")
+                        .is_empty()
+                    {
+                        // Unnamed support aspects remain absorbed. A presentation naming
+                        // a proper subset needs its own feature, just like a requirement.
                         self.feature(st, aspect);
                     }
                 }

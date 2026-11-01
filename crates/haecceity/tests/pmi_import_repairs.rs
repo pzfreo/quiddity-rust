@@ -406,7 +406,7 @@ fn child_does_not_alias_a_datum_with_additional_direct_faces() {
 }
 
 #[test]
-fn unreferenced_datum_constituents_also_keep_their_own_features() {
+fn presented_datum_constituents_keep_their_own_features() {
     // Without an establishing datum, the aspect scan requests #1101 before #1200.
     // Resolving its parent must neither lose the child nor register it twice.
     for established in [true, false] {
@@ -417,7 +417,9 @@ fn unreferenced_datum_constituents_also_keep_their_own_features() {
 #1103=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1101,#10,#17);
 #1104=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1102,#10,#105);
 #1105=SHAPE_ASPECT_RELATIONSHIP('','',#1200,#1101);
-#1106=SHAPE_ASPECT_RELATIONSHIP('','',#1200,#1102);",
+#1106=SHAPE_ASPECT_RELATIONSHIP('','',#1200,#1102);
+#1110=DRAUGHTING_MODEL_ITEM_ASSOCIATION('','',#1101,#539,#521);
+#1111=DRAUGHTING_MODEL_ITEM_ASSOCIATION('','',#1102,#539,#532);",
         );
         if established {
             extra += "#1107=DATUM('','',#4,.F.,'Z');
@@ -434,6 +436,19 @@ fn unreferenced_datum_constituents_also_keep_their_own_features() {
             assert_eq!(own.len(), 1, "child #{child}, established={established}");
             let i = own[0].0;
             assert!(matches!(&r.parts[0].features[i], Feature::Items(items) if items.len() == 1));
+            let link = r
+                .callouts
+                .iter()
+                .flat_map(|c| &c.links)
+                .find(|l| l.definition == child)
+                .unwrap();
+            assert_eq!(
+                link.targets,
+                vec![pmi::CalloutTarget {
+                    part: PartId(0),
+                    item: pmi::PresentedItem::Feature(FeatureId(i)),
+                }]
+            );
         }
     }
 }

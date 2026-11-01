@@ -2,8 +2,9 @@
 
 A plain child shape aspect aliases its datum feature only when its sorted,
 deduplicated content equals the datum feature's whole content. A proper subset
-registers its own feature from the memoised content, including when only
-presentation names it. The parent retains the union of all faces. Group datums
+registers its own feature from the memoised content when a requirement or
+presentation names it. Unnamed support aspects remain absorbed, preserving
+existing read/write round trips. The parent retains the union of all faces. Group datums
 and all-around groups retain their existing handling. Legacy reader binding: /14.
 
 ## Structural regression
@@ -20,7 +21,7 @@ The baseline fails by giving a land all three union faces.
 The original single-child regression now gives the parent and child the same
 face set (including a duplicate direct usage, testing deduplication). Its previous
 extra parent face actually made it a subset case; a separate regression now
-checks that case keeps the tolerance on the child. Other checks cover unreferenced
+checks that case keeps the tolerance on the child. Other checks cover presentation-only
 constituents, child-before-parent resolution without duplicate registration,
 all-around groups and shared per-member group carriers.
 
@@ -54,37 +55,8 @@ Regenerated with the required command:
 QUIDDITY_CORPUS=/Users/paul/repos/quiddity/tests/corpus QUIDDITY_CORPUS_REQUIRED=1 cargo run -p snapshot-tool --release --
 ```
 
-All 2,700 compressed snapshots were regenerated from `c6ca3107`. Exactly one
-compressed snapshot changed, plus its provenance manifest:
-
-- `tests/fixtures/rust-snapshot/pmi.json.gz`: all 14 inputs' PMI/parts bindings
-  advance /13 → /14. Beyond bindings, FTC07 has 91 → 95 features, FTC10 has
-  146 → 156, and STC09 has 125 → 131. These 20 added features are proper subsets
-  previously absorbed into datum unions, now registered even without a semantic
-  requirement. Feature references (including projected-zone ends and group members)
-  renumber. Existing feature contents and requirement target contents are preserved
-  after resolving references and treating group members as unordered. STC10's
-  166 features and aliases are unchanged. All other inputs change only bindings.
-- `tests/fixtures/rust-snapshot/provenance.json`: records the new PMI snapshot
-  digest and source commit. Input hashes and all other snapshot hashes are unchanged.
-
-The source evidence for the additional constituent features is below. Each row
-has a two-face parent union, and each child identifies just its stated face.
-Parents with `COMPOSITE_GROUP_SHAPE_ASPECT` remain per-member groups and are not
-among these union parents.
-
-| Input | Datum feature | Child → face STEP ids |
-| --- | ---: | --- |
-| FTC07 | #13726 | #13728 → #8414; #13732 → #8379 |
-| FTC07 | #13767 | #13769 → #8582; #13773 → #8547 |
-| FTC10 | #18109 | #18111 → #10359; #18115 → #10377 |
-| FTC10 | #18135 | #18137 → #10259; #18141 → #10277 |
-| FTC10 | #18192 | #18194 → #13526; #18198 → #13511 |
-| FTC10 | #18219 | #18221 → #13551; #18225 → #13566 |
-| FTC10 | #18246 | #18248 → #13742; #18252 → #13727 |
-| STC09 | #8442 | #8444 → #1226; #8448 → #1202 |
-| STC09 | #8457 | #8459 → #1094; #8463 → #1070 |
-| STC09 | #8779 | #8781 → #3126; #8785 → #3102 |
+Snapshot regeneration is repeated after the final reader change. The final
+snapshot inventory and reasons are recorded after completion.
 
 `se_and_control_samples` passes when explicitly run with `--ignored`: the SE
 sample retains 7 dimensions, 3 tolerances, 2 datums; callout #258 still targets
@@ -117,3 +89,12 @@ Median change: **+0.0199%**. Output is identical except the expected reader bind
 [Raw counters, binary/input hashes and platform](pmi-datum-constituents.instructions.json)
 retain provenance and run order. This is a whole CLI read measurement, including
 STEP decoding and serialization; this geometry input has no semantic PMI.
+
+## Unnamed support aspects
+
+A named constituent resolves to its own feature whenever its content is a proper
+subset. Unnamed support aspects remain absorbed in the union, as before. This
+matters when the existing writer factors a direct multi-face datum usage into
+plain child aspects: read/write verification must not gain unused features.
+The original CTC01 round-trip comparisons and the unreferenced-datum writer test
+remain unchanged and strict; no writer change or difference filter is needed.
