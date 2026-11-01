@@ -271,6 +271,8 @@ fn callout_gaps(
         along: V3,
         points: Vec<V3>,
         feature: Option<pmi::FeatureId>,
+        size: bool,
+        control: bool,
     }
     let mut boxes: Vec<Ink<'_>> = vec![];
     for (collection, ids) in &semantic.ids {
@@ -333,9 +335,27 @@ fn callout_gaps(
                     along: plane.x_axis,
                     points,
                     feature,
+                    size: collection == "dimensions" && start == 0,
+                    control: collection == "tolerances",
                 });
             }
         }
+    }
+    for g in &generated.unlinked {
+        let plane = generated
+            .planes
+            .iter()
+            .find(|p| Some(&p.id) == g.plane_id.as_ref())
+            .unwrap();
+        boxes.push(Ink {
+            graphic: g,
+            normal: plane.normal,
+            along: plane.x_axis,
+            points: g.polylines.iter().flatten().copied().collect(),
+            feature: None,
+            size: false,
+            control: false,
+        });
     }
     let mut minimum = f64::INFINITY;
     let mut problems = vec![];
@@ -346,6 +366,12 @@ fn callout_gaps(
             let parallel = geom::dot(a.normal, b.normal).abs() > 1. - 1e-8;
             if !parallel && !related {
                 continue;
+            }
+            if related && !parallel {
+                problems.push(format!(
+                    "{path}: related callouts must share a plane: {} / {}",
+                    a.graphic.name, b.graphic.name
+                ));
             }
             pairs += 1;
             let up = geom::cross(a.normal, a.along);
@@ -362,6 +388,15 @@ fn callout_gaps(
                 .map(|k| (x.min[k] - y.max[k]).max(y.min[k] - x.max[k]))
                 .fold(f64::NEG_INFINITY, f64::max);
             minimum = minimum.min(gap);
+            if related
+                && ((a.size && b.control && x.min[1] < y.max[1] - 2e-6)
+                    || (b.size && a.control && y.min[1] < x.max[1] - 2e-6))
+            {
+                problems.push(format!(
+                    "{path}: size must stack above its frame: {} / {}",
+                    a.graphic.name, b.graphic.name
+                ));
+            }
             if gap < -2e-6 {
                 problems.push(format!(
                     "{path}: {} {x:?} overlaps {} {y:?}: gap={gap:.6}",
@@ -370,11 +405,6 @@ fn callout_gaps(
             }
             if related && a.graphic.name == "⌀3.3 H11" && b.graphic.name == "⌖ ⌀0.3Ⓜ A" {
                 println!("{path}: bore stack gap={gap:.6} mm");
-                if !parallel || x.min[1] < y.max[1] - 2e-6 {
-                    problems.push(format!(
-                        "{path}: bore size must stack above its frame in a shared plane"
-                    ));
-                }
             }
         }
     }
