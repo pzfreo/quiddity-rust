@@ -268,6 +268,32 @@ fn repeated_and_empty_source_identifiers_do_not_become_ambiguous_wire_ids() {
 }
 #[cfg(feature = "json-import")]
 #[test]
+fn supplemental_geometry_identifier_is_read_and_consumed_with_its_item() {
+    let (r, _, _) = fixture(&format!(
+        "{SUPPORT}
+#1200=CARTESIAN_POINT('origin',(0.,0.,0.));
+#1201=ID_ATTRIBUTE('point characteristic',#1200);
+#1202=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1000,#10,#1200);
+#1203=DIMENSIONAL_SIZE(#1000,'diameter');"
+    ));
+    let i = r.provenance.parts[0]
+        .geometry_items
+        .iter()
+        .position(|&id| id == 1200)
+        .unwrap();
+    assert!(r.provenance.parts[0].geometry[i].contains(&1201));
+    assert!(!r.findings.iter().any(|f| f.ids.contains(&1201)));
+    let semantic =
+        haecceity::json::identify(r.parts[0].clone(), Some(&r.identifiers.parts[0])).unwrap();
+    let wire = haecceity::json::to_value(&semantic).unwrap();
+    assert_eq!(wire["pmi"]["geometry"][i]["id"], "point characteristic");
+    assert_eq!(
+        wire["pmi"]["geometry"][i]["identifier"],
+        "point characteristic"
+    );
+}
+#[cfg(feature = "json-import")]
+#[test]
 fn every_nist_file_exports_and_preserves_its_source_identifiers_and_references() {
     use haecceity::json::{self, Anchors};
     for file in std::fs::read_dir(common::fixtures().join("ap242/nist")).unwrap() {

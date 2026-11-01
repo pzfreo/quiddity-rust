@@ -2270,6 +2270,7 @@ impl<'a> Reader<'a> {
         }
         let mut ids = Vec::new();
         let tree = self.geometry_item(item, 0, &mut ids)?;
+        ids.extend(self.id_attributes(item));
         let length_unit = rep.and_then(|r| self.context_length_unit(r));
         let g = GeometryId(st.pmi.geometry.len());
         st.pmi.geometry.push(Geometry {
