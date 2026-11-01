@@ -1,0 +1,64 @@
+{
+  "base_commit": "bb0cd6d0b8d0ef677cb8df5fe0c1f23b590df77d",
+  "head_source_commit": "6fe07a10b2a21f07166c325a8d9416395798efb1",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "command": [
+    "quiddity",
+    "pmi",
+    "read",
+    "/Users/paul/repos/quiddity/tests/corpus/cadgenbench_inputs/cgb202.step.gz"
+  ],
+  "largest_by": "decompressed STEP bytes, all corpus .step/.stp inputs",
+  "corpus_step_files": 100,
+  "input_decompressed_bytes": 17927439,
+  "input_sha256": "b933428be9151d702b564d5520727a32332be63e4ba66cf354eb2780f6377f7f",
+  "counter": "Darwin proc_pid_rusage RUSAGE_INFO_V4 ri_instructions (word 31), child exited but unreaped",
+  "binaries_sha256": {
+    "main": "726ebe678de716b88b569293a59d304589cddbcc0eb190efc228e53bb41999c7",
+    "head": "30863bb60f177494960fb41759590c66410027b53ef39d5e402a253484c6aab1"
+  },
+  "runs": [
+    {
+      "binary": "main",
+      "instructions": 40237573683,
+      "wall_seconds": 2.723496041027829,
+      "output_sha256": "a02fca962cef1fe25493e167f1ba36ab7f67e1427a5f901260b5d8025e7e41e6"
+    },
+    {
+      "binary": "head",
+      "instructions": 40236772893,
+      "wall_seconds": 2.766453000018373,
+      "output_sha256": "c836b92f0065ad98899fba7f368301b2d78e5b02f19a3ff82a13ba41714869fe"
+    },
+    {
+      "binary": "head",
+      "instructions": 40252727419,
+      "wall_seconds": 4.978924042079598,
+      "output_sha256": "c836b92f0065ad98899fba7f368301b2d78e5b02f19a3ff82a13ba41714869fe"
+    },
+    {
+      "binary": "main",
+      "instructions": 40255098183,
+      "wall_seconds": 3.9714342919178307,
+      "output_sha256": "a02fca962cef1fe25493e167f1ba36ab7f67e1427a5f901260b5d8025e7e41e6"
+    },
+    {
+      "binary": "main",
+      "instructions": 40244732334,
+      "wall_seconds": 3.331628374988213,
+      "output_sha256": "a02fca962cef1fe25493e167f1ba36ab7f67e1427a5f901260b5d8025e7e41e6"
+    },
+    {
+      "binary": "head",
+      "instructions": 40255744167,
+      "wall_seconds": 4.055741541087627,
+      "output_sha256": "c836b92f0065ad98899fba7f368301b2d78e5b02f19a3ff82a13ba41714869fe"
+    }
+  ],
+  "median_instructions": {
+    "main": 40244732334,
+    "head": 40252727419
+  },
+  "change_percent": 0.019866165175730366,
+  "output_equal_except_reader_binding": true
+}

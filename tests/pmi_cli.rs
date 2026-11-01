@@ -229,11 +229,11 @@ fn pmi_read_of_one_part() {
 /// together. `READER` is what `pmi check` holds a document's anchors to, so it must change
 /// whenever the reader's output does: when this fails, bump `pmi_json::READER` if `pmi::read`
 /// changed (a JSON-form change bumps `VERSION` instead), then re-pin both.
-// Reader /13 reports duplicate/empty source identifiers and recovers non-runout zones
-// whose explicit form remains known; structural source checks are in pmi_xcaf_read.rs.
+// Reader /14 keeps proper subsets of composed datum features distinct; structural
+// face-set, size, group and single-constituent checks are in pmi_import_repairs.rs.
 const READER_PIN: (&str, &str) = (
-    "haecceity-pmi-read/13",
-    "cdbf6e860f0925d19940009c081c73815665cb5d72597e994ee937e2d21fff99",
+    "haecceity-pmi-read/14",
+    "fcb99e234c0ae7c3ce6abe4c4c4b766a02e90ebc5f0524e22fad33944544a0ab",
 );
 
 #[test]
