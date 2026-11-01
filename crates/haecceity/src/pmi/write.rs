@@ -3612,6 +3612,38 @@ impl<'a> PartPlan<'a> {
             }
         }
         #[cfg(feature = "presentation")]
+        for (i, t) in self.pmi.threads.iter().enumerate() {
+            use crate::presentation;
+            let c = presentation::thread(t, self.pmi);
+            let p = if let Some((point, normal, face)) = presentation_part
+                .as_ref()
+                .and_then(|part| presentation::placement::feature_site(part, self.pmi, t.feature))
+            {
+                let part = presentation_part
+                    .as_ref()
+                    .ok_or_else(|| WriteError::Internal("thread geometry unavailable".into()))?;
+                local_layout.on_label(
+                    point.map(|x| x / factor),
+                    normal,
+                    &c,
+                    part.face_bounds(face).max_extent() / factor,
+                )
+            } else {
+                local_layout.place(
+                    self.feature_point(t.feature.0).unwrap_or([0.; 3]),
+                    self.feature_axis(t.feature.0),
+                    &c,
+                )
+            };
+            graphics.push((
+                vec![_st.threads[&i]],
+                "thread",
+                c.notation(),
+                [p.origin, p.normal, p.along],
+                p.lines,
+            ));
+        }
+        #[cfg(feature = "presentation")]
         if let Some(part) = &presentation_part {
             use crate::presentation::{self, linear};
             let measurements = measurements
@@ -3652,38 +3684,6 @@ impl<'a> PartPlan<'a> {
                     .map(|l| l.into_iter().map(|p| p.map(|x| x / factor)).collect())
                     .collect();
             }
-        }
-        #[cfg(feature = "presentation")]
-        for (i, t) in self.pmi.threads.iter().enumerate() {
-            use crate::presentation;
-            let c = presentation::thread(t, self.pmi);
-            let p = if let Some((point, normal, face)) = presentation_part
-                .as_ref()
-                .and_then(|part| presentation::placement::feature_site(part, self.pmi, t.feature))
-            {
-                let part = presentation_part
-                    .as_ref()
-                    .ok_or_else(|| WriteError::Internal("thread geometry unavailable".into()))?;
-                local_layout.on_label(
-                    point.map(|x| x / factor),
-                    normal,
-                    &c,
-                    part.face_bounds(face).max_extent() / factor,
-                )
-            } else {
-                local_layout.place(
-                    self.feature_point(t.feature.0).unwrap_or([0.; 3]),
-                    self.feature_axis(t.feature.0),
-                    &c,
-                )
-            };
-            graphics.push((
-                vec![_st.threads[&i]],
-                "thread",
-                c.notation(),
-                [p.origin, p.normal, p.along],
-                p.lines,
-            ));
         }
         #[cfg(feature = "presentation")]
         {

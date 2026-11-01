@@ -1772,9 +1772,17 @@ fn removal_takes_a_feature_definitions_shape_only_with_its_feature() {
         "the reader consumes it with its thread"
     );
     for policy in [Policy::Refuse, Policy::RemovePresentation] {
-        let plan =
-            removal::plan(&g.doc, &thread, policy).unwrap_or_else(|e| panic!("{policy:?}: {e}"));
-        assert!(plan.removed.contains(&shape), "{policy:?}");
+        let result = removal::plan(&g.doc, &thread, policy);
+        if cfg!(feature = "presentation") && policy == Policy::Refuse {
+            // Threads now own presentation too: Refuse must protect their callout.
+            assert!(
+                result.is_err(),
+                "thread callout requires RemovePresentation"
+            );
+        } else {
+            let plan = result.unwrap_or_else(|e| panic!("{policy:?}: {e}"));
+            assert!(plan.removed.contains(&shape), "{policy:?}");
+        }
 
         // Alone, the thread's aspects (kept) still reference it.
         let alone = removal::plan(&g.doc, &BTreeSet::from([shape]), policy).unwrap_err();
@@ -5443,7 +5451,7 @@ fn all_three_specify_samples_have_real_linear_dimensions_and_local_callouts() {
         let w = written(&f, p);
         assert_verified(&f, &w, p);
         assert!(new_violations(&f.doc, &w.doc).is_empty());
-        sample_placement(&w.doc, bounds, with_settings);
+        sample_placement(&w.doc, bounds, with_settings + p.threads.len());
         assert_notes_clear(&w.doc);
         sample_linear_dimensions(&w.doc, &w.read, &f.parts[0]);
         sample_datums_and_frames(&w.doc, &w.read, &f.parts[0]);
@@ -5708,6 +5716,7 @@ fn sample_datums_and_frames(doc: &Document, read: &PmiRead, def: &PartDefinition
             || kind == &Attribute::String("diameter dimension".into())
             || kind == &Attribute::String("note".into())
             || kind == &Attribute::String("surface roughness".into())
+            || kind == &Attribute::String("thread".into())
         {
             continue;
         }
