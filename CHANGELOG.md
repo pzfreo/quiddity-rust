@@ -6,6 +6,14 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.4.2 (2026-11-01)
+
+Upgrading from 0.4.1: recognition schema `/6` and fingerprints `/3` are unchanged.
+- **Recognition (#157, #159, #160):** turned steps on stock with proved spanner flats are kept, interrupted coaxial torus fillets are grouped, and chamfer/angled-step corners are omitted unless proven. At your next pin, affected parts' fillet records renumber their run-local ids where interrupted arcs merge (64 groups in the corpus), some `corner` values become null where they could not be proven, and turned parts with flats gain their turned steps.
+- **PMI reading (#168):** strictly reversed dimension limits and signed deviations are read swapped, with a non-fatal finding, instead of refusing the dimension. Plain face aspects composing a datum feature resolve to that datum feature. On NIST STC10 seven duplicate features fold into their datum features (173 → 166), with references re-indexed.
+- **PMI identifiers and zones (#170):** duplicate or empty source identifiers no longer abort the JSON read (NIST STC06 and STC09 now export); repeated ids fall back to content-derived JSON ids, with a non-fatal finding. Each `haecceity.pmi/1` item gains an optional `identifier` carrying the file's characteristic number, duplicates included. Update closed-object schemas for this additive field (the Python schema mirror includes it). Rust struct literals of `json::Semantic` and JSON-enabled `PartIdentifiers` need the new `identifiers` / `json_identifiers` fields. An exporter's runout zone with no angle on a non-runout tolerance recovers its stated zone form, with a finding.
+- **PMI reader string:** changes from `haecceity-pmi-read/11` to `haecceity-pmi-read/13` (the `/12` step in #168 was never released).
+
 ### Fixed
 
 - PMI JSON reads no longer abort on duplicate or empty source identifiers. Unique wire
@@ -28,6 +36,13 @@ in [docs/alpha1.md](docs/alpha1.md).
   **At your next pin:** affected parts' fillet records renumber their run-local ids where
   interrupted arcs merge (64 groups in the corpus), and some `corner` values become null
   where they could not be proven. Turned parts with flats gain their turned steps.
+- PMI import repairs strictly reversed dimension limits and signed deviations with
+  a non-fatal nonconformance finding identifying the source instances. Equal bounds
+  and reversals whose nominal lies outside the corrected absolute limits remain refused.
+- Plain face aspects composing an indivisible datum feature retain the owning feature
+  identity when referenced by tolerances, properties or presentation; their faces are
+  collected once. All-around groups and per-member datum groups keep their semantics.
+  Legacy PMI reader binding `/12` identifies the corrected output.
 
 ## 0.4.1 (2026-10-31)
 
@@ -46,14 +61,6 @@ Upgrading from 0.4.0: recognition schema `/6` and fingerprints `/3` are unchange
   transport ordering; note callout reading remains compatible.
 
 ### Fixed
-
-- PMI import repairs strictly reversed dimension limits and signed deviations with
-  a non-fatal nonconformance finding identifying the source instances. Equal bounds
-  and reversals whose nominal lies outside the corrected absolute limits remain refused.
-- Plain face aspects composing an indivisible datum feature retain the owning feature
-  identity when referenced by tolerances, properties or presentation; their faces are
-  collected once. All-around groups and per-member datum groups keep their semantics.
-  Legacy PMI reader binding `/12` identifies the corrected output.
 
 - Generated part notes share one numbered GENERAL NOTES block in JSON and STEP,
   retaining each requirement's semantic link and the bounds-relative placement.
