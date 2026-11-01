@@ -283,6 +283,33 @@ fn all_drawing_forms_have_graphics_and_glyphs_agree_with_planes() {
                         continue;
                     }
                     assert_eq!(g.polylines.len(), g.polyline_roles.as_ref().unwrap().len());
+                    if kind == "tolerances" {
+                        let c = notation::tolerance(&semantic.pmi.tolerances[i], &semantic.pmi);
+                        let roles = g.polyline_roles.as_ref().unwrap();
+                        // Replacing whole cell strings must also remove their ISO
+                        // glyph strokes, while keeping frame and standalone rings.
+                        assert_eq!(
+                            roles
+                                .iter()
+                                .filter(|r| **r == presentation::PolylineRole::Frame)
+                                .count(),
+                            c.frame_strokes
+                        );
+                        assert_eq!(
+                            roles
+                                .iter()
+                                .filter(|r| **r == presentation::PolylineRole::Symbol)
+                                .count(),
+                            usize::from(c.leader_rings)
+                        );
+                        assert_eq!(
+                            roles
+                                .iter()
+                                .filter(|r| **r == presentation::PolylineRole::Text)
+                                .count(),
+                            c.polylines().len() - c.frame_strokes
+                        );
+                    }
                     let plane = generated
                         .planes
                         .iter()

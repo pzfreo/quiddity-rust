@@ -1178,11 +1178,20 @@ fn generated_graphic(
     roles.extend((0..callout.strokes.len()).map(|i| {
         if i < callout.frame_strokes {
             PolylineRole::Frame
+        } else if callout.text_symbols {
+            PolylineRole::Text
         } else {
             PolylineRole::Symbol
         }
     }));
-    roles.extend(vec![PolylineRole::Symbol; callout.arcs.len()]);
+    roles.extend(vec![
+        if callout.text_symbols {
+            PolylineRole::Text
+        } else {
+            PolylineRole::Symbol
+        };
+        callout.arcs.len()
+    ]);
     roles.extend(vec![
         PolylineRole::Text;
         local.len() - callout.strokes.len() - callout.arcs.len()

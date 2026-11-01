@@ -29,6 +29,8 @@ pub struct Callout {
     pub strokes: Vec<[[f64; 2]; 2]>,
     /// Initial straight strokes which form frames (remaining strokes are symbols).
     pub frame_strokes: usize,
+    /// Explicit symbol strokes/arcs also represented in readable text cells.
+    pub text_symbols: bool,
     /// Local lower-left / upper-right corners, parallel to readable cells.
     pub cell_boxes: Vec<[[f64; 2]; 2]>,
     /// Centre x/y, radius, start/end angle in degrees.

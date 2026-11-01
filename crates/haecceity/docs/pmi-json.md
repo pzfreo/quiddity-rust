@@ -586,13 +586,15 @@ with a specific reason. The downloaded `30-cadgen_pmi_plate.step` and
 tolerances before this change.
 
 Generated graphics also expose optional additive geometry metadata:
-`polyline_roles` is parallel to `polylines`, with `text` (font strokes), `frame`
+`polyline_roles` is parallel to `polylines`, with `text` (all glyphs represented in readable text cells), `frame`
 (cell borders), `leader`, `extension` (measurement witnesses), `symbol` (explicit
 geometric symbols, including scope rings), and `dimension` (dimension lines and
 arrowheads). File graphics omit this field when their purposes are unknown.
-To replace stroked text, remove `text` geometry; symbol runs may additionally
-replace their corresponding `symbol` geometry. `stroked` alone does not identify
-which lines are glyphs.
+To render `graphic.text[i]` in a host font, remove all `text` geometry. This
+includes explicit ISO glyph geometry already encoded in the cell strings (such
+as ⌖, ⌀ and Ⓜ); retain `symbol` geometry for standalone marks not encoded in those
+strings (such as surface-finish legs and leader scope rings). This avoids drawing
+symbols twice. `stroked` alone does not identify which lines are glyphs.
 
 Each generated `text_placements` entry has `cell_box: [[xmin,ymin],[xmax,ymax]]`,
 the frame cell or padded text box in millimetres **relative to that placement's

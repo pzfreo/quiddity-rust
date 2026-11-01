@@ -165,6 +165,7 @@ pub fn control_frame(
         laid.strokes.push([[*x, 0.0], [*x, H]]);
     }
     laid.frame_strokes = laid.strokes.len();
+    laid.text_symbols = true;
     laid.cell_boxes = xs.windows(2).map(|x| [[x[0], 0.], [x[1], H]]).collect();
     characteristic(name, [H / 2.0, cy], &mut laid);
     let mut cells = vec![symbol(name).to_string()];
