@@ -163,6 +163,40 @@ pub(super) fn literal(
         extent.and_then(|extent| positive(attr(doc, extent, "planar_extent", "size_in_y")))
     });
     placed.height = height.map(|height| height * geom::norm(frame.axes[1]) * scale);
+    if let Some(extent) = extent
+        && let (Some(width), Some(height)) = (
+            positive(attr(doc, extent, "planar_extent", "size_in_x")),
+            positive(attr(doc, extent, "planar_extent", "size_in_y")),
+        )
+    {
+        // A literal's extent is a box, distinct from its font/style height.
+        // Unknown alignment cannot locate that box relative to its anchor.
+        let alignment = placed
+            .alignment
+            .as_deref()
+            .unwrap_or("")
+            .replace('_', " ")
+            .to_ascii_lowercase();
+        let lower = match alignment.as_str() {
+            "baseline left" | "bottom left" => Some([0., 0.]),
+            "baseline centre" | "baseline center" | "bottom centre" | "bottom center" => {
+                Some([-0.5, 0.])
+            }
+            "baseline right" | "bottom right" => Some([-1., 0.]),
+            "centre" | "center" | "middle centre" | "middle center" => Some([-0.5, -0.5]),
+            "middle left" => Some([0., -0.5]),
+            "middle right" => Some([-1., -0.5]),
+            "top left" => Some([0., -1.]),
+            "top centre" | "top center" => Some([-0.5, -1.]),
+            "top right" => Some([-1., -1.]),
+            _ => None,
+        };
+        if let Some([x, y]) = lower {
+            let w = width * geom::norm(frame.axes[0]) * scale;
+            let h = height * geom::norm(frame.axes[1]) * scale;
+            placed.cell_box = Some([[x * w, y * h], [(x + 1.) * w, (y + 1.) * h]]);
+        }
+    }
     if placed.height.is_none() {
         graphic
             .unsupported

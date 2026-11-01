@@ -368,7 +368,8 @@ fn all_drawing_forms_have_graphics_and_glyphs_agree_with_planes() {
             else {
                 continue;
             };
-            for line in g.name.lines() {
+            let title = (g.name == "General notes").then_some("GENERAL NOTES");
+            for line in g.name.lines().chain(title) {
                 if let Some((x, y, _)) = stroke_fit(g, plane, line) {
                     assert!(
                         x > 0. && y > 0.,
