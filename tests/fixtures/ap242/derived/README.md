@@ -35,3 +35,11 @@ counts, refusal counts and every other row remain unchanged. The structural sour
 and face identities are checked by `pmi_import_repairs.rs`; the Rust PMI snapshot records
 the complete changed structure. This retains the existing exact-output audit; it adds no
 hash-based test and changes no known-difference record.
+
+Reader `/13` (2026-11-01) refreshes only STC06 and STC09's semantic expectations:
+each adds one non-fatal `Nonconformance` finding for the repeated source identifier
+(`general property` and `mass property`, respectively), naming its carriers and
+`id_attribute` instances. Resolved PMI, source hashes, dimension/tolerance counts and
+refusal counts are unchanged. The other fifteen rows are unchanged. Structural tests
+in `pmi_xcaf_read.rs` check source identifiers, unique JSON references and the recovered
+non-runout zone independently; the existing audit remains strict.
