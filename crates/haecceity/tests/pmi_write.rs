@@ -4008,7 +4008,7 @@ fn opencascade_reads_the_written_files() {
 /// item it reads is on the pin's own prototype label (a direct child of the shape tool's
 /// label, not a component of the assembly, so both placements show it), on the pin's faces as
 /// haecceity numbers them; the plate's label has nothing. Feature-on output additionally
-/// carries one unattached symbolic notes CommonLabel (no semantic dimension is unattached).
+/// carries symbolic notes/thread CommonLabels (no semantic dimension is unattached).
 #[test]
 fn opencascade_puts_a_parts_pmi_on_its_prototype() {
     let name = "editor_assembly_pin_alone";
@@ -4044,20 +4044,22 @@ fn opencascade_puts_a_parts_pmi_on_its_prototype() {
     assert!(graphic_notes.is_empty());
     #[cfg(feature = "presentation")]
     {
-        // OCCT exposes the new general-notes block as one symbolic CommonLabel.
-        // Keep the exact semantic counts/face/prototype assertions below unchanged.
-        assert_eq!(graphic_notes.len(), 1);
-        let note = &graphic_notes[0];
-        assert_eq!(note["type"], "CommonLabel");
-        assert_eq!(note["semantic_name"], "DGT:Common_label");
-        assert_eq!(note["value"], 0.0);
-        for key in ["faces", "faces2", "parts", "values", "modifiers"] {
-            assert!(
-                note[key].as_array().unwrap().is_empty(),
-                "symbolic note {key}"
-            );
+        // XCAF exposes the notes block and the new thread callout as symbolic
+        // CommonLabels. The semantic counts/face/prototype assertions stay exact.
+        assert_eq!(graphic_notes.len(), 2);
+        for note in graphic_notes {
+            assert_eq!(note["type"], "CommonLabel");
+            assert_eq!(note["semantic_name"], "DGT:Common_label");
+            assert_eq!(note["value"], 0.0);
+            for key in ["faces", "faces2", "parts", "values", "modifiers"] {
+                assert!(
+                    note[key].as_array().unwrap().is_empty(),
+                    "symbolic label {key}"
+                );
+            }
         }
         let reading = pmi::read(&f.doc, &f.parts).unwrap();
+        assert_eq!(reading.parts[1].threads.len(), 1);
         assert!(reading.parts[0].material.is_none());
         assert!(reading.parts[0].general.is_empty());
         assert_eq!(reading.parts[1].material.as_ref().unwrap().id, "Steel C45");
