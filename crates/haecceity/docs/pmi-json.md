@@ -584,3 +584,23 @@ conical/unknown forms and boundaries requiring the missing orientation remain re
 with a specific reason. The downloaded `30-cadgen_pmi_plate.step` and
 `31-xcaf_pmi_plate.step` already contain plain cylindrical zones and read all five
 tolerances before this change.
+
+Generated graphics also expose optional additive geometry metadata:
+`polyline_roles` is parallel to `polylines`, with `text` (font strokes), `frame`
+(cell borders), `leader`, `extension` (measurement witnesses), `symbol` (explicit
+geometric symbols, including scope rings), and `dimension` (dimension lines and
+arrowheads). File graphics omit this field when their purposes are unknown.
+To replace stroked text, remove `text` geometry; symbol runs may additionally
+replace their corresponding `symbol` geometry. `stroked` alone does not identify
+which lines are glyphs.
+
+Each generated `text_placements` entry has `cell_box: [[xmin,ymin],[xmax,ymax]]`,
+the frame cell or padded text box in millimetres **relative to that placement's
+origin**, along `x_axis` and `normal × x_axis`. Its origin is the text's centring
+point. Fit host-font text into this box at the stated capital height. File text
+placements omit a box unless its extent is known. Viewed from `normal`, glyphs
+advance along `+x_axis` and stand up along `normal × x_axis`.
+
+These fields remain optional within `haecceity.presentation/1`; older documents
+still deserialize. Consumers using `deny_unknown_fields` must update their
+presentation schema/types before consuming documents containing these additions.

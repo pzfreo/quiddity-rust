@@ -107,6 +107,11 @@ pub fn glyph(c: char) -> Option<(f64, Vec<Vec<P>>)> {
                     .collect()
             }));
         }
+        '↧' => {
+            lines.push(vec![[10.5, 23.], [10.5, 0.]]);
+            lines.push(vec![[2., 8.5], [10.5, 0.], [19., 8.5]]);
+            lines.push(vec![[1., 23.], [20., 23.]]);
+        }
         '−' => lines.push(vec![[1., 10.5], [20., 10.5]]),
         '×' => {
             lines.push(vec![[2., 2.], [19., 19.]]);

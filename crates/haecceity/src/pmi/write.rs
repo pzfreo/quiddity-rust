@@ -2967,20 +2967,9 @@ impl<'a> PartPlan<'a> {
             && !p.general.iter().any(|g| matches!(g, GeneralTolerance::Table { cells, .. } if cells.iter().any(|c| c.items.iter().any(|(n,_)| n == "number of decimal places")))) {
             self.tolerance_table(em, pds, "", &[ToleranceCell { items: vec![("number of decimal places".into(), CellValue::Count(Decimal::parse(&places.to_string()).map_err(|e| WriteError::Internal(e.0))?))] }])?;
         }
-        let threads = p.threads.iter();
-        #[cfg(feature = "json-import")]
-        let threads = threads.enumerate();
-        #[cfg(not(feature = "json-import"))]
-        let threads = threads.map(|item| ((), item));
+        let threads = p.threads.iter().enumerate();
         for (_i, t) in threads {
-            self.thread(
-                em,
-                &mut st,
-                pds,
-                t,
-                #[cfg(feature = "json-import")]
-                _i,
-            )?;
+            self.thread(em, &mut st, pds, t, _i)?;
         }
         let knurls = p.knurls.iter();
         #[cfg(feature = "json-import")]
@@ -3663,6 +3652,38 @@ impl<'a> PartPlan<'a> {
                     .map(|l| l.into_iter().map(|p| p.map(|x| x / factor)).collect())
                     .collect();
             }
+        }
+        #[cfg(feature = "presentation")]
+        for (i, t) in self.pmi.threads.iter().enumerate() {
+            use crate::presentation;
+            let c = presentation::thread(t, self.pmi);
+            let p = if let Some((point, normal, face)) = presentation_part
+                .as_ref()
+                .and_then(|part| presentation::placement::feature_site(part, self.pmi, t.feature))
+            {
+                let part = presentation_part
+                    .as_ref()
+                    .ok_or_else(|| WriteError::Internal("thread geometry unavailable".into()))?;
+                local_layout.on_label(
+                    point.map(|x| x / factor),
+                    normal,
+                    &c,
+                    part.face_bounds(face).max_extent() / factor,
+                )
+            } else {
+                local_layout.place(
+                    self.feature_point(t.feature.0).unwrap_or([0.; 3]),
+                    self.feature_axis(t.feature.0),
+                    &c,
+                )
+            };
+            graphics.push((
+                vec![_st.threads[&i]],
+                "thread",
+                c.notation(),
+                [p.origin, p.normal, p.along],
+                p.lines,
+            ));
         }
         #[cfg(feature = "presentation")]
         {
@@ -5406,10 +5427,14 @@ impl<'a> PartPlan<'a> {
         st: &mut Emitted,
         pds: R,
         t: &Thread,
-        #[cfg(feature = "json-import")] index: usize,
+        index: usize,
     ) -> Result<(), WriteError> {
         let def = em.simple("thread", &[("name", s("")), ("description", s(""))])?;
         let shape = self.applied(em, st, pds, def, t.feature)?;
+        #[cfg(feature = "presentation")]
+        st.threads.insert(index, shape);
+        #[cfg(not(any(feature = "presentation", feature = "json-import")))]
+        let _ = index;
         #[cfg(feature = "json-import")]
         self.identify(em, "threads", index, shape)?;
         let area = match t.partial_area {
@@ -5958,6 +5983,7 @@ fn needs_callouts(p: &PartPmi) -> bool {
     #[cfg(feature = "presentation")]
     {
         !p.dimensions.is_empty()
+            || !p.threads.is_empty()
             || !p.tolerances.is_empty()
             || p.surface_textures.iter().any(|t| t.on.is_some())
             || !crate::presentation::notes::general_notes(p).is_empty()
@@ -5989,6 +6015,8 @@ struct Emitted {
     dimensions: BTreeMap<usize, R>,
     dimension_values: BTreeSet<usize>,
     tolerances: BTreeMap<usize, R>,
+    #[cfg(feature = "presentation")]
+    threads: BTreeMap<usize, R>,
     tolerance_targets: BTreeMap<usize, R>,
     systems: BTreeMap<String, R>,
     /// Usage keys (representation, items) several features need: each one shape aspect.

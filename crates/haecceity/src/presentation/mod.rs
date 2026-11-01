@@ -27,6 +27,10 @@ pub struct Text {
 #[derive(Default, Clone, Debug)]
 pub struct Callout {
     pub strokes: Vec<[[f64; 2]; 2]>,
+    /// Initial straight strokes which form frames (remaining strokes are symbols).
+    pub frame_strokes: usize,
+    /// Local lower-left / upper-right corners, parallel to readable cells.
+    pub cell_boxes: Vec<[[f64; 2]; 2]>,
     /// Centre x/y, radius, start/end angle in degrees.
     pub arcs: Vec<[f64; 5]>,
     pub letters: Vec<Text>,
@@ -219,6 +223,7 @@ pub fn dimension(d: &Dimension) -> Callout {
     let mut c = label(&value);
     if d.tolerance == DimTolerance::Basic {
         let [w, h] = c.size;
+        c.frame_strokes = 4;
         c.strokes.extend([
             [[0., 0.], [w, 0.]],
             [[w, 0.], [w, h]],
@@ -387,4 +392,57 @@ pub fn tolerance(t: &GeometricTolerance, p: &PartPmi) -> Callout {
 /// A boxed datum letter about the local origin (Draftwright's datum frame).
 pub fn datum(letter: &str) -> Callout {
     gdt::datum_frame(letter)
+}
+
+/// A thread's stated designation, class and manufacturing depth. Never infer a
+/// pitch or a depth from the tap drill; AP242 threads need not state either.
+pub fn thread(t: &Thread, p: &PartPmi) -> Callout {
+    let attributes = p
+        .attributes
+        .iter()
+        .filter(|a| {
+            a.name == "thread manufacturing"
+                && matches!(a.on, Some(NoteOwner::Feature(f)) if p.same_target(
+                &ToleranceTarget::Feature(f), &ToleranceTarget::Feature(t.feature)))
+        })
+        .flat_map(|a| &a.items)
+        .collect::<Vec<_>>();
+    let measure = |name: &str| {
+        attributes.iter().find_map(|(key, value)| {
+            if key == name
+                && let AttributeValue::Measure(v) = value
+            {
+                Some(decimal(v))
+            } else {
+                None
+            }
+        })
+    };
+    let mut value = t
+        .qualifier
+        .clone()
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| format!("{}{}", t.form, tolerance::number(&t.major_diameter.value)))
+        .replace('x', "×");
+    if !value.contains('×')
+        && let Some(pitch) = measure("pitch")
+    {
+        value.push_str(&format!("×{pitch}"));
+    }
+    if !t.fit_class.is_empty() {
+        value.push_str(&format!("-{}", t.fit_class));
+    }
+    if t.hand == Hand::Left {
+        value.push_str(" LH");
+    }
+    if attributes
+        .iter()
+        .any(|(key, v)| key == "through" && matches!(v, AttributeValue::Text(s) if s == "true"))
+    {
+        value.push_str(" THRU");
+    } else if let Some(depth) = measure("minimum full thread").or_else(|| measure("thread length"))
+    {
+        value.push_str(&format!(" ↧ {depth}"));
+    }
+    label(&value)
 }

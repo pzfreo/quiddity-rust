@@ -44,3 +44,12 @@ values (including content ids and units) against it in both feature configuratio
 `spindle-q137.step.gz` is a deterministic gzip copy of the maintainer's own model,
 `presfix-inputs/19-spindle-semantic-links-only.step`, supplied for PR #163 round 1.
 It was written 2026-10-30 at 17:06 by a #137-era build and retains its saved callouts.
+
+`thread-callouts/` contains deterministic gzip copies of the maintainer-supplied
+GRM-01 through GRM-07 geometry (same gramil licence above), the two supplied
+Specify-written spindle PMI variants, and semantic companions made by accepting
+defaults in Specify with the local thread-callout kernel. These are presentation
+regression inputs, outside the 2,700 recognition snapshots. `shank-editor` is the
+supplied editor scene's semantic companion (48 items), retained independently of
+the current planner's additional support/provenance rows. The geometry and source
+PMI files are unmodified. Source files remain evidence, not repaired exports.

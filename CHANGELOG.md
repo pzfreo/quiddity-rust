@@ -6,6 +6,8 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+- Generate internal/external thread callouts with stated pitch, class and depth (or THRU), in feature-local stacks. Presentation JSON adds optional polyline roles and text cell boxes for host-font rendering; older documents remain readable.
+
 ## 0.4.2 (2026-11-01)
 
 Upgrading from 0.4.1: recognition schema `/6` and fingerprints `/3` are unchanged.
