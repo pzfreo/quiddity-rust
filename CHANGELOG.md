@@ -6,6 +6,16 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Fixed
+
+- A plain face aspect composing a datum feature aliases the datum only when its face
+  set equals the whole datum feature's. Constituents of a multi-land datum retain
+  separate features and size dimensions; the datum still collects all faces once.
+  Single-constituent datum features, all-around groups and per-member datum groups
+  retain their existing semantics. **Consumers:** legacy PMI reader binding advances
+  to `haecceity-pmi-read/14`; re-read bound PMI documents. Specify can remove its
+  workaround for the three independent Ø19 sizes on LM10UU's datum A lands.
+
 ## 0.4.2 (2026-11-01)
 
 Upgrading from 0.4.1: recognition schema `/6` and fingerprints `/3` are unchanged.

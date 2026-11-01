@@ -1503,7 +1503,7 @@ impl<'a> Reader<'a> {
     /// The datum feature is SAR.relating_shape_aspect, its constituent is related.
     /// SAR names/descriptions are not discriminators ("datum feature" is one exporter label).
     /// A group datum applies to each member separately and is not a union alias.
-    /// Shared carriers are checked against the datum's content before aliasing.
+    /// Every constituent is checked against the datum's whole content before aliasing.
     fn datum_feature_parent(&mut self, id: u64) -> Option<u64> {
         if self.names(id) != ["shape_aspect"] {
             return None;
@@ -1533,32 +1533,12 @@ impl<'a> Reader<'a> {
         }
     }
 
-    /// Shared GISU carriers can also be members of per-element groups. Preserve their
-    /// own content unless it is identical to the datum's whole indivisible feature.
-    fn datum_constituent_alias(
-        &mut self,
-        st: &mut PartState,
-        id: u64,
-        parent: u64,
-        feature: FeatureId,
-    ) -> bool {
-        if !matches!(st.pmi.features[feature.0], Feature::Items(_)) {
-            return false;
-        }
-        let shared = self
-            .referrers_by(
-                id,
-                "shape_aspect_relationship",
-                "shape_aspect_relationship",
-                "related_shape_aspect",
-            )
-            .into_iter()
-            .any(|r| {
-                self.get_ref(r, "shape_aspect_relationship", "relating_shape_aspect")
-                    .is_some_and(|p| p != parent && self.members(p).contains(&(r, id)))
-            });
-        !shared
-            || self
+    /// A constituent names the whole datum feature only when their face sets agree.
+    /// A land of a multi-constituent datum keeps its own feature, even when it has no
+    /// other composition parent. Content is memoised, so faces are still collected once.
+    fn datum_constituent_alias(&mut self, st: &mut PartState, id: u64, feature: FeatureId) -> bool {
+        matches!(st.pmi.features[feature.0], Feature::Items(_))
+            && self
                 .content(st, id)
                 .is_some_and(|(content, _)| content == st.pmi.features[feature.0])
     }
@@ -1595,18 +1575,30 @@ impl<'a> Reader<'a> {
         if let Some(r) = st.features.get(&id) {
             return *r;
         }
-        // Resolve a named constituent through its datum feature even when the child is
-        // requested first (e.g. by another datum, a tolerance, or a property).
+        // Resolve the datum first, even when another datum or requirement names a child
+        // before its parent. Registering the parent can already register this child.
+        let mut constituent_content = None;
         if let Some(parent) = self.datum_feature_parent(id)
             && let Some(feature) = self.feature(st, parent)
-            && self.datum_constituent_alias(st, id, parent, feature)
         {
-            st.features.insert(id, Some(feature));
-            st.absorbed.insert(id);
-            return Some(feature);
+            if let Some(r) = st.features.get(&id) {
+                return *r;
+            }
+            if self.datum_constituent_alias(st, id, feature) {
+                st.features.insert(id, Some(feature));
+                st.absorbed.insert(id);
+                return Some(feature);
+            }
+            constituent_content = self.content(st, id);
         }
         st.features.insert(id, None);
-        let r = match self.build_feature(st, id) {
+        // Composition has already read a plain constituent's content. Reuse it when
+        // registering its own identity rather than collecting its faces a second time.
+        let built = match constituent_content {
+            Some((f, prov)) => Built::Feature(f, prov),
+            None => self.build_feature(st, id),
+        };
+        let r = match built {
             Built::Feature(f, prov) => {
                 let fid = FeatureId(st.pmi.features.len());
                 st.pmi.features.push(f);
@@ -1654,15 +1646,17 @@ impl<'a> Reader<'a> {
             && self.is(id, "datum_feature")
             && matches!(st.pmi.features[feature.0], Feature::Items(_))
         {
-            // Composition already gathered these faces. Keep each constituent's identity
-            // as an alias as well, including presentation-only aspects otherwise absorbed.
+            // Preserve identities even for constituents named only by presentation.
+            // Whole-set constituents alias the datum; proper subsets register separately.
             let constituents = st.prov.features[feature.0].clone();
             for aspect in constituents {
-                if self.datum_feature_parent(aspect) == Some(id)
-                    && self.datum_constituent_alias(st, aspect, id, feature)
-                {
-                    st.features.insert(aspect, Some(feature));
-                    st.absorbed.insert(aspect);
+                if self.datum_feature_parent(aspect) == Some(id) {
+                    if self.datum_constituent_alias(st, aspect, feature) {
+                        st.features.insert(aspect, Some(feature));
+                        st.absorbed.insert(aspect);
+                    } else {
+                        self.feature(st, aspect);
+                    }
                 }
             }
         }
