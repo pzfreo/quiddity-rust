@@ -55,8 +55,20 @@ Regenerated with the required command:
 QUIDDITY_CORPUS=/Users/paul/repos/quiddity/tests/corpus QUIDDITY_CORPUS_REQUIRED=1 cargo run -p snapshot-tool --release --
 ```
 
-Snapshot regeneration is repeated after the final reader change. The final
-snapshot inventory and reasons are recorded after completion.
+Regenerated all 2,700 compressed snapshots from `47c387ba`. Exactly two tracked
+files differ from `origin/main`:
+
+- `tests/fixtures/rust-snapshot/pmi.json.gz`: 28 reader bindings (PMI and parts
+  for each of 14 fixtures) advance /13 → /14. After normalizing only those strings,
+  the entire decoded snapshot is equal to main: no feature, dimension, datum,
+  tolerance, face, finding or other value changes on the existing inputs.
+- `tests/fixtures/rust-snapshot/provenance.json`: records the new PMI snapshot
+  digest and source commit. All input hashes and all 2,699 other snapshot hashes
+  are unchanged.
+
+FTC07 remains at 91 features, FTC10 at 146, STC09 at 125, and STC10 at 166.
+The new synthetic regression supplies the missing case where requirements name
+proper subsets of a multi-constituent datum.
 
 `se_and_control_samples` passes when explicitly run with `--ignored`: the SE
 sample retains 7 dimensions, 3 tolerances, 2 datums; callout #258 still targets
