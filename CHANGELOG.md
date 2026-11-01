@@ -16,6 +16,10 @@ Upgrading from 0.4.1: recognition schema `/6` and fingerprints `/3` are unchange
 
 ### Fixed
 
+- Keep generated size callouts above their feature control frames in one annotation
+  plane, and reserve plain label ink in saved-view packing to prevent overlapping
+  callouts without loosening feature-distance or spindle ladder drift limits.
+
 - PMI JSON reads no longer abort on duplicate or empty source identifiers. Unique wire
   ids fall back to content identities, and non-fatal findings retain the affected STEP
   instances and identifier values. Optional per-item `identifier` fields carry source
