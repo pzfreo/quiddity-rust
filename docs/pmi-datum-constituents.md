@@ -71,22 +71,23 @@ with the required corpus environment are recorded after completion.
 ## Retired instructions
 
 Measured release `quiddity pmi read` on the largest corpus STEP by decoded bytes,
-`cadgenbench_inputs/cgb202.step.gz` (17,927,439 bytes; 100 corpus STEP inputs
-surveyed). The six runs alternate pairs in order main/head, head/main, main/head.
-The baseline binary was built from `origin/main` (`bb0cd6d0`) before edits; the
-new binary contains the reader fix (`6fe07a10`). Darwin `proc_pid_rusage` reads
+`cadgenbench_inputs/cgb202.step.gz` (17,927,439 bytes;
+100 corpus STEP inputs surveyed). The six runs alternate pairs in order
+main/head, head/main, main/head. The baseline binary was built from `origin/main`
+(`bb0cd6d0`) before edits; the new binary contains the final reader fix
+(`dac39603`). Darwin `proc_pid_rusage` reads
 `RUSAGE_INFO_V4.ri_instructions` after child exit and before reaping; this avoids
 `time -l`'s sandbox-blocked clock sysctl. No time-to-instructions estimate is used.
 
 | Run pair | Main instructions | New instructions |
 | --- | ---: | ---: |
-| 1 | 40,237,573,683 | 40,236,772,893 |
-| 2 (new first) | 40,255,098,183 | 40,252,727,419 |
-| 3 | 40,244,732,334 | 40,255,744,167 |
-| Median | 40,244,732,334 | 40,252,727,419 |
+| 1 | 40,258,403,096 | 40,237,363,479 |
+| 2 (new first) | 40,228,407,709 | 40,236,611,983 |
+| 3 | 40,232,519,750 | 40,233,028,535 |
+| Median | 40,232,519,750 | 40,236,611,983 |
 
-Median change: **+0.0199%**. Output is identical except the expected reader binding.
-[Raw counters, binary/input hashes and platform](pmi-datum-constituents.instructions.json)
+Median change: **+0.0102%**. Output is identical except the
+expected reader binding. [Raw counters, binary/input hashes and platform](pmi-datum-constituents.instructions.json)
 retain provenance and run order. This is a whole CLI read measurement, including
 STEP decoding and serialization; this geometry input has no semantic PMI.
 

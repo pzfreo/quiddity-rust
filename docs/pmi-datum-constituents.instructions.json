@@ -1,6 +1,6 @@
 {
   "base_commit": "bb0cd6d0b8d0ef677cb8df5fe0c1f23b590df77d",
-  "head_source_commit": "6fe07a10b2a21f07166c325a8d9416395798efb1",
+  "head_source_commit": "dac396037575e3a08eb39c93b5bffce10ac37bea",
   "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
   "command": [
     "quiddity",
@@ -15,50 +15,50 @@
   "counter": "Darwin proc_pid_rusage RUSAGE_INFO_V4 ri_instructions (word 31), child exited but unreaped",
   "binaries_sha256": {
     "main": "726ebe678de716b88b569293a59d304589cddbcc0eb190efc228e53bb41999c7",
-    "head": "30863bb60f177494960fb41759590c66410027b53ef39d5e402a253484c6aab1"
+    "head": "3752e4cc0e3f41a5af56b964744e8c4ca5b757da4a304f9ea6cfb94c51a27a2a"
   },
   "runs": [
     {
       "binary": "main",
-      "instructions": 40237573683,
-      "wall_seconds": 2.723496041027829,
+      "instructions": 40258403096,
+      "wall_seconds": 2.570786250056699,
       "output_sha256": "a02fca962cef1fe25493e167f1ba36ab7f67e1427a5f901260b5d8025e7e41e6"
     },
     {
       "binary": "head",
-      "instructions": 40236772893,
-      "wall_seconds": 2.766453000018373,
+      "instructions": 40237363479,
+      "wall_seconds": 2.5082508749328554,
       "output_sha256": "c836b92f0065ad98899fba7f368301b2d78e5b02f19a3ff82a13ba41714869fe"
     },
     {
       "binary": "head",
-      "instructions": 40252727419,
-      "wall_seconds": 4.978924042079598,
+      "instructions": 40236611983,
+      "wall_seconds": 2.4497197919990867,
       "output_sha256": "c836b92f0065ad98899fba7f368301b2d78e5b02f19a3ff82a13ba41714869fe"
     },
     {
       "binary": "main",
-      "instructions": 40255098183,
-      "wall_seconds": 3.9714342919178307,
+      "instructions": 40228407709,
+      "wall_seconds": 2.4452333750668913,
       "output_sha256": "a02fca962cef1fe25493e167f1ba36ab7f67e1427a5f901260b5d8025e7e41e6"
     },
     {
       "binary": "main",
-      "instructions": 40244732334,
-      "wall_seconds": 3.331628374988213,
+      "instructions": 40232519750,
+      "wall_seconds": 2.38205337501131,
       "output_sha256": "a02fca962cef1fe25493e167f1ba36ab7f67e1427a5f901260b5d8025e7e41e6"
     },
     {
       "binary": "head",
-      "instructions": 40255744167,
-      "wall_seconds": 4.055741541087627,
+      "instructions": 40233028535,
+      "wall_seconds": 2.3907577500212938,
       "output_sha256": "c836b92f0065ad98899fba7f368301b2d78e5b02f19a3ff82a13ba41714869fe"
     }
   ],
   "median_instructions": {
-    "main": 40244732334,
-    "head": 40252727419
+    "main": 40232519750,
+    "head": 40236611983
   },
-  "change_percent": 0.019866165175730366,
+  "change_percent": 0.010171455890484182,
   "output_equal_except_reader_binding": true
 }

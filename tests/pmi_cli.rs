@@ -233,7 +233,7 @@ fn pmi_read_of_one_part() {
 // face-set, size, group and single-constituent checks are in pmi_import_repairs.rs.
 const READER_PIN: (&str, &str) = (
     "haecceity-pmi-read/14",
-    "fcb99e234c0ae7c3ce6abe4c4c4b766a02e90ebc5f0524e22fad33944544a0ab",
+    "826d4c4e3f564f90a31354618fe5be2d7f9d7a7cf9f33f93ac99170b6c39ccd8",
 );
 
 #[test]
