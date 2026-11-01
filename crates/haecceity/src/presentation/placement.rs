@@ -595,11 +595,13 @@ impl Layout {
             })
             .collect();
         candidates.sort_by(|a, b| a.2.total_cmp(&b.2));
-        // Keep the near-feature search order, then grow the stack rather than
-        // silently accepting the last occupied slot when the first eight fill.
+        // Saved-plane packing can keep growing outward: every row advances in
+        // its readable projection. Preserve the bounded seven-view search,
+        // where an outward step can be invisible in another camera.
+        let extra_rows = if self.view_local { 8..usize::MAX } else { 8..8 };
         for (row, column, _) in candidates
             .into_iter()
-            .chain((8..).flat_map(|row| columns.iter().map(move |&column| (row, column, 0.))))
+            .chain(extra_rows.flat_map(|row| columns.iter().map(move |&column| (row, column, 0.))))
         {
             let centre = geom::add(
                 anchor,
