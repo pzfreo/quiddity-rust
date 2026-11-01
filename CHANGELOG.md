@@ -6,6 +6,13 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+## 0.4.4 (2026-11-01)
+
+Upgrading from 0.4.3: recognition schema `/6`, fingerprints `/3`, the `haecceity.pmi/1` schema and the PMI reader string `haecceity-pmi-read/14` are unchanged, so semantic PMI reads as in 0.4.3. STEP writing changes only for parts with threads. Presentation JSON gains the optional fields below, including for files without threads.
+- **Thread callouts (#175):** written presentation now includes internal and external thread callouts (stated pitch, class and depth, or THRU) in a stack local to the feature, with any controls on that thread. Thread-free writes are unchanged.
+- **Presentation JSON:** `haecceity.presentation/1` gains two optional fields so a host can redraw text in its own font. `polyline_roles` is per graphic. `cell_box` is per text placement: it appears on read file text when the file states a planar extent and a known alignment, and on generated text. Older documents still read. Readers that validate against the 0.4.3 schema (`additionalProperties: false`), or haecceity 0.4.3's JSON import, will reject the new fields. The Python package's schema copy is updated.
+- **API note:** the Rust structs `json::presentation::Graphic` (`polyline_roles`), `json::presentation::TextPlacement` (`cell_box`) and `presentation::Callout` (`frame_strokes`, `text_symbols`, `cell_boxes`) gain public fields and are not `#[non_exhaustive]`. Code that builds them as struct literals must add the new fields; code that only reads them is unaffected. New public items: the function `presentation::thread` and the enum `json::presentation::PolylineRole` (not `#[non_exhaustive]`).
+
 ### Added
 
 - Generate internal/external thread callouts with stated pitch, class and depth (or THRU), in feature-local stacks. Presentation JSON adds optional polyline roles and text cell boxes for host-font rendering; older documents remain readable. Five feature-on STEP goldens gain thread graphics: `thread_replaced`, `assembly_plate_pin_intent`, `editor_assembly_pin_alone`, `string_post_tapped_intent`, and `thumbwheel_thread_knurl_intent`; their XCAF captures are refreshed. Thread-free writes and feature-off goldens are unchanged.
