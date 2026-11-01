@@ -2655,6 +2655,9 @@ pub fn write_report_json(
             "presentation_removed",
             json!(typed(&report.presentation_removed)),
         )
+        .opt("long_strings", (!report.long_strings.is_empty()).then(|| json!(
+            report.long_strings.iter().map(|w| json!({"record": w.record, "encoded_bytes": w.encoded_bytes, "byte_offset": w.byte_offset, "message": w.to_string()})).collect::<Vec<_>>()
+        )))
         .put("left_unreferenced", json!(typed(&report.left_unreferenced)))
         .put("file_schema", schema)
         .put(

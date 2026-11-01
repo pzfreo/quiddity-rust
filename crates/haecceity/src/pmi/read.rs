@@ -71,6 +71,7 @@ fn read_impl(
     for (i, part) in parts.iter().enumerate() {
         let mut st = PartState::new(PartId(i), part);
         r.read_part(&mut st);
+        super::text::extend_provenance(doc, &mut st.prov);
         r.callout_aliases(&st);
         let PartState {
             pmi,
@@ -484,6 +485,17 @@ impl<'a> Reader<'a> {
             Attribute::String(s) => Some(s.clone()),
             _ => None,
         }
+    }
+
+    // A chunked descriptive value remains a compound in EXPRESS; only text consumers
+    // interpret our marked, ordered list. Do not change schema subtype tests.
+    fn is_text(&self, id: u64) -> bool {
+        self.is(id, "descriptive_representation_item")
+            || super::text::chunks(self.doc, id).is_some()
+    }
+
+    fn text_of(&self, id: u64) -> Option<String> {
+        super::text::read(self.doc, id)
     }
 
     fn name_of(&mut self, id: u64) -> String {
@@ -3209,11 +3221,8 @@ impl<'a> Reader<'a> {
                         }
                     }
                 }
-            } else if self.is(item, "descriptive_representation_item") && name == "dimensional note"
-            {
-                let d = self
-                    .get_str(item, "descriptive_representation_item", "description")
-                    .unwrap_or_default();
+            } else if self.is_text(item) && name == "dimensional note" {
+                let d = self.text_of(item).unwrap_or_default();
                 match d.as_str() {
                     "theoretical" => basic = true,
                     "auxiliary" => modifiers.push(DimensionModifier::Reference),
@@ -3270,9 +3279,7 @@ impl<'a> Reader<'a> {
                 }
                 for m in list {
                     prov.push(m);
-                    let d = self
-                        .get_str(m, "descriptive_representation_item", "description")
-                        .unwrap_or_default();
+                    let d = self.text_of(m).unwrap_or_default();
                     match DimensionModifier::from_description(&d) {
                         Some(x) => modifiers.push(x),
                         None => {
@@ -3490,9 +3497,9 @@ impl<'a> Reader<'a> {
         }
         !list.is_empty()
             && list.iter().all(|&m| {
-                self.is(m, "descriptive_representation_item")
+                self.is_text(m)
                     && self
-                        .get_str(m, "descriptive_representation_item", "description")
+                        .text_of(m)
                         .is_some_and(|d| DimensionModifier::from_description(&d).is_some())
             })
     }
@@ -4627,15 +4634,8 @@ impl<'a> Reader<'a> {
                         prov.extend([pdef, pdr, rep]);
                         for item in self.get_refs(rep, "representation", "items") {
                             let name = self.name_of(item);
-                            let v = if self.is(item, "descriptive_representation_item") {
-                                ParamValue::Text(
-                                    self.get_str(
-                                        item,
-                                        "descriptive_representation_item",
-                                        "description",
-                                    )
-                                    .unwrap_or_default(),
-                                )
+                            let v = if self.is_text(item) {
+                                ParamValue::Text(self.text_of(item).unwrap_or_default())
                             } else if !self.is(item, "measure_with_unit") {
                                 self.find(
                                     FindingKind::Nonconformance,
@@ -5085,11 +5085,8 @@ impl<'a> Reader<'a> {
             prov.extend([pdr, rep]);
             for item in self.get_refs(rep, "representation", "items") {
                 let key = self.name_of(item);
-                let v = if self.is(item, "descriptive_representation_item") {
-                    AttributeValue::Text(
-                        self.get_str(item, "descriptive_representation_item", "description")
-                            .unwrap_or_default(),
-                    )
+                let v = if self.is_text(item) {
+                    AttributeValue::Text(self.text_of(item).unwrap_or_default())
                 } else if self.is(item, "integer_representation_item")
                     || self.is(item, "real_representation_item")
                 {
@@ -5317,10 +5314,10 @@ impl<'a> Reader<'a> {
         let mut class_count = 0;
         for (_, rep) in &reps {
             for item in self.get_refs(*rep, "representation", "items") {
-                if self.is(item, "descriptive_representation_item")
+                if self.is_text(item)
                     && self.name_of(item) == "tolerance class"
                     && self
-                        .get_str(item, "descriptive_representation_item", "description")
+                        .text_of(item)
                         .is_some_and(|text| !text.trim().is_empty())
                 {
                     class_count += 1;
@@ -5334,10 +5331,8 @@ impl<'a> Reader<'a> {
             let mut read_any = false;
             for item in self.get_refs(rep, "representation", "items") {
                 let n = self.name_of(item);
-                if self.is(item, "descriptive_representation_item") && n == "tolerance class" {
-                    let text = self
-                        .get_str(item, "descriptive_representation_item", "description")
-                        .unwrap_or_default();
+                if self.is_text(item) && n == "tolerance class" {
+                    let text = self.text_of(item).unwrap_or_default();
                     if text.trim().is_empty() {
                         continue; // §4.1 Figure 3 writes '' when only the table applies
                     }
@@ -5412,11 +5407,8 @@ impl<'a> Reader<'a> {
                     for ci in self.get_refs(cell, "compound_representation_item", "item_element") {
                         p.push(ci);
                         let n = self.name_of(ci);
-                        let v = if self.is(ci, "descriptive_representation_item") {
-                            CellValue::Text(
-                                self.get_str(ci, "descriptive_representation_item", "description")
-                                    .unwrap_or_default(),
-                            )
+                        let v = if self.is_text(ci) {
+                            CellValue::Text(self.text_of(ci).unwrap_or_default())
                         } else {
                             match self.measure(ci) {
                                 Ok(Measured::Count(d)) => {
@@ -5507,7 +5499,7 @@ impl<'a> Reader<'a> {
                 let mut found = None;
                 for (pdr, rep) in reps {
                     for item in self.get_refs(rep, "representation", "items") {
-                        if self.is(item, "descriptive_representation_item") {
+                        if self.is_text(item) {
                             if found.is_some() {
                                 self.find(
                                     FindingKind::Conflict,
@@ -5521,9 +5513,7 @@ impl<'a> Reader<'a> {
                             let id = self
                                 .get_str(item, "representation_item", "name")
                                 .unwrap_or_default();
-                            let name = self
-                                .get_str(item, "descriptive_representation_item", "description")
-                                .filter(|s| !s.is_empty());
+                            let name = self.text_of(item).filter(|s| !s.is_empty());
                             found = Some((id, name));
                             prov.extend([pdr, rep, item]);
                         }
@@ -5757,11 +5747,8 @@ impl<'a> Reader<'a> {
         for (pdr, rep) in self.property_representations(pdef) {
             prov.extend([pdr, rep]);
             for item in self.get_refs(rep, "representation", "items") {
-                if self.is(item, "descriptive_representation_item") {
-                    texts.push(
-                        self.get_str(item, "descriptive_representation_item", "description")
-                            .unwrap_or_default(),
-                    );
+                if self.is_text(item) {
+                    texts.push(self.text_of(item).unwrap_or_default());
                     prov.push(item);
                 } else {
                     self.find(
@@ -5866,9 +5853,7 @@ impl<'a> Reader<'a> {
             prov.extend([pdr, rep]);
             for item in self.get_refs(rep, "representation", "items") {
                 let name = self.name_of(item);
-                if !self.is(item, "descriptive_representation_item")
-                    || name != "material removal condition"
-                {
+                if !self.is_text(item) || name != "material removal condition" {
                     self.find(
                         FindingKind::Unsupported,
                         part,
@@ -5878,9 +5863,7 @@ impl<'a> Reader<'a> {
                     );
                     return;
                 }
-                let term = self
-                    .get_str(item, "descriptive_representation_item", "description")
-                    .unwrap_or_default();
+                let term = self.text_of(item).unwrap_or_default();
                 match (MaterialRemoval::from_term(&term), removal) {
                     (Some(m), None) => removal = Some(m),
                     (Some(_), Some(_)) => {
@@ -5985,12 +5968,9 @@ impl<'a> Reader<'a> {
                 prov.extend([pdr, rep]);
                 for item in self.get_refs(rep, "representation", "items") {
                     let name = self.name_of(item);
-                    if self.is(item, "descriptive_representation_item")
-                        && name == "measuring method"
-                        && characteristic.is_none()
+                    if self.is_text(item) && name == "measuring method" && characteristic.is_none()
                     {
-                        characteristic =
-                            self.get_str(item, "descriptive_representation_item", "description");
+                        characteristic = self.text_of(item);
                     } else if self.is(item, "measure_representation_item")
                         && !self.is(item, "qualified_representation_item")
                         && name == "characteristic value"
