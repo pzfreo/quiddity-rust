@@ -401,27 +401,23 @@ pub(crate) fn restore(doc: &Document, read: &mut PmiRead) -> Result<()> {
         let items: Vec<_> = read.provenance.parts[part]
             .transport
             .iter()
-            .filter_map(|id| match doc.get(*id) {
-                Some(crate::p21::RawEntity::Simple {
-                    name, attributes, ..
-                }) if name.eq_ignore_ascii_case("descriptive_representation_item")
-                    && attributes.first() == Some(&Attribute::String("ordering".into())) =>
-                {
-                    match attributes.get(1) {
-                        Some(Attribute::String(s)) => Some(s),
-                        _ => None,
-                    }
-                }
-                _ => None,
+            .filter_map(|id| {
+                let name = match doc.get(*id)? {
+                    crate::p21::RawEntity::Simple { attributes, .. } => attributes.first(),
+                    _ => None,
+                };
+                (name == Some(&Attribute::String("ordering".into()))).then_some(*id)
             })
-            .collect();
+            .map(|id| crate::pmi::text::read(doc, id)
+                .ok_or_else(|| Error(format!("invalid PMI ordering text at #{id}; expected a descriptive item or marked ordered text chunks"))))
+            .collect::<Result<_>>()?;
         if items.is_empty() {
             continue;
         }
         if items.len() != 1 {
             return Err(Error("multiple PMI ordering records on a part".into()));
         }
-        let layout: Layout = serde_json::from_value(parse(items[0])?)?;
+        let layout: Layout = serde_json::from_value(parse(&items[0])?)?;
         if layout.keys().any(|c| !COLLECTIONS.contains(&c.as_str())) {
             return Err(Error("unknown PMI ordering collection".into()));
         }

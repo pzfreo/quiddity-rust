@@ -436,7 +436,7 @@ fn brep(args: &BrepArgs) -> Result<String, String> {
             .collect()),
         "parts_not_carried": not_carried,
     });
-    let json = serde_json::json!({
+    let mut json = serde_json::json!({
         "solids": report.solids,
         "void_shells": report.void_shells,
         "faces": report.faces,
@@ -462,6 +462,11 @@ fn brep(args: &BrepArgs) -> Result<String, String> {
             .map(|s| part.solid_mass(s).map(|(v, _)| v))
             .collect::<Vec<_>>(),
     });
+    if !report.long_strings.is_empty() {
+        json["long_strings"] = serde_json::json!(report.long_strings.iter().map(|w|
+            serde_json::json!({"record": w.record, "encoded_bytes": w.encoded_bytes, "byte_offset": w.byte_offset, "message": w.to_string()})
+        ).collect::<Vec<_>>());
+    }
     Ok(serde_json::to_string_pretty(&json).expect("JSON serialises"))
 }
 
