@@ -48,13 +48,58 @@ and exact sole face. No count expectation was relaxed.
 
 ## Validation and snapshots
 
-Final validation and interleaved instruction measurements are recorded below
-once the complete snapshot regeneration and release checks finish.
+Regenerated with the required command:
+
+```sh
+QUIDDITY_CORPUS=/Users/paul/repos/quiddity/tests/corpus QUIDDITY_CORPUS_REQUIRED=1 cargo run -p snapshot-tool --release --
+```
+
+All 2,700 compressed snapshots were regenerated from `c6ca3107`. Exactly one
+compressed snapshot changed, plus its provenance manifest:
+
+- `tests/fixtures/rust-snapshot/pmi.json.gz`: all 14 inputs' PMI/parts bindings
+  advance /13 → /14. Beyond bindings, FTC07 has 91 → 95 features, FTC10 has
+  146 → 156, and STC09 has 125 → 131. These 20 added features are proper subsets
+  previously absorbed into datum unions, now registered even without a semantic
+  requirement. Feature references (including projected-zone ends and group members)
+  renumber. Existing feature contents and requirement target contents are preserved
+  after resolving references and treating group members as unordered. STC10's
+  166 features and aliases are unchanged. All other inputs change only bindings.
+- `tests/fixtures/rust-snapshot/provenance.json`: records the new PMI snapshot
+  digest and source commit. Input hashes and all other snapshot hashes are unchanged.
+
+The source evidence for the additional constituent features is below. Each row
+has a two-face parent union, and each child identifies just its stated face.
+Parents with `COMPOSITE_GROUP_SHAPE_ASPECT` remain per-member groups and are not
+among these union parents.
+
+| Input | Datum feature | Child → face STEP ids |
+| --- | ---: | --- |
+| FTC07 | #13726 | #13728 → #8414; #13732 → #8379 |
+| FTC07 | #13767 | #13769 → #8582; #13773 → #8547 |
+| FTC10 | #18109 | #18111 → #10359; #18115 → #10377 |
+| FTC10 | #18135 | #18137 → #10259; #18141 → #10277 |
+| FTC10 | #18192 | #18194 → #13526; #18198 → #13511 |
+| FTC10 | #18219 | #18221 → #13551; #18225 → #13566 |
+| FTC10 | #18246 | #18248 → #13742; #18252 → #13727 |
+| STC09 | #8442 | #8444 → #1226; #8448 → #1202 |
+| STC09 | #8457 | #8459 → #1094; #8463 → #1070 |
+| STC09 | #8779 | #8781 → #3126; #8785 → #3102 |
+
+`se_and_control_samples` passes when explicitly run with `--ignored`: the SE
+sample retains 7 dimensions, 3 tolerances, 2 datums; callout #258 still targets
+datum C's feature (FeatureId(1), incorporating child #222 and face #2502).
+Complete `pmi read` JSON matches the baseline apart from the reader binding.
+The control CTC01 fixture retains 12 dimensions, 6 tolerances, 3 datums.
+
+`cargo fmt --all -- --check` and
+`cargo clippy --workspace --all-targets -- -D warnings` pass. Full release tests
+with the required corpus environment are recorded after completion.
 
 ## Retired instructions
 
 Measured release `quiddity pmi read` on the largest corpus STEP by decoded bytes,
-`cadgenbench_inputs/cgb202.step.gz` (17,927,439 bytes; 67 corpus STEP inputs
+`cadgenbench_inputs/cgb202.step.gz` (17,927,439 bytes; 100 corpus STEP inputs
 surveyed). The six runs alternate pairs in order main/head, head/main, main/head.
 The baseline binary was built from `origin/main` (`bb0cd6d0`) before edits; the
 new binary contains the reader fix (`6fe07a10`). Darwin `proc_pid_rusage` reads
