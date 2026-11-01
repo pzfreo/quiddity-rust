@@ -259,6 +259,19 @@ fn all_drawing_forms_have_graphics_and_glyphs_agree_with_planes() {
         let generated = presentation::generated(&semantic, &part).unwrap();
         coverage(name, &semantic, &generated);
         clear_callouts(name, &generated);
+        glyph_placements(name, &generated);
+        for (i, t) in semantic.pmi.threads.iter().enumerate() {
+            let site = notation::placement::feature_site(&part, &semantic.pmi, t.feature)
+                .unwrap()
+                .0;
+            let g = &generated.items[&semantic.ids["threads"][i]][0];
+            let limit = 2. * notation::placement::text_height(part.bounds().max_extent());
+            assert!(
+                geom::dist(site, g.text_placements[0].origin) <= limit + 3e-6,
+                "{name}: thread too far from feature: {}",
+                g.name
+            );
+        }
         presentation::validate(&serde_json::to_value(&generated).unwrap()).unwrap();
         let saved = presentation::read(&doc, &read, PartId(0), &semantic).unwrap();
         let mut checked = BTreeSet::new();
@@ -314,6 +327,28 @@ fn all_drawing_forms_have_graphics_and_glyphs_agree_with_planes() {
                             }
                         }
                     }
+                }
+            }
+        }
+        // Graphic-only notes may have no semantic link. Inspect their own
+        // readable names as well; NIST's filled CAD-font triangles have no
+        // single-stroke font run to fit and are not stroked glyphs.
+        for g in saved.items.values().flatten().chain(&saved.unlinked) {
+            let Some(plane) = saved
+                .planes
+                .iter()
+                .find(|p| Some(&p.id) == g.plane_id.as_ref())
+            else {
+                continue;
+            };
+            for line in g.name.lines() {
+                if let Some((x, y, _)) = stroke_fit(g, plane, line) {
+                    assert!(
+                        x > 0. && y > 0.,
+                        "{name}: reversed source glyphs in {:?}",
+                        g.id
+                    );
+                    file_checked.insert(g.id.clone());
                 }
             }
         }
@@ -536,4 +571,52 @@ fn optional_roles_and_boxes_validate_without_breaking_old_documents() {
     value["items"][key][0]["text_placements"][0]["cell_box"] =
         serde_json::json!([[2., 0.], [1., 1.]]);
     assert!(presentation::validate(&value).is_err());
+}
+
+// Match every ordinary generated run to its actual vertices and placement,
+// including GENERAL NOTES, material-only unlinked blocks and face finishes.
+// Control cells combine explicit geometric symbols with separately sized font
+// letters; their individual letter runs are checked above against the same plane.
+fn glyph_placements(name: &str, scene: &Presentation) {
+    let mut seen = BTreeSet::new();
+    for g in scene.items.values().flatten().chain(&scene.unlinked) {
+        if !seen.insert(&g.id) {
+            continue;
+        }
+        assert_eq!(g.polyline_roles.as_ref().unwrap().len(), g.polylines.len());
+        let plane = scene
+            .planes
+            .iter()
+            .find(|p| Some(&p.id) == g.plane_id.as_ref())
+            .unwrap();
+        for placed in &g.text_placements {
+            assert_eq!(placed.x_axis, plane.x_axis);
+            assert_eq!(placed.normal, plane.normal);
+            assert!(placed.cell_box.is_some());
+            let Some(i) = placed.text_index else {
+                continue;
+            };
+            if g.id
+                .as_deref()
+                .is_some_and(|id| id.starts_with("generated:tolerances:"))
+            {
+                continue;
+            }
+            if notation::font().text(&g.text[i], 3.).lines.is_empty() {
+                continue;
+            }
+            let (x, y, origin) = stroke_fit(g, plane, &g.text[i])
+                .unwrap_or_else(|| panic!("{name}: missing run {}", g.text[i]));
+            assert!(x > 0. && y > 0., "{name}: reversed {}", g.name);
+            assert!(
+                geom::dist(origin, placed.origin) < 3e-6,
+                "{name}: text origin disagrees with glyphs: {}",
+                g.text[i]
+            );
+            assert!(
+                (x * 3. - placed.height.unwrap()).abs() < 3e-6,
+                "{name}: text height disagrees with glyphs"
+            );
+        }
+    }
 }
