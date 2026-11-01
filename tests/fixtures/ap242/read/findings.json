@@ -92,6 +92,7 @@
   "nist_stc_06_asme1_ap242-e3": {
    "nonconformance|compound_representation_item|type N dimension modifiers in a compound item named \"…\" (§N: 'modifiers'); read as the modifiers": 1,
    "nonconformance|default_model_geometric_view|shape aspect identifies no face or edge; not read": 1,
+   "nonconformance|property_definition|duplicate source identifier \"…\"; retained as identifier metadata, with content-derived JSON ids for empty or repeated item ids": 1,
    "unconsumed|geometric_item_specific_usage|part of shape_aspect N, which is not read (its finding says why)": 1,
    "unresolved-reference|shape_aspect|items that are not faces, edges or geometry the reader holds: manifold_solid_brep; feature not read": 1
   },
@@ -112,7 +113,9 @@
    "unconsumed|measure_qualification|part of geometric_tolerance+geometric_tolerance_with_datum_reference+surface_profile_tolerance N, which is not read (its finding says why)": 1,
    "unresolved-reference|geometric_tolerance+geometric_tolerance_with_datum_reference+surface_profile_tolerance|the toleranced feature was not read; tolerance not read": 1
   },
-  "nist_stc_09_asme1_ap242-e4": {},
+  "nist_stc_09_asme1_ap242-e4": {
+   "nonconformance|property_definition|duplicate source identifier \"…\"; retained as identifier metadata, with content-derived JSON ids for empty or repeated item ids": 1
+  },
   "nist_stc_10_asme1_ap242-e2": {
    "nonconformance|default_model_geometric_view|shape aspect identifies no face or edge; not read": 1,
    "nonconformance|shape_aspect|shape aspect identifies no face or edge; not read": 6,
@@ -135,6 +138,7 @@
   "nonconformance|a group without members; not read": "A composite_group_shape_aspect with no member relationship (NIST STC-07 #14072): a group of nothing is not a feature.",
   "nonconformance|a property on a shape aspect that identifies no face or edge; read as on the part": "Notes (semantic text, CATIA 'NOTE' aspects) attached to a shape aspect that names no geometry (e.g. NIST CTC-02 #22163, the drawing's general notes). There is no feature to hold them on; they are read as on the part, reported.",
   "nonconformance|composite_group_shape_aspect names neither 'multiple elements' nor 'pattern of features' (§N); read as a group of unstated kind": "NIST FTC-09 writes composite_group_shape_aspects with empty name and description; §6.4 requires one of the two strings. Read as a group of unstated kind (GroupKind::Unstated), not guessed.",
+  "nonconformance|duplicate source identifier \"…\"; retained as identifier metadata, with content-derived JSON ids for empty or repeated item ids": "STC06 repeats general property on 440 distinct property definitions; STC09 repeats mass property on 16. The reader now reports these source identifier collisions without refusing native PMI or JSON export. All carriers and ID_ATTRIBUTE instances are named; original identifiers remain metadata and repeated wire ids fall back to content ids. Structural coverage: pmi_xcaf_read.rs.",
   "nonconformance|limits_and_fits form_variance \"…\" holds the grade and grade is '' (§N: form_variance is the deviation, grade the grade); read as G and grade N": "NIST FTC-10's LIMITS_AND_FITS('G6','hole','','') puts the grade in form_variance (§5.2.5: form_variance is the fundamental deviation, grade the grade); read as G6, reported (the drawing states ⌀3.50 G6).",
   "nonconformance|shape aspect identifies no face or edge; not read": "Shape aspects with no item usage (no GISU or IIRU) and no members: CATIA 'GDT'/'DIMENSION' placeholders linked only to presentation, and default model views' aspects. With nothing identified there is no feature; items built on them are reported separately.",
   "nonconformance|the datum feature identifies no face; its datum's usage does (§N puts it on the datum feature): read as the datum feature's faces": "CATIA files put the datum feature's face usage on the DATUM (e.g. NIST CTC-02 #661 on datum D #128) and none on the DATUM_FEATURE; §6.5.1 Figure 36 puts it on the datum feature. Read as the datum feature's faces, reported.",

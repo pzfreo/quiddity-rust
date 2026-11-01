@@ -284,6 +284,10 @@ pub struct Identifiers {
 /// single requirement entity and are not indexed here.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct PartIdentifiers {
+    /// Optional source identifier observations retained by the JSON transport, separate
+    /// from its unique wire aliases. An empty map means the producer supplied none.
+    #[cfg(feature = "json")]
+    pub json_identifiers: Option<String>,
     /// JSON transport unit ids/order; default-feature builds have no JSON metadata.
     #[cfg(feature = "json")]
     pub json_units: Option<String>,

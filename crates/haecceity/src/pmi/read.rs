@@ -82,6 +82,7 @@ fn read_impl(
         provenance.parts.push(prov);
         identifiers.parts.push(part_identifiers);
     }
+    r.check_identifiers();
     let accounting = r.account(&provenance);
     let callouts = r.read_callouts();
     let mut findings = std::mem::take(&mut r.findings);
@@ -160,6 +161,9 @@ impl MeasureError {
 }
 
 struct Reader<'a> {
+    /// A source identifier may be projected several ways, but distinct carriers sharing
+    /// it must be reported without losing their original characteristic numbers.
+    source_identifiers: BTreeMap<(PartId, String), BTreeSet<u64>>,
     #[cfg(feature = "json")]
     json_carriers: BTreeMap<(PartId, String, usize), u64>,
     callout_targets: HashMap<u64, Vec<CalloutTarget>>,
@@ -383,6 +387,7 @@ impl<'a> Reader<'a> {
         Reader {
             #[cfg(feature = "json")]
             json_carriers: BTreeMap::new(),
+            source_identifiers: BTreeMap::new(),
             callout_targets: HashMap::new(),
             graphic_items: BTreeSet::new(),
             doc,
@@ -630,6 +635,12 @@ impl<'a> Reader<'a> {
                         "id_attribute has no string attribute_value; identifier not read",
                     );
                 }
+                if let Some(value) = &value {
+                    self.source_identifiers
+                        .entry((part, value.clone()))
+                        .or_default()
+                        .insert(id);
+                }
                 value
             }
             _ => {
@@ -641,6 +652,30 @@ impl<'a> Reader<'a> {
                     "more than one id_attribute on the same entity; identifier not read",
                 );
                 None
+            }
+        }
+    }
+
+    fn check_identifiers(&mut self) {
+        for ((part, value), owners) in std::mem::take(&mut self.source_identifiers) {
+            if !value.is_empty() && owners.len() < 2 {
+                continue;
+            }
+            let mut evidence: Vec<_> = owners.iter().copied().collect();
+            for &owner in &owners {
+                evidence.extend(self.id_attributes(owner));
+            }
+            if let Some(&owner) = owners.first() {
+                self.find(
+                    FindingKind::Nonconformance,
+                    Some(part),
+                    owner,
+                    &evidence,
+                    format!(
+                        "{} source identifier {value:?}; retained as identifier metadata, with content-derived JSON ids for empty or repeated item ids",
+                        if value.is_empty() { "empty" } else { "duplicate" }
+                    ),
+                );
             }
         }
     }
@@ -2235,6 +2270,7 @@ impl<'a> Reader<'a> {
         }
         let mut ids = Vec::new();
         let tree = self.geometry_item(item, 0, &mut ids)?;
+        ids.extend(self.id_attributes(item));
         let length_unit = rep.and_then(|r| self.context_length_unit(r));
         let g = GeometryId(st.pmi.geometry.len());
         st.pmi.geometry.push(Geometry {
@@ -2244,9 +2280,13 @@ impl<'a> Reader<'a> {
         st.prov.geometry.push(self::ids(ids));
         st.prov.geometry_items.push(item);
         st.geometry.insert(item, g);
+        let _identifier = self.identifier(st.id, item);
         #[cfg(feature = "json")]
-        self.json_carriers
-            .insert((st.id, "geometry".into(), g.0), item);
+        {
+            self.json_carriers
+                .insert((st.id, "geometry".into(), g.0), item);
+            st.identifiers.geometry.push(_identifier);
+        }
         Ok(g)
     }
 
@@ -3863,7 +3903,7 @@ impl<'a> Reader<'a> {
         }
 
         // Zone (§6.9.2).
-        let zone = self.zone(st, id, &mut prov)?;
+        let zone = self.zone(st, id, kind, &mut prov)?;
 
         let mut auxiliary = Vec::new();
         for a in self.referrers_by(
@@ -4201,7 +4241,13 @@ impl<'a> Reader<'a> {
         Some(out)
     }
 
-    fn zone(&mut self, st: &mut PartState, tol: u64, prov: &mut Vec<u64>) -> Option<Option<Zone>> {
+    fn zone(
+        &mut self,
+        st: &mut PartState,
+        tol: u64,
+        kind: ToleranceKind,
+        prov: &mut Vec<u64>,
+    ) -> Option<Option<Zone>> {
         let part = Some(st.id);
         let zones = self.referrers_by(
             tol,
@@ -4314,13 +4360,45 @@ impl<'a> Reader<'a> {
                     self.get_ref(o, "runout_zone_orientation", "angle")
                 });
                 let Some(a) = angle else {
+                    // OCCT sometimes emits a runout definition for a position zone, with
+                    // its orientation missing. The explicit zone form remains authoritative;
+                    // never invent an angle or attach an orphan orientation from elsewhere.
+                    let reason = if matches!(
+                        kind,
+                        ToleranceKind::CircularRunout | ToleranceKind::TotalRunout
+                    ) {
+                        Some("the runout tolerance's missing orientation cannot be recovered")
+                    } else if !boundaries.is_empty() {
+                        Some("the stated runout boundaries need the missing orientation")
+                    } else if !(out.form.is_diametral()
+                        || out.form.is_spherical()
+                        || matches!(out.form,
+                            ZoneForm::BetweenTwoConcentricCircles
+                            | ZoneForm::BetweenTwoEquidistantCurves
+                            | ZoneForm::BetweenTwoCoaxialCylinders
+                            | ZoneForm::BetweenTwoEquidistantSurfaces
+                            | ZoneForm::BetweenTwoEquidistantComplexLinesOrTwoParallelStraightLines
+                            | ZoneForm::BetweenTwoEquidistantComplexSurfacesOrTwoParallelPlanes))
+                    {
+                        Some(
+                            "the stated zone form does not establish an orientation-independent zone",
+                        )
+                    } else {
+                        None
+                    };
+                    let recovered = reason.is_none();
                     self.find(
                         FindingKind::Nonconformance,
                         part,
                         def,
                         &[tol],
-                        "runout_zone_definition without an orientation angle (Figure 51); tolerance not read",
+                        reason.map_or_else(
+                            || "runout_zone_definition without an orientation angle on a non-runout tolerance; read the explicitly stated zone form without a runout angle".to_string(),
+                            |reason| format!("runout_zone_definition without an orientation angle (Figure 51); {reason}; tolerance not read")),
                     );
+                    if recovered {
+                        continue;
+                    }
                     return None;
                 };
                 let mut c = Vec::new();
