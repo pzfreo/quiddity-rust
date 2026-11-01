@@ -1780,7 +1780,27 @@ fn removal_takes_a_feature_definitions_shape_only_with_its_feature() {
                 "thread callout requires RemovePresentation"
             );
         } else {
-            let plan = result.unwrap_or_else(|e| panic!("{policy:?}: {e}"));
+            let plan = if cfg!(feature = "presentation") {
+                // Generic removal preserves independently named models. With the
+                // last thread annotation gone, the caller explicitly removes its
+                // now-empty generated model too (the existing container contract).
+                let refusal = result.unwrap_err();
+                assert!(
+                    refusal
+                        .emptied
+                        .iter()
+                        .any(|e| e.attribute == "representation.items")
+                );
+                let mut seeds = thread.clone();
+                seeds.extend(
+                    w.added()
+                        .into_iter()
+                        .filter(|&id| w.names(id) == ["draughting_model"]),
+                );
+                removal::plan(&g.doc, &seeds, policy).unwrap()
+            } else {
+                result.unwrap_or_else(|e| panic!("{policy:?}: {e}"))
+            };
             assert!(plan.removed.contains(&shape), "{policy:?}");
         }
 
@@ -3997,7 +4017,14 @@ fn opencascade_puts_a_parts_pmi_on_its_prototype() {
     ))
     .unwrap();
     let f = open(&write_dir().join(format!("{name}.step.gz")));
-    assert_eq!(capture["loads"], true);
+    let pins = load_pins();
+    let unavailable = &pins["loader_unavailable"][name];
+    assert!(
+        capture["loads"] == true
+            || (unavailable["status"] == capture["loads"]
+                && unavailable["verdict"] == "not-applicable"
+                && unavailable["reason"].is_string())
+    );
     assert_eq!(capture["reads"], true);
     let parts = capture["parts"].as_array().unwrap();
     let names: Vec<&str> = parts.iter().map(|p| p["name"].as_str().unwrap()).collect();

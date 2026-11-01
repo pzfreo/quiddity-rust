@@ -86,6 +86,35 @@ impl Layout {
             self.occupied_normals.push(None);
         }
     }
+    /// Reserve completed annotation ink in both model space and projected views.
+    /// Used when rebuilding only the feature stacks affected by new thread ink.
+    pub(crate) fn reserve_ink(&mut self, lines: &[Vec<V3>], normal: V3, along: V3) {
+        let Some(&first) = lines.iter().flatten().next() else {
+            return;
+        };
+        self.reserve(lines);
+        let up = geom::cross(normal, along);
+        let mut b = Bounds::empty();
+        for &p in lines.iter().flatten() {
+            b.add([geom::dot(p, along), geom::dot(p, up), 0.]);
+        }
+        let depth = geom::dot(first, normal);
+        self.callouts.push(
+            [
+                (b.min[0], b.min[1]),
+                (b.max[0], b.min[1]),
+                (b.max[0], b.max[1]),
+                (b.min[0], b.max[1]),
+            ]
+            .map(|(x, y)| {
+                geom::add(
+                    geom::scale(normal, depth),
+                    geom::add(geom::scale(along, x), geom::scale(up, y)),
+                )
+            })
+            .to_vec(),
+        );
+    }
     /// Keep appended notes clear of existing notes in the front plane.
     pub(crate) fn reserve_notes(&mut self, lines: &[Vec<V3>]) {
         let mut bounds = Bounds::empty();
