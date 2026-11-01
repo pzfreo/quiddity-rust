@@ -1793,3 +1793,50 @@ only change their reader binding. The existing reader-version pin and the STC10 
 of the historical derived-geometry audit are refreshed for this documented semantic
 change; source hashes, requirement/refusal counts and other audit rows stay fixed.
 Structural tests establish correctness independently.
+
+## Bounded writer strings (2026-11-01)
+
+The PMI writer bounds **generated** Part 21 literals to 8192 encoded bytes,
+including quotes and escapes (`pmi::write::MAX_STRING_LITERAL_BYTES`). Long
+descriptive values use ordered compound/list items of marked text chunks; see
+[the producer convention](../crates/haecceity/docs/pmi-json.md#v1-identity-and-presentation-policy).
+This covers ordering/item-id JSON, UDA/provenance values, notes, material descriptions,
+parameters and tolerance-table text. Legacy single strings still read. Chunks
+belong to their owning item's provenance and are removed on replacement.
+Generated indivisible names, identifiers, unit names, property descriptions and
+supplemental-geometry string slots exceeding the bound remain explicit errors.
+Generated graphical labels that duplicate long note wording use `General notes`;
+full text remains in semantic chunks and drawn curves.
+
+**Retained source text is never refused just for length.** Unchanged input records,
+headers and preserved foreign presentation remain lossless. Both PMI and B-rep
+`WriteReport.long_strings` list non-fatal `LongStringWarning` entries: `record`
+(`#N` or a header name), `encoded_bytes`, and `byte_offset` in the final output.
+Their display/message explains that some readers, including OpenCascade's scanner,
+may not read the oversized literal. This is an interoperability warning, not an
+ISO string-length violation. CLI write reports expose optional `long_strings`;
+Python also exposes these entries in its warning-bearing findings list. Empty
+warning collections do not change existing report JSON.
+
+Haecceity's own legacy descriptive metadata is repaired, including in Add mode:
+the ordering property identifies a JSON-written part's consumed descriptive PMI
+(excluding supplemental source geometry), and `haecceity.pmi/1 attribute`
+representations identify producer-owned text directly. Oversized retained legacy
+descriptive items become ordered chunk containers **at their original ids**,
+keeping every incoming reference and logical value. Their ids appear in `rewritten`.
+Foreign unconsumed records and presentation are not classified as producer metadata.
+Replace writes new bounded metadata through the normal emitter.
+
+The B-rep writer preserves source product ids/names, including copies into rebuilt
+product/header records, and reports oversized copies. `WriteOptions.name` creates
+new product/header fields only where the part lacks source labels; those generated
+fallback names (and generated component names) remain bounded and error explicitly
+when indivisible. An unused oversized fallback option does not reject a labelled part.
+Caller-supplied PMI passed for authoring follows the generated-field rule.
+The low-level lossless `p21::Document::apply` API remains unrestricted.
+
+The cap is half the default 16 KiB buffer in
+[OCCT 7.9.3's generated scanner](https://github.com/Open-Cascade-SAS/OCCT/blob/V7_9_3/src/StepFile/lex.step.cxx#L153-L163).
+The retained-source and source-product tests now assert successful preservation
+and reporting instead of the previous blanket refusal; generated-name refusal
+checks remain. No snapshot expectation or known-difference record is weakened.

@@ -239,7 +239,7 @@ fn datum_feature_constituent_is_the_same_feature_when_named_by_a_tolerance() {
             "#1100=DATUM_FEATURE('compound','',#4,.T.);
 #1101=SHAPE_ASPECT('child face','',#4,.T.);
 #1102=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1101,#10,#17);
-#1103=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1100,#10,#105);
+#1103=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1100,#10,#17);
 #1104=SHAPE_ASPECT_RELATIONSHIP('',{description},#1100,#1101);
 #1105=DATUM('','',#4,.F.,'Z');
 #1106=SHAPE_ASPECT_RELATIONSHIP('','',#1100,#1105);
@@ -274,7 +274,7 @@ fn datum_feature_constituent_is_the_same_feature_when_named_by_a_tolerance() {
             })
             .collect();
         faces.sort();
-        assert_eq!(faces, [17, 105]);
+        assert_eq!(faces, [17]);
         let prov = &r.provenance.parts[0].features[feature.0];
         for id in [1100, 1101, 1102, 1103, 1104] {
             assert!(prov.contains(&id));
@@ -302,6 +302,157 @@ fn datum_feature_constituent_is_the_same_feature_when_named_by_a_tolerance() {
         assert_ne!(feature, FeatureId(all));
     }
 }
+// Synthetic PMI on the existing three-face bolt fixture: the supplied LM10UU is
+// FreeCAD geometry only, so it cannot be trimmed to preserve Specify's missing PMI.
+// This reproduces its relevant topology: datum A -> three plain land aspects,
+// each with its own independent diameter size (all nominally 19 mm). The test
+// calls the new datum Z because the base bolt already has datums A and B.
+#[test]
+fn multi_constituent_datum_keeps_three_size_features() {
+    let mut extra = String::from(
+        "#1100=DATUM_FEATURE('lands','',#4,.T.);
+#1101=DATUM('','',#4,.F.,'Z');
+#1102=SHAPE_ASPECT_RELATIONSHIP('','',#1100,#1101);\n",
+    );
+    for (child, face) in [(1110, 17), (1120, 105), (1130, 197)] {
+        extra += &format!(
+            "#{child}=SHAPE_ASPECT('land','',#4,.T.);
+#{}=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#{child},#10,#{face});
+#{}=SHAPE_ASPECT_RELATIONSHIP('','datum feature',#1100,#{child});
+#{}=DIMENSIONAL_SIZE(#{child},'diameter');
+#{}=DIMENSIONAL_CHARACTERISTIC_REPRESENTATION(#{},#{});
+#{}=SHAPE_DIMENSION_REPRESENTATION('',(#{}),#399);\n",
+            child + 1,
+            child + 2,
+            child + 3,
+            child + 4,
+            child + 3,
+            child + 5,
+            child + 5,
+            child + 6,
+        );
+        extra += &measure(child + 6, "nominal value", "19.");
+    }
+    let (r, _, parts) = fixture(&extra);
+    let p = &r.parts[0];
+    let union = p
+        .datums
+        .iter()
+        .find(|d| d.label().as_str() == "Z")
+        .unwrap()
+        .feature()
+        .unwrap();
+    let mut children = Vec::new();
+    let mut faces = Vec::new();
+    for (child, face) in [(1110, 17), (1120, 105), (1130, 197)] {
+        let dim = r.provenance.parts[0]
+            .dimensions
+            .iter()
+            .position(|ids| ids.contains(&(child + 3)))
+            .unwrap();
+        let DimensionKind::Size { feature, .. } = p.dimensions[dim].kind else {
+            panic!("size");
+        };
+        assert_ne!(feature, union, "child #{child} is only one land");
+        assert!(!children.contains(&feature));
+        children.push(feature);
+        let anchor = Anchor::Face(pmi::FaceIndex(parts[0].face_index(face).unwrap()));
+        assert_eq!(p.features[feature.0], Feature::Items(vec![anchor]));
+        assert!(r.provenance.parts[0].features[feature.0].contains(&child));
+        faces.push(anchor);
+        assert_eq!(
+            p.dimensions[dim]
+                .nominal
+                .as_ref()
+                .unwrap()
+                .decimal()
+                .as_str(),
+            "19."
+        );
+    }
+    faces.sort();
+    assert_eq!(p.features[union.0], Feature::Items(faces));
+    assert!(r.provenance.parts[0].features[union.0].contains(&1100));
+}
+
+#[test]
+fn child_does_not_alias_a_datum_with_additional_direct_faces() {
+    let (r, _, _) = fixture(
+        "#1100=DATUM_FEATURE('union','',#4,.T.);
+#1101=SHAPE_ASPECT('child','',#4,.T.);
+#1102=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1101,#10,#17);
+#1103=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1100,#10,#105);
+#1104=SHAPE_ASPECT_RELATIONSHIP('','',#1100,#1101);
+#1105=DATUM('','',#4,.F.,'Z');
+#1106=SHAPE_ASPECT_RELATIONSHIP('','',#1100,#1105);
+#1107=FLATNESS_TOLERANCE('on child','',#1108,#1101);
+#1108=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.1),#400);",
+    );
+    let p = &r.parts[0];
+    let datum = p.datums.iter().find(|d| d.label().as_str() == "Z").unwrap();
+    let i = r.provenance.parts[0]
+        .tolerances
+        .iter()
+        .position(|ids| ids.contains(&1107))
+        .unwrap();
+    let ToleranceTarget::Feature(child) = p.tolerances[i].target else {
+        panic!("feature");
+    };
+    assert_ne!(Some(child), datum.feature());
+    assert!(matches!(&p.features[child.0], Feature::Items(items) if items.len() == 1));
+    assert!(
+        matches!(&p.features[datum.feature().unwrap().0], Feature::Items(items) if items.len() == 2)
+    );
+}
+
+#[test]
+fn presented_datum_constituents_keep_their_own_features() {
+    // Without an establishing datum, the aspect scan requests #1101 before #1200.
+    // Resolving its parent must neither lose the child nor register it twice.
+    for established in [true, false] {
+        let mut extra = String::from(
+            "#1200=DATUM_FEATURE('union','',#4,.T.);
+#1101=SHAPE_ASPECT('first face','',#4,.T.);
+#1102=SHAPE_ASPECT('second face','',#4,.T.);
+#1103=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1101,#10,#17);
+#1104=GEOMETRIC_ITEM_SPECIFIC_USAGE('','',#1102,#10,#105);
+#1105=SHAPE_ASPECT_RELATIONSHIP('','',#1200,#1101);
+#1106=SHAPE_ASPECT_RELATIONSHIP('','',#1200,#1102);
+#1110=DRAUGHTING_MODEL_ITEM_ASSOCIATION('','',#1101,#539,#521);
+#1111=DRAUGHTING_MODEL_ITEM_ASSOCIATION('','',#1102,#539,#532);",
+        );
+        if established {
+            extra += "#1107=DATUM('','',#4,.F.,'Z');
+#1108=SHAPE_ASPECT_RELATIONSHIP('','',#1200,#1107);";
+        }
+        let (r, _, _) = fixture(&extra);
+        for child in [1101, 1102] {
+            let own: Vec<_> = r.provenance.parts[0]
+                .features
+                .iter()
+                .enumerate()
+                .filter(|(_, ids)| ids.contains(&child) && !ids.contains(&1200))
+                .collect();
+            assert_eq!(own.len(), 1, "child #{child}, established={established}");
+            let i = own[0].0;
+            assert!(matches!(&r.parts[0].features[i], Feature::Items(items) if items.len() == 1));
+            let link = r
+                .callouts
+                .iter()
+                .flat_map(|c| &c.links)
+                .find(|l| l.definition == child)
+                .unwrap();
+            assert_eq!(
+                link.targets,
+                vec![pmi::CalloutTarget {
+                    part: PartId(0),
+                    item: pmi::PresentedItem::Feature(FeatureId(i)),
+                }]
+            );
+        }
+    }
+}
+
 #[test]
 fn shared_face_carriers_keep_group_members_distinct_from_a_datum_union() {
     // GISU UR1 makes the writer share face carriers between an indivisible datum
@@ -348,6 +499,7 @@ fn shared_face_carriers_keep_group_members_distinct_from_a_datum_union() {
 fn stc10_named_datum_constituents_do_not_become_seven_duplicate_features() {
     let path = common::fixtures().join("ap242/nist/nist_stc_10_asme1_ap242-e2.stp.gz");
     let (r, _, parts) = read(load(&path));
+    assert_eq!(r.parts[0].features.len(), 166);
     // Each SAR goes from a datum feature to one plain face aspect. Sizes and tolerances
     // refer to those aspects; they must retain the existing datum feature identity.
     for (parent, child, label, face) in [
@@ -391,7 +543,12 @@ fn se_and_control_samples() {
         ("09-NIST-reexported-by-SE.stp", (7, 3, 2)),
         ("01-NIST-control-ctc01.stp", (12, 6, 3)),
     ] {
-        let (r, _, parts) = read(load(&root.join(name)));
+        let path = if name.starts_with("09-") {
+            root.join(name)
+        } else {
+            common::fixtures().join("ap242/nist/nist_ctc_01_asme1_ap242-e1.stp.gz")
+        };
+        let (r, _, parts) = read(load(&path));
         let p = &r.parts[0];
         assert_eq!(
             (p.dimensions.len(), p.tolerances.len(), p.datums.len()),
@@ -428,6 +585,13 @@ fn se_and_control_samples() {
                 .unwrap();
             assert_eq!(feature, FeatureId(1));
             assert!(r.provenance.parts[0].features[feature.0].contains(&222));
+            let callout = r.callouts.iter().find(|c| c.id == 258).unwrap();
+            assert!(
+                callout.links.iter().flat_map(|l| &l.targets).any(|t| {
+                    t.part == PartId(0) && t.item == pmi::PresentedItem::Feature(feature)
+                }),
+                "{callout:?}"
+            );
             let Feature::Items(items) = &p.features[feature.0] else {
                 panic!("faces");
             };

@@ -71,6 +71,7 @@ fn read_impl(
     for (i, part) in parts.iter().enumerate() {
         let mut st = PartState::new(PartId(i), part);
         r.read_part(&mut st);
+        super::text::extend_provenance(doc, &mut st.prov);
         r.callout_aliases(&st);
         let PartState {
             pmi,
@@ -484,6 +485,17 @@ impl<'a> Reader<'a> {
             Attribute::String(s) => Some(s.clone()),
             _ => None,
         }
+    }
+
+    // A chunked descriptive value remains a compound in EXPRESS; only text consumers
+    // interpret our marked, ordered list. Do not change schema subtype tests.
+    fn is_text(&self, id: u64) -> bool {
+        self.is(id, "descriptive_representation_item")
+            || super::text::chunks(self.doc, id).is_some()
+    }
+
+    fn text_of(&self, id: u64) -> Option<String> {
+        super::text::read(self.doc, id)
     }
 
     fn name_of(&mut self, id: u64) -> String {
@@ -1503,7 +1515,7 @@ impl<'a> Reader<'a> {
     /// The datum feature is SAR.relating_shape_aspect, its constituent is related.
     /// SAR names/descriptions are not discriminators ("datum feature" is one exporter label).
     /// A group datum applies to each member separately and is not a union alias.
-    /// Shared carriers are checked against the datum's content before aliasing.
+    /// Every constituent is checked against the datum's whole content before aliasing.
     fn datum_feature_parent(&mut self, id: u64) -> Option<u64> {
         if self.names(id) != ["shape_aspect"] {
             return None;
@@ -1533,32 +1545,12 @@ impl<'a> Reader<'a> {
         }
     }
 
-    /// Shared GISU carriers can also be members of per-element groups. Preserve their
-    /// own content unless it is identical to the datum's whole indivisible feature.
-    fn datum_constituent_alias(
-        &mut self,
-        st: &mut PartState,
-        id: u64,
-        parent: u64,
-        feature: FeatureId,
-    ) -> bool {
-        if !matches!(st.pmi.features[feature.0], Feature::Items(_)) {
-            return false;
-        }
-        let shared = self
-            .referrers_by(
-                id,
-                "shape_aspect_relationship",
-                "shape_aspect_relationship",
-                "related_shape_aspect",
-            )
-            .into_iter()
-            .any(|r| {
-                self.get_ref(r, "shape_aspect_relationship", "relating_shape_aspect")
-                    .is_some_and(|p| p != parent && self.members(p).contains(&(r, id)))
-            });
-        !shared
-            || self
+    /// A constituent names the whole datum feature only when their face sets agree.
+    /// A land of a multi-constituent datum keeps its own feature, even when it has no
+    /// other composition parent. Content is memoised, so faces are still collected once.
+    fn datum_constituent_alias(&mut self, st: &mut PartState, id: u64, feature: FeatureId) -> bool {
+        matches!(st.pmi.features[feature.0], Feature::Items(_))
+            && self
                 .content(st, id)
                 .is_some_and(|(content, _)| content == st.pmi.features[feature.0])
     }
@@ -1595,18 +1587,30 @@ impl<'a> Reader<'a> {
         if let Some(r) = st.features.get(&id) {
             return *r;
         }
-        // Resolve a named constituent through its datum feature even when the child is
-        // requested first (e.g. by another datum, a tolerance, or a property).
+        // Resolve the datum first, even when another datum or requirement names a child
+        // before its parent. Registering the parent can already register this child.
+        let mut constituent_content = None;
         if let Some(parent) = self.datum_feature_parent(id)
             && let Some(feature) = self.feature(st, parent)
-            && self.datum_constituent_alias(st, id, parent, feature)
         {
-            st.features.insert(id, Some(feature));
-            st.absorbed.insert(id);
-            return Some(feature);
+            if let Some(r) = st.features.get(&id) {
+                return *r;
+            }
+            if self.datum_constituent_alias(st, id, feature) {
+                st.features.insert(id, Some(feature));
+                st.absorbed.insert(id);
+                return Some(feature);
+            }
+            constituent_content = self.content(st, id);
         }
         st.features.insert(id, None);
-        let r = match self.build_feature(st, id) {
+        // Composition has already read a plain constituent's content. Reuse it when
+        // registering its own identity rather than collecting its faces a second time.
+        let built = match constituent_content {
+            Some((f, prov)) => Built::Feature(f, prov),
+            None => self.build_feature(st, id),
+        };
+        let r = match built {
             Built::Feature(f, prov) => {
                 let fid = FeatureId(st.pmi.features.len());
                 st.pmi.features.push(f);
@@ -1654,15 +1658,22 @@ impl<'a> Reader<'a> {
             && self.is(id, "datum_feature")
             && matches!(st.pmi.features[feature.0], Feature::Items(_))
         {
-            // Composition already gathered these faces. Keep each constituent's identity
-            // as an alias as well, including presentation-only aspects otherwise absorbed.
+            // Preserve identities even for constituents named only by presentation.
+            // Whole-set constituents alias the datum; proper subsets register separately.
             let constituents = st.prov.features[feature.0].clone();
             for aspect in constituents {
-                if self.datum_feature_parent(aspect) == Some(id)
-                    && self.datum_constituent_alias(st, aspect, id, feature)
-                {
-                    st.features.insert(aspect, Some(feature));
-                    st.absorbed.insert(aspect);
+                if self.datum_feature_parent(aspect) == Some(id) {
+                    if self.datum_constituent_alias(st, aspect, feature) {
+                        st.features.insert(aspect, Some(feature));
+                        st.absorbed.insert(aspect);
+                    } else if !self
+                        .presentation_associations(aspect, "definition")
+                        .is_empty()
+                    {
+                        // Unnamed support aspects remain absorbed. A presentation naming
+                        // a proper subset needs its own feature, just like a requirement.
+                        self.feature(st, aspect);
+                    }
                 }
             }
         }
@@ -3209,11 +3220,8 @@ impl<'a> Reader<'a> {
                         }
                     }
                 }
-            } else if self.is(item, "descriptive_representation_item") && name == "dimensional note"
-            {
-                let d = self
-                    .get_str(item, "descriptive_representation_item", "description")
-                    .unwrap_or_default();
+            } else if self.is_text(item) && name == "dimensional note" {
+                let d = self.text_of(item).unwrap_or_default();
                 match d.as_str() {
                     "theoretical" => basic = true,
                     "auxiliary" => modifiers.push(DimensionModifier::Reference),
@@ -3270,9 +3278,7 @@ impl<'a> Reader<'a> {
                 }
                 for m in list {
                     prov.push(m);
-                    let d = self
-                        .get_str(m, "descriptive_representation_item", "description")
-                        .unwrap_or_default();
+                    let d = self.text_of(m).unwrap_or_default();
                     match DimensionModifier::from_description(&d) {
                         Some(x) => modifiers.push(x),
                         None => {
@@ -3490,9 +3496,9 @@ impl<'a> Reader<'a> {
         }
         !list.is_empty()
             && list.iter().all(|&m| {
-                self.is(m, "descriptive_representation_item")
+                self.is_text(m)
                     && self
-                        .get_str(m, "descriptive_representation_item", "description")
+                        .text_of(m)
                         .is_some_and(|d| DimensionModifier::from_description(&d).is_some())
             })
     }
@@ -4627,15 +4633,8 @@ impl<'a> Reader<'a> {
                         prov.extend([pdef, pdr, rep]);
                         for item in self.get_refs(rep, "representation", "items") {
                             let name = self.name_of(item);
-                            let v = if self.is(item, "descriptive_representation_item") {
-                                ParamValue::Text(
-                                    self.get_str(
-                                        item,
-                                        "descriptive_representation_item",
-                                        "description",
-                                    )
-                                    .unwrap_or_default(),
-                                )
+                            let v = if self.is_text(item) {
+                                ParamValue::Text(self.text_of(item).unwrap_or_default())
                             } else if !self.is(item, "measure_with_unit") {
                                 self.find(
                                     FindingKind::Nonconformance,
@@ -5085,11 +5084,8 @@ impl<'a> Reader<'a> {
             prov.extend([pdr, rep]);
             for item in self.get_refs(rep, "representation", "items") {
                 let key = self.name_of(item);
-                let v = if self.is(item, "descriptive_representation_item") {
-                    AttributeValue::Text(
-                        self.get_str(item, "descriptive_representation_item", "description")
-                            .unwrap_or_default(),
-                    )
+                let v = if self.is_text(item) {
+                    AttributeValue::Text(self.text_of(item).unwrap_or_default())
                 } else if self.is(item, "integer_representation_item")
                     || self.is(item, "real_representation_item")
                 {
@@ -5317,10 +5313,10 @@ impl<'a> Reader<'a> {
         let mut class_count = 0;
         for (_, rep) in &reps {
             for item in self.get_refs(*rep, "representation", "items") {
-                if self.is(item, "descriptive_representation_item")
+                if self.is_text(item)
                     && self.name_of(item) == "tolerance class"
                     && self
-                        .get_str(item, "descriptive_representation_item", "description")
+                        .text_of(item)
                         .is_some_and(|text| !text.trim().is_empty())
                 {
                     class_count += 1;
@@ -5334,10 +5330,8 @@ impl<'a> Reader<'a> {
             let mut read_any = false;
             for item in self.get_refs(rep, "representation", "items") {
                 let n = self.name_of(item);
-                if self.is(item, "descriptive_representation_item") && n == "tolerance class" {
-                    let text = self
-                        .get_str(item, "descriptive_representation_item", "description")
-                        .unwrap_or_default();
+                if self.is_text(item) && n == "tolerance class" {
+                    let text = self.text_of(item).unwrap_or_default();
                     if text.trim().is_empty() {
                         continue; // §4.1 Figure 3 writes '' when only the table applies
                     }
@@ -5412,11 +5406,8 @@ impl<'a> Reader<'a> {
                     for ci in self.get_refs(cell, "compound_representation_item", "item_element") {
                         p.push(ci);
                         let n = self.name_of(ci);
-                        let v = if self.is(ci, "descriptive_representation_item") {
-                            CellValue::Text(
-                                self.get_str(ci, "descriptive_representation_item", "description")
-                                    .unwrap_or_default(),
-                            )
+                        let v = if self.is_text(ci) {
+                            CellValue::Text(self.text_of(ci).unwrap_or_default())
                         } else {
                             match self.measure(ci) {
                                 Ok(Measured::Count(d)) => {
@@ -5507,7 +5498,7 @@ impl<'a> Reader<'a> {
                 let mut found = None;
                 for (pdr, rep) in reps {
                     for item in self.get_refs(rep, "representation", "items") {
-                        if self.is(item, "descriptive_representation_item") {
+                        if self.is_text(item) {
                             if found.is_some() {
                                 self.find(
                                     FindingKind::Conflict,
@@ -5521,9 +5512,7 @@ impl<'a> Reader<'a> {
                             let id = self
                                 .get_str(item, "representation_item", "name")
                                 .unwrap_or_default();
-                            let name = self
-                                .get_str(item, "descriptive_representation_item", "description")
-                                .filter(|s| !s.is_empty());
+                            let name = self.text_of(item).filter(|s| !s.is_empty());
                             found = Some((id, name));
                             prov.extend([pdr, rep, item]);
                         }
@@ -5757,11 +5746,8 @@ impl<'a> Reader<'a> {
         for (pdr, rep) in self.property_representations(pdef) {
             prov.extend([pdr, rep]);
             for item in self.get_refs(rep, "representation", "items") {
-                if self.is(item, "descriptive_representation_item") {
-                    texts.push(
-                        self.get_str(item, "descriptive_representation_item", "description")
-                            .unwrap_or_default(),
-                    );
+                if self.is_text(item) {
+                    texts.push(self.text_of(item).unwrap_or_default());
                     prov.push(item);
                 } else {
                     self.find(
@@ -5866,9 +5852,7 @@ impl<'a> Reader<'a> {
             prov.extend([pdr, rep]);
             for item in self.get_refs(rep, "representation", "items") {
                 let name = self.name_of(item);
-                if !self.is(item, "descriptive_representation_item")
-                    || name != "material removal condition"
-                {
+                if !self.is_text(item) || name != "material removal condition" {
                     self.find(
                         FindingKind::Unsupported,
                         part,
@@ -5878,9 +5862,7 @@ impl<'a> Reader<'a> {
                     );
                     return;
                 }
-                let term = self
-                    .get_str(item, "descriptive_representation_item", "description")
-                    .unwrap_or_default();
+                let term = self.text_of(item).unwrap_or_default();
                 match (MaterialRemoval::from_term(&term), removal) {
                     (Some(m), None) => removal = Some(m),
                     (Some(_), Some(_)) => {
@@ -5985,12 +5967,9 @@ impl<'a> Reader<'a> {
                 prov.extend([pdr, rep]);
                 for item in self.get_refs(rep, "representation", "items") {
                     let name = self.name_of(item);
-                    if self.is(item, "descriptive_representation_item")
-                        && name == "measuring method"
-                        && characteristic.is_none()
+                    if self.is_text(item) && name == "measuring method" && characteristic.is_none()
                     {
-                        characteristic =
-                            self.get_str(item, "descriptive_representation_item", "description");
+                        characteristic = self.text_of(item);
                     } else if self.is(item, "measure_representation_item")
                         && !self.is(item, "qualified_representation_item")
                         && name == "characteristic value"

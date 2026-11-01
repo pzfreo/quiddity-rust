@@ -6,7 +6,37 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ## Unreleased
 
+### Added
+
 - Generate internal/external thread callouts with stated pitch, class and depth (or THRU), in feature-local stacks. Presentation JSON adds optional polyline roles and text cell boxes for host-font rendering; older documents remain readable. Five feature-on STEP goldens gain thread graphics: `thread_replaced`, `assembly_plate_pin_intent`, `editor_assembly_pin_alone`, `string_post_tapped_intent`, and `thumbwheel_thread_knurl_intent`; their XCAF captures are refreshed. Thread-free writes and feature-off goldens are unchanged.
+
+### Fixed
+
+- A plain face aspect composing a datum feature aliases the datum only when its face
+  set equals the whole datum feature's. Constituents of a multi-land datum retain
+  separate features and size dimensions; the datum still collects all faces once.
+  Single-constituent datum features, all-around groups and per-member datum groups
+  retain their existing semantics. **Consumers:** legacy PMI reader binding advances
+  to `haecceity-pmi-read/14`; re-read bound PMI documents. Specify can remove its
+  workaround for the three independent Ø19 sizes on LM10UU's datum A lands.
+- STEP PMI writes bound generated encoded string literals to 8192 bytes, preventing
+  OpenCascade's scanner overflow on NIST STC-10. Long descriptive values,
+  including JSON item-id maps, UDA payloads and notes, use ordered compound/list
+  representation items of text chunks; legacy single-string values still read.
+  **Consumer note:** readers of haecceity's ordering property or descriptive text
+  must concatenate marked chunks in list order. Semantic JSON is unchanged.
+  Generated indivisible oversized names/identifiers remain explicit errors.
+  Retained source/header/presentation text is preserved with non-fatal
+  `long_strings` warnings naming the record and encoded length; both PMI and
+  B-rep write reports expose the warnings (CLI and Python reports include them).
+  Source product labels are preserved by B-rep writes; newly generated fallback
+  product/header names remain bounded. Add also rechunks producer-owned legacy
+  descriptive metadata at its original ids, preserving links and decoded values.
+  **API note:** both Rust write reports gain `long_strings`; optional report JSON
+  adds that field only when warnings exist. Existing semantic JSON is unchanged.
+- Keep generated size callouts above their feature control frames in one annotation
+  plane, and reserve plain label ink in saved-view packing to prevent overlapping
+  callouts without loosening feature-distance or spindle ladder drift limits.
 
 ## 0.4.2 (2026-11-01)
 
@@ -17,10 +47,6 @@ Upgrading from 0.4.1: recognition schema `/6` and fingerprints `/3` are unchange
 - **PMI reader string:** changes from `haecceity-pmi-read/11` to `haecceity-pmi-read/13` (the `/12` step in #168 was never released).
 
 ### Fixed
-
-- Keep generated size callouts above their feature control frames in one annotation
-  plane, and reserve plain label ink in saved-view packing to prevent overlapping
-  callouts without loosening feature-distance or spindle ladder drift limits.
 
 - PMI JSON reads no longer abort on duplicate or empty source identifiers. Unique wire
   ids fall back to content identities, and non-fatal findings retain the affected STEP

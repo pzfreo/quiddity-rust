@@ -95,6 +95,11 @@ pub(crate) use authoring::model_refusals;
 
 type A = Attribute;
 
+/// Maximum generated Part 21 string literal size, including the quotes. Long
+/// descriptive values use ordered text chunks; generated indivisible strings are
+/// refused. Carried source strings exceeding it produce [`LongStringWarning`]s.
+pub const MAX_STRING_LITERAL_BYTES: usize = super::text::MAX_LITERAL_BYTES;
+
 /// What [`write`] does with each named part's existing PMI.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Mode {
@@ -290,11 +295,34 @@ impl std::fmt::Display for UpgradeRepair {
     }
 }
 
+/// A carried string exceeding the writer's interoperability bound. This is not
+/// an ISO string-length violation and never makes an otherwise lossless write fail.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct LongStringWarning {
+    /// STEP instance (`#N`) or header record (`FILE_NAME`, etc.).
+    pub record: String,
+    /// Encoded literal length, including quotes, escapes and doubled apostrophes.
+    pub encoded_bytes: usize,
+    /// Start of the literal in the output file.
+    pub byte_offset: usize,
+}
+impl std::fmt::Display for LongStringWarning {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}: retained string of {} encoded bytes exceeds {}; some readers (including OpenCascade's scanner) may not read it; carried unchanged",
+            self.record, self.encoded_bytes, MAX_STRING_LITERAL_BYTES
+        )
+    }
+}
+
 /// What a write did.
 #[derive(Clone, Debug, PartialEq)]
 #[non_exhaustive]
 pub struct WriteReport {
     pub schema: SchemaChange,
+    /// Oversized carried literals, in output order; non-fatal scanner compatibility warnings.
+    pub long_strings: Vec<LongStringWarning>,
     /// R1/R2 upgrade repairs, in instance id order; empty whenever no upgrade occurs.
     pub repairs: Vec<UpgradeRepair>,
     /// Closed AP214 subtype-to-supertype keyword rewrites, ascending by instance id.
@@ -305,7 +333,7 @@ pub struct WriteReport {
     pub added: usize,
     /// Instances removed (replace, remove), ascending.
     pub removed: Vec<u64>,
-    /// Kept instances rewritten without removed members (presentation containers).
+    /// Kept instances rewritten without removed members, or own legacy text rechunked.
     pub rewritten: Vec<u64>,
     /// Presentation and validation properties removed with the replaced PMI.
     pub presentation_removed: Vec<(u64, String)>,
@@ -667,6 +695,7 @@ fn write_inner(
     let mut edit = Edit::new();
     let mut report = WriteReport {
         schema: SchemaChange::Kept(schema.clone()),
+        long_strings: Vec::new(),
         repairs: Vec::new(),
         edition_rewrites: Vec::new(),
         validated_against: edition.file_schema,
@@ -848,6 +877,7 @@ fn write_inner(
     for plan in &plans {
         plan.emit(&mut em, &mut report, presentation_reader.as_ref())?;
     }
+    repair_legacy_text(&mut em, &read, parts, &mut report)?;
     let emitted_dimensions = em
         .exponents
         .iter()
@@ -893,6 +923,7 @@ fn write_inner(
 
     // The backstop: apply, validate what was made, compare the rules.
     let written = doc.apply(&edit)?;
+    report.long_strings = super::text::long_strings(&written.bytes);
     let after = Document::parse(written.bytes)?;
     for (id, repair) in repaired {
         report.repairs.push(UpgradeRepair {
@@ -954,6 +985,101 @@ fn write_inner(
     }
     report.preexisting_rule_violations = kept;
     Ok((edit, report))
+}
+
+/// Our ordering property marks a JSON-written part. Its consumed descriptive PMI
+/// (not foreign graphics or supplemental source geometry) was emitted by haecceity.
+/// Explicit attribute representations are also our producer convention. In Add,
+/// repair those legacy literals in place, retaining the parent's id and all links.
+fn repair_legacy_text(
+    em: &mut Emitter<'_>,
+    read: &PmiRead,
+    parts: &[PartDefinition],
+    report: &mut WriteReport,
+) -> Result<(), WriteError> {
+    let doc = em.doc;
+    let mut owned = BTreeSet::new();
+    let mut marked_parts = BTreeSet::new();
+    for id in doc.ids() {
+        if is_a(doc, id, "property_definition")
+            && attr_str(doc, id, "property_definition", "name").as_deref()
+                == Some("haecceity.pmi/1 ordering")
+        {
+            if let Some(owner) = attr_ref(doc, id, "property_definition", "definition") {
+                marked_parts.extend(
+                    parts
+                        .iter()
+                        .enumerate()
+                        .filter(|(_, p)| p.shape == owner)
+                        .map(|(i, _)| i),
+                );
+            }
+            for &link in doc.referrers(id) {
+                if is_a(doc, link, "property_definition_representation")
+                    && let Some(rep) = attr_ref(
+                        doc,
+                        link,
+                        "property_definition_representation",
+                        "used_representation",
+                    )
+                {
+                    owned.extend(attr_refs(doc, rep, "representation", "items"));
+                }
+            }
+        }
+        if is_a(doc, id, "representation")
+            && attr_str(doc, id, "representation", "name").as_deref()
+                == Some("haecceity.pmi/1 attribute")
+        {
+            owned.extend(attr_refs(doc, id, "representation", "items"));
+        }
+    }
+    for i in marked_parts {
+        let prov = &read.provenance.parts[i];
+        let geometry: BTreeSet<_> = prov.geometry.iter().flatten().copied().collect();
+        owned.extend(prov.all().into_iter().filter(|id| !geometry.contains(id)));
+    }
+    for id in owned {
+        if em.removed.contains(&id) || report.rewritten.contains(&id) {
+            continue;
+        }
+        let Some(RawEntity::Simple {
+            name, attributes, ..
+        }) = doc.get(id)
+        else {
+            continue;
+        };
+        if !name.eq_ignore_ascii_case("descriptive_representation_item") {
+            continue;
+        }
+        let [A::String(name), A::String(text)] = attributes.as_slice() else {
+            continue;
+        };
+        if super::text::literal_len(text) <= MAX_STRING_LITERAL_BYTES {
+            continue;
+        }
+        // The label is source text too; rechunking must not impose a new limit on it.
+        let mut chunks = Vec::new();
+        for chunk in super::text::split(text) {
+            chunks.push(em.simple(
+                "descriptive_representation_item",
+                &[
+                    ("name", s(super::text::CHUNK_NAME)),
+                    ("description", s(chunk)),
+                ],
+            )?);
+        }
+        em.edit.replace(
+            id,
+            p21::simple(
+                "COMPOUND_REPRESENTATION_ITEM",
+                vec![s(name), typed("list_representation_item", refs(chunks))],
+            ),
+        );
+        report.rewritten.push(id);
+    }
+    report.rewritten.sort_unstable();
+    Ok(())
 }
 
 fn partition_practice_conflicts(
@@ -1379,6 +1505,22 @@ impl<'a> Emitter<'a> {
     }
 
     fn push(&mut self, e: RawEntity, stated: &[&Decimal]) -> Result<R, WriteError> {
+        // Supplemental geometry can supply raw records without going through instance.
+        let mut too_long = None;
+        p21::visit_attributes(&e, &mut |a| {
+            if let A::String(text) = a {
+                let size = super::text::literal_len(text);
+                if size > MAX_STRING_LITERAL_BYTES {
+                    too_long = Some(size);
+                }
+            }
+        });
+        if let Some(size) = too_long {
+            return Err(P21Error::Encode(format!(
+                "generated record {} has an indivisible string of {size} encoded bytes (limit {MAX_STRING_LITERAL_BYTES}); cannot split this schema attribute losslessly",
+                self.count,
+            )).into());
+        }
         let mut rec = Record::new(e);
         if !stated.is_empty() {
             // All REALs in attribute order, including equal values with different text.
@@ -1449,6 +1591,38 @@ impl<'a> Emitter<'a> {
         vals: &[((&str, &str), A)],
         stated: &[&Decimal],
     ) -> Result<R, WriteError> {
+        // Every descriptive payload (JSON ordering, notes, UDA, material and
+        // parameter text) passes here, including callers outside text_item.
+        if types == ["descriptive_representation_item"]
+            && let Some((_, A::String(text))) = vals.iter().find(|((_, n), _)| *n == "description")
+            && super::text::literal_len(text) > MAX_STRING_LITERAL_BYTES
+        {
+            let name = vals
+                .iter()
+                .find(|((_, n), _)| *n == "name")
+                .map(|(_, a)| a.clone())
+                .unwrap_or_else(|| s(""));
+            let mut items = Vec::new();
+            for chunk in super::text::split(text) {
+                items.push(self.simple(
+                    "descriptive_representation_item",
+                    &[
+                        ("name", s(super::text::CHUNK_NAME)),
+                        ("description", s(chunk)),
+                    ],
+                )?);
+            }
+            return self.simple(
+                "compound_representation_item",
+                &[
+                    ("name", name),
+                    (
+                        "item_element",
+                        typed("list_representation_item", refs(items)),
+                    ),
+                ],
+            );
+        }
         let ed = self.edition;
         let closure = |n: &str| -> BTreeSet<&'static str> {
             let mut out = BTreeSet::new();
@@ -3974,11 +4148,20 @@ impl<'a> PartPlan<'a> {
                     &[
                         (
                             "name",
-                            s(if annotation_type == "note" {
-                                &name
-                            } else {
-                                annotation_type
-                            }),
+                            s(
+                                if annotation_type == "note"
+                                    && super::text::literal_len(&name) <= MAX_STRING_LITERAL_BYTES
+                                {
+                                    &name
+                                } else if annotation_type == "note" {
+                                    // This generated label duplicates the semantic text. The
+                                    // full wording remains in bounded descriptive items and
+                                    // in the drawn curves; a schema label cannot be chunked.
+                                    "General notes"
+                                } else {
+                                    annotation_type
+                                },
+                            ),
                         ),
                         ("coordinates", list.a()),
                         ("line_strips", A::List(strips)),
