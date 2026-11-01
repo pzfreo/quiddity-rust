@@ -1,12 +1,12 @@
 //! Bounded descriptive text. ISO 10303-43's compound/list representation items
 //! supply ordering; the child name identifies our concatenation convention.
 //! CAx-IF UDA 1.8 §7 permits several representation items when their interpretation
-//! is clear, but specifies no string size limit. 4096 encoded bytes is our
+//! is clear, but specifies no string size limit. 8192 encoded bytes is our
 //! interoperability limit, not an EXPRESS or CAx-IF restriction.
 use super::PartProvenance;
 use crate::p21::{self, Attribute as A, Document, P21Error, RawEntity};
 
-pub(crate) const MAX_LITERAL_BYTES: usize = 4096;
+pub(crate) const MAX_LITERAL_BYTES: usize = 8192;
 pub(crate) const CHUNK_NAME: &str = "haecceity text chunk/1";
 
 pub(crate) fn literal_len(text: &str) -> usize {

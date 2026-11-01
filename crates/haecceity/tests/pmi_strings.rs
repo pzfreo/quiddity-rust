@@ -116,7 +116,7 @@ fn long_attribute_and_material_text_round_trip_and_replace_without_orphan_chunks
 #[test]
 fn generated_long_note_label_keeps_its_full_semantic_wording() {
     let doc = fixture("ap242/specify/spool_fits.step.gz");
-    let text = "Break edges. ".repeat(350);
+    let text = "Break edges. ".repeat(700);
     let model = PartPmi {
         attributes: vec![AttributeSet {
             name: "semantic text".into(),
@@ -333,5 +333,11 @@ fn geometry_writer_refuses_an_oversized_source_product_name() {
     )
     .unwrap_err()
     .to_string();
-    assert!(error.contains("encoded bytes (limit 4096)"), "{error}");
+    assert!(
+        error.contains(&format!(
+            "encoded bytes (limit {})",
+            pmi::write::MAX_STRING_LITERAL_BYTES
+        )),
+        "{error}"
+    );
 }

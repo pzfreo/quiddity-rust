@@ -1796,7 +1796,7 @@ Structural tests establish correctness independently.
 
 ## Bounded writer strings (2026-11-01)
 
-The PMI writer caps every encoded Part 21 string literal at 4096 bytes, including
+The PMI writer caps every encoded Part 21 string literal at 8192 bytes, including
 quotes and escape expansion (`pmi::write::MAX_STRING_LITERAL_BYTES`). Long
 descriptive representation items use an ordered compound/list of marked text
 chunks; see [the producer convention](../crates/haecceity/docs/pmi-json.md#v1-identity-and-presentation-policy).
@@ -1816,3 +1816,11 @@ oversized string blocks writing with its byte position and encoded length. The
 B-rep writer applies the same final bound to its product/header strings. The
 low-level lossless `p21::Document::apply` API remains unrestricted, so it can edit
 or reconstruct legacy input without imposing a schema-specific policy.
+
+The 8 KiB cap also preserves the Add contract on the identifier plate fixture:
+its existing carried face-id JSON is a 5004-byte literal and its original records
+must remain byte-identical. An input audit found no other literal above 4 KiB
+in the committed STEP fixtures or the external corpus. 8 KiB is half the default
+16 KiB buffer in [OCCT 7.9.3's generated scanner](https://github.com/Open-Cascade-SAS/OCCT/blob/V7_9_3/src/StepFile/lex.step.cxx#L153-L163),
+and leaves ample room for the scanner's lookahead. No existing expectation or
+known-difference record changes to accommodate the bound.

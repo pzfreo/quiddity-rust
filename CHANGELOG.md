@@ -8,7 +8,7 @@ in [docs/alpha1.md](docs/alpha1.md).
 
 ### Fixed
 
-- STEP PMI writes bound encoded string literals to 4096 bytes, preventing
+- STEP PMI writes bound encoded string literals to 8192 bytes, preventing
   OpenCascade's scanner overflow on NIST STC-10. Long descriptive values,
   including JSON item-id maps, UDA payloads and notes, use ordered compound/list
   representation items of text chunks; legacy single-string values still read.
